@@ -75,6 +75,8 @@ These rules are enforced by structure and convention:
 ├── README.md
 └── package.json
 
+```
+
 ---
 
 ## 🧠 Backend Responsibility
