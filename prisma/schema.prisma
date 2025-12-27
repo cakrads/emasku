@@ -1,0 +1,25 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model GoldAsset {
+  id               String   @id @default(cuid())
+  brand            String
+  weight           Decimal  @db.Decimal(20, 4)
+  buyPricePerGram  Decimal  @db.Decimal(20, 2)
+  buyDate          DateTime
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model GoldPriceSnapshot {
+  id           String   @id @default(cuid())
+  pricePerGram Decimal  @db.Decimal(20, 2)
+  recordedAt   DateTime @default(now())
+  source       String?
+}
