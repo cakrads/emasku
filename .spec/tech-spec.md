@@ -44,7 +44,14 @@
 > - **Logic**: Use `decimal.js` for all arithmetic in both frontend and backend.
 > - No native JavaScript `number` type for financial calculations.
 
-## 4. Prisma 7 Configuration
+## 4. API Design Rules
+
+- **Derived Truth**: API returns the final computed truth, not raw tables. The backend owns the business logic.
+- **Frontend Agnostic to Money**: Frontend never computes money or financial rules. It only displays formatted values from the API.
+- **Single Responsibility Endpoints**: Each endpoint answers exactly one business question (e.g., `GET /portfolio/summary`, `GET /portfolio/performance`).
+- **No Ambiguity Leakage**: The API resolves all market ambiguity (e.g., which price source to use) before responding. The frontend should never have to decide "which price is real".
+
+## 5. Prisma 7 Configuration
 
 ### 4.1 Schema File (`prisma/schema.prisma`)
 

@@ -13,6 +13,9 @@
 # testing
 /coverage
 
+# mcp
+.vscode/mcp.json
+
 # next.js
 /.next/
 /out/

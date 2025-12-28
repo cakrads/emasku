@@ -1,0 +1,28 @@
+{
+  "brands": [
+    {
+      "code": "ANTAM",
+      "name": "Aneka Tambang (ANTAM)",
+      "sourceUrl": "https://galeri24.co.id/harga-emas",
+      "isActive": true
+    },
+    {
+      "code": "GALERI24",
+      "name": "Galeri 24",
+      "sourceUrl": "https://galeri24.co.id/harga-emas",
+      "isActive": true
+    },
+    {
+      "code": "UBS",
+      "name": "UBS Gold",
+      "sourceUrl": "https://galeri24.co.id/harga-emas",
+      "isActive": true
+    },
+    {
+      "code": "LOTUS_ARCHI",
+      "name": "Lotus Archi",
+      "sourceUrl": "https://galeri24.co.id/harga-emas",
+      "isActive": true
+    }
+  ]
+}

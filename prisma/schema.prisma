@@ -3,23 +3,194 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider = "postgresql" // strongly recommended for time-series
 }
 
-model GoldAsset {
-  id               String   @id @default(cuid())
-  brand            String
-  weight           Decimal  @db.Decimal(20, 4)
-  buyPricePerGram  Decimal  @db.Decimal(20, 2)
-  buyDate          DateTime
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
+////////////////////////////////////////
+// ENUMS
+////////////////////////////////////////
+
+/// Explicit semantic meaning of a gold price.
+/// These are NOT interchangeable.
+enum PriceType {
+  /// Market / reference price (charts, historical series)
+  /// Example: Logam Mulia historical data
+  SPOT
+
+  /// Official listed retail price
+  RETAIL
+
+  /// Vendor selling price to customer
+  SELL
+
+  /// Vendor buyback price from customer
+  BUYBACK
 }
 
-model GoldPriceSnapshot {
-  id           String   @id @default(cuid())
-  pricePerGram Decimal  @db.Decimal(20, 2)
-  recordedAt   DateTime @default(now())
-  source       String?
+////////////////////////////////////////
+// MODELS
+////////////////////////////////////////
+
+/// Gold producer / distributor / brand.
+/// This is a stable dimension table.
+model Brand {
+  id String @id @default(cuid())
+
+  /// Stable identifier used in code and ingestion
+  /// Example: "ANTAM", "GALERI24", "UBS"
+  code String @unique
+
+  /// Human-readable name
+  name String
+
+  /// Primary upstream data source
+  sourceUrl String?
+
+  /// Soft-disable without data loss
+  isActive Boolean @default(true)
+
+  /// Time-series prices
+  prices GoldPrice[]
+
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  portfolioHoldings PortfolioHolding[]
+
+  @@index([code])
+}
+
+/// Immutable time-series price record.
+/// One row == one market truth at one moment.
+model GoldPrice {
+  id String @id @default(cuid())
+
+  ////////////////////////////////////////
+  // RELATIONS
+  ////////////////////////////////////////
+
+  brandId String
+  brand   Brand  @relation(fields: [brandId], references: [id], onDelete: Restrict)
+
+  ////////////////////////////////////////
+  // CORE MARKET DATA
+  ////////////////////////////////////////
+
+  /// Semantic type of this price
+  priceType PriceType
+
+  /// Gold weight in grams (exact value)
+  /// Examples: 0.5, 1, 2.5, 10
+  denominationGram Decimal @db.Decimal(10, 3)
+
+  /// Price in IDR (smallest unit)
+  /// Currency is intentionally fixed
+  price Int
+
+  ////////////////////////////////////////
+  // TIME SEMANTICS
+  ////////////////////////////////////////
+
+  /// True market timestamp (UTC)
+  /// Can be intraday
+  /// Example: 2010-01-04T07:07:00Z
+  priceAt DateTime
+
+  /// When this record was ingested
+  /// Observability only — NOT business identity
+  recordedAt DateTime @default(now())
+
+  ////////////////////////////////////////
+  // TRACEABILITY & DEBUGGING
+  ////////////////////////////////////////
+
+  /// Source identifier (site, API, scraper name)
+  source String?
+
+  /// Original upstream payload for forensics
+  rawPayload Json?
+
+  createdAt DateTime @default(now())
+
+  ////////////////////////////////////////
+  // CONSTRAINTS & INDEXES
+  ////////////////////////////////////////
+
+  // One immutable market truth per:
+  // brand + price type + denomination + timestamp
+  @@unique([brandId, priceType, denominationGram, priceAt])
+  // Optimized for time-series queries
+  @@index([brandId, priceAt])
+  @@index([priceAt])
+}
+
+model User {
+  id String @id @default(cuid())
+
+  email String  @unique
+  name  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  holdings PortfolioHolding[]
+}
+
+/**
+ * User-owned gold holding.
+ * Represents a historical purchase or position.
+ */
+model PortfolioHolding {
+  id String @id @default(cuid())
+
+  ////////////////////////////////////////
+  // RELATIONS
+  ////////////////////////////////////////
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  brandId String
+  brand   Brand  @relation(fields: [brandId], references: [id], onDelete: Restrict)
+
+  ////////////////////////////////////////
+  // OWNERSHIP DATA
+  ////////////////////////////////////////
+
+  /**
+   * Weight per unit in grams
+   * Example: 1g bar
+   */
+  denominationGram Decimal @db.Decimal(10, 3)
+
+  /**
+   * Number of units owned
+   */
+  quantity Int
+
+  /**
+   * Buy price per unit (IDR)
+   * Market price at purchase time
+   */
+  buyPrice Int
+
+  /**
+   * Purchase date
+   */
+  boughtAt DateTime
+
+  ////////////////////////////////////////
+  // METADATA
+  ////////////////////////////////////////
+
+  notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ////////////////////////////////////////
+  // INDEXES
+  ////////////////////////////////////////
+
+  @@index([userId])
+  @@index([brandId])
 }
