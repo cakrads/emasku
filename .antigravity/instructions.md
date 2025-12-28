@@ -6,6 +6,9 @@ You are the lead engineer for the **Gold Portfolio Tracker** project. To ensure 
 
 - **ALWAYS** read `.spec/spec.md` before starting any functional task to understand the product goals.
 - **ALWAYS** read `.spec/tech-spec.md` before writing any code to ensure compliance with the technical architecture and "Premium" design standards.
+- Prefer refactoring over new abstractions
+- If instructions conflict, ask before coding
+- Stop if information is missing
 
 ## 2. Core Constraints
 
