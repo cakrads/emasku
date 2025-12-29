@@ -39,8 +39,8 @@
 > [!IMPORTANT]
 > To prevent floating-point errors (e.g., 0.1 + 0.2 = 0.30000000000000004):
 >
-> - **Database**: Use `Int` for prices in smallest currency unit (IDR), `Decimal` for weights.
-> - **ORM**: Use Prisma's `Decimal` type for weights.
+> - **Database**: Use `BigInt` for prices (to support large values > 2.1B), `Decimal` for weights.
+> - **ORM**: Use Prisma's `Decimal` type for weights and `BigInt` for prices.
 > - **Logic**: Use `decimal.js` for all arithmetic in both frontend and backend.
 > - No native JavaScript `number` type for financial calculations.
 

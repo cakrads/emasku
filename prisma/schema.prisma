@@ -84,7 +84,8 @@ model GoldPrice {
 
   /// Price in IDR (smallest unit)
   /// Currency is intentionally fixed
-  price Int
+  /// Uses BigInt to support large bars (1kg = 2.5B+ IDR)
+  price BigInt
 
   ////////////////////////////////////////
   // TIME SEMANTICS

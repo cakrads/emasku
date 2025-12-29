@@ -1,0 +1,121 @@
+/**
+ * Nuxt.js __NUXT_DATA__ Deserializer
+ * 
+ * Resolves reference-based serialization where array indices point to actual values.
+ * 
+ * Example structure:
+ * - Index 3: [4, 16, 22, ...] -> array of item indices
+ * - Index 4: { id: 5, price: 6, ... } -> template with refs
+ * - Index 5-15: Actual values for item at index 4
+ * 
+ * This allows efficient serialization by avoiding duplication.
+ */
+
+export interface DeserializedGoldPrice {
+  id: string
+  price: number
+  sellingPrice: number
+  buybackPrice: number
+  description: string | null
+  vendorCode: string
+  date: string
+  denomination: number
+  status: string
+  createdAt: string
+  updatedAt: string
+  vendorName: string
+}
+
+/**
+ * Recursively resolves a value from the serialized array.
+ * If the value is a number, treat it as an index reference.
+ * Otherwise, return the value as-is.
+ */
+function resolveValue(data: any[], value: any): any {
+  if (typeof value === 'number' && value >= 0 && value < data.length) {
+    const resolved = data[value]
+
+    // If the resolved value is also a reference (number), recurse
+    if (typeof resolved === 'number') {
+      return resolveValue(data, resolved)
+    }
+
+    // If it's an object, resolve all its properties
+    if (typeof resolved === 'object' && resolved !== null && !Array.isArray(resolved)) {
+      const resolvedObj: any = {}
+      for (const [key, val] of Object.entries(resolved)) {
+        resolvedObj[key] = resolveValue(data, val)
+      }
+      return resolvedObj
+    }
+
+    return resolved
+  }
+
+  // If it's an object, resolve all properties
+  if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+    const resolvedObj: any = {}
+    for (const [key, val] of Object.entries(value)) {
+      resolvedObj[key] = resolveValue(data, val)
+    }
+    return resolvedObj
+  }
+
+  return value
+}
+
+/**
+ * Deserialize Nuxt.js __NUXT_DATA__ array into structured gold price data
+ */
+export function deserializeNuxtData(data: any[]): DeserializedGoldPrice[] {
+  // Index 3 contains the array of item indices
+  const itemIndices = data[3]
+
+  if (!Array.isArray(itemIndices)) {
+    console.warn('[Deserializer] Index 3 is not an array, cannot extract items')
+    return []
+  }
+
+  console.log(`[Deserializer] Found ${itemIndices.length} item indices`)
+
+  const results: DeserializedGoldPrice[] = []
+
+  for (const idx of itemIndices) {
+    try {
+      // Each index points to an object template with references
+      const template = data[idx]
+
+      if (typeof template !== 'object' || template === null) {
+        console.warn(`[Deserializer] Index ${idx} is not an object, skipping`)
+        continue
+      }
+
+      // Resolve all references in the template
+      const resolved = resolveValue(data, template)
+
+      // Validate and convert to DeserializedGoldPrice
+      if (resolved.id && resolved.price !== undefined) {
+        results.push({
+          id: String(resolved.id),
+          price: parseFloat(String(resolved.price)) || 0,
+          sellingPrice: parseFloat(String(resolved.sellingPrice)) || 0,
+          buybackPrice: parseFloat(String(resolved.buybackPrice)) || 0,
+          description: resolved.description || null,
+          vendorCode: String(resolved.vendorCode || ''),
+          date: String(resolved.date || ''),
+          denomination: parseFloat(String(resolved.denomination)) || 0,
+          status: String(resolved.status || '1'),
+          createdAt: String(resolved.createdAt || ''),
+          updatedAt: String(resolved.updatedAt || ''),
+          vendorName: String(resolved.vendorName || ''),
+        })
+      }
+    } catch (error) {
+      console.warn(`[Deserializer] Failed to deserialize item at index ${idx}:`, error)
+    }
+  }
+
+  console.log(`[Deserializer] Successfully deserialized ${results.length} items`)
+
+  return results
+}

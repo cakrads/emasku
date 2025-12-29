@@ -13,14 +13,14 @@
       "isActive": true
     },
     {
-      "code": "UBS",
-      "name": "UBS Gold",
+      "code": "LOTUS",
+      "name": "Lotus Archi",
       "sourceUrl": "https://galeri24.co.id/harga-emas",
       "isActive": true
     },
     {
-      "code": "LOTUS_ARCHI",
-      "name": "Lotus Archi",
+      "code": "UBS",
+      "name": "UBS Gold",
       "sourceUrl": "https://galeri24.co.id/harga-emas",
       "isActive": true
     }

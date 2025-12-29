@@ -116,3 +116,5 @@ Inside `src/applications/modules/`, each feature follows a strict Clean Architec
 
 - [Functional Spec](.spec/spec.md)
 - [Technical Spec](.spec/tech-spec.md)
+- [Scraper Implementation Guide](.docs/scraper-guide.md)
+- [Database Setup](.docs/database-setup.md)
