@@ -1,0 +1,303 @@
+{
+  "info": {
+    "name": "Emasku Gold Portfolio Tracker API",
+    "description": "Collection of API endpoints for the Gold Portfolio Tracker application. Import this file into Postman to test all endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "emasku-api-collection",
+    "version": "1.0.0"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000/api/v1",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Market",
+      "item": [
+        {
+          "name": "Get Market Overview",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/market/overview",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "market",
+                "overview"
+              ]
+            },
+            "description": "Get current market snapshot with 24h delta for ANTAM 1g spot price."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/market/overview",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "market",
+                    "overview"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": 200,\n  \"success\": true,\n  \"message\": \"Market overview retrieved\",\n  \"data\": {\n    \"referenceBrand\": \"ANTAM\",\n    \"spotPrice\": 2605000,\n    \"delta24h\": 16000,\n    \"deltaPercentage\": 0.6179992275009656,\n    \"lastUpdated\": \"2025-12-27T08:57:26.000Z\"\n  },\n  \"details\": {\n    \"source\": \"Galeri 24 Scraper\"\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Price",
+      "item": [
+        {
+          "name": "Get Spot Price Series",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/price/spot?brand=ANTAM&from=2024-12-01T00:00:00Z&to=2024-12-31T23:59:59Z&denomination=1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "price",
+                "spot"
+              ],
+              "query": [
+                {
+                  "key": "brand",
+                  "value": "ANTAM",
+                  "description": "Brand code (ANTAM, UBS, GALERI24, LOTUS)"
+                },
+                {
+                  "key": "from",
+                  "value": "2024-12-01T00:00:00Z",
+                  "description": "Start date (ISO 8601 format)"
+                },
+                {
+                  "key": "to",
+                  "value": "2024-12-31T23:59:59Z",
+                  "description": "End date (ISO 8601 format)"
+                },
+                {
+                  "key": "denomination",
+                  "value": "1",
+                  "description": "Weight in grams (optional, defaults to 1)",
+                  "disabled": false
+                }
+              ]
+            },
+            "description": "Get historical spot price time series for charting. All query parameters are required except denomination."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/price/spot?brand=ANTAM&from=2024-12-01T00:00:00Z&to=2024-12-27T23:59:59Z",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "price",
+                    "spot"
+                  ],
+                  "query": [
+                    {
+                      "key": "brand",
+                      "value": "ANTAM"
+                    },
+                    {
+                      "key": "from",
+                      "value": "2024-12-01T00:00:00Z"
+                    },
+                    {
+                      "key": "to",
+                      "value": "2024-12-27T23:59:59Z"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": 200,\n  \"success\": true,\n  \"message\": \"Spot price series retrieved\",\n  \"data\": {\n    \"brand\": \"ANTAM\",\n    \"priceType\": \"SPOT\",\n    \"denominationGram\": 1,\n    \"currency\": \"IDR\",\n    \"series\": [\n      {\n        \"priceAt\": \"2024-12-01T08:07:05.000Z\",\n        \"price\": 1514000\n      },\n      {\n        \"priceAt\": \"2024-12-27T08:10:59.000Z\",\n        \"price\": 1528000\n      }\n    ]\n  },\n  \"details\": {\n    \"totalPoints\": 27,\n    \"interval\": \"1 day\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Today Prices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/price/today",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "price",
+                "today"
+              ],
+              "query": [
+                {
+                  "key": "brand",
+                  "value": "ANTAM",
+                  "description": "Filter by brand code (optional)",
+                  "disabled": true
+                },
+                {
+                  "key": "denomination",
+                  "value": "1",
+                  "description": "Filter by weight in grams (optional)",
+                  "disabled": true
+                }
+              ]
+            },
+            "description": "Get current sell and buyback prices for all brands and denominations. Both query parameters are optional."
+          },
+          "response": [
+            {
+              "name": "All Prices",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/price/today",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "price",
+                    "today"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": 200,\n  \"success\": true,\n  \"message\": \"Current prices retrieved\",\n  \"data\": {\n    \"date\": \"2025-12-29\",\n    \"currency\": \"IDR\",\n    \"brands\": [\n      {\n        \"brand\": \"ANTAM\",\n        \"prices\": [\n          {\n            \"denominationGram\": 1,\n            \"sellPrice\": 2841000,\n            \"buybackPrice\": 2452000\n          },\n          {\n            \"denominationGram\": 1000,\n            \"sellPrice\": 2790260000,\n            \"buybackPrice\": 2436710000\n          }\n        ]\n      }\n    ]\n  },\n  \"details\": {\n    \"source\": \"Galeri 24 Scraper\",\n    \"fetchedAt\": \"2025-12-29T16:37:10.150Z\"\n  }\n}"
+            },
+            {
+              "name": "Filtered by Brand",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/price/today?brand=ANTAM",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "price",
+                    "today"
+                  ],
+                  "query": [
+                    {
+                      "key": "brand",
+                      "value": "ANTAM"
+                    }
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": 200,\n  \"success\": true,\n  \"message\": \"Current prices retrieved\",\n  \"data\": {\n    \"date\": \"2025-12-29\",\n    \"currency\": \"IDR\",\n    \"brands\": [\n      {\n        \"brand\": \"ANTAM\",\n        \"prices\": [\n          {\n            \"denominationGram\": 1,\n            \"sellPrice\": 2841000,\n            \"buybackPrice\": 2452000\n          }\n        ]\n      }\n    ]\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Brands",
+      "item": [
+        {
+          "name": "Get All Brands",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/brands",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "brands"
+              ]
+            },
+            "description": "Get list of all supported gold brands."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/brands",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "brands"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": 200,\n  \"success\": true,\n  \"message\": \"Supported brands retrieved\",\n  \"data\": {\n    \"items\": [\n      {\n        \"code\": \"ANTAM\",\n        \"name\": \"Aneka Tambang (ANTAM)\",\n        \"isActive\": true\n      },\n      {\n        \"code\": \"GALERI24\",\n        \"name\": \"Galeri 24\",\n        \"isActive\": true\n      },\n      {\n        \"code\": \"LOTUS\",\n        \"name\": \"Lotus Archi\",\n        \"isActive\": true\n      },\n      {\n        \"code\": \"UBS\",\n        \"name\": \"UBS Gold\",\n        \"isActive\": true\n      }\n    ]\n  },\n  \"details\": {\n    \"totalAvailable\": 5\n  }\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

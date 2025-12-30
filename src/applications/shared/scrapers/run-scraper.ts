@@ -1,15 +1,10 @@
-/**
- * Manual Scraper Runner
- * 
- * Allows the scraper to be run locally for testing.
- * Usage: npx tsx src/applications/shared/scrapers/run-scraper.ts
- */
-
 import 'dotenv/config'
 import { PrismaClient } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import pg from 'pg'
-import { Galeri24Scraper } from './galeri24.scraper'
+// Architects Components
+import { PrismaPriceRepository } from '../../modules/market/v1/repository/prisma-price-repository'
+import { ScrapeAndPersistPrices } from '../../modules/market/v1/usecases/scrape-and-persist-prices'
 import { DIRECT_URL, SCRAPER_SOURCE_URL } from '../lib/env'
 
 const connectionString = DIRECT_URL
@@ -30,11 +25,14 @@ async function main() {
   console.log(`Using database: ${DIRECT_URL.split('@')[1] || '[hidden]'}`)
   console.log(`Scraper source: ${SCRAPER_SOURCE_URL}\n`)
 
-  const scraper = new Galeri24Scraper(prisma)
+  // Dependency Injection
+  const priceRepository = new PrismaPriceRepository(prisma)
+  const usecase = new ScrapeAndPersistPrices(priceRepository)
 
   try {
-    await scraper.scrapeAndPersist()
+    const result = await usecase.execute()
     console.log('\n✅ Scraper completed successfully')
+    console.log(result)
   } catch (error) {
     console.error('\n❌ Scraper failed:')
     if (error instanceof Error) {

@@ -53,37 +53,26 @@ async function main() {
     }
 
     // Process in chunks to avoid massive memory usage or connection timeouts
-    const CHUNK_SIZE = 20
+    // Process in chunks (createMany is much faster than upsert loop)
+    const CHUNK_SIZE = 5000
     for (let i = 0; i < prices.length; i += CHUNK_SIZE) {
       const chunk = prices.slice(i, i + CHUNK_SIZE)
+      console.log(`Processing chunk ${i / CHUNK_SIZE + 1} of ${Math.ceil(prices.length / CHUNK_SIZE)}...`)
 
-      await Promise.all(
-        chunk.map(([timestamp, price]) => {
-          const priceAt = new Date(timestamp)
-          const denominationGram = new Decimal(1)
+      const data = chunk.map(([timestamp, price]) => ({
+        brandId: antamId,
+        priceType: PriceType.SPOT,
+        denominationGram: new Decimal(1),
+        price: price, // Raw integer price from JSON
+        priceAt: new Date(timestamp),
+        recordedAt: new Date(),
+        source: 'Logam Mulia (Manual Seed)',
+      }))
 
-          return prisma.goldPrice.upsert({
-            where: {
-              brandId_priceType_denominationGram_priceAt: {
-                brandId: antamId,
-                priceType: PriceType.SPOT, // Historical reference is usually SPOT
-                denominationGram,
-                priceAt,
-              },
-            },
-            update: {}, // Immutable, don't update if exists
-            create: {
-              brandId: antamId,
-              priceType: PriceType.SPOT,
-              denominationGram,
-              price: price, // Raw integer price from JSON
-              priceAt,
-              recordedAt: new Date(),
-              source: 'Logam Mulia (Manual Seed)',
-            },
-          })
-        })
-      )
+      await prisma.goldPrice.createMany({
+        data,
+        skipDuplicates: true,
+      })
     }
   } else {
     console.log('No historical price data found, skipping.')

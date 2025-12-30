@@ -12,11 +12,11 @@
 | **Market** | `GET` | `/market/overview` | Homepage gold snapshot & trends. |
 | **Market** | `GET` | `/price/spot` | Historical spot price series (charts). |
 | **Market** | `GET` | `/price/today` | Current sell & buyback prices grouped by brand. |
+| **Master** | `GET` | `/brands` | List supported brands (ANTAM, UBS, etc). |
 | **Portfolio** | `GET` | `/portfolio/summary` | Portfolio aggregate metrics (PNL, Total Grams). |
 | **Portfolio** | `GET` | `/portfolio` | List holdings with current real-time valuation. |
 | **Portfolio** | `POST` | `/portfolio` | Add new gold holding. |
 | **Portfolio** | `POST` | `/portfolio/{id}/sell` | Mark a holding as SOLD (Soft Close). |
-| **Master** | `GET` | `/brands` | List supported brands (ANTAM, UBS, etc). |
 
 ---
 
@@ -116,7 +116,6 @@ These endpoints expose **market truth**, agnostic of specific user ownership.
   },
   "details": {
     "totalPoints": 1,
-    "interval": "1 day"
   }
 }
 ```
