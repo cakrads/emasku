@@ -30,6 +30,7 @@ export interface TodayPriceGroup {
 
 export interface CreatePriceInput {
   brandCode: string
+  brandName: string
   priceType: PriceType
   denominationGram: Decimal | number
   price: number

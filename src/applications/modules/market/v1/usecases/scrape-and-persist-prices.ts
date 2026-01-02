@@ -32,6 +32,7 @@ export class ScrapeAndPersistPrices {
         // 1. Create SELL price (Market Truth)
         pricesToSave.push({
           brandCode: raw.brand,
+          brandName: raw.brand, // For standard brands, code equals name
           priceType: PriceType.SELL,
           denominationGram: raw.denominationGram,
           price: raw.sellPrice,
@@ -47,6 +48,7 @@ export class ScrapeAndPersistPrices {
         if (raw.brand === 'ANTAM' && raw.denominationGram === 1) {
           pricesToSave.push({
             brandCode: raw.brand,
+            brandName: raw.brand,
             priceType: PriceType.SPOT,
             denominationGram: raw.denominationGram,
             price: raw.sellPrice, // SPOT derived from SELL (Identity for now)
@@ -59,6 +61,7 @@ export class ScrapeAndPersistPrices {
         // 3. Create BUYBACK price
         pricesToSave.push({
           brandCode: raw.brand,
+          brandName: raw.brand,
           priceType: PriceType.BUYBACK,
           denominationGram: raw.denominationGram,
           price: raw.buybackPrice,

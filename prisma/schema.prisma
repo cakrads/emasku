@@ -31,49 +31,20 @@ enum PriceType {
 // MODELS
 ////////////////////////////////////////
 
-/// Gold producer / distributor / brand.
-/// This is a stable dimension table.
-model Brand {
-  id String @id @default(cuid())
-
-  /// Stable identifier used in code and ingestion
-  /// Example: "ANTAM", "GALERI24", "UBS"
-  code String @unique
-
-  /// Human-readable name
-  name String
-
-  /// Primary upstream data source
-  sourceUrl String?
-
-  /// Soft-disable without data loss
-  isActive Boolean @default(true)
-
-  /// Time-series prices
-  prices GoldPrice[]
-
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  portfolioHoldings PortfolioHolding[]
-
-  @@index([code])
-}
-
 /// Immutable time-series price record.
 /// One row == one market truth at one moment.
 model GoldPrice {
   id String @id @default(cuid())
 
   ////////////////////////////////////////
-  // RELATIONS
-  ////////////////////////////////////////
-
-  brandId String
-  brand   Brand  @relation(fields: [brandId], references: [id], onDelete: Restrict)
-
-  ////////////////////////////////////////
   // CORE MARKET DATA
   ////////////////////////////////////////
+
+  /// Stable identifier (e.g., "ANTAM", "GALERI24")
+  brandCode String
+
+  /// Display name of the brand
+  brandName String
 
   /// Semantic type of this price
   priceType PriceType
@@ -82,10 +53,13 @@ model GoldPrice {
   /// Examples: 0.5, 1, 2.5, 10
   denominationGram Decimal @db.Decimal(10, 3)
 
-  /// Price in IDR (smallest unit)
-  /// Currency is intentionally fixed
-  /// Uses BigInt to support large bars (1kg = 2.5B+ IDR)
+  /// Price in smallest units (e.g., Satoshis, IDR Cents)
+  /// BigInt supports large bars (1kg = 2.5B+ IDR)
   price BigInt
+
+  /// ISO 4217 Currency Code
+  /// Example: "IDR", "USD"
+  currency String @default("IDR")
 
   ////////////////////////////////////////
   // TIME SEMANTICS
@@ -118,9 +92,9 @@ model GoldPrice {
 
   // One immutable market truth per:
   // brand + price type + denomination + timestamp
-  @@unique([brandId, priceType, denominationGram, priceAt])
-  // Optimized for time-series queries
-  @@index([brandId, priceAt])
+  @@unique([brandCode, priceType, denominationGram, priceAt])
+  // Optimized for latest price lookups
+  @@index([brandCode, priceType, denominationGram, priceAt(sort: Desc)])
   @@index([priceAt])
 }
 
@@ -150,8 +124,13 @@ model PortfolioHolding {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  brandId String
-  brand   Brand  @relation(fields: [brandId], references: [id], onDelete: Restrict)
+  /// Associated brand code (e.g., "ANTAM")
+  /// This is a grouping category, not a related entity
+  brandCode String
+
+  /// Display name of the brand
+  /// Useful for preserving user-typed custom brand names
+  brandName String
 
   ////////////////////////////////////////
   // OWNERSHIP DATA
@@ -169,10 +148,10 @@ model PortfolioHolding {
   quantity Int
 
   /**
-   * Buy price per unit (IDR)
-   * Market price at purchase time
+   * Buy price per unit (smallest currency unit)
+   * Stored as BigInt for consistency with market prices
    */
-  buyPrice Int
+  buyPrice BigInt
 
   /**
    * Purchase date
@@ -193,5 +172,5 @@ model PortfolioHolding {
   ////////////////////////////////////////
 
   @@index([userId])
-  @@index([brandId])
+  @@index([brandCode])
 }

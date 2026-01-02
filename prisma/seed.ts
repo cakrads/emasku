@@ -12,47 +12,15 @@ const adapter = new PrismaPg(pool)
 const prisma = new PrismaClient({ adapter })
 
 async function main() {
-  // 1. Seed Brands
-  const brandDataPath = path.join(__dirname, 'data', 'brand.json')
-  const brandRawData = fs.readFileSync(brandDataPath, 'utf-8')
-  const { brands } = JSON.parse(brandRawData)
-
-  console.log(`Seeding ${brands.length} brands...`)
-
-  const brandMap = new Map<string, string>()
-
-  for (const b of brands) {
-    const brand = await prisma.brand.upsert({
-      where: { code: b.code },
-      update: {
-        name: b.name,
-        sourceUrl: b.sourceUrl,
-        isActive: b.isActive
-      },
-      create: {
-        code: b.code,
-        name: b.name,
-        sourceUrl: b.sourceUrl,
-        isActive: b.isActive
-      },
-    })
-    brandMap.set(b.code, brand.id)
-  }
-
-  // 2. Seed Historical Prices (Assuming ANTAM 1g for now based on previous context)
+  // 1. Seed Historical Prices (Assuming ANTAM 1g for now)
   const priceDataPath = path.join(__dirname, 'data', '5-years-gold-price.json')
+
   if (fs.existsSync(priceDataPath)) {
     const priceRawData = fs.readFileSync(priceDataPath, 'utf-8')
     const prices: [number, number][] = JSON.parse(priceRawData)
 
     console.log(`Seeding ${prices.length} price snapshots for ANTAM...`)
 
-    const antamId = brandMap.get('ANTAM')
-    if (!antamId) {
-      throw new Error('ANTAM brand not found after seeding brands')
-    }
-
-    // Process in chunks to avoid massive memory usage or connection timeouts
     // Process in chunks (createMany is much faster than upsert loop)
     const CHUNK_SIZE = 5000
     for (let i = 0; i < prices.length; i += CHUNK_SIZE) {
@@ -60,16 +28,17 @@ async function main() {
       console.log(`Processing chunk ${i / CHUNK_SIZE + 1} of ${Math.ceil(prices.length / CHUNK_SIZE)}...`)
 
       const data = chunk.map(([timestamp, price]) => ({
-        brandId: antamId,
+        brandCode: 'ANTAM',
+        brandName: 'ANTAM',
         priceType: PriceType.SPOT,
         denominationGram: new Decimal(1),
-        price: price, // Raw integer price from JSON
+        price: BigInt(price), // Map to BigInt for DB
         priceAt: new Date(timestamp),
         recordedAt: new Date(),
         source: 'Logam Mulia (Manual Seed)',
       }))
 
-      await prisma.goldPrice.createMany({
+      await (prisma as any).goldPrice.createMany({
         data,
         skipDuplicates: true,
       })

@@ -25,12 +25,11 @@ export class PrismaPriceRepository implements IPriceRepository {
 
     const price = await this.prisma.goldPrice.findFirst({
       where: {
-        brand: { code: brandCode },
+        brandCode,
         priceType: PriceType.SPOT,
         denominationGram,
       },
       orderBy: { priceAt: 'desc' },
-      include: { brand: true },
     })
 
     logQuery('getLatestSpotPrice', Date.now() - startTime, { brandCode, denominationGram: denominationGram.toNumber() })
@@ -49,13 +48,12 @@ export class PrismaPriceRepository implements IPriceRepository {
 
     const price = await this.prisma.goldPrice.findFirst({
       where: {
-        brand: { code: brandCode },
+        brandCode,
         priceType: PriceType.SPOT,
         denominationGram,
         priceAt: { lte: timestamp },
       },
       orderBy: { priceAt: 'desc' },
-      include: { brand: true },
     })
 
     logQuery('getPriceAt', Date.now() - startTime, { brandCode, timestamp })
@@ -75,7 +73,7 @@ export class PrismaPriceRepository implements IPriceRepository {
 
     const prices = await this.prisma.goldPrice.findMany({
       where: {
-        brand: { code: brandCode },
+        brandCode,
         priceType: PriceType.SPOT,
         denominationGram,
         priceAt: {
@@ -84,7 +82,6 @@ export class PrismaPriceRepository implements IPriceRepository {
         },
       },
       orderBy: { priceAt: 'asc' },
-      include: { brand: true },
     })
 
     logQuery('getSpotPriceSeries', Date.now() - startTime, {
@@ -107,12 +104,11 @@ export class PrismaPriceRepository implements IPriceRepository {
     // We'll fetch all SELL and BUYBACK prices and group them
     const prices = await this.prisma.goldPrice.findMany({
       where: {
-        ...(brandCode && { brand: { code: brandCode } }),
+        ...(brandCode && { brandCode }),
         ...(denominationGram && { denominationGram }),
         priceType: { in: [PriceType.SELL, PriceType.BUYBACK] },
       },
-      include: { brand: true },
-      orderBy: [{ brand: { code: 'asc' } }, { denominationGram: 'asc' }, { priceAt: 'desc' }],
+      orderBy: [{ brandCode: 'asc' }, { denominationGram: 'asc' }, { priceAt: 'desc' }],
     })
 
     logQuery('getTodayPrices', Date.now() - startTime, {
@@ -125,7 +121,7 @@ export class PrismaPriceRepository implements IPriceRepository {
     const latestPriceKeys = new Set<string>()
 
     for (const price of prices) {
-      const key = `${price.brand.code}_${price.denominationGram.toString()}`
+      const key = `${price.brandCode}_${price.denominationGram.toString()}`
       const priceTypeKey = `${key}_${price.priceType}`
 
       // Skip if we already have a price for this combination (since ordered by priceAt desc)
@@ -135,7 +131,7 @@ export class PrismaPriceRepository implements IPriceRepository {
 
       if (!grouped.has(key)) {
         grouped.set(key, {
-          brand: price.brand.code,
+          brand: price.brandCode,
           denominationGram: price.denominationGram.toNumber(),
           sellPrice: null,
           buybackPrice: null,
@@ -165,46 +161,10 @@ export class PrismaPriceRepository implements IPriceRepository {
       return { inserted: 0, skipped: 0 }
     }
 
-    // 1. Resolve Brand IDs
-    // We need to map brandCode -> brandId
-    const distinctCodes = Array.from(new Set(prices.map(p => p.brandCode)))
-
-    // Fetch brands
-    const brands = await this.prisma.brand.findMany({
-      where: { code: { in: distinctCodes } }
-    })
-
-    const brandMap = new Map<string, string>()
-    brands.forEach(b => brandMap.set(b.code, b.id))
-
-    // Filter out prices with unknown brands
-    const validPrices = []
-    const unknownBrands = new Set<string>()
-
-    for (const p of prices) {
-      if (brandMap.has(p.brandCode)) {
-        validPrices.push({
-          ...p,
-          brandId: brandMap.get(p.brandCode)!
-        })
-      } else {
-        unknownBrands.add(p.brandCode)
-      }
-    }
-
-    if (unknownBrands.size > 0) {
-      console.warn(`[PrismaPriceRepository] Skipping unknown brands: ${Array.from(unknownBrands).join(', ')}`)
-    }
-
-    if (validPrices.length === 0) {
-      return { inserted: 0, skipped: prices.length }
-    }
-
-    // 2. Perform Batch Insert
-    // skipDuplicates: true ensures idempotency (conflicts on unique key are ignored)
-    const result = await this.prisma.goldPrice.createMany({
-      data: validPrices.map(p => ({
-        brandId: p.brandId,
+    const result = await (this.prisma as any).goldPrice.createMany({
+      data: prices.map(p => ({
+        brandCode: p.brandCode,
+        brandName: p.brandName,
         priceType: p.priceType,
         denominationGram: new Decimal(p.denominationGram),
         price: p.price,
@@ -234,7 +194,7 @@ export class PrismaPriceRepository implements IPriceRepository {
   private toDomainModel(price: any): GoldPriceRecord {
     return {
       id: price.id,
-      brandCode: price.brand.code,
+      brandCode: price.brandCode,
       priceType: price.priceType,
       denominationGram: price.denominationGram,
       price: Number(price.price), // BigInt → number
