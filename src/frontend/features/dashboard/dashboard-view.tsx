@@ -9,6 +9,7 @@ import PortfolioChart from './components/portfolio-chart'
 import { holdingsRepository } from '@/frontend/utils/holdings-repository'
 import { aggregateHoldingsByBrand } from '@/frontend/utils/aggregations'
 import AddHoldingButton from './components/add-holding-button'
+import { MarketTodayWidget } from './components/market-today-widget'
 
 // Dummy data matching the reference images
 type ValuationSource = 'OFFICIAL' | 'SPOT' | 'USER' | 'UNVALUED'
@@ -170,6 +171,11 @@ export default function DashboardView() {
             excludedCount={stats.excludedCount}
             disclaimer={stats.disclaimer}
           />
+
+          {/* New Market Today Widget */}
+          <div className="px-6 -mt-2 mb-4">
+            <MarketTodayWidget />
+          </div>
 
           {/* Price freshness indicator */}
           <PriceFreshness lastUpdated={DUMMY_DATA.lastUpdated} />

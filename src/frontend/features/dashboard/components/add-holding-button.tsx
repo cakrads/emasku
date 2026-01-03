@@ -2,6 +2,7 @@ import { Button } from '@/frontend/components/ui/button'
 import { Plus } from 'lucide-react'
 import Link from 'next/link'
 import { Stack } from '@/frontend/components/ui/layout'
+import { ROUTES } from '@/frontend/config/routes'
 
 interface AddHoldingButtonProps {
   onClick?: () => void
@@ -10,7 +11,7 @@ interface AddHoldingButtonProps {
 export default function AddHoldingButton({ onClick }: AddHoldingButtonProps) {
   return (
     <Stack className="fixed bottom-6 right-6 z-50">
-      <Link href="/add-holding">
+      <Link href={ROUTES.ADD_HOLDING}>
         <Button
           onClick={onClick}
           size="icon"

@@ -39,10 +39,13 @@ export default function BrandCard({
   const formatWeight = (grams: number) => `${(grams || 0).toFixed(2)}g`
 
   return (
-    <Link href={ROUTES.BRAND_DETAIL(brandCode)} className="block outline-none group">
+    <Link
+      href={ROUTES.BRAND_DETAIL(brandCode)}
+      className="block outline-none group"
+    >
       <Stack
         gap="md"
-        className="shrink-0 w-[280px] bg-[var(--surface-elevated)] border border-[var(--border)] rounded-xl p-4 shadow-[var(--shadow-sm)] group-hover:shadow-[var(--shadow-md)] group-hover:border-[var(--foreground)] transition-all cursor-pointer"
+        className="shrink-0 w-[280px] bg-[var(--surface-elevated)] border border-[var(--border)] rounded-xl p-4 shadow-[var(--shadow-sm)] transition-all group-hover:shadow-[var(--shadow-md)] group-hover:border-[var(--foreground)] cursor-pointer"
       >
         <Stack gap="none">
           <Typography as="h3" variant="h3">{brandName}</Typography>

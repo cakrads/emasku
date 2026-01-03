@@ -1,13 +1,21 @@
 /**
- * Centralized route configuration
- * This ensures consistency across the application
+ * Centralized Route Configuration
+ * 
+ * Defines all application routes to ensure consistency and type safety.
+ * Use these constants instead of hardcoding strings in components.
  */
 
 export const ROUTES = {
+  // Main Navigation
   DASHBOARD: '/',
-  BRANDS_LIST: '/brands', // If we ever have a brand list page
-  BRAND_DETAIL: (brandId: string) => `/brands/${brandId}`,
-  HOLDINGS_LIST: '/holdings',
-  HOLDING_DETAIL: (holdingId: string) => `/holdings/${holdingId}`,
-  EDIT_HOLDING: (holdingId: string) => `/holdings/${holdingId}/edit`,
-}
+  PRICES: '/prices',
+  PRICES_HISTORY: '/prices/history',
+  HOLDINGS: '/holdings',
+
+  // Deep Links / Future Placeholders
+  HOLDINGS_DETAIL: (id: string) => `/holdings/${id}`,
+  BRAND_DETAIL: (id: string) => `/holdings/brands/${id}`,
+  ADD_HOLDING: '/add-holding',
+} as const
+
+export type AppRoute = typeof ROUTES[keyof typeof ROUTES]
