@@ -1,7 +1,8 @@
 'use client'
 
-import { Stack, Section, Divider } from '@/frontend/components/ui/layout'
+import { Stack, Divider } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
+import { Info } from 'lucide-react'
 
 interface PortfolioHeroProps {
   totalValue: number | null
@@ -41,60 +42,61 @@ export default function PortfolioHero({
   }
 
   return (
-    <Section className="px-4 pt-6 pb-6">
-      <Stack gap="md">
-        <Stack gap="xs">
-          <Typography variant="h4">Portfolio Value</Typography>
-          <Typography as="h1" className="text-4xl md:text-5xl font-bold financial-value">
-            {hasValue ? formatCurrency(totalValue) : '—'}
-          </Typography>
+    <Stack gap="md">
+      <Stack gap="xs">
+        <Typography variant="h4">Portfolio Value</Typography>
+        <Typography as="h1" className="text-4xl md:text-5xl font-bold financial-value">
+          {hasValue ? formatCurrency(totalValue) : '—'}
+        </Typography>
 
-          {!hasValue && (
-            <Typography variant="body-sm">Unable to calculate total</Typography>
-          )}
-        </Stack>
-
-        {hasValue && (
-          <Stack direction="horizontal" gap="md" className="items-center flex-wrap">
-            <Stack direction="horizontal" gap="sm" className="items-center">
-              <Typography
-                variant="body-sm"
-                className={isGainPositive ? 'text-[var(--positive)] font-medium' : 'text-[var(--negative)] font-medium'}
-              >
-                {formatPercentage(gainLossPercentage)}
-              </Typography>
-              <Typography variant="caption" className="text-[var(--text-muted)]">all time</Typography>
-            </Stack>
-
-            <Divider direction="vertical" className="h-4" />
-
-            <Stack direction="horizontal" gap="sm" className="items-center">
-              <Typography
-                variant="body-sm"
-                className={isTodayPositive ? 'text-[var(--positive)] font-medium' : 'text-[var(--negative)] font-medium'}
-              >
-                {formatPercentage(todayChangePercentage)}
-              </Typography>
-              <Typography variant="caption" className="text-[var(--text-muted)]">today</Typography>
-            </Stack>
-          </Stack>
+        {!hasValue && (
+          <Typography variant="body-sm">Unable to calculate total</Typography>
         )}
+      </Stack>
 
-        {(excludedCount || disclaimer) && (
-          <Stack gap="xs">
-            {excludedCount && excludedCount > 0 && (
-              <Typography variant="caption" className="text-[var(--text-muted)]">
-                {excludedCount} holding{excludedCount > 1 ? 's' : ''} excluded from total
-              </Typography>
-            )}
-            {disclaimer && hasValue && (
+      {hasValue && (
+        <Stack direction="horizontal" gap="md" className="items-center flex-wrap">
+          <Stack direction="horizontal" gap="sm" className="items-center">
+            <Typography
+              variant="body-sm"
+              className={isGainPositive ? 'text-(--positive) font-medium' : 'text-(--negative) font-medium'}
+            >
+              {formatPercentage(gainLossPercentage)}
+            </Typography>
+            <Typography variant="caption" className="text-(--text-muted)">all time</Typography>
+          </Stack>
+
+          <Divider direction="vertical" className="h-4" />
+
+          <Stack direction="horizontal" gap="sm" className="items-center">
+            <Typography
+              variant="body-sm"
+              className={isTodayPositive ? 'text-(--positive) font-medium' : 'text-(--negative) font-medium'}
+            >
+              {formatPercentage(todayChangePercentage)}
+            </Typography>
+            <Typography variant="caption" className="text-(--text-muted)">today</Typography>
+          </Stack>
+        </Stack>
+      )}
+
+      {(excludedCount || disclaimer) && (
+        <Stack gap="xs">
+          {excludedCount && excludedCount > 0 && (
+            <Typography variant="caption" className="text-(--text-muted)">
+              {excludedCount} holding{excludedCount > 1 ? 's' : ''} excluded from total
+            </Typography>
+          )}
+          {disclaimer && hasValue && (
+            <div className="flex items-center gap-1.5 mt-1 text-muted-foreground/60">
+              <Info className="w-3 h-3" />
               <Typography variant="caption" className="italic">
                 {disclaimer}
               </Typography>
-            )}
-          </Stack>
-        )}
-      </Stack>
-    </Section>
+            </div>
+          )}
+        </Stack>
+      )}
+    </Stack>
   )
 }

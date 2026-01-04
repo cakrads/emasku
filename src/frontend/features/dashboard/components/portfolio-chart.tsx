@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { Section, Stack } from '@/frontend/components/ui/layout'
+import { Stack } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { Card } from '@/frontend/components/ui/card'
 
@@ -105,21 +105,19 @@ export default function PortfolioChart({ data }: PortfolioChartProps) {
   }, [data])
 
   return (
-    <Section className="px-4 py-6">
-      <Stack gap="sm">
-        <Stack gap="none">
-          <Typography variant="h3">Performance</Typography>
-          <Typography variant="body-sm">Last 7 days</Typography>
-        </Stack>
-
-        <Card className="p-4 bg-[var(--surface-elevated)] border-[var(--border)] shadow-[var(--shadow-sm)]">
-          <canvas
-            ref={canvasRef}
-            className="w-full"
-            style={{ height: '200px' }}
-          />
-        </Card>
+    <Stack gap="sm">
+      <Stack gap="none">
+        <Typography variant="h3">Performance</Typography>
+        <Typography variant="body-sm">Last 7 days</Typography>
       </Stack>
-    </Section>
+
+      <Card className="p-4 bg-(--surface-elevated) border-(--border) shadow-(--shadow-sm)">
+        <canvas
+          ref={canvasRef}
+          className="w-full"
+          style={{ height: '200px' }}
+        />
+      </Card>
+    </Stack>
   )
 }

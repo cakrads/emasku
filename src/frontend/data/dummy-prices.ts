@@ -15,6 +15,7 @@ export const DUMMY_TODAY_PRICES = {
   brands: [
     {
       brand: 'ANTAM',
+      dailyChangePercent: 0.3,
       prices: [
         { denominationGram: 0.5, sellPrice: 1432000, buybackPrice: 0 },
         { denominationGram: 1, sellPrice: 1270000, buybackPrice: 1180000 },
@@ -28,6 +29,7 @@ export const DUMMY_TODAY_PRICES = {
     },
     {
       brand: 'UBS',
+      dailyChangePercent: -0.1,
       prices: [
         { denominationGram: 0.5, sellPrice: 1399000, buybackPrice: 1188000 },
         { denominationGram: 1, sellPrice: 1276000, buybackPrice: 1185000 },
@@ -38,12 +40,24 @@ export const DUMMY_TODAY_PRICES = {
     },
     {
       brand: 'GALERI24',
+      dailyChangePercent: 0.2,
       prices: [
         { denominationGram: 0.5, sellPrice: 1331000, buybackPrice: 1189000 },
         { denominationGram: 1, sellPrice: 1268000, buybackPrice: 1177000 },
         { denominationGram: 2, sellPrice: 2513000, buybackPrice: 2331000 },
         { denominationGram: 5, sellPrice: 6265000, buybackPrice: 5815000 },
         { denominationGram: 10, sellPrice: 12505000, buybackPrice: 11605000 },
+      ],
+    },
+    {
+      brand: 'LOTUS ARCHI',
+      dailyChangePercent: 0.15,
+      prices: [
+        { denominationGram: 0.5, sellPrice: 1345000, buybackPrice: 1195000 },
+        { denominationGram: 1, sellPrice: 1280000, buybackPrice: 1185000 },
+        { denominationGram: 2, sellPrice: 2530000, buybackPrice: 2340000 },
+        { denominationGram: 5, sellPrice: 6290000, buybackPrice: 5830000 },
+        { denominationGram: 10, sellPrice: 12550000, buybackPrice: 11650000 },
       ],
     },
   ],

@@ -2,9 +2,15 @@
 import Link from 'next/link'
 import { Stack } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
-import { TrendingUp } from 'lucide-react'
+import { TrendingUp, Info } from 'lucide-react'
 import { cn } from '@/frontend/utils/cn'
 import { ROUTES } from '@/frontend/config/routes'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/frontend/components/ui/tooltip'
 
 interface BrandCardProps {
   brandCode: string
@@ -26,6 +32,7 @@ export default function BrandCard({
   valuationSource,
 }: BrandCardProps) {
   const isPositive = deltaValue >= 0
+  const isUnvalued = valuationSource === 'UNVALUED'
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -38,6 +45,21 @@ export default function BrandCard({
 
   const formatWeight = (grams: number) => `${(grams || 0).toFixed(2)}g`
 
+  const getValuationTooltip = () => {
+    switch (valuationSource) {
+      case 'SPOT':
+        return 'Market reference price (not official)'
+      case 'USER':
+        return 'Based on your purchase price'
+      case 'UNVALUED':
+        return 'No market price available'
+      default:
+        return null
+    }
+  }
+
+  const tooltipText = getValuationTooltip()
+
   return (
     <Link
       href={ROUTES.BRAND_DETAIL(brandCode)}
@@ -48,22 +70,39 @@ export default function BrandCard({
         className="shrink-0 w-[280px] bg-[var(--surface-elevated)] border border-[var(--border)] rounded-xl p-4 shadow-[var(--shadow-sm)] transition-all group-hover:shadow-[var(--shadow-md)] group-hover:border-[var(--foreground)] cursor-pointer"
       >
         <Stack gap="none">
-          <Typography as="h3" variant="h3">{brandName}</Typography>
+          <div className="flex items-center gap-1.5">
+            <Typography as="h3" variant="h3">{brandName}</Typography>
+            {tooltipText && (
+              <TooltipProvider delayDuration={200}>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="w-3.5 h-3.5 text-muted-foreground" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="text-xs">{tooltipText}</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            )}
+          </div>
           <Typography variant="body-sm" className="mt-0.5">{formatWeight(totalGrams)}</Typography>
         </Stack>
 
         <Stack direction="horizontal" className="items-center flex-wrap" gap="none">
           <Typography variant="h2" className="financial-value">
-            {formatCurrency(currentValue)}
+            {isUnvalued ? '—' : formatCurrency(currentValue)}
           </Typography>
         </Stack>
 
+        {/* Trend Indicator or Placeholder */}
         <Stack
           direction="horizontal"
           gap="sm"
           className={cn(
             "items-center w-fit px-2 py-1 rounded-md",
-            isPositive ? "bg-[var(--positive-bg)]" : "bg-[var(--negative-bg)]"
+            !isUnvalued
+              ? (isPositive ? "bg-[var(--positive-bg)]" : "bg-[var(--negative-bg)]")
+              : "invisible" // Reserved space
           )}
         >
           <TrendingUp className={cn("w-3 h-3", !isPositive && "rotate-180 text-[var(--negative)]", isPositive && "text-[var(--positive)]")} />
@@ -72,7 +111,7 @@ export default function BrandCard({
               variant="caption"
               className={cn("font-semibold", isPositive ? "text-[var(--positive)]" : "text-[var(--negative)]")}
             >
-              {formatCurrency(Math.abs(deltaValue))}
+              {isUnvalued ? "Rp 0" : formatCurrency(Math.abs(deltaValue))}
             </Typography>
             <Typography
               variant="caption"

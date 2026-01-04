@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { PageWrapper, Container, Stack, Section } from '@/frontend/components/ui/layout'
+import { Typography } from '@/frontend/components/ui/typography'
 import PortfolioHero from './components/portfolio-hero'
 import PriceFreshness from './components/price-freshness'
 import BrandBreakdown from './components/brand-breakdown'
@@ -9,7 +10,7 @@ import PortfolioChart from './components/portfolio-chart'
 import { holdingsRepository } from '@/frontend/utils/holdings-repository'
 import { aggregateHoldingsByBrand } from '@/frontend/utils/aggregations'
 import AddHoldingButton from './components/add-holding-button'
-import { MarketTodayWidget } from './components/market-today-widget'
+import { MarketTodayCards } from './components/market-today-cards'
 
 // Dummy data matching the reference images
 type ValuationSource = 'OFFICIAL' | 'SPOT' | 'USER' | 'UNVALUED'
@@ -159,26 +160,36 @@ export default function DashboardView() {
 
   return (
     <PageWrapper>
-      <Container className="max-w-7xl md:p-8 relative p-0">
-        <Stack gap="none">
-          {/* Hero section */}
-          <PortfolioHero
-            totalValue={stats.totalValue}
-            totalGainLoss={stats.totalGainLoss}
-            gainLossPercentage={stats.gainLossPercentage}
-            todayChange={stats.todayChange}
-            todayChangePercentage={stats.todayChangePercentage}
-            excludedCount={stats.excludedCount}
-            disclaimer={stats.disclaimer}
-          />
+      <Container className="max-w-7xl mx-auto px-4 md:px-8 py-8">
+        <Stack gap="xl">
+          {/* Top Section: Date + Hero + Market Today */}
+          <Stack gap="sm">
+            <div className="flex justify-end mb-4 lg:mb-0">
+              <PriceFreshness lastUpdated={DUMMY_DATA.lastUpdated} />
+            </div>
 
-          {/* New Market Today Widget */}
-          <div className="px-6 -mt-2 mb-4">
-            <MarketTodayWidget />
-          </div>
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <div className="lg:col-span-2 min-h-auto md:min-h-[190px] ">
+                <PortfolioHero
+                  totalValue={stats.totalValue}
+                  totalGainLoss={stats.totalGainLoss}
+                  gainLossPercentage={stats.gainLossPercentage}
+                  todayChange={stats.todayChange}
+                  todayChangePercentage={stats.todayChangePercentage}
+                  excludedCount={stats.excludedCount}
+                  disclaimer={stats.disclaimer}
+                />
+              </div>
 
-          {/* Price freshness indicator */}
-          <PriceFreshness lastUpdated={DUMMY_DATA.lastUpdated} />
+              <div className="lg:col-span-1 lg:relative min-w-0">
+                <div className="flex flex-col h-full lg:absolute lg:inset-0 w-full">
+                  <div className="flex-1 overflow-hidden min-h-0">
+                    <MarketTodayCards />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Stack>
 
           {/* Brand breakdown */}
           <BrandBreakdown brands={brands} />
