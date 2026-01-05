@@ -60,11 +60,22 @@ export const holdingsRepository = {
       }
 
       localStorage.setItem(STORAGE_KEY, JSON.stringify(localItems))
-
-      // Force a page reload event or dispatch custom event to notify listeners?
-      // For now, simpler to just rely on re-renders if components re-fetch.
     } catch (e) {
       console.error('Failed to save', e)
+    }
+  },
+
+  delete: (id: string) => {
+    try {
+      const local = localStorage.getItem(STORAGE_KEY)
+      if (!local) return
+
+      let localItems: any[] = JSON.parse(local)
+      localItems = localItems.filter((h: any) => h.id !== id)
+
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(localItems))
+    } catch (e) {
+      console.error('Failed to delete', e)
     }
   }
 }

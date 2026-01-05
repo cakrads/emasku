@@ -163,7 +163,7 @@ export default function DashboardView() {
       <Container className="max-w-7xl mx-auto px-4 md:px-8 py-8">
         <Stack gap="xl">
           {/* Top Section: Date + Hero + Market Today */}
-          <Stack gap="sm">
+          <Stack gap="md">
             <div className="flex justify-end mb-4 lg:mb-0">
               <PriceFreshness lastUpdated={DUMMY_DATA.lastUpdated} />
             </div>

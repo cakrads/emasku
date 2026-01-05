@@ -25,7 +25,7 @@ export default function HoldingsTable({ holdings, backUrl }: HoldingsTableProps)
 
   if (holdings.length === 0) {
     return (
-      <div className="text-center py-12 text-[var(--foreground-muted)]">
+      <div className="text-center py-12 text-(--foreground-muted)">
         <Typography variant="body">No holdings found</Typography>
       </div>
     )
@@ -35,29 +35,29 @@ export default function HoldingsTable({ holdings, backUrl }: HoldingsTableProps)
     <div className="overflow-x-auto">
       <table className="w-full">
         <thead>
-          <tr className="border-b border-[var(--border)]">
+          <tr className="border-b border-(--border)">
             <th className="text-left py-3 px-4">
-              <Typography variant="caption" className="font-semibold text-[var(--foreground-muted)]">
+              <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
                 Date
               </Typography>
             </th>
             <th className="text-left py-3 px-4">
-              <Typography variant="caption" className="font-semibold text-[var(--foreground-muted)]">
+              <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
                 Weight
               </Typography>
             </th>
             <th className="text-right py-3 px-4">
-              <Typography variant="caption" className="font-semibold text-[var(--foreground-muted)]">
+              <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
                 Buy Price
               </Typography>
             </th>
             <th className="text-right py-3 px-4">
-              <Typography variant="caption" className="font-semibold text-[var(--foreground-muted)]">
+              <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
                 Current Value
               </Typography>
             </th>
             <th className="text-right py-3 px-4">
-              <Typography variant="caption" className="font-semibold text-[var(--foreground-muted)]">
+              <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
                 P/L
               </Typography>
             </th>
@@ -76,7 +76,7 @@ export default function HoldingsTable({ holdings, backUrl }: HoldingsTableProps)
                   const target = ROUTES.HOLDING_DETAIL(holding.id) + (backUrl ? `?backUrl=${encodeURIComponent(backUrl)}` : '')
                   router.push(target)
                 }}
-                className="border-b border-[var(--border)] hover:bg-[var(--surface-elevated)] cursor-pointer transition-colors"
+                className="border-b border-(--border) hover:bg-(--surface-elevated) cursor-pointer transition-colors"
               >
                 <td className="py-4 px-4">
                   <Typography variant="body-sm">{formatDate(holding.buyDate)}</Typography>
@@ -99,16 +99,16 @@ export default function HoldingsTable({ holdings, backUrl }: HoldingsTableProps)
                 <td className="py-4 px-4 text-right">
                   <Stack direction="horizontal" gap="xs" className="justify-end items-center">
                     {isPositive ? (
-                      <TrendingUp className="w-3 h-3 text-[var(--positive)]" />
+                      <TrendingUp className="w-3 h-3 text-(--positive)" />
                     ) : (
-                      <TrendingDown className="w-3 h-3 text-[var(--negative)]" />
+                      <TrendingDown className="w-3 h-3 text-(--negative)" />
                     )}
                     <Stack gap="none" className="items-end">
                       <Typography
                         variant="body-sm"
                         className={cn(
                           'font-semibold',
-                          isPositive ? 'text-[var(--positive)]' : 'text-[var(--negative)]'
+                          isPositive ? 'text-(--positive)' : 'text-(--negative)'
                         )}
                       >
                         {formatCurrency(Math.abs(profitLoss))}
@@ -116,7 +116,7 @@ export default function HoldingsTable({ holdings, backUrl }: HoldingsTableProps)
                       <Typography
                         variant="caption"
                         className={cn(
-                          isPositive ? 'text-[var(--positive)]' : 'text-[var(--negative)]'
+                          isPositive ? 'text-(--positive)' : 'text-(--negative)'
                         )}
                       >
                         {formatPercentage(profitLossPercentage)}

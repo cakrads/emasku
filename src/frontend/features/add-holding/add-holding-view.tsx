@@ -15,6 +15,7 @@ import { format } from 'date-fns'
 import { Info, Check } from 'lucide-react'
 
 import { cn } from '@/frontend/utils/cn'
+import { ROUTES } from '@/frontend/config/routes'
 
 // --- Types ---
 
@@ -50,6 +51,8 @@ const KNOWN_BRANDS: Brand[] = [
 ]
 
 // --- Main Orchestrator ---
+
+import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
 
 export default function AddHoldingView() {
   const router = useRouter()
@@ -98,21 +101,29 @@ export default function AddHoldingView() {
 
     const existing = JSON.parse(localStorage.getItem('emasku-holdings') || '[]')
     localStorage.setItem('emasku-holdings', JSON.stringify([newHolding, ...existing]))
-    router.push('/')
+    router.push(ROUTES.HOLDINGS_LIST)
   }
 
   return (
-    <PageWrapper>
-      <Container className="flex flex-col relative p-0">
+    <StandardPageLayout
+      title="Add New Holding"
+      breadcrumbs={[
+        { label: 'Home', href: ROUTES.DASHBOARD },
+        { label: 'Holdings', href: ROUTES.HOLDINGS_LIST },
+        { label: 'Add' }
+      ]}
+    >
+      <div className="flex flex-col relative max-w-lg mx-auto">
         <StepHeader
-          title="Add Gold Holding"
+          title="Setup Wizard"
           currentStep={step}
           totalSteps={3}
-          onBack={step > 1 ? prevStep : () => router.push('/')}
+          onBack={step > 1 ? prevStep : () => router.push(ROUTES.HOLDINGS_LIST)}
+          className="px-0 pt-0 static bg-transparent"
         />
 
         {/* Progress Bar */}
-        <Section className="px-6 py-2 mb-4">
+        <Section className="px-0 py-2 mb-4">
           <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
             <div
               className="h-full bg-accent-gold transition-all duration-300 ease-out"
@@ -122,8 +133,8 @@ export default function AddHoldingView() {
         </Section>
 
         {/* Step Content */}
-        <Section as="main" className="flex-1 px-6 pb-44 overflow-y-auto pt-0">
-          <Stack gap="lg">
+        <Section as="main" className="flex-1 px-0 pb-44 overflow-y-auto pt-0">
+          <Stack gap="lg" className="p-1">
             {step === 1 && <BrandSelectionStep selected={state.brand} onSelect={(b) => updateState({ brand: b })} />}
             {step === 2 && <GoldDetailsStep state={state} onChange={updateState} />}
             {step === 3 && <ReviewStep state={state} />}
@@ -135,8 +146,8 @@ export default function AddHoldingView() {
           nextLabel={step === 3 ? 'Save Holding' : 'Continue'}
           disabled={!canProceed()}
         />
-      </Container>
-    </PageWrapper>
+      </div>
+    </StandardPageLayout>
   )
 }
 

@@ -7,7 +7,6 @@
 
 'use client'
 
-import { Container } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { DUMMY_TODAY_PRICES } from '@/frontend/data/dummy-prices'
 
@@ -24,15 +23,6 @@ function formatIDR(value: number): string {
   }).format(value)
 }
 
-/**
- * Format timestamp for display
- */
-function formatTimestamp(dateString: string): string {
-  const date = new Date(dateString)
-  return new Intl.DateTimeFormat('en-US', {
-    dateStyle: 'full',
-  }).format(date)
-}
 
 /**
  * Brand Price Section Component
@@ -51,8 +41,8 @@ function BrandPriceSection({ brandName, prices }: { brandName: string; prices: a
       </div>
 
       {/* Price Table */}
-      <div className="border border-border border-t-0 rounded-b-lg overflow-hidden">
-        <table className="w-full">
+      <div className="border border-border border-t-0 rounded-b-lg overflow-x-auto">
+        <table className="w-full min-w-[350px]">
           <thead>
             <tr className="bg-muted/50 border-b border-border">
               <th className="px-6 py-3 text-left">
@@ -96,29 +86,35 @@ function BrandPriceSection({ brandName, prices }: { brandName: string; prices: a
   )
 }
 
+import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
+import { ROUTES } from '@/frontend/config/routes'
+
+function formatTimestamp(dateString: string): string {
+  const date = new Date(dateString)
+  return new Intl.DateTimeFormat('en-US', {
+    dateStyle: 'full',
+  }).format(date)
+}
+
 export function PricesListView() {
   const lastUpdated = formatTimestamp(DUMMY_TODAY_PRICES.date)
 
   return (
-    <Container className="py-8">
-      {/* Header with Title and Timestamp */}
-      <div className="mb-8">
-        <Typography as="h1" variant="h1" className="mb-2">
-          Gold Prices
-        </Typography>
-        <Typography as="p" variant="body" className="text-muted-foreground">
-          Latest update: {lastUpdated}
-        </Typography>
+    <StandardPageLayout
+      title="Today's Prices"
+      description={`Latest update: ${lastUpdated}`}
+      breadcrumbs={[{ label: 'Home', href: ROUTES.DASHBOARD }, { label: 'Prices' }]}
+    >
+      <div className="flex flex-col gap-8">
+        {/* Brand Sections */}
+        {DUMMY_TODAY_PRICES.brands.map((brandData) => (
+          <BrandPriceSection
+            key={brandData.brand}
+            brandName={brandData.brand}
+            prices={brandData.prices}
+          />
+        ))}
       </div>
-
-      {/* Brand Sections */}
-      {DUMMY_TODAY_PRICES.brands.map((brandData) => (
-        <BrandPriceSection
-          key={brandData.brand}
-          brandName={brandData.brand}
-          prices={brandData.prices}
-        />
-      ))}
-    </Container>
+    </StandardPageLayout>
   )
 }

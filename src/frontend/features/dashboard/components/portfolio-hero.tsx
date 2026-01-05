@@ -44,8 +44,8 @@ export default function PortfolioHero({
   return (
     <Stack gap="md">
       <Stack gap="xs">
-        <Typography variant="h4">Portfolio Value</Typography>
-        <Typography as="h1" className="text-4xl md:text-5xl font-bold financial-value">
+        <Typography variant="h4" className='mb-2'>Portfolio Value</Typography>
+        <Typography as="h1" className="text-5xl md:text-5xl font-bold financial-value">
           {hasValue ? formatCurrency(totalValue) : '—'}
         </Typography>
 

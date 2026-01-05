@@ -2,10 +2,8 @@
 
 import { useState, useEffect } from 'react'
 
-import { PageWrapper, Container, Stack, Section } from '@/frontend/components/ui/layout'
+import { Stack, Section } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
-import { ArrowLeft } from 'lucide-react'
-import Link from 'next/link'
 import { DUMMY_HOLDINGS } from '@/frontend/data/dummy-holdings'
 import { holdingsRepository } from '@/frontend/utils/holdings-repository'
 import { filterHoldingsByBrand, calculateHoldingValue } from '@/frontend/utils/aggregations'
@@ -16,6 +14,8 @@ import { ROUTES } from '@/frontend/config/routes'
 interface BrandCategoryViewProps {
   brandId: string
 }
+
+import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
 
 export default function BrandCategoryView({ brandId }: BrandCategoryViewProps) {
   // Load holdings from repository
@@ -31,23 +31,20 @@ export default function BrandCategoryView({ brandId }: BrandCategoryViewProps) {
   // If no holdings found for this brand
   if (brandHoldings.length === 0) {
     return (
-      <PageWrapper>
-        <Container className="max-w-7xl md:p-8 p-4">
-          <Stack gap="lg">
-            <Link
-              href={ROUTES.DASHBOARD}
-              className="flex items-center gap-2 text-(--foreground-muted) hover:text-foreground transition-colors w-fit"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <Typography variant="body-sm">Back to Dashboard</Typography>
-            </Link>
-            <Typography variant="h2">Brand not found</Typography>
-            <Typography variant="body">
-              No holdings found for brand code: {brandId}
-            </Typography>
-          </Stack>
-        </Container>
-      </PageWrapper>
+      <StandardPageLayout
+        title="Brand not found"
+        breadcrumbs={[
+          { label: 'Home', href: ROUTES.DASHBOARD },
+          { label: 'Holdings', href: ROUTES.HOLDINGS_LIST },
+          { label: brandId }
+        ]}
+      >
+        <Stack gap="lg">
+          <Typography variant="body">
+            No holdings found for brand code: {brandId}
+          </Typography>
+        </Stack>
+      </StandardPageLayout>
     )
   }
 
@@ -77,33 +74,29 @@ export default function BrandCategoryView({ brandId }: BrandCategoryViewProps) {
   }
 
   return (
-    <PageWrapper>
-      <Container className="max-w-7xl md:p-8 p-4">
-        <Stack gap="lg">
-          {/* Back button */}
-          <Link
-            href={ROUTES.DASHBOARD}
-            className="flex items-center gap-2 text-(--foreground-muted) hover:text-foreground transition-colors w-fit"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <Typography variant="body-sm">Back to Dashboard</Typography>
-          </Link>
+    <StandardPageLayout
+      title={summary.brandName}
+      breadcrumbs={[
+        { label: 'Home', href: ROUTES.DASHBOARD },
+        { label: 'Holdings', href: ROUTES.HOLDINGS_LIST },
+        { label: summary.brandName }
+      ]}
+    >
+      <Stack gap="lg">
+        {/* Brand Summary Section - Aggregated from holdings */}
+        <BrandSummary {...summary} />
 
-          {/* Brand Summary Section - Aggregated from holdings */}
-          <BrandSummary {...summary} />
+        {/* Holdings List - Filtered by brand */}
+        <Section>
+          <Stack gap="md">
+            <Typography variant="h3">Holdings</Typography>
+            <HoldingsTable holdings={brandHoldings} backUrl={ROUTES.BRAND_DETAIL(brandId)} />
+          </Stack>
+        </Section>
 
-          {/* Holdings List - Filtered by brand */}
-          <Section>
-            <Stack gap="md">
-              <Typography variant="h3">Holdings</Typography>
-              <HoldingsTable holdings={brandHoldings} backUrl={ROUTES.BRAND_DETAIL(brandId)} />
-            </Stack>
-          </Section>
-
-          {/* Bottom spacing */}
-          <Section className="h-12" />
-        </Stack>
-      </Container>
-    </PageWrapper>
+        {/* Bottom spacing */}
+        <Section className="h-12" />
+      </Stack>
+    </StandardPageLayout>
   )
 }

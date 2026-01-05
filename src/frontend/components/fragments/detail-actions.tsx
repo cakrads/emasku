@@ -16,7 +16,7 @@ interface DetailActionsProps {
 
 export function DetailActions({ actions, className }: DetailActionsProps) {
   return (
-    <footer className={cn("fixed bottom-0 left-0 right-0 bg-background border-t border-border p-4 md:static md:border-0 md:bg-transparent md:p-6 pb-8", className)}>
+    <footer className={cn("fixed bottom-0 left-0 right-0 bg-background border-t border-border p-4 md:p-0 md:pt-4 md:static md:border-0 md:bg-transparent pb-4", className)}>
       <Container className="p-0">
         <div className={cn("grid gap-3", actions.length === 2 ? "grid-cols-2" : "grid-cols-1")}>
           {actions.map((action, idx) => (

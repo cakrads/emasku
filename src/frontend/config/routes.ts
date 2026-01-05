@@ -10,10 +10,11 @@ export const ROUTES = {
   DASHBOARD: '/',
   PRICES: '/prices',
   PRICES_HISTORY: '/prices/history',
-  HOLDINGS: '/holdings',
+  HOLDINGS_LIST: '/holdings',
 
   // Deep Links / Future Placeholders
-  HOLDINGS_DETAIL: (id: string) => `/holdings/${id}`,
+  HOLDING_DETAIL: (id: string) => `/holdings/${id}`,
+  EDIT_HOLDING: (id: string) => `/holdings/${id}/edit`,
   BRAND_DETAIL: (id: string) => `/holdings/brands/${id}`,
   ADD_HOLDING: '/add-holding',
 } as const

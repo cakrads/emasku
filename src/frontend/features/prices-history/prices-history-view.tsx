@@ -7,35 +7,37 @@
 
 'use client'
 
-import { Container } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { PriceHistoryChart } from '@/frontend/components/fragments/price-history-chart'
 import { DUMMY_HISTORICAL_PRICES } from '@/frontend/data/dummy-prices'
 
+import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
+import { ROUTES } from '@/frontend/config/routes'
+
 export function PricesHistoryView() {
   return (
-    <Container className="py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <Typography as="h1" variant="h1" className="mb-2">
-          ANTAM Gold Price History
-        </Typography>
-        <Typography as="p" variant="body" className="text-muted-foreground">
-          SPOT · 1 gram · IDR
-        </Typography>
-      </div>
+    <StandardPageLayout
+      title="ANTAM Price History"
+      description="SPOT · 1 gram · IDR"
+      breadcrumbs={[
+        { label: 'Home', href: ROUTES.DASHBOARD },
+        { label: 'Prices', href: ROUTES.PRICES },
+        { label: 'History' }
+      ]}
+    >
+      <div className="flex flex-col">
+        {/* Chart Section */}
+        <div className="bg-card rounded-lg border border-border p-6 mb-6">
+          <PriceHistoryChart data={DUMMY_HISTORICAL_PRICES} height={400} />
+        </div>
 
-      {/* Chart Section */}
-      <div className="bg-card rounded-lg border border-border p-6 mb-6">
-        <PriceHistoryChart data={DUMMY_HISTORICAL_PRICES} height={400} />
+        {/* Footer Note */}
+        <div className="text-center">
+          <Typography variant="body-sm" className="text-muted-foreground">
+            Reference price only. Not personalized.
+          </Typography>
+        </div>
       </div>
-
-      {/* Footer Note */}
-      <div className="text-center">
-        <Typography variant="body-sm" className="text-muted-foreground">
-          Reference price only. Not personalized.
-        </Typography>
-      </div>
-    </Container>
+    </StandardPageLayout>
   )
 }

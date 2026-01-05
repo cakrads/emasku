@@ -44,9 +44,8 @@ export function MarketTodayCards() {
             const price = brand.prices.find(p => p.denominationGram === 1)?.sellPrice || 0
 
             return (
-              <Link
+              <div
                 key={brand.brand}
-                href={ROUTES.BRAND_DETAIL(brand.brand)}
                 className="group flex flex-col justify-between p-3 rounded-xl border border-border bg-card hover:border-accent-gold/50 hover:shadow-sm transition-all h-[100px] shrink-0 relative overflow-hidden"
               >
                 {/* Subtle background gradient hint on hover */}
@@ -79,7 +78,7 @@ export function MarketTodayCards() {
                     <span className="text-[10px] text-muted-foreground">—</span>
                   )}
                 </div>
-              </Link>
+              </div>
             )
           })}
 
