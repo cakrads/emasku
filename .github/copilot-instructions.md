@@ -35,4 +35,5 @@
 - To add a new frontend feature: add UI in `src/frontend/features/{feature}/`, fetch data via `services/`, and use React Query.
 
 ---
-For more details, see [README.md](../README.md) and follow the architecture rules strictly. Ask for clarification if a pattern or workflow is unclear.
+For more details, see [README.md](../README.md), and follow the functional and technical truths in [.spec/](../.spec/).
+Ask for clarification if a pattern or workflow is unclear.

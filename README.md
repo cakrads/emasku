@@ -38,42 +38,43 @@ These rules are enforced by structure and convention:
 ## 🏗️ High-Level Folder Structure
 
 ```text
-/my-project
+/emasku
 ├── .spec/                         # Functional & Technical Truths
 │   ├── spec.md                    # Functional requirements
 │   └── tech-spec.md               # Technical manual
 ├── prisma/
-│   └── data                       # initial Data
+│   ├── data                       # Initial Data (JSON)
+│   ├── migrations/                # DB Migrations
+│   ├── seed.ts                    # Seeding logic
 │   └── schema.prisma              # DB Source of Truth
 ├── src/
 │   ├── app/                       # Pillar 1: Routing ONLY (Thin)
 │   │   ├── api/v1/                # Versioned API controllers
-│   │   │   └── portfolio/
-│   │   │       └── route.ts       # Delegates to Application Layer
 │   │   └── (dashboard)/           # UI Route Groups
-│   │       └── page.tsx
 │   ├── frontend/                  # Pillar 2: Frontend Boundary
-│   │   ├── features/              # Feature-based UI (Stateful)
-│   │   ├── components/            # Atomic Components (Stateless)
+│   │   ├── components/            # Atomic UI Components
+│   │   ├── features/              # Stateful Feature Modules
 │   │   ├── providers/             # ReactQuery, Theme, etc.
-│   │   ├── services/              # API Clients (Fetch only)
-│   │   └── types/                 # Frontend DTOs
+│   │   ├── services/              # API Clients
+│   │   ├── types/                 # DTOs & Interfaces
+│   │   ├── data/                  # Static/Dummy data
+│   │   └── utils/                 # Frontend helpers & repositories
 │   └── applications/              # Pillar 3: Backend Boundary (Core)
-│       ├── modules/
-│       │   └── portfolio/
-│       │       └── v1/
-│       │           ├── domain/    # Pure Entities & Interfaces
-│       │           ├── usecase/   # Business logic orchestration
-│       │           └── http/      # HTTP adapters (Controllers)
+│       ├── modules/               # Domain-driven modules (Portfolio, Market, etc)
+│       │   └── [module]/v1/
+│       │       ├── domain/        # Pure Entities & Interfaces
+│       │       ├── usecase/       # Business logic orchestration
+│       │       ├── http/          # HTTP adapters (optional)
+│       │       └── delivery/      # Delivery layer (optional)
 │       └── shared/                # Common Infrastructure
-│           ├── persistence/       # Prisma & Repositories
-│           ├── scrapers/          # Price scrapers
-│           └── lib/               # Math & Date utils
+│           ├── persistence/       # Prisma & Shared Repositories
+│           ├── scrapers/          # Scraper implementations
+│           └── lib/               # Shared logic & wrappers
 ├── public/
-├── vercel.json
 ├── .env.example
 ├── README.md
-└── package.json
+├── package.json
+└── tsconfig.json
 
 ```
 

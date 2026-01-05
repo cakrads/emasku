@@ -6,13 +6,13 @@
 
 | Technology         | Version       | Notes                                      |
 | ------------------ | ------------- | ------------------------------------------ |
-| **Next.js**        | `16.x`        | Latest stable, App Router                  |
-| **React**          | `19.x`        | Latest stable                              |
-| **TypeScript**     | `5.x`         | Latest stable                              |
-| **Prisma**         | `7.x`         | Latest stable (Nov 2025), TypeScript-based |
+| **Next.js**        | `16.0.10`     | App Router                                 |
+| **React**          | `19.2.3`      | Stable                                     |
+| **TypeScript**     | `5.x`         | Stable                                     |
+| **Prisma**         | `7.2.0`       | Stable (Nov 2025), TypeScript-based        |
 | **PostgreSQL**     | `16+`         | Via Supabase                               |
-| **TanStack Query** | `5.x`         | Async state management                     |
-| **Tailwind CSS**   | `4.x`         | Latest stable                              |
+| **TanStack Query** | `5.62.7`      | Async state management                     |
+| **Tailwind CSS**   | `4.1.18`      | Latest stable                              |
 | **Node.js**        | `20.x LTS`    | Active LTS                                 |
 | **Deployment**     | Vercel        | Edge-optimized                             |
 
@@ -73,13 +73,13 @@ import path from 'node:path'
 import { defineConfig } from 'prisma/config'
 
 export default defineConfig({
-  earlyAccess: true,
-  schema: path.join(__dirname, 'prisma', 'schema.prisma'),
-
-  migrate: {
-    async url() {
-      return process.env.DATABASE_URL!
-    },
+  schema: 'prisma/schema.prisma',
+  migrations: {
+    path: 'prisma/migrations',
+    seed: `tsx prisma/seed.ts`,
+  },
+  datasource: {
+    url: env('DIRECT_URL'),
   },
 })
 ```

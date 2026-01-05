@@ -53,15 +53,20 @@ The price used to calculate the current value and historical trends.
 
 ### 3.3 Gold Price Insights
 
-- **Current Price**: Display the latest fetched price from the reference source.
-- **Historical Chart**: Visualize gold price movements over time. **Initial data will be seeded from Logam Mulia's 5-year history.**
+- **Current Price**: Display the latest fetched price (SELL/BUYBACK) from Galeri 24.
+- **Historical Chart**: Visualize gold price movements over time. **Initial data seeded from Logam Mulia's 5-year history.**
+- **Price List**: View detailed price tables for various brands (Antam, UBS, Galeri 24).
+
+### 3.4 Brand Category Management
+
+- **Browse by Brand**: Specialized views to see holdings and current prices grouped by manufacturer (Antam, UBS, Lotus Archi, etc).
 
 ---
 
 ## 4. Roadmap (Future)
 
 - **Goal Pockets**: Allocate gold assets to specific savings goals (e.g., "Emergency Fund", "Down Payment").
-- **Multi-Brand Support**: Expanded tracking for different gold brands with specific premiums.
+- **Automatic Alerts**: Notification when gold price hits a specific target.
 
 ---
 

@@ -22,6 +22,7 @@ You are the lead engineer for the **Gold Portfolio Tracker** project. To ensure 
 
 ## 3. Directory Structure
 
-- `.spec/spec.md`: Functional requirements (Product Manual).
-- `.spec/tech-spec.md`: Technical implementation rules (Engineering Manual).
-- `.antigravity/`: This directory contains agent-specific instructions.
+- `.spec/`: Functional & Technical Truths (Product & Engineering Manuals).
+- `.docs/`: Modular implementation guides (API, Scrapers, DB).
+- `.github/`: GitHub workflows and Copilot context.
+- `.antigravity/`: Antigravity-specific context and instructions.
