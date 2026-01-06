@@ -1,0 +1,176 @@
+/**
+ * Portfolio View Model
+ * 
+ * Transforms API contract data into UI-friendly shapes.
+ */
+
+import { PortfolioSummary, HoldingItem, PortfolioList, HoldingDetail, BrandAllocation, PortfolioHistory } from '@/shared/contracts/portfolio.contract'
+
+/**
+ * UI-friendly portfolio summary
+ */
+export interface PortfolioSummaryVM {
+  totalBuyValue: string // Formatted IDR
+  totalCurrentValue: string // Formatted IDR
+  totalPnL: string // Formatted IDR
+  pnlPercentage: string // Formatted percentage
+  totalWeightGram: string // Formatted weight
+  pnlColor: 'positive' | 'negative' | 'neutral'
+  pnlSign: '+' | '-' | ''
+  brandAllocation: BrandData[]
+  disclaimer?: string
+  excludedCount: number
+}
+
+export interface BrandData {
+  brandCode: string
+  brandName: string
+  totalGrams: number
+  currentValue: number
+  deltaValue: number
+  deltaPercentage: number
+  valuationSource: 'OFFICIAL' | 'SPOT' | 'USER' | 'UNVALUED'
+}
+
+/**
+ * UI-friendly holding item
+ */
+export interface HoldingItemVM {
+  id: string
+  brand: string
+  brandName: string
+  weight: string // e.g., "10 g"
+  quantity: number
+  buyDate: string // Formatted date
+  avgBuyPrice: string // Formatted IDR
+  currentPrice: string // Formatted IDR
+  totalBuyValue: string // Formatted IDR
+  totalValue: string // Formatted IDR
+  pnl: string // Formatted IDR
+  pnlPercentage: string // Formatted percentage
+  pnlColor: 'positive' | 'negative' | 'neutral'
+  notes?: string
+}
+
+/**
+ * Format IDR currency
+ */
+function formatIDR(value: number): string {
+  return new Intl.NumberFormat('id-ID', {
+    style: 'currency',
+    currency: 'IDR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(value)
+}
+
+/**
+ * Format percentage
+ */
+function formatPercentage(value: number): string {
+  const sign = value > 0 ? '+' : ''
+  return `${sign}${value.toFixed(2)}%`
+}
+
+/**
+ * Format date
+ */
+function formatDate(dateString: string): string {
+  const date = new Date(dateString)
+  return new Intl.DateTimeFormat('id-ID', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+  }).format(date)
+}
+
+/**
+ * Get PnL color
+ */
+function getPnLColor(value: number): 'positive' | 'negative' | 'neutral' {
+  if (value > 0) return 'positive'
+  if (value < 0) return 'negative'
+  return 'neutral'
+}
+
+/**
+ * Transform portfolio summary to view model
+ */
+export function transformPortfolioSummary(api: PortfolioSummary): PortfolioSummaryVM {
+  return {
+    totalBuyValue: formatIDR(api.totalBuyValue),
+    totalCurrentValue: formatIDR(api.totalCurrentValue),
+    totalPnL: formatIDR(Math.abs(api.totalPnL)),
+    pnlPercentage: formatPercentage(api.pnlPercentage),
+    totalWeightGram: `${api.totalWeightGram.toFixed(2)} g`,
+    pnlColor: getPnLColor(api.totalPnL),
+    pnlSign: api.totalPnL > 0 ? '+' : api.totalPnL < 0 ? '-' : '',
+    brandAllocation: api.brandAllocation.map((b: BrandAllocation) => ({
+      brandCode: b.brandCode,
+      brandName: b.brandName,
+      totalGrams: b.totalGrams,
+      currentValue: b.currentValue,
+      deltaValue: b.deltaValue,
+      deltaPercentage: b.deltaPercentage,
+      valuationSource: b.valuationSource
+    })),
+    disclaimer: api.disclaimer,
+    excludedCount: api.excludedCount,
+  }
+}
+
+/**
+ * Transform holding item to view model
+ */
+export function transformHoldingItem(api: HoldingItem): HoldingItemVM {
+  return {
+    id: api.id,
+    brand: api.brand,
+    brandName: api.brandName,
+    weight: `${api.denominationGram} g`,
+    quantity: api.quantity,
+    buyDate: formatDate(api.buyDate),
+    avgBuyPrice: formatIDR(api.avgBuyPrice),
+    currentPrice: formatIDR(api.currentBuybackPrice),
+    totalBuyValue: formatIDR(api.totalBuyValue),
+    totalValue: formatIDR(api.currentValue),
+    pnl: formatIDR(Math.abs(api.unrealizedPnL)),
+    pnlPercentage: formatPercentage(api.pnlPercentage),
+    pnlColor: getPnLColor(api.unrealizedPnL),
+    notes: api.notes,
+  }
+}
+
+/**
+ * Transform portfolio list to view model
+ */
+export function transformPortfolioList(api: PortfolioList): HoldingItemVM[] {
+  return api.items.map(transformHoldingItem)
+}
+
+/**
+ * Transform holding detail to view model
+ */
+export function transformHoldingDetail(api: HoldingDetail): HoldingItemVM {
+  return transformHoldingItem(api)
+}
+
+/**
+ * UI-friendly portfolio history point
+ */
+export interface PortfolioHistoryPointVM {
+  date: string // YYYY-MM-DD
+  value: number
+}
+
+export type PortfolioHistoryVM = PortfolioHistoryPointVM[]
+
+/**
+ * Transform portfolio history to view model
+ */
+export function transformPortfolioHistory(api: PortfolioHistory): PortfolioHistoryVM {
+  return api.series.map(point => ({
+    date: point.date,
+    value: point.value
+  }))
+}

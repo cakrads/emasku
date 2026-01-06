@@ -1,14 +1,13 @@
 /**
- * Brands Route
  * GET /api/v1/brands
  * 
- * Thin routing layer - delegates to controller
+ * Returns list of supported brands.
  */
 
 import { wrapController } from '@/applications/shared/lib/controller-wrapper'
-import { BrandController } from '@/applications/modules/brands/v1/delivery/http/brand-controller'
+import { BrandsController } from '@/applications/modules/brands/v1/delivery/http/brands-controller'
 
 export const GET = wrapController(async () => {
-  const controller = new BrandController()
-  return controller.list()
+  const controller = new BrandsController()
+  return controller.getBrands()
 })

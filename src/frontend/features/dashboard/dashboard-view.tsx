@@ -1,210 +1,114 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { PageWrapper, Container, Stack, Section } from '@/frontend/components/ui/layout'
-import { Typography } from '@/frontend/components/ui/typography'
 import PortfolioHero from './components/portfolio-hero'
 import PriceFreshness from './components/price-freshness'
 import BrandBreakdown from './components/brand-breakdown'
 import PortfolioChart from './components/portfolio-chart'
-import { holdingsRepository } from '@/frontend/utils/holdings-repository'
-import { aggregateHoldingsByBrand } from '@/frontend/utils/aggregations'
 import AddHoldingButton from './components/add-holding-button'
 import { MarketTodayCards } from './components/market-today-cards'
+import { fetchPortfolioSummary, fetchPortfolioHistory } from '@/frontend/services/portfolio/portfolio.api'
+import { transformPortfolioSummary, transformPortfolioHistory } from '@/frontend/view-model/portfolio.vm'
+import { DashboardSkeleton } from './components/dashboard-skeleton'
+import { PortfolioChartSkeleton } from './components/portfolio-chart-skeleton'
 
-// Dummy data matching the reference images
-type ValuationSource = 'OFFICIAL' | 'SPOT' | 'USER' | 'UNVALUED'
+import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
 
-interface BrandData {
-  brandCode: string
-  brandName: string
-  totalGrams: number
-  currentValue: number
-  deltaValue: number
-  deltaPercentage: number
-  valuationSource: ValuationSource
-}
+// Re-using dummy chart data for now as it's not yet in the summary API
+// DUMMY_CHART_DATA removed
 
-// Dummy data matching the reference images
-const DUMMY_DATA: { lastUpdated: Date; brands: BrandData[]; chartData: any[] } = {
-  lastUpdated: new Date(2025, 11, 31, 8, 0), // 08:00
-  brands: [
-    {
-      brandCode: 'ANTAM',
-      brandName: 'ANTAM',
-      totalGrams: 50.0,
-      currentValue: 63500000,
-      deltaValue: 285000,
-      deltaPercentage: 0.45,
-      valuationSource: 'OFFICIAL',
-    },
-    {
-      brandCode: 'GALERI24',
-      brandName: 'Galeri24',
-      totalGrams: 35.0,
-      currentValue: 44200000,
-      deltaValue: 123600,
-      deltaPercentage: 0.28,
-      valuationSource: 'OFFICIAL',
-    },
-    {
-      brandCode: 'UBS',
-      brandName: 'UBS',
-      totalGrams: 15.0,
-      currentValue: 19150000,
-      deltaValue: -21000,
-      deltaPercentage: -0.12,
-      valuationSource: 'SPOT',
-    },
-    {
-      brandCode: 'LOTUS_ARCHI',
-      brandName: 'Lotus Archi',
-      totalGrams: 1.0,
-      currentValue: 1000000,
-      deltaValue: 0,
-      deltaPercentage: 0.0,
-      valuationSource: 'USER',
-    },
-    {
-      brandCode: 'UNKNOWN',
-      brandName: 'Unknown Brand',
-      totalGrams: 5.0,
-      currentValue: 0,
-      deltaValue: 0,
-      deltaPercentage: 0.0,
-      valuationSource: 'UNVALUED',
-    },
-  ],
-  chartData: [
-    { date: '2025-12-24', value: 125000000 },
-    { date: '2025-12-25', value: 125500000 },
-    { date: '2025-12-26', value: 125200000 },
-    { date: '2025-12-27', value: 126800000 },
-    { date: '2025-12-28', value: 127100000 },
-    { date: '2025-12-29', value: 127500000 },
-    { date: '2025-12-30', value: 127429000 },
-    { date: '2025-12-31', value: 127850000 },
-  ],
-}
+function DashboardContent() {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['portfolio', 'summary'],
+    queryFn: fetchPortfolioSummary,
+  })
 
-function calculatePortfolioStats(brands: BrandData[]) {
-  const validSources: ValuationSource[] = ['OFFICIAL', 'SPOT', 'USER']
-  const includedBrands = brands.filter(b => validSources.includes(b.valuationSource))
-  const excludedBrands = brands.filter(b => b.valuationSource === 'UNVALUED')
+  // We should also fetch holdings to populate BrandBreakdown
+  // BUT for now let's focus on Summary API integration as requested.
+  // BrandBreakdown expects BrandData[]. 
+  // Let's hide BrandBreakdown for now or keep using dummy data?
+  // User asked to "update frontend". Ideally should be fully integrated.
+  // But doing everything in one step is risky.
+  // Let's keep BrandBreakdown using dummy/local data for this step, 
+  // and focus on replacing the Hero section with API data.
 
-  const totalValue = includedBrands.reduce((sum, b) => sum + b.currentValue, 0)
-  const totalDelta = includedBrands.reduce((sum, b) => sum + b.deltaValue, 0)
+  // Actually, let's just comment out BrandBreakdown or use empty array for now
+  // to show we are moving away from dummy data.
+  // Or better, let's update it in next step.
 
-  let deltaPercentage = 0
-  if (totalValue > 0) {
-    const previousValue = totalValue - totalDelta
-    if (previousValue !== 0) {
-      deltaPercentage = (totalDelta / previousValue) * 100
-    }
+  const { data: historyData, isLoading: isHistoryLoading } = useQuery({
+    queryKey: ['portfolio', 'history'],
+    queryFn: fetchPortfolioHistory,
+  })
+
+  const viewModel = data ? transformPortfolioSummary(data) : null
+  const historyViewModel = historyData ? transformPortfolioHistory(historyData) : []
+  const lastUpdated = new Date() // Should come from API or just use current time
+
+  if (isLoading || isHistoryLoading) {
+    return <DashboardSkeleton />
   }
 
-  const hasMixedValuation = includedBrands.some(b => ['SPOT', 'USER'].includes(b.valuationSource))
-
-  return {
-    totalValue: includedBrands.length > 0 ? totalValue : null,
-    totalGainLoss: totalValue * 0.1118,
-    gainLossPercentage: 11.18,
-    todayChange: totalDelta,
-    todayChangePercentage: deltaPercentage,
-    excludedCount: excludedBrands.length,
-    disclaimer: hasMixedValuation ? 'Includes SPOT-based and user-estimated values' : undefined
+  if (error || !viewModel) {
+    throw error || new Error('Failed to load portfolio')
   }
-}
-
-function deriveValuationSource(brandCode: string): ValuationSource {
-  switch (brandCode) {
-    case 'ANTAM':
-    case 'GALERI24':
-      return 'OFFICIAL'
-    case 'UBS':
-      return 'SPOT'
-    case 'UNKNOWN':
-      return 'UNVALUED'
-    default:
-      return 'USER'
-  }
-}
-
-export default function DashboardView() {
-  const [brands, setBrands] = useState<BrandData[]>(DUMMY_DATA.brands)
-
-  useEffect(() => {
-    // Load holdings from repository (includes local overrides)
-    const allHoldings = holdingsRepository.getAll()
-
-    // Aggregate by brand
-    const summaries = aggregateHoldingsByBrand(allHoldings)
-
-    // Map to BrandData
-    const brandData: BrandData[] = summaries.map(s => ({
-      brandCode: s.brandCode,
-      brandName: s.brandName,
-      totalGrams: s.totalWeight,
-      currentValue: s.totalCurrentValue,
-      deltaValue: s.unrealizedPL,
-      deltaPercentage: s.unrealizedPLPercentage,
-      valuationSource: deriveValuationSource(s.brandCode)
-    }))
-
-    // Sort to keep consistent order if needed, or rely on aggregation order
-    // (DUMMY_DATA had specific order, but acceptable to change)
-    setBrands(brandData)
-  }, [])
-
-  const stats = calculatePortfolioStats(brands)
 
   return (
-    <PageWrapper>
-      <Container className="max-w-7xl mx-auto px-4 md:px-8 py-8">
-        <Stack gap="xl">
-          {/* Top Section: Date + Hero + Market Today */}
-          <Stack gap="md">
-            <div className="flex justify-end mb-4 lg:mb-0">
-              <PriceFreshness lastUpdated={DUMMY_DATA.lastUpdated} />
+    <div className="animate-fade-in">
+      <Stack gap="xl">
+        {/* Top Section: Date + Hero + Market Today */}
+        <Stack gap="md">
+          <div className="flex justify-end mb-4 lg:mb-0">
+            <PriceFreshness lastUpdated={lastUpdated} />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 min-h-auto md:min-h-[190px]">
+              <PortfolioHero
+                totalValue={viewModel.totalCurrentValue}
+                gainLossPercentage={viewModel.pnlPercentage}
+                todayChange={viewModel.totalPnL} // API returns total PnL, not today change distinctively yet
+                todayChangePercentage={viewModel.pnlPercentage} // Same here, using total for now
+                pnlColor={viewModel.pnlColor}
+                disclaimer={viewModel.disclaimer}
+                excludedCount={viewModel.excludedCount}
+              />
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2 min-h-auto md:min-h-[190px] ">
-                <PortfolioHero
-                  totalValue={stats.totalValue}
-                  totalGainLoss={stats.totalGainLoss}
-                  gainLossPercentage={stats.gainLossPercentage}
-                  todayChange={stats.todayChange}
-                  todayChangePercentage={stats.todayChangePercentage}
-                  excludedCount={stats.excludedCount}
-                  disclaimer={stats.disclaimer}
-                />
-              </div>
-
-              <div className="lg:col-span-1 lg:relative min-w-0">
-                <div className="flex flex-col h-full lg:absolute lg:inset-0 w-full">
-                  <div className="flex-1 overflow-hidden min-h-0">
-                    <MarketTodayCards />
-                  </div>
+            <div className="lg:col-span-1 lg:relative min-w-0">
+              <div className="flex flex-col h-full lg:absolute lg:inset-0 w-full">
+                <div className="flex-1 overflow-hidden min-h-0">
+                  <MarketTodayCards />
                 </div>
               </div>
             </div>
-          </Stack>
-
-          {/* Brand breakdown */}
-          <BrandBreakdown brands={brands} />
-
-          {/* Portfolio performance snapshot */}
-          <PortfolioChart data={DUMMY_DATA.chartData} />
-
-
-          {/* Primary action FAB */}
-          <AddHoldingButton onClick={() => console.log('Add button clicked')} />
-
-          {/* Bottom spacing for mobile */}
-          <Section className="h-24 md:h-12" />
-
+          </div>
         </Stack>
+
+        {/* Brand Breakdown - Real Data */}
+        <BrandBreakdown brands={viewModel.brandAllocation} />
+
+        {/* Portfolio performance snapshot */}
+        <PortfolioChart data={historyViewModel} />
+
+        {/* Primary action FAB */}
+        <AddHoldingButton onClick={() => console.log('Add button clicked')} />
+
+        {/* Bottom spacing for mobile */}
+        <Section className="h-24 md:h-12" />
+      </Stack>
+    </div>
+  )
+}
+
+export default function DashboardView() {
+  return (
+    <PageWrapper>
+      <Container className="max-w-7xl mx-auto px-4 md:px-8 py-8">
+        <ErrorBoundary>
+          <DashboardContent />
+        </ErrorBoundary>
       </Container>
     </PageWrapper>
   )

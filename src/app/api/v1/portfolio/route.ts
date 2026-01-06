@@ -1,12 +1,13 @@
-import { PortfolioController } from '@/applications/modules/portfolio/v1/http/controller';
-import { NextRequest } from 'next/server';
+/**
+ * GET /api/v1/portfolio
+ * 
+ * Returns list of all portfolio holdings with valuations.
+ */
 
-const controller = new PortfolioController();
+import { wrapController } from '@/applications/shared/lib/controller-wrapper'
+import { PortfolioController } from '@/applications/modules/portfolio/v1/delivery/http/portfolio-controller'
 
-export async function GET() {
-  return await controller.getPortfolio();
-}
-
-export async function POST(request: NextRequest) {
-  return await controller.addHolding(request);
-}
+export const GET = wrapController(async () => {
+  const controller = new PortfolioController()
+  return controller.getPortfolioHoldings()
+})

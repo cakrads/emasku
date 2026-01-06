@@ -35,9 +35,6 @@ export class Galeri24Scraper {
    * Main entry point: Scrape prices
    */
   async scrape(): Promise<RawPriceData[]> {
-    const { ScraperLogger } = await import('./scraper-logger')
-    const logger = new ScraperLogger()
-
     console.log(`[Galeri24] Starting scrape from ${this.sourceUrl}`)
 
     try {

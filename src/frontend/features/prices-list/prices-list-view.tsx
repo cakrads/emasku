@@ -7,30 +7,19 @@
 
 'use client'
 
+import { useQuery } from '@tanstack/react-query'
 import { Typography } from '@/frontend/components/ui/typography'
-import { DUMMY_TODAY_PRICES } from '@/frontend/data/dummy-prices'
-
-/**
- * Format IDR currency
- */
-function formatIDR(value: number): string {
-  if (value === 0) return '-'
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value)
-}
-
+import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
+import { ROUTES } from '@/frontend/config/routes'
+import { fetchTodayPrices } from '@/frontend/services/prices/prices.api'
+import { transformTodayPrices, BrandPriceGroupVM } from '@/frontend/view-model/prices.vm'
+import { BrandPriceSkeletonSection } from './components/brand-price-skeleton'
+import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
 
 /**
  * Brand Price Section Component
  */
-function BrandPriceSection({ brandName, prices }: { brandName: string; prices: any[] }) {
-  // Sort by weight ascending
-  const sortedPrices = [...prices].sort((a, b) => a.denominationGram - b.denominationGram)
-
+function BrandPriceSection({ brandName, prices }: BrandPriceGroupVM) {
   return (
     <div className="mb-8 last:mb-0">
       {/* Brand Header */}
@@ -63,19 +52,19 @@ function BrandPriceSection({ brandName, prices }: { brandName: string; prices: a
             </tr>
           </thead>
           <tbody>
-            {sortedPrices.map((price, index) => (
+            {prices.map((price, index) => (
               <tr
                 key={`${price.denominationGram}-${index}`}
                 className="border-b border-border last:border-0 hover:bg-muted/30 transition-colors"
               >
                 <td className="px-6 py-3">
-                  <Typography variant="body">{price.denominationGram} g</Typography>
+                  <Typography variant="body">{price.weightLabel}</Typography>
                 </td>
                 <td className="px-6 py-3 text-right">
-                  <Typography variant="body">{formatIDR(price.sellPrice)}</Typography>
+                  <Typography variant="body">{price.sellPriceFormatted}</Typography>
                 </td>
                 <td className="px-6 py-3 text-right">
-                  <Typography variant="body">{formatIDR(price.buybackPrice)}</Typography>
+                  <Typography variant="body">{price.buybackPriceFormatted}</Typography>
                 </td>
               </tr>
             ))}
@@ -86,35 +75,83 @@ function BrandPriceSection({ brandName, prices }: { brandName: string; prices: a
   )
 }
 
-import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
-import { ROUTES } from '@/frontend/config/routes'
+function PricesListViewContent() {
+  // Fetch prices from API
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['prices', 'today'],
+    queryFn: fetchTodayPrices,
+  })
 
-function formatTimestamp(dateString: string): string {
-  const date = new Date(dateString)
-  return new Intl.DateTimeFormat('en-US', {
-    dateStyle: 'full',
-  }).format(date)
+  // Transform to view model
+  const viewModel = data ? transformTodayPrices(data) : null
+
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col gap-8">
+        {/* Skeleton for 4 brand sections */}
+        {[1, 2, 3, 4].map((index) => (
+          <BrandPriceSkeletonSection key={index} />
+        ))}
+      </div>
+    )
+  }
+
+
+  if (error || !viewModel) {
+    throw error || new Error('Failed to load prices')
+  }
+
+  // We are already inside the layout in simple cases, 
+  // BUT the outer layout needs to know the "Last Updated" description from viewModel.
+  // This is tricky: implicit dependency.
+  // Ideally, the outer page should fetch data for the title, or we accept generic title on error.
+
+  // Actually, for Prices List, "Today's Prices" is static title.
+  // The description "Latest update: ..." depends on data.
+  // If we move layout out, we can't set dynamic description easily from inside without context/state lift.
+
+  // Option 1: Use generic description in outer layout.
+  // Option 2: Lift data fetching (but then we handle error manually? No, we want ErrorBoundary).
+
+  // Let's fallback to generic description "Market Rates" in outer layout.
+  // And rendering dynamic description is harder if layout is fixed outside.
+  // Wait, StandardPageLayout renders title/desc.
+  // If I put StandardPageLayout outside, I set title/desc there.
+  // I can't update it from inside easily.
+
+  // Compromise:
+  // Outer Layout: Title "Today's Prices", Description "Current market rates for gold bars."
+  // Inner content just renders the list.
+
+  return (
+    <div className="flex flex-col gap-8">
+      <div className="text-sm text-muted-foreground -mb-4 text-right">
+        Latest update: {viewModel.lastUpdated}
+      </div>
+
+      {/* Brand Sections */}
+      {viewModel.brands.map((brandData) => (
+        <BrandPriceSection
+          key={brandData.brandName}
+          brandName={brandData.brandName}
+          prices={brandData.prices}
+        />
+      ))}
+    </div>
+  )
 }
 
 export function PricesListView() {
-  const lastUpdated = formatTimestamp(DUMMY_TODAY_PRICES.date)
-
   return (
     <StandardPageLayout
       title="Today's Prices"
-      description={`Latest update: ${lastUpdated}`}
+      description="Gold price monitoring by brand and weight"
       breadcrumbs={[{ label: 'Home', href: ROUTES.DASHBOARD }, { label: 'Prices' }]}
     >
-      <div className="flex flex-col gap-8">
-        {/* Brand Sections */}
-        {DUMMY_TODAY_PRICES.brands.map((brandData) => (
-          <BrandPriceSection
-            key={brandData.brand}
-            brandName={brandData.brand}
-            prices={brandData.prices}
-          />
-        ))}
-      </div>
+      <ErrorBoundary>
+        <PricesListViewContent />
+      </ErrorBoundary>
     </StandardPageLayout>
   )
 }

@@ -7,12 +7,67 @@
 
 'use client'
 
+import { useQuery } from '@tanstack/react-query'
 import { Typography } from '@/frontend/components/ui/typography'
 import { PriceHistoryChart } from '@/frontend/components/fragments/price-history-chart'
-import { DUMMY_HISTORICAL_PRICES } from '@/frontend/data/dummy-prices'
-
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
 import { ROUTES } from '@/frontend/config/routes'
+import { fetchSpotPriceSeries } from '@/frontend/services/market/market.api'
+import { PricesHistorySkeleton } from './components/prices-history-skeleton'
+import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
+
+function PricesHistoryContent() {
+  // Calculate date range (last 30 days)
+  const endDate = new Date()
+  const startDate = new Date()
+  startDate.setDate(startDate.getDate() - 30)
+
+  const to = endDate.toISOString().split('T')[0]
+  const from = startDate.toISOString().split('T')[0]
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['market', 'spot-prices', 'ANTAM', '1g', from, to],
+    queryFn: () => fetchSpotPriceSeries({
+      brand: 'ANTAM',
+      denomination: 1,
+      from,
+      to,
+    }),
+  })
+
+  if (isLoading) {
+    return (
+      <PricesHistorySkeleton />
+    )
+  }
+
+  if (error || !data) {
+    throw error || new Error('Failed to load price history')
+  }
+
+  // Transform data for the chart
+  // Chart expects { timestamp: string, price: number }
+  const chartData = data.series.map((point) => ({
+    timestamp: point.priceAt, // ISO string
+    price: point.price,
+  }))
+
+  return (
+    <div className="flex flex-col">
+      {/* Chart Section */}
+      <div className="bg-card rounded-lg border border-border p-6 mb-6">
+        <PriceHistoryChart data={chartData} height={400} />
+      </div>
+
+      {/* Footer Note */}
+      <div className="text-center">
+        <Typography variant="body-sm" className="text-muted-foreground">
+          Reference price only. Not personalized. Start date: {from}
+        </Typography>
+      </div>
+    </div>
+  )
+}
 
 export function PricesHistoryView() {
   return (
@@ -25,19 +80,9 @@ export function PricesHistoryView() {
         { label: 'History' }
       ]}
     >
-      <div className="flex flex-col">
-        {/* Chart Section */}
-        <div className="bg-card rounded-lg border border-border p-6 mb-6">
-          <PriceHistoryChart data={DUMMY_HISTORICAL_PRICES} height={400} />
-        </div>
-
-        {/* Footer Note */}
-        <div className="text-center">
-          <Typography variant="body-sm" className="text-muted-foreground">
-            Reference price only. Not personalized.
-          </Typography>
-        </div>
-      </div>
+      <ErrorBoundary>
+        <PricesHistoryContent />
+      </ErrorBoundary>
     </StandardPageLayout>
   )
 }

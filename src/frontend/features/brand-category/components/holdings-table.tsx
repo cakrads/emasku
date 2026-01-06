@@ -5,18 +5,11 @@ import { Typography } from '@/frontend/components/ui/typography'
 import { TrendingUp, TrendingDown } from 'lucide-react'
 import { cn } from '@/frontend/utils/cn'
 import { useRouter } from 'next/navigation'
-import { Holding } from '@/frontend/data/dummy-holdings'
-import {
-  calculateHoldingValue,
-  formatCurrency,
-  formatWeight,
-  formatDate,
-  formatPercentage,
-} from '@/frontend/utils/aggregations'
 import { ROUTES } from '@/frontend/config/routes'
+import { HoldingItemVM } from '@/frontend/view-model/portfolio.vm'
 
 interface HoldingsTableProps {
-  holdings: Holding[]
+  holdings: HoldingItemVM[]
   backUrl?: string
 }
 
@@ -65,10 +58,6 @@ export default function HoldingsTable({ holdings, backUrl }: HoldingsTableProps)
         </thead>
         <tbody>
           {holdings.map((holding) => {
-            const { totalBuyValue, totalCurrentValue, profitLoss, profitLossPercentage } =
-              calculateHoldingValue(holding)
-            const isPositive = profitLoss >= 0
-
             return (
               <tr
                 key={holding.id}
@@ -79,28 +68,34 @@ export default function HoldingsTable({ holdings, backUrl }: HoldingsTableProps)
                 className="border-b border-(--border) hover:bg-(--surface-elevated) cursor-pointer transition-colors"
               >
                 <td className="py-4 px-4">
-                  <Typography variant="body-sm">{formatDate(holding.buyDate)}</Typography>
+                  <Typography variant="body-sm">{holding.buyDate}</Typography>
                 </td>
                 <td className="py-4 px-4">
-                  <Typography variant="body-sm" className="font-medium">
-                    {formatWeight(holding.weight)}
-                  </Typography>
+                  <Stack gap="xs">
+                    <Typography variant="body-sm" className="font-medium">
+                      {holding.weight}
+                    </Typography>
+                    <Typography variant="caption" className="text-muted-foreground">
+                      {holding.brandName}
+                    </Typography>
+                  </Stack>
                 </td>
                 <td className="py-4 px-4 text-right">
                   <Typography variant="body-sm" className="financial-value">
-                    {formatCurrency(totalBuyValue)}
+                    {holding.avgBuyPrice}
                   </Typography>
                 </td>
                 <td className="py-4 px-4 text-right">
                   <Typography variant="body-sm" className="financial-value font-medium">
-                    {formatCurrency(totalCurrentValue)}
+                    {holding.totalValue}
                   </Typography>
                 </td>
                 <td className="py-4 px-4 text-right">
                   <Stack direction="horizontal" gap="xs" className="justify-end items-center">
-                    {isPositive ? (
+                    {holding.pnlColor === 'positive' && (
                       <TrendingUp className="w-3 h-3 text-(--positive)" />
-                    ) : (
+                    )}
+                    {holding.pnlColor === 'negative' && (
                       <TrendingDown className="w-3 h-3 text-(--negative)" />
                     )}
                     <Stack gap="none" className="items-end">
@@ -108,18 +103,18 @@ export default function HoldingsTable({ holdings, backUrl }: HoldingsTableProps)
                         variant="body-sm"
                         className={cn(
                           'font-semibold',
-                          isPositive ? 'text-(--positive)' : 'text-(--negative)'
+                          holding.pnlColor === 'positive' ? 'text-(--positive)' : holding.pnlColor === 'negative' ? 'text-(--negative)' : ''
                         )}
                       >
-                        {formatCurrency(Math.abs(profitLoss))}
+                        {holding.pnl}
                       </Typography>
                       <Typography
                         variant="caption"
                         className={cn(
-                          isPositive ? 'text-(--positive)' : 'text-(--negative)'
+                          holding.pnlColor === 'positive' ? 'text-(--positive)' : holding.pnlColor === 'negative' ? 'text-(--negative)' : ''
                         )}
                       >
-                        {formatPercentage(profitLossPercentage)}
+                        {holding.pnlPercentage}
                       </Typography>
                     </Stack>
                   </Stack>

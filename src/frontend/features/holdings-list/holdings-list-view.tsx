@@ -1,83 +1,118 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import { Stack, Section } from '@/frontend/components/ui/layout'
-import { Typography } from '@/frontend/components/ui/typography'
-import { DUMMY_HOLDINGS } from '@/frontend/data/dummy-holdings'
-import { holdingsRepository } from '@/frontend/utils/holdings-repository'
-import { sortHoldings } from '@/frontend/utils/aggregations'
+import { fetchPortfolioList } from '@/frontend/services/portfolio/portfolio.api'
+import { transformHoldingItem } from '@/frontend/view-model/portfolio.vm'
 import FilterBar from './components/filter-bar'
 import HoldingsTable from '../brand-category/components/holdings-table'
-
+import { HoldingsListSkeleton } from './components/holdings-list-skeleton'
+import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
-
 import { Button } from '@/frontend/components/ui/button'
 import { Plus } from 'lucide-react'
 import Link from 'next/link'
 import { ROUTES } from '@/frontend/config/routes'
+import { fetchBrands } from '@/frontend/services/brands/brands.api'
+
 
 export default function HoldingsListView() {
+  return (
+    <StandardPageLayout
+      title="Portfolio Holdings"
+      description="Detailed overview of your gold investments"
+      breadcrumbs={[
+        { label: 'Home', href: ROUTES.DASHBOARD },
+        { label: 'Holdings' }
+      ]}
+      action={
+        <Link href={ROUTES.ADD_HOLDING}>
+          <Button
+            className="flex items-center gap-2 bg-accent-gold hover:bg-accent-gold/90 text-white shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all border-none"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Add New Holding</span>
+          </Button>
+        </Link>
+      }
+    >
+      <ErrorBoundary>
+        <HoldingsListContent />
+      </ErrorBoundary>
+    </StandardPageLayout>
+  )
+}
+
+function HoldingsListContent() {
   const [brandFilter, setBrandFilter] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<'date' | 'value'>('date')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
-  const [allHoldings, setAllHoldings] = useState(DUMMY_HOLDINGS)
 
-  useEffect(() => {
-    setAllHoldings(holdingsRepository.getAll())
-  }, [])
+  // Fetch holdings
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['portfolio', 'list'],
+    queryFn: fetchPortfolioList,
+  })
 
-  // Filter holdings by brand if filter is set
+  // Fetch all brands for the filter
+  const { data: brandsData } = useQuery({
+    queryKey: ['brands'],
+    queryFn: fetchBrands,
+  })
+
+  // Handle loading and error
+  if (isLoading) return (
+    <HoldingsListSkeleton />
+  )
+
+  if (error || !data) {
+    throw error || new Error('Failed to load holdings')
+  }
+
+  const allHoldings = data.items
+
+  // Filter holdings
   let filteredHoldings = brandFilter
-    ? allHoldings.filter((h) => h.brandCode === brandFilter)
+    ? allHoldings.filter((h) => h.brand === brandFilter) // API returns brand code in 'brand'
     : allHoldings
 
   // Sort holdings
-  filteredHoldings = sortHoldings(filteredHoldings, sortBy, sortOrder)
+  filteredHoldings = [...filteredHoldings].sort((a, b) => {
+    let output = 0
+    if (sortBy === 'date') {
+      output = new Date(a.buyDate).getTime() - new Date(b.buyDate).getTime()
+    } else {
+      output = a.currentValue - b.currentValue
+    }
+    return sortOrder === 'asc' ? output : -output
+  })
 
-  // Get unique brands for filter dropdown
-  const uniqueBrands = Array.from(
-    new Set(allHoldings.map((h) => h.brandCode))
-  ).map((code) => ({
-    code,
-    name: allHoldings.find((h) => h.brandCode === code)?.brandName || code,
-  }))
+  // Transform to View Models
+  const viewModels = filteredHoldings.map(transformHoldingItem)
 
-  const description = `${filteredHoldings.length} ${filteredHoldings.length === 1 ? 'holding' : 'holdings'}${brandFilter ? ` in ${uniqueBrands.find((b) => b.code === brandFilter)?.name}` : ''}`
 
   return (
-    <StandardPageLayout
-      title="All Holdings"
-      description={description}
-      breadcrumbs={[{ label: 'Home', href: ROUTES.DASHBOARD }, { label: 'Holdings' }]}
-      action={
-        <Button asChild className="bg-accent-gold hover:bg-accent-gold/90 text-white border-none shadow-md">
-          <Link href={ROUTES.ADD_HOLDING}>
-            <Plus className="w-4 h-4 mr-2" />
-            Add Holding
-          </Link>
-        </Button>
-      }
-    >
-      <Stack gap="lg">
-        {/* Filter Bar */}
-        <FilterBar
-          brands={uniqueBrands}
-          selectedBrand={brandFilter}
-          onBrandChange={setBrandFilter}
-          sortBy={sortBy}
-          onSortByChange={setSortBy}
-          sortOrder={sortOrder}
-          onSortOrderChange={setSortOrder}
-        />
+    <Stack gap="lg">
 
-        {/* Holdings Table */}
-        <Section>
-          <HoldingsTable holdings={filteredHoldings} />
-        </Section>
+      {/* Filter Bar */}
+      <FilterBar
+        brands={brandsData?.items || []}
+        selectedBrand={brandFilter}
+        onBrandChange={setBrandFilter}
+        sortBy={sortBy}
+        onSortByChange={setSortBy}
+        sortOrder={sortOrder}
+        onSortOrderChange={setSortOrder}
+      />
 
-        {/* Bottom spacing */}
-        <Section className="h-12" />
-      </Stack>
-    </StandardPageLayout>
+      {/* Holdings Table */}
+      <Section>
+        <HoldingsTable holdings={viewModels} />
+      </Section>
+
+      {/* Bottom spacing */}
+      <Section className="h-12" />
+    </Stack>
   )
 }

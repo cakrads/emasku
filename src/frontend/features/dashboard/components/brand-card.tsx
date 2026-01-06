@@ -67,11 +67,16 @@ export default function BrandCard({
     >
       <Stack
         gap="md"
-        className="shrink-0 w-[280px] bg-[var(--surface-elevated)] border border-[var(--border)] rounded-xl p-4 shadow-[var(--shadow-sm)] transition-all group-hover:shadow-[var(--shadow-md)] group-hover:border-[var(--foreground)] cursor-pointer"
+        className="shrink-0 w-[280px] bg-(--surface-elevated) border border-(--border) rounded-xl p-4 shadow-(--shadow-sm) transition-all group-hover:shadow-(--shadow-md) group-hover:border-accent-gold/50 cursor-pointer relative overflow-hidden"
       >
-        <Stack gap="none">
+        {/* Subtle background glow on hover */}
+        <div className="absolute inset-0 bg-accent-gold/0 group-hover:bg-accent-gold/5 transition-colors duration-300" />
+
+        <Stack gap="none" className="relative z-10">
           <div className="flex items-center gap-1.5">
-            <Typography as="h3" variant="h3">{brandName}</Typography>
+            <Typography as="h3" variant="h3" className="group-hover:text-accent-gold transition-colors">
+              {brandName}
+            </Typography>
             {tooltipText && (
               <TooltipProvider delayDuration={200}>
                 <Tooltip>
@@ -101,21 +106,21 @@ export default function BrandCard({
           className={cn(
             "items-center w-fit px-2 py-1 rounded-md",
             !isUnvalued
-              ? (isPositive ? "bg-[var(--positive-bg)]" : "bg-[var(--negative-bg)]")
+              ? (isPositive ? "bg-(--positive-bg)" : "bg-(--negative-bg)")
               : "invisible" // Reserved space
           )}
         >
-          <TrendingUp className={cn("w-3 h-3", !isPositive && "rotate-180 text-[var(--negative)]", isPositive && "text-[var(--positive)]")} />
+          <TrendingUp className={cn("w-3 h-3", !isPositive && "rotate-180 text-(--negative)", isPositive && "text-(--positive)")} />
           <Stack direction="horizontal" gap="xs">
             <Typography
               variant="caption"
-              className={cn("font-semibold", isPositive ? "text-[var(--positive)]" : "text-[var(--negative)]")}
+              className={cn("font-semibold", isPositive ? "text-(--positive)" : "text-(--negative)")}
             >
               {isUnvalued ? "Rp 0" : formatCurrency(Math.abs(deltaValue))}
             </Typography>
             <Typography
               variant="caption"
-              className={cn("font-medium", isPositive ? "text-[var(--positive)]" : "text-[var(--negative)]")}
+              className={cn("font-medium", isPositive ? "text-(--positive)" : "text-(--negative)")}
             >
               ({deltaPercentage >= 0 ? '+' : ''}{deltaPercentage.toFixed(2)}%)
             </Typography>

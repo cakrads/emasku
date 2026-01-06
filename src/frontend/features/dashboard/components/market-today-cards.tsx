@@ -1,25 +1,34 @@
 'use client'
 
 import Link from 'next/link'
+import { useQuery } from '@tanstack/react-query'
 import { Typography } from '@/frontend/components/ui/typography'
-import { DUMMY_TODAY_PRICES } from '@/frontend/data/dummy-prices'
-import { ArrowRight, TrendingUp } from 'lucide-react'
+import { fetchTodayPrices } from '@/frontend/services/prices/prices.api'
+import { transformTodayPrices } from '@/frontend/view-model/prices.vm'
+import { ArrowRight } from 'lucide-react'
 import { ROUTES } from '@/frontend/config/routes'
-import { cn } from '@/frontend/utils/cn'
+import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
+import { MarketOverviewSkeleton } from './market-overview-skeleton'
 
-function formatIDR(value: number): string {
-  if (value === 0) return '-'
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value)
-}
+function MarketTodayContent() {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['prices', 'today'],
+    queryFn: fetchTodayPrices,
+  })
 
-export function MarketTodayCards() {
+  // Transform data if available
+  const viewModel = data ? transformTodayPrices(data) : null
+
+  if (isLoading) {
+    return <MarketOverviewSkeleton />
+  }
+
+  if (error || !viewModel) {
+    throw error || new Error('Failed to load market data')
+  }
+
   // Take top 3 brands for cards
-  const previewBrands = DUMMY_TODAY_PRICES.brands.slice(0, 3)
+  const previewBrands = viewModel.brands.slice(0, 3)
 
   return (
     <div className="flex flex-col h-full">
@@ -38,14 +47,12 @@ export function MarketTodayCards() {
       <div className="overflow-y-auto flex-1 min-h-0">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-1 gap-3 pb-1">
           {previewBrands.map((brand) => {
-            const change = brand.dailyChangePercent
-            const isPositive = change !== undefined ? change >= 0 : true
-            const hasChange = change !== undefined && change !== null
-            const price = brand.prices.find(p => p.denominationGram === 1)?.sellPrice || 0
+            // Find 1g price (usually standard reference)
+            const price1g = brand.prices.find(p => p.denominationGram === 1)
 
             return (
               <div
-                key={brand.brand}
+                key={brand.brandName}
                 className="group flex flex-col justify-between p-3 rounded-xl border border-border bg-card hover:border-accent-gold/50 hover:shadow-sm transition-all h-[100px] shrink-0 relative overflow-hidden"
               >
                 {/* Subtle background gradient hint on hover */}
@@ -54,29 +61,17 @@ export function MarketTodayCards() {
                 <div className="relative z-10">
                   <div className="flex justify-between items-start mb-1">
                     <Typography variant="caption" className="font-semibold text-muted-foreground group-hover:text-accent-gold transition-colors">
-                      {brand.brand}
+                      {brand.brandName}
                     </Typography>
                     <span className="text-[10px] text-muted-foreground/60">1g</span>
                   </div>
                   <Typography variant="body" className="font-bold -tracking-wide">
-                    {formatIDR(price)}
+                    {price1g?.sellPriceFormatted || '—'}
                   </Typography>
                 </div>
 
                 <div className="relative z-10 flex items-center gap-1">
-                  {hasChange ? (
-                    <div className={cn(
-                      "flex items-center gap-0.5 text-[10px] font-medium px-1.5 py-0.5 rounded-full w-fit",
-                      isPositive
-                        ? "bg-emerald-500/10 text-emerald-600"
-                        : "bg-rose-500/10 text-rose-600"
-                    )}>
-                      <TrendingUp className={cn("w-2.5 h-2.5", !isPositive && "rotate-180")} />
-                      <span>{isPositive ? '+' : ''}{change.toFixed(1)}%</span>
-                    </div>
-                  ) : (
-                    <span className="text-[10px] text-muted-foreground">—</span>
-                  )}
+                  <span className="text-[10px] text-muted-foreground">—</span>
                 </div>
               </div>
             )
@@ -97,5 +92,13 @@ export function MarketTodayCards() {
         </div>
       </div>
     </div>
+  )
+}
+
+export function MarketTodayCards() {
+  return (
+    <ErrorBoundary>
+      <MarketTodayContent />
+    </ErrorBoundary>
   )
 }

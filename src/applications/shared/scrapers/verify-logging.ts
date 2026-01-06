@@ -1,6 +1,5 @@
-
 import 'dotenv/config'
-import { PrismaClient, PriceType } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import pg from 'pg'
 import fs from 'fs'
@@ -14,9 +13,6 @@ const prisma = new PrismaClient({ adapter })
 
 async function main() {
   console.log('--- Step 1: Cleaning up specific record to force re-scrape ---')
-  // Find ANTAM brand
-  const antam = await prisma.brand.findUnique({ where: { code: 'ANTAM' } })
-  if (!antam) throw new Error('ANTAM brand not found')
 
   // Delete today's price for ANTAM 1g (Sell and Buyback)
   const today = new Date()
@@ -24,7 +20,7 @@ async function main() {
 
   const deleted = await prisma.goldPrice.deleteMany({
     where: {
-      brandId: antam.id,
+      brandCode: 'ANTAM',
       denominationGram: 1,
       priceAt: { gte: today }
     }

@@ -5,98 +5,88 @@ import { Typography } from '@/frontend/components/ui/typography'
 import { Info } from 'lucide-react'
 
 interface PortfolioHeroProps {
-  totalValue: number | null
-  totalGainLoss: number
-  gainLossPercentage: number
-  todayChange: number
-  todayChangePercentage: number
+  totalValue: string
+  gainLossPercentage: string
+  todayChange: string
+  todayChangePercentage: string
   disclaimer?: string
   excludedCount?: number
+  pnlColor?: 'positive' | 'negative' | 'neutral'
 }
 
 export default function PortfolioHero({
   totalValue,
-  totalGainLoss,
   gainLossPercentage,
   todayChange,
   todayChangePercentage,
   disclaimer,
   excludedCount,
+  pnlColor = 'neutral',
 }: PortfolioHeroProps) {
-  const isGainPositive = totalGainLoss >= 0
-  const isTodayPositive = todayChange >= 0
-  const hasValue = totalValue !== null
+  const isGainPositive = pnlColor === 'positive'
+  const isGainNeutral = pnlColor === 'neutral'
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(value)
-  }
-
-  const formatPercentage = (value: number) => {
-    const sign = value >= 0 ? '+' : ''
-    return `${sign}${value.toFixed(2)}%`
-  }
+  // Simplified logic for today change color (could be passed as prop too)
+  const isTodayPositive = todayChange.startsWith('+') || (!todayChange.startsWith('-') && todayChange !== '0' && todayChange !== '—')
 
   return (
     <Stack gap="md">
       <Stack gap="xs">
         <Typography variant="h4" className='mb-2'>Portfolio Value</Typography>
         <Typography as="h1" className="text-5xl md:text-5xl font-bold financial-value">
-          {hasValue ? formatCurrency(totalValue) : '—'}
+          {totalValue || '—'}
         </Typography>
 
-        {!hasValue && (
+        {!totalValue && (
           <Typography variant="body-sm">Unable to calculate total</Typography>
         )}
       </Stack>
 
-      {hasValue && (
-        <Stack direction="horizontal" gap="md" className="items-center flex-wrap">
-          <Stack direction="horizontal" gap="sm" className="items-center">
-            <Typography
-              variant="body-sm"
-              className={isGainPositive ? 'text-(--positive) font-medium' : 'text-(--negative) font-medium'}
-            >
-              {formatPercentage(gainLossPercentage)}
-            </Typography>
-            <Typography variant="caption" className="text-(--text-muted)">all time</Typography>
-          </Stack>
-
-          <Divider direction="vertical" className="h-4" />
-
-          <Stack direction="horizontal" gap="sm" className="items-center">
-            <Typography
-              variant="body-sm"
-              className={isTodayPositive ? 'text-(--positive) font-medium' : 'text-(--negative) font-medium'}
-            >
-              {formatPercentage(todayChangePercentage)}
-            </Typography>
-            <Typography variant="caption" className="text-(--text-muted)">today</Typography>
-          </Stack>
-        </Stack>
-      )}
-
-      {(excludedCount || disclaimer) && (
-        <Stack gap="xs">
-          {excludedCount && excludedCount > 0 && (
-            <Typography variant="caption" className="text-(--text-muted)">
-              {excludedCount} holding{excludedCount > 1 ? 's' : ''} excluded from total
-            </Typography>
-          )}
-          {disclaimer && hasValue && (
-            <div className="flex items-center gap-1.5 mt-1 text-muted-foreground/60">
-              <Info className="w-3 h-3" />
-              <Typography variant="caption" className="italic">
-                {disclaimer}
+      <Stack gap="sm">
+        {totalValue && (
+          <Stack direction="horizontal" gap="md" className="items-center flex-wrap">
+            <Stack direction="horizontal" gap="sm" className="items-center">
+              <Typography
+                variant="body-sm"
+                className={isGainPositive ? 'text-(--positive) font-medium' : isGainNeutral ? 'font-medium' : 'text-(--negative) font-medium'}
+              >
+                {gainLossPercentage}
               </Typography>
-            </div>
-          )}
-        </Stack>
-      )}
+              <Typography variant="caption" className="text-(--text-muted)">all time</Typography>
+            </Stack>
+
+            <Divider direction="vertical" className="h-4" />
+
+            <Stack direction="horizontal" gap="sm" className="items-center">
+              <Typography
+                variant="body-sm"
+                className={isTodayPositive ? 'text-(--positive) font-medium' : 'text-(--negative) font-medium'}
+              >
+                {todayChangePercentage}
+              </Typography>
+              <Typography variant="caption" className="text-(--text-muted)">today</Typography>
+            </Stack>
+          </Stack>
+        )}
+
+        {(excludedCount || disclaimer) && (
+          <Stack gap="xs">
+            {(excludedCount ?? 0) > 0 && (
+              <Typography variant="caption" className="text-(--text-muted)">
+                {excludedCount} holding{(excludedCount ?? 0) > 1 ? 's' : ''} excluded from total
+              </Typography>
+            )}
+            {disclaimer && totalValue && (
+              <div className="flex items-center gap-1.5 text-muted-foreground/60">
+                <Info className="w-3 h-3" />
+                <Typography variant="caption" className="italic">
+                  {disclaimer}
+                </Typography>
+              </div>
+            )}
+          </Stack>
+        )}
+      </Stack>
     </Stack>
   )
 }

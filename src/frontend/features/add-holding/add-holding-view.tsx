@@ -4,9 +4,9 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { Input } from '@/frontend/components/ui/input'
 import { Label } from '@/frontend/components/ui/label'
-import { Card, CardContent } from '@/frontend/components/ui/card'
+import { Card } from '@/frontend/components/ui/card'
 import { DatePicker } from '@/frontend/components/ui/date-picker'
-import { PageWrapper, Container, Stack, Section } from '@/frontend/components/ui/layout'
+import { Stack, Section } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { StepHeader } from '@/frontend/components/fragments/step-header'
 import { WizardFooter } from '@/frontend/components/fragments/wizard-footer'
@@ -16,12 +16,13 @@ import { Info, Check } from 'lucide-react'
 
 import { cn } from '@/frontend/utils/cn'
 import { ROUTES } from '@/frontend/config/routes'
+import { useQuery } from '@tanstack/react-query'
+import { fetchBrands } from '@/frontend/services/brands/brands.api'
+import { Skeleton } from '@/frontend/components/ui/skeleton'
 
 // --- Types ---
 
 type Step = 1 | 2 | 3
-type ValuationSource = 'OFFICIAL' | 'UNVALUED'
-
 interface Brand {
   id: string
   name: string
@@ -43,18 +44,15 @@ interface HoldingState {
 
 const MOCK_OFFICIAL_PRICE = 1350000 // Fixed for demo
 
-const KNOWN_BRANDS: Brand[] = [
-  { id: 'antam', name: 'ANTAM', hasOfficialPrice: true },
-  { id: 'galeri24', name: 'Galeri 24', hasOfficialPrice: true },
-  { id: 'ubs', name: 'UBS', hasOfficialPrice: false },
-  { id: 'lotus', name: 'Lotus Archi', hasOfficialPrice: false },
-]
+// KNOWN_BRANDS removed, fetching from API
 
 // --- Main Orchestrator ---
 
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
 
-export default function AddHoldingView() {
+import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
+
+function AddHoldingContent() {
   const router = useRouter()
   const [step, setStep] = useState<Step>(1)
   const [state, setState] = useState<HoldingState>({
@@ -105,6 +103,52 @@ export default function AddHoldingView() {
   }
 
   return (
+    <div className="flex flex-col relative max-w-lg mx-auto">
+      <StepHeader
+        title="Setup Wizard"
+        currentStep={step}
+        totalSteps={3}
+        onBack={step > 1 ? prevStep : () => router.push(ROUTES.HOLDINGS_LIST)}
+        className="px-0 pt-0 static bg-transparent"
+      />
+
+      {/* Progress Bar */}
+      <Section className="px-0 py-2 mb-4">
+        <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+          <div
+            className="h-full bg-accent-gold transition-all duration-300 ease-out"
+            style={{ width: `${(step / 3) * 100}%` }}
+          />
+        </div>
+      </Section>
+
+      {/* Step Content */}
+      <Section as="main" className="flex-1 px-0 pb-44 overflow-y-auto pt-0">
+        <Stack gap="lg" className="p-1">
+          {step === 1 && (
+            <ErrorBoundary>
+              <BrandSelectionStepWrapper
+                selected={state.brand}
+                onSelect={(b) => updateState({ brand: b })}
+              />
+            </ErrorBoundary>
+          )}
+          {step === 2 && <GoldDetailsStep state={state} onChange={updateState} />}
+          {step === 3 && <ReviewStep state={state} />}
+        </Stack>
+      </Section>
+
+      <WizardFooter
+        onNext={step === 3 ? handleSave : nextStep}
+        nextLabel={step === 3 ? 'Save Holding' : 'Continue'}
+        disabled={!canProceed()}
+      />
+    </div>
+  )
+}
+
+export default function AddHoldingView() {
+  return (
     <StandardPageLayout
       title="Add New Holding"
       breadcrumbs={[
@@ -113,47 +157,24 @@ export default function AddHoldingView() {
         { label: 'Add' }
       ]}
     >
-      <div className="flex flex-col relative max-w-lg mx-auto">
-        <StepHeader
-          title="Setup Wizard"
-          currentStep={step}
-          totalSteps={3}
-          onBack={step > 1 ? prevStep : () => router.push(ROUTES.HOLDINGS_LIST)}
-          className="px-0 pt-0 static bg-transparent"
-        />
-
-        {/* Progress Bar */}
-        <Section className="px-0 py-2 mb-4">
-          <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-            <div
-              className="h-full bg-accent-gold transition-all duration-300 ease-out"
-              style={{ width: `${(step / 3) * 100}%` }}
-            />
-          </div>
-        </Section>
-
-        {/* Step Content */}
-        <Section as="main" className="flex-1 px-0 pb-44 overflow-y-auto pt-0">
-          <Stack gap="lg" className="p-1">
-            {step === 1 && <BrandSelectionStep selected={state.brand} onSelect={(b) => updateState({ brand: b })} />}
-            {step === 2 && <GoldDetailsStep state={state} onChange={updateState} />}
-            {step === 3 && <ReviewStep state={state} />}
-          </Stack>
-        </Section>
-
-        <WizardFooter
-          onNext={step === 3 ? handleSave : nextStep}
-          nextLabel={step === 3 ? 'Save Holding' : 'Continue'}
-          disabled={!canProceed()}
-        />
-      </div>
+      <ErrorBoundary>
+        <AddHoldingContent />
+      </ErrorBoundary>
     </StandardPageLayout>
   )
 }
 
 // --- Step 1: Brand Selection ---
 
-function BrandSelectionStep({ selected, onSelect }: { selected: Brand | null, onSelect: (b: Brand) => void }) {
+function BrandSelectionStep({
+  selected,
+  onSelect,
+  brands
+}: {
+  selected: Brand | null,
+  onSelect: (b: Brand) => void,
+  brands: Brand[]
+}) {
   const [isCustomMode, setIsCustomMode] = useState(false)
   const [customName, setCustomName] = useState('')
 
@@ -211,7 +232,7 @@ function BrandSelectionStep({ selected, onSelect }: { selected: Brand | null, on
       </Stack>
 
       <Stack gap="sm">
-        {KNOWN_BRANDS.map(brand => (
+        {brands.map(brand => (
           <Button
             variant="ghost"
             key={brand.id}
@@ -238,6 +259,47 @@ function BrandSelectionStep({ selected, onSelect }: { selected: Brand | null, on
           </div>
           <Typography variant="body" className="font-medium">My brand is not listed (Custom)</Typography>
         </Button>
+      </Stack>
+    </Stack>
+  )
+}
+
+function BrandSelectionStepWrapper({ selected, onSelect }: { selected: Brand | null, onSelect: (b: Brand) => void }) {
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['brands'],
+    queryFn: fetchBrands,
+  })
+
+  if (isLoading) {
+    return <BrandSelectionSkeleton />
+  }
+
+  if (error) {
+    throw error
+  }
+
+  const brands: Brand[] = (data?.items || []).map(item => ({
+    id: item.code.toLowerCase(),
+    name: item.name,
+    hasOfficialPrice: ['ANTAM', 'GALERI24'].includes(item.code.toUpperCase())
+  }))
+
+  return <BrandSelectionStep selected={selected} onSelect={onSelect} brands={brands} />
+}
+
+function BrandSelectionSkeleton() {
+  return (
+    <Stack gap="lg" className="animate-pulse">
+      <Stack gap="xs">
+        <Skeleton className="h-10 w-48" />
+        <Skeleton className="h-4 w-64" />
+      </Stack>
+
+      <Stack gap="sm">
+        {[1, 2, 3, 4].map(i => (
+          <Skeleton key={i} className="h-[60px] w-full rounded-xl" />
+        ))}
+        <Skeleton className="h-[60px] w-full rounded-xl border-dashed" />
       </Stack>
     </Stack>
   )

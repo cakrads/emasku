@@ -9,15 +9,32 @@
 /**
  * Base error class with HTTP status code
  */
+/**
+ * Base error class with HTTP status code
+ */
 export class BaseError extends Error {
+  public readonly title: string
+  public readonly description: string
+
   constructor(
     message: string,
     public readonly code: number,
-    public readonly details?: object
+    public readonly details?: object,
+    description?: string,
+    title?: string
   ) {
     super(message)
     this.name = this.constructor.name
+    this.title = title || message
+    this.description = description || ''
     Error.captureStackTrace(this, this.constructor)
+
+    // Ensure details object exists and contains standard fields
+    this.details = {
+      ...details,
+      title: this.title,
+      description: this.description,
+    }
   }
 
   toJSON() {
@@ -34,8 +51,8 @@ export class BaseError extends Error {
  * 400 - Client sent invalid data
  */
 export class ValidationError extends BaseError {
-  constructor(message: string, details?: object) {
-    super(message, 400, details)
+  constructor(message: string, details?: object, description?: string, title?: string) {
+    super(message, 400, details, description, title)
   }
 }
 
@@ -43,8 +60,8 @@ export class ValidationError extends BaseError {
  * 404 - Resource not found
  */
 export class NotFoundError extends BaseError {
-  constructor(message: string, details?: object) {
-    super(message, 404, details)
+  constructor(message: string, details?: object, description?: string, title?: string) {
+    super(message, 404, details, description, title)
   }
 }
 
@@ -52,8 +69,8 @@ export class NotFoundError extends BaseError {
  * 409 - Conflict (e.g., duplicate entry)
  */
 export class ConflictError extends BaseError {
-  constructor(message: string, details?: object) {
-    super(message, 409, details)
+  constructor(message: string, details?: object, description?: string, title?: string) {
+    super(message, 409, details, description, title)
   }
 }
 
@@ -61,8 +78,8 @@ export class ConflictError extends BaseError {
  * 401 - Authentication required
  */
 export class UnauthorizedError extends BaseError {
-  constructor(message: string, details?: object) {
-    super(message, 401, details)
+  constructor(message: string, details?: object, description?: string, title?: string) {
+    super(message, 401, details, description, title)
   }
 }
 
@@ -70,8 +87,8 @@ export class UnauthorizedError extends BaseError {
  * 403 - Insufficient permissions
  */
 export class ForbiddenError extends BaseError {
-  constructor(message: string, details?: object) {
-    super(message, 403, details)
+  constructor(message: string, details?: object, description?: string, title?: string) {
+    super(message, 403, details, description, title)
   }
 }
 
@@ -79,8 +96,8 @@ export class ForbiddenError extends BaseError {
  * 422 - Unprocessable entity (semantic validation failure)
  */
 export class UnprocessableError extends BaseError {
-  constructor(message: string, details?: object) {
-    super(message, 422, details)
+  constructor(message: string, details?: object, description?: string, title?: string) {
+    super(message, 422, details, description, title)
   }
 }
 
@@ -88,7 +105,7 @@ export class UnprocessableError extends BaseError {
  * 500 - Internal server error
  */
 export class InternalError extends BaseError {
-  constructor(message: string, details?: object) {
-    super(message, 500, details)
+  constructor(message: string, details?: object, description?: string, title?: string) {
+    super(message, 500, details, description, title)
   }
 }

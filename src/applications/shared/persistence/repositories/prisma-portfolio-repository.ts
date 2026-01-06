@@ -4,7 +4,7 @@ import { IPortfolioRepository } from '../../../modules/portfolio/v1/domain/repos
 // import { Decimal } from 'decimal.js';
 
 export class PrismaPortfolioRepository implements IPortfolioRepository {
-  async save(asset: GoldAsset): Promise<GoldAsset> {
+  async save(_asset: GoldAsset): Promise<GoldAsset> {
     throw new Error('Method not implemented.');
     /*
     const savedAsset = await prisma.goldAsset.create({
@@ -20,7 +20,7 @@ export class PrismaPortfolioRepository implements IPortfolioRepository {
     */
   }
 
-  async findById(id: string): Promise<GoldAsset | null> {
+  async findById(_id: string): Promise<GoldAsset | null> {
     throw new Error('Method not implemented.');
     /*
     const asset = await prisma.goldAsset.findUnique({
@@ -40,7 +40,7 @@ export class PrismaPortfolioRepository implements IPortfolioRepository {
     */
   }
 
-  async delete(id: string): Promise<void> {
+  async delete(_id: string): Promise<void> {
     throw new Error('Method not implemented.');
     /*
     await prisma.goldAsset.delete({
@@ -49,7 +49,7 @@ export class PrismaPortfolioRepository implements IPortfolioRepository {
     */
   }
 
-  async update(asset: GoldAsset): Promise<GoldAsset> {
+  async update(_asset: GoldAsset): Promise<GoldAsset> {
     throw new Error('Method not implemented.');
     /*
     if (!asset.id) throw new Error('Cannot update asset without ID');

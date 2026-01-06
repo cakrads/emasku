@@ -1,70 +1,87 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-
+import { useQuery } from '@tanstack/react-query'
 import { Stack, Section } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
-import { DUMMY_HOLDINGS } from '@/frontend/data/dummy-holdings'
-import { holdingsRepository } from '@/frontend/utils/holdings-repository'
-import { filterHoldingsByBrand, calculateHoldingValue } from '@/frontend/utils/aggregations'
+import { fetchPortfolioList } from '@/frontend/services/portfolio/portfolio.api'
+import { transformHoldingItem } from '@/frontend/view-model/portfolio.vm'
 import BrandSummary from './components/brand-summary'
 import HoldingsTable from './components/holdings-table'
 import { ROUTES } from '@/frontend/config/routes'
+import { HoldingsListSkeleton } from '@/frontend/features/holdings-list/components/holdings-list-skeleton'
 
 interface BrandCategoryViewProps {
   brandId: string
 }
 
+
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
+import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
 
-export default function BrandCategoryView({ brandId }: BrandCategoryViewProps) {
-  // Load holdings from repository
-  const [allHoldings, setAllHoldings] = useState(DUMMY_HOLDINGS)
+export default function BrandCategoryView(props: BrandCategoryViewProps) {
+  return (
+    <StandardPageLayout
+      title="Brand Holdings"
+      description="Allocated gold holdings for this brand"
+      breadcrumbs={[
+        { label: 'Home', href: ROUTES.DASHBOARD },
+        { label: 'Holdings', href: ROUTES.HOLDINGS_LIST },
+        { label: 'Brand' }
+      ]}
+    >
+      <ErrorBoundary>
+        <BrandCategoryContent {...props} />
+      </ErrorBoundary>
+    </StandardPageLayout>
+  )
+}
 
-  useEffect(() => {
-    setAllHoldings(holdingsRepository.getAll())
-  }, [])
+function BrandCategoryContent({ brandId }: BrandCategoryViewProps) {
+  // Fetch all holdings
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['portfolio', 'list'],
+    queryFn: fetchPortfolioList,
+  })
 
-  // Filter holdings by brand (derived data, not stored)
-  const brandHoldings = filterHoldingsByBrand(allHoldings, brandId)
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <HoldingsListSkeleton />
+      </div>
+    )
+  }
+
+  if (error || !data) {
+    throw error || new Error('Failed to load holdings')
+  }
+
+  const allHoldings = data.items
+
+  // Filter holdings by brand code
+  const brandHoldings = allHoldings.filter((h) => h.brand === brandId)
 
   // If no holdings found for this brand
   if (brandHoldings.length === 0) {
     return (
-      <StandardPageLayout
-        title="Brand not found"
-        breadcrumbs={[
-          { label: 'Home', href: ROUTES.DASHBOARD },
-          { label: 'Holdings', href: ROUTES.HOLDINGS_LIST },
-          { label: brandId }
-        ]}
-      >
-        <Stack gap="lg">
-          <Typography variant="body">
-            No holdings found for brand code: {brandId}
-          </Typography>
-        </Stack>
-      </StandardPageLayout>
+      <Stack gap="lg">
+        <Typography variant="body">
+          No holdings found for brand code: {brandId}
+        </Typography>
+      </Stack>
     )
   }
 
-  // Aggregate data (computed on-demand, never stored)
-  const totalWeight = brandHoldings.reduce((sum, h) => sum + h.weight, 0)
-  const totalBuyValue = brandHoldings.reduce(
-    (sum, h) => sum + h.buyPrice * h.weight,
-    0
-  )
-  const totalCurrentValue = brandHoldings.reduce(
-    (sum, h) => sum + h.currentPrice * h.weight,
-    0
-  )
+  // Aggregate data
+  const totalWeight = brandHoldings.reduce((sum, h) => sum + (h.denominationGram * h.quantity), 0)
+  const totalBuyValue = brandHoldings.reduce((sum, h) => sum + h.totalBuyValue, 0)
+  const totalCurrentValue = brandHoldings.reduce((sum, h) => sum + h.currentValue, 0)
   const unrealizedPL = totalCurrentValue - totalBuyValue
-  const unrealizedPLPercentage =
-    totalBuyValue > 0 ? (unrealizedPL / totalBuyValue) * 100 : 0
+  const unrealizedPLPercentage = totalBuyValue > 0 ? (unrealizedPL / totalBuyValue) * 100 : 0
+  const brandName = brandHoldings[0].brandName
 
   const summary = {
     brandCode: brandId,
-    brandName: brandHoldings[0].brandName,
+    brandName: brandName,
     totalWeight,
     totalBuyValue,
     totalCurrentValue,
@@ -73,30 +90,25 @@ export default function BrandCategoryView({ brandId }: BrandCategoryViewProps) {
     holdingsCount: brandHoldings.length,
   }
 
+  // Transform to view models for table
+  const viewModels = brandHoldings.map(transformHoldingItem)
+
   return (
-    <StandardPageLayout
-      title={summary.brandName}
-      breadcrumbs={[
-        { label: 'Home', href: ROUTES.DASHBOARD },
-        { label: 'Holdings', href: ROUTES.HOLDINGS_LIST },
-        { label: summary.brandName }
-      ]}
-    >
-      <Stack gap="lg">
-        {/* Brand Summary Section - Aggregated from holdings */}
-        <BrandSummary {...summary} />
+    <Stack gap="lg">
 
-        {/* Holdings List - Filtered by brand */}
-        <Section>
-          <Stack gap="md">
-            <Typography variant="h3">Holdings</Typography>
-            <HoldingsTable holdings={brandHoldings} backUrl={ROUTES.BRAND_DETAIL(brandId)} />
-          </Stack>
-        </Section>
+      {/* Brand Summary Section - Aggregated from holdings */}
+      <BrandSummary {...summary} />
 
-        {/* Bottom spacing */}
-        <Section className="h-12" />
-      </Stack>
-    </StandardPageLayout>
+      {/* Holdings List - Filtered by brand */}
+      <Section>
+        <Stack gap="md">
+          <Typography variant="h3">Holdings</Typography>
+          <HoldingsTable holdings={viewModels} backUrl={ROUTES.BRAND_DETAIL(brandId)} />
+        </Stack>
+      </Section>
+
+      {/* Bottom spacing */}
+      <Section className="h-12" />
+    </Stack>
   )
 }
