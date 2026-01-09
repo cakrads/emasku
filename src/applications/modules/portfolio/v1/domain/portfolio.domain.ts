@@ -1,23 +1,57 @@
 /**
  * Portfolio Domain Models
  * 
- * Internal domain representation for portfolio data.
+ * Spec-compliant domain representation for portfolio data.
+ * Separates raw factual data from enriched valuations.
  */
 
-import { Decimal } from 'decimal.js'
+/**
+ * Raw portfolio holding (factual data from database).
+ * NO valuation, NO current prices.
+ * This represents the immutable purchase record.
+ */
+export interface PortfolioHoldingDomain {
+  id: string
+  brandCode: string
+  brandName: string
+  denominationGram: number
+  quantity: number
+  buyPrice: number
+  boughtAt: Date
+  soldAt?: Date | null
+  notes?: string
+}
 
+/**
+ * Holding enriched with current market valuation.
+ * Projection for display purposes.
+ * Includes fallback valuation logic (BUYBACK → SPOT → NONE).
+ */
+export interface ValuatedHoldingDomain extends PortfolioHoldingDomain {
+  currentPrice: number | null
+  currentValue: number | null
+  unrealizedPnL: number | null
+  pnlPercentage: number | null
+  valuationSource: 'BUYBACK' | 'SPOT' | 'NONE'
+  priceAsOf: Date | null
+}
+
+/**
+ * Brand-level allocation in portfolio summary.
+ */
 export interface BrandAllocationDomain {
   brandCode: string
   brandName: string
   totalGrams: number
   currentValue: number
-  valuationSource: 'OFFICIAL' | 'SPOT' | 'USER' | 'UNVALUED'
+  valuationSource: 'BUYBACK' | 'SPOT' | 'MIXED' | 'NONE'
   deltaValue: number
   deltaPercentage: number
 }
 
 /**
- * Portfolio summary aggregate
+ * Portfolio summary aggregate.
+ * Includes valuation coverage metrics.
  */
 export interface PortfolioSummaryDomain {
   totalBuyValue: number
@@ -28,37 +62,28 @@ export interface PortfolioSummaryDomain {
   holdingCount: number
   lastUpdated: Date
   brandAllocation: BrandAllocationDomain[]
-  disclaimer?: string
+  disclaimer: string
   excludedCount: number
+  valuationCoverage: number
 }
 
 /**
- * Individual holding record
+ * Portfolio history entry (purchase timeline).
+ * NOT market price history - represents individual purchases.
  */
-export interface HoldingDomain {
-  id: string
+export interface HistoryEntryDomain {
+  date: Date
   brandCode: string
   brandName: string
   denominationGram: number
   quantity: number
-  buyDate: Date
-  avgBuyPrice: number
-  currentBuybackPrice: number
-  totalBuyValue: number
-  currentValue: number
-  unrealizedPnL: number
-  pnlPercentage: number
+  buyValue: number
   notes?: string
 }
 
 /**
- * Portfolio history data point
+ * Portfolio history (chronological purchase timeline).
  */
-export interface PortfolioHistoryPointDomain {
-  date: Date
-  value: number
-}
-
 export interface PortfolioHistoryDomain {
-  series: PortfolioHistoryPointDomain[]
+  timeline: HistoryEntryDomain[]
 }

@@ -12,7 +12,7 @@ import { Typography } from '@/frontend/components/ui/typography'
 import { PriceHistoryChart } from '@/frontend/components/fragments/price-history-chart'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
 import { ROUTES } from '@/frontend/config/routes'
-import { fetchSpotPriceSeries } from '@/frontend/services/market/market.api'
+import { fetchSpotPriceSeries } from '@/frontend/services/prices/prices.api'
 import { PricesHistorySkeleton } from './components/prices-history-skeleton'
 import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
 

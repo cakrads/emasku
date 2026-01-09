@@ -1,45 +1,45 @@
 /**
  * Get Portfolio History Usecase
  * 
- * Business logic to compute portfolio value history.
- * Currently simulates history based on holdings and random fluctuation.
+ * Returns chronological purchase timeline.
+ * NOT market price history - represents individual purchases over time.
  */
 
+import Decimal from 'decimal.js'
+import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
+import { PortfolioHistoryDomain, HistoryEntryDomain } from '../domain/portfolio.domain'
 import { logger } from '@/applications/shared/lib/logger'
-import { PortfolioHistoryDomain, PortfolioHistoryPointDomain } from '../domain/portfolio.domain'
 
 export class GetPortfolioHistoryUsecase {
-  async execute(): Promise<PortfolioHistoryDomain> {
-    logger.info('Computing portfolio history')
+  private portfolioRepo = new PrismaPortfolioRepository()
 
-    // Simulate 30 days of history
-    const days = 30
-    const series: PortfolioHistoryPointDomain[] = []
-    const now = new Date()
+  async execute(userId: string = 'default-user-id'): Promise<PortfolioHistoryDomain> {
+    logger.info('Fetching portfolio history', { userId })
 
-    // Base value (approximate current value from summary)
-    // In a real app, this would query historical prices for every holding daily.
-    let currentValue = 53000000 // Start base
+    const holdings = await this.portfolioRepo.findAllByUserId(userId)
 
-    for (let i = days; i >= 0; i--) {
-      const date = new Date(now)
-      date.setDate(date.getDate() - i)
+    const timeline: HistoryEntryDomain[] = holdings.map((holding) => {
+      const buyValue = new Decimal(holding.buyPrice)
+        .times(holding.quantity)
+        .times(holding.denominationGram)
+        .toNumber()
 
-      // Random daily fluctuation (-1% to +1%)
-      const fluctuation = 1 + (Math.random() * 0.02 - 0.01)
-      currentValue = Math.round(currentValue * fluctuation)
+      return {
+        date: holding.boughtAt,
+        brandCode: holding.brandCode,
+        brandName: holding.brandName,
+        denominationGram: holding.denominationGram,
+        quantity: holding.quantity,
+        buyValue,
+        notes: holding.notes
+      }
+    })
 
-      // Ensure trend is somewhat realistic (upwards for gold usually)
-      if (i % 5 === 0) currentValue += 500000
+    // Sort by date ascending (purchase timeline)
+    timeline.sort((a, b) => a.date.getTime() - b.date.getTime())
 
-      series.push({
-        date,
-        value: currentValue
-      })
-    }
+    logger.info('Portfolio history fetched', { entries: timeline.length })
 
-    return {
-      series
-    }
+    return { timeline }
   }
 }

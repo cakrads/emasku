@@ -6,6 +6,7 @@
  */
 
 import { NextResponse } from 'next/server'
+import { ZodError } from 'zod'
 import { BaseError } from './errors'
 
 /**
@@ -68,6 +69,7 @@ export function errorResponse(
 ): NextResponse<ApiResponse<null>> {
   // Handle custom BaseError with known status codes
   if (error instanceof BaseError) {
+    console.log('BaseError details:', error.details)
     return NextResponse.json(
       {
         code: error.code,
@@ -81,6 +83,24 @@ export function errorResponse(
         },
       },
       { status: error.code }
+    )
+  }
+
+  // Handle Zod Validation Errors
+  if (error instanceof ZodError) {
+    return NextResponse.json(
+      {
+        code: 500, // Response validation failure is an internal error
+        success: false,
+        message: 'Data Integrity Error: Response validation failed',
+        data: null,
+        details: {
+          errorType: 'ValidationSchemaError',
+          traceId,
+          issues: error.issues,
+        },
+      },
+      { status: 500 }
     )
   }
 

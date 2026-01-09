@@ -18,8 +18,8 @@ import { z } from 'zod'
  */
 export const PriceEntrySchema = z.object({
   denominationGram: z.number().positive(),
-  sellPrice: z.number().int().nonnegative(),
-  buybackPrice: z.number().int().nonnegative(),
+  sellPrice: z.number().int().nonnegative().nullable(),
+  buybackPrice: z.number().int().nonnegative().nullable(),
 })
 
 export type PriceEntry = z.infer<typeof PriceEntrySchema>
@@ -36,7 +36,7 @@ export type BrandPriceGroup = z.infer<typeof BrandPriceGroupSchema>
 
 /**
  * Today Prices Response
- * Matches GET /api/v1/price/today
+ * Matches GET /api/v1/prices/today
  */
 export const PricesTodayResponseSchema = z.object({
   date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
@@ -45,3 +45,27 @@ export const PricesTodayResponseSchema = z.object({
 })
 
 export type PricesTodayResponse = z.infer<typeof PricesTodayResponseSchema>
+
+/**
+ * Price Point for time series
+ */
+export const PricePointSchema = z.object({
+  priceAt: z.string(), // ISO datetime
+  price: z.number().int().positive(),
+})
+
+export type PricePoint = z.infer<typeof PricePointSchema>
+
+/**
+ * Spot Price Series Response
+ * Matches GET /api/v1/prices/spot
+ */
+export const SpotPriceSeriesSchema = z.object({
+  brand: z.string(),
+  priceType: z.literal('SPOT'),
+  denominationGram: z.number().positive(),
+  currency: z.literal('IDR'),
+  series: z.array(PricePointSchema),
+})
+
+export type SpotPriceSeries = z.infer<typeof SpotPriceSeriesSchema>

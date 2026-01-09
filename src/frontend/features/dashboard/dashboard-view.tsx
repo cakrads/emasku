@@ -7,7 +7,7 @@ import PriceFreshness from './components/price-freshness'
 import BrandBreakdown from './components/brand-breakdown'
 import PortfolioChart from './components/portfolio-chart'
 import AddHoldingButton from './components/add-holding-button'
-import { MarketTodayCards } from './components/market-today-cards'
+import { PricesTodayCards } from './components/prices-today-cards'
 import { fetchPortfolioSummary, fetchPortfolioHistory } from '@/frontend/services/portfolio/portfolio.api'
 import { transformPortfolioSummary, transformPortfolioHistory } from '@/frontend/view-model/portfolio.vm'
 import { DashboardSkeleton } from './components/dashboard-skeleton'
@@ -79,7 +79,7 @@ function DashboardContent() {
             <div className="lg:col-span-1 lg:relative min-w-0">
               <div className="flex flex-col h-full lg:absolute lg:inset-0 w-full">
                 <div className="flex-1 overflow-hidden min-h-0">
-                  <MarketTodayCards />
+                  <PricesTodayCards />
                 </div>
               </div>
             </div>

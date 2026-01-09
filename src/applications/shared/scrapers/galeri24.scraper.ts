@@ -12,12 +12,14 @@
  */
 
 import { SCRAPER_SOURCE_URL } from '../lib/env'
+import { BRAND_CONFIG, getBrandName } from '../../modules/brands/v1/domain/brands.const'
 
 /**
  * Raw price structure from upstream source
  */
 export interface RawPriceData {
   brand: string
+  brandName: string
   denominationGram: number
   sellPrice: number
   buybackPrice: number
@@ -147,10 +149,10 @@ export class Galeri24Scraper {
 
       if (vendor === 'UBS') {
         brandCode = 'UBS'
-      } else if (vendor === 'GALERI 24') {
+      } else if (vendor === 'GALERI 24' || vendor === 'GALERI24') {
         brandCode = 'GALERI24'
-      } else if (vendor === 'LOTUS ARCHI') {
-        brandCode = 'LOTUS'
+      } else if (vendor === 'LOTUS ARCHI' || vendor === 'LOTUS') {
+        brandCode = 'LOTUS_ARCHI'
       } else if (vendor === 'ANTAM') {
         brandCode = 'ANTAM'
       }
@@ -163,7 +165,7 @@ export class Galeri24Scraper {
       // STRICT DENOMINATION FILTERING
       const ALLOWED_DENOMS: Record<string, number[]> = {
         'ANTAM': [0.5, 1, 2, 3, 5, 10, 25, 50, 100, 250, 500, 1000],
-        'LOTUS': [1, 5, 10, 25, 50, 100],
+        'LOTUS_ARCHI': [1, 5, 10, 25, 50, 100],
         'UBS': [0.5, 1, 2, 5, 10, 25, 50, 100, 250, 500],
         'GALERI24': [0.5, 1, 2, 5, 10, 25, 50, 100, 250, 500, 1000]
       }
@@ -201,6 +203,7 @@ export class Galeri24Scraper {
       if (!priceMap.has(key) || itemDate.getTime() > new Date(priceMap.get(key)!.timestamp!).getTime()) {
         priceMap.set(key, {
           brand: brandCode,
+          brandName: getBrandName(brandCode),
           denominationGram: validItem.denomination,
           sellPrice: validItem.sellingPrice,
           buybackPrice: validItem.buybackPrice,

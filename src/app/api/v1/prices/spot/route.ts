@@ -1,14 +1,14 @@
 /**
  * Spot Price Series Route
- * GET /api/v1/price/spot
+ * GET /api/v1/prices/spot
  * 
  * Thin routing layer - delegates to controller
  */
 
 import { wrapController } from '@/applications/shared/lib/controller-wrapper'
-import { MarketController } from '@/applications/modules/market/v1/delivery/http/market-controller'
+import { PricesController } from '@/applications/modules/prices/v1/delivery/http/prices-controller'
 
 export const GET = wrapController(async (req) => {
-  const controller = new MarketController()
+  const controller = new PricesController()
   return controller.getSpotSeries(req)
 })

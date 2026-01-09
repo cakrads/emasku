@@ -2,16 +2,21 @@
  * Portfolio Mapper
  * 
  * Maps domain models to API contract types.
+ * Never exposes Prisma models directly.
  */
 
-import { PortfolioSummaryDomain, HoldingDomain } from '../../domain/portfolio.domain'
-import { PortfolioSummary, BrandAllocation, HoldingItem, PortfolioList, PortfolioSummarySchema, PortfolioHistoryPointSchema, PortfolioHistorySchema } from '@/shared/contracts/portfolio.contract'
+import {
+  PortfolioSummaryDomain,
+  ValuatedHoldingDomain,
+  PortfolioHistoryDomain
+} from '../../domain/portfolio.domain'
 
 export class PortfolioMapper {
   /**
-   * Map domain summary to API contract
+   * Map domain summary to API contract.
+   * Includes currency and valuation metadata.
    */
-  static toPortfolioSummaryResponse(domain: PortfolioSummaryDomain): PortfolioSummary {
+  static toPortfolioSummaryResponse(domain: PortfolioSummaryDomain) {
     return {
       totalBuyValue: Math.round(domain.totalBuyValue),
       totalCurrentValue: Math.round(domain.totalCurrentValue),
@@ -33,30 +38,35 @@ export class PortfolioMapper {
   }
 
   /**
-   * Map domain holding to API contract
+   * Map valuated holding to API contract.
+   * Includes valuation source and price timestamp.
    */
-  static toHoldingItem(domain: HoldingDomain): HoldingItem {
+  static toHoldingItem(domain: ValuatedHoldingDomain) {
     return {
       id: domain.id,
       brand: domain.brandCode,
       brandName: domain.brandName,
       denominationGram: domain.denominationGram,
       quantity: domain.quantity,
-      buyDate: domain.buyDate.toISOString().split('T')[0], // YYYY-MM-DD
-      avgBuyPrice: Math.round(domain.avgBuyPrice),
-      currentBuybackPrice: Math.round(domain.currentBuybackPrice),
-      totalBuyValue: Math.round(domain.totalBuyValue),
-      currentValue: Math.round(domain.currentValue),
-      unrealizedPnL: Math.round(domain.unrealizedPnL),
-      pnlPercentage: Number(domain.pnlPercentage.toFixed(2)),
+      buyDate: domain.boughtAt.toISOString().split('T')[0], // YYYY-MM-DD
+      avgBuyPrice: Math.round(domain.buyPrice),
+      currentBuybackPrice: domain.currentPrice ? Math.round(domain.currentPrice) : null,
+      totalBuyValue: Math.round(domain.buyPrice * domain.quantity * domain.denominationGram),
+      currentValue: domain.currentValue ? Math.round(domain.currentValue) : null,
+      unrealizedPnL: domain.unrealizedPnL ? Math.round(domain.unrealizedPnL) : null,
+      pnlPercentage: domain.pnlPercentage ? Number(domain.pnlPercentage.toFixed(2)) : null,
+      valuationSource: domain.valuationSource,
+      priceAsOf: domain.priceAsOf ? domain.priceAsOf.toISOString() : null,
+      soldAt: domain.soldAt ? domain.soldAt.toISOString() : null,
       notes: domain.notes,
     }
   }
 
   /**
-   * Map domain holdings to portfolio list
+   * Map domain holdings to portfolio list.
+   * Always includes currency.
    */
-  static toPortfolioListResponse(holdings: HoldingDomain[]): PortfolioList {
+  static toPortfolioListResponse(holdings: ValuatedHoldingDomain[]) {
     return {
       currency: 'IDR',
       items: holdings.map((h) => this.toHoldingItem(h)),
@@ -64,14 +74,21 @@ export class PortfolioMapper {
   }
 
   /**
-   * Map domain history to API contract
+   * Map domain history to API contract.
+   * Represents purchase timeline, not market price history.
    */
-  static toPortfolioHistoryResponse(domain: { series: { date: Date; value: number }[] }): { series: { date: string; value: number }[] } {
+  static toPortfolioHistoryResponse(domain: PortfolioHistoryDomain) {
     return {
-      series: domain.series.map(point => ({
-        date: point.date.toISOString().split('T')[0],
-        value: Math.round(point.value)
+      timeline: domain.timeline.map(entry => ({
+        date: entry.date.toISOString().split('T')[0],
+        brandCode: entry.brandCode,
+        brandName: entry.brandName,
+        denominationGram: entry.denominationGram,
+        quantity: entry.quantity,
+        buyValue: Math.round(entry.buyValue),
+        notes: entry.notes
       }))
     }
   }
 }
+

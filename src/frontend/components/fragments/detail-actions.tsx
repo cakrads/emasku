@@ -7,6 +7,7 @@ interface Action {
   label: string
   onClick: () => void
   variant?: "default" | "outline" | "ghost" | "link" | "destructive" | "secondary"
+  disabled?: boolean
 }
 
 interface DetailActionsProps {
@@ -24,6 +25,7 @@ export function DetailActions({ actions, className }: DetailActionsProps) {
               key={idx}
               variant={action.variant}
               onClick={action.onClick}
+              disabled={action.disabled}
               className="w-full h-12 rounded-xl text-sm font-semibold"
             >
               {action.label}

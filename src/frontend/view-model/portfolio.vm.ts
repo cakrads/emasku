@@ -29,7 +29,7 @@ export interface BrandData {
   currentValue: number
   deltaValue: number
   deltaPercentage: number
-  valuationSource: 'OFFICIAL' | 'SPOT' | 'USER' | 'UNVALUED'
+  valuationSource: 'BUYBACK' | 'SPOT' | 'USER' | 'NONE' | 'MIXED'
 }
 
 /**
@@ -49,6 +49,8 @@ export interface HoldingItemVM {
   pnl: string // Formatted IDR
   pnlPercentage: string // Formatted percentage
   pnlColor: 'positive' | 'negative' | 'neutral'
+  isSold: boolean
+  soldAt?: string
   notes?: string
 }
 
@@ -131,12 +133,14 @@ export function transformHoldingItem(api: HoldingItem): HoldingItemVM {
     quantity: api.quantity,
     buyDate: formatDate(api.buyDate),
     avgBuyPrice: formatIDR(api.avgBuyPrice),
-    currentPrice: formatIDR(api.currentBuybackPrice),
+    currentPrice: api.currentBuybackPrice ? formatIDR(api.currentBuybackPrice) : '-',
     totalBuyValue: formatIDR(api.totalBuyValue),
-    totalValue: formatIDR(api.currentValue),
-    pnl: formatIDR(Math.abs(api.unrealizedPnL)),
-    pnlPercentage: formatPercentage(api.pnlPercentage),
-    pnlColor: getPnLColor(api.unrealizedPnL),
+    totalValue: api.currentValue ? formatIDR(api.currentValue) : '-',
+    pnl: api.unrealizedPnL ? formatIDR(Math.abs(api.unrealizedPnL)) : '-',
+    pnlPercentage: api.pnlPercentage ? formatPercentage(api.pnlPercentage) : '0.00%',
+    pnlColor: api.unrealizedPnL ? getPnLColor(api.unrealizedPnL) : 'neutral',
+    isSold: !!api.soldAt,
+    soldAt: api.soldAt ? formatDate(api.soldAt) : undefined,
     notes: api.notes,
   }
 }
@@ -169,8 +173,9 @@ export type PortfolioHistoryVM = PortfolioHistoryPointVM[]
  * Transform portfolio history to view model
  */
 export function transformPortfolioHistory(api: PortfolioHistory): PortfolioHistoryVM {
-  return api.series.map(point => ({
-    date: point.date,
-    value: point.value
+  const items = api.timeline || []
+  return items.map(element => ({
+    date: element.date,
+    value: element.buyValue
   }))
 }

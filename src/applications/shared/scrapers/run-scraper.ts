@@ -3,8 +3,8 @@ import { PrismaClient } from '@prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg'
 import pg from 'pg'
 // Architects Components
-import { PrismaPriceRepository } from '../../modules/market/v1/repository/prisma-price-repository'
-import { ScrapeAndPersistPrices } from '../../modules/market/v1/usecases/scrape-and-persist-prices'
+import { PrismaPriceRepository } from '../../modules/prices/v1/repository/prisma-price-repository'
+import { ScrapeAndPersistPrices } from '../../modules/prices/v1/usecases/scrape-and-persist-prices'
 import { DIRECT_URL, SCRAPER_SOURCE_URL } from '../lib/env'
 
 const connectionString = DIRECT_URL

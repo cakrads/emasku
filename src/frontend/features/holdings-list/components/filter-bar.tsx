@@ -13,6 +13,8 @@ interface FilterBarProps {
   onSortByChange: (sortBy: 'date' | 'value') => void
   sortOrder: 'asc' | 'desc'
   onSortOrderChange: (order: 'asc' | 'desc') => void
+  status: 'active' | 'sold' | 'all'
+  onStatusChange: (status: 'active' | 'sold' | 'all') => void
 }
 
 export default function FilterBar({
@@ -23,13 +25,34 @@ export default function FilterBar({
   onSortByChange,
   sortOrder,
   onSortOrderChange,
+  status,
+  onStatusChange,
 }: FilterBarProps) {
   return (
     <Section className="bg-[var(--surface-elevated)] border border-[var(--border)] rounded-xl p-4">
       <Stack direction="horizontal" gap="md" className="flex-wrap items-center">
-        {/* Brand Filter */}
+        {/* Status Filter */}
         <Stack direction="horizontal" gap="sm" className="items-center">
           <Filter className="w-4 h-4 text-[var(--foreground-muted)]" />
+          <Typography variant="body-sm" className="text-[var(--foreground-muted)]">
+            Status:
+          </Typography>
+          <select
+            value={status}
+            onChange={(e) => onStatusChange(e.target.value as 'active' | 'sold' | 'all')}
+            className="bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--foreground)]"
+          >
+            <option value="active">Active</option>
+            <option value="sold">Sold</option>
+            <option value="all">All</option>
+          </select>
+        </Stack>
+
+        {/* Divider */}
+        <div className="h-6 w-px bg-[var(--border)]" />
+
+        {/* Brand Filter */}
+        <Stack direction="horizontal" gap="sm" className="items-center">
           <Typography variant="body-sm" className="text-[var(--foreground-muted)]">
             Brand:
           </Typography>

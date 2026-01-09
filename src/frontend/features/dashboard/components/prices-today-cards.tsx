@@ -8,9 +8,9 @@ import { transformTodayPrices } from '@/frontend/view-model/prices.vm'
 import { ArrowRight } from 'lucide-react'
 import { ROUTES } from '@/frontend/config/routes'
 import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
-import { MarketOverviewSkeleton } from './market-overview-skeleton'
+import { PricesOverviewSkeleton } from './prices-overview-skeleton'
 
-function MarketTodayContent() {
+function PricesTodayContent() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['prices', 'today'],
     queryFn: fetchTodayPrices,
@@ -20,7 +20,7 @@ function MarketTodayContent() {
   const viewModel = data ? transformTodayPrices(data) : null
 
   if (isLoading) {
-    return <MarketOverviewSkeleton />
+    return <PricesOverviewSkeleton />
   }
 
   if (error || !viewModel) {
@@ -95,10 +95,10 @@ function MarketTodayContent() {
   )
 }
 
-export function MarketTodayCards() {
+export function PricesTodayCards() {
   return (
     <ErrorBoundary>
-      <MarketTodayContent />
+      <PricesTodayContent />
     </ErrorBoundary>
   )
 }

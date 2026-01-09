@@ -16,9 +16,11 @@ import { Info, Check } from 'lucide-react'
 
 import { cn } from '@/frontend/utils/cn'
 import { ROUTES } from '@/frontend/config/routes'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchBrands } from '@/frontend/services/brands/brands.api'
+import { createHolding } from '@/frontend/services/portfolio/portfolio.api'
 import { Skeleton } from '@/frontend/components/ui/skeleton'
+import { toast } from 'sonner'
 
 // --- Types ---
 
@@ -54,6 +56,7 @@ import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
 
 function AddHoldingContent() {
   const router = useRouter()
+  const queryClient = useQueryClient()
   const [step, setStep] = useState<Step>(1)
   const [state, setState] = useState<HoldingState>({
     brand: null,
@@ -63,6 +66,38 @@ function AddHoldingContent() {
     purity: '',
     type: 'Gold Bar',
     notes: ''
+  })
+
+  // Mutation for creating holding
+  const createMutation = useMutation({
+    mutationFn: createHolding,
+    onSuccess: () => {
+      toast.success('Holding created successfully!', {
+        description: `${state.weight}g of ${state.brand?.name} has been added to your portfolio.`
+      })
+      // Invalidate portfolio queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['portfolio'] })
+      queryClient.invalidateQueries({ queryKey: ['holdings'] })
+      router.push(ROUTES.HOLDINGS_LIST)
+    },
+    onError: (error: any) => {
+      const errorMessage = error?.message || 'Failed to create holding'
+      const errorDetails = error?.details?.errors
+
+      if (errorDetails) {
+        // Show field-specific errors
+        const fieldErrors = Object.entries(errorDetails)
+          .map(([field, messages]) => `${field}: ${Array.isArray(messages) ? messages.join(', ') : messages}`)
+          .join('\n')
+        toast.error('Validation Error', {
+          description: fieldErrors
+        })
+      } else {
+        toast.error('Error', {
+          description: errorMessage
+        })
+      }
+    }
   })
 
   const updateState = (updates: Partial<HoldingState>) => {
@@ -82,24 +117,34 @@ function AddHoldingContent() {
   }
 
   const handleSave = () => {
-    const isOfficial = state.brand?.hasOfficialPrice
-
-    const newHolding = {
-      brandName: state.brand?.name || 'Unknown',
-      totalGrams: parseFloat(state.weight),
-      valuationSource: isOfficial ? 'OFFICIAL' : 'UNVALUED',
-      currentValue: isOfficial ? MOCK_OFFICIAL_PRICE * parseFloat(state.weight) : 0,
-      purchaseDate: state.purchaseDate ? format(state.purchaseDate, 'yyyy-MM-dd') : undefined,
-      purchasePrice: state.purchasePrice ? parseFloat(state.purchasePrice) : undefined,
-      notes: state.notes,
-      deltaValue: 0,
-      deltaPercentage: 0,
-      isNew: true
+    if (!state.brand || !state.weight) {
+      toast.error('Missing required fields', {
+        description: 'Please fill in brand and weight.'
+      })
+      return
     }
 
-    const existing = JSON.parse(localStorage.getItem('emasku-holdings') || '[]')
-    localStorage.setItem('emasku-holdings', JSON.stringify([newHolding, ...existing]))
-    router.push(ROUTES.HOLDINGS_LIST)
+    if (createMutation.isPending) return
+
+    // Format date as YYYY-MM-DD in local timezone to avoid timezone issues (only if provided)
+    let localDateString: string | undefined
+    if (state.purchaseDate) {
+      const year = state.purchaseDate.getFullYear()
+      const month = String(state.purchaseDate.getMonth() + 1).padStart(2, '0')
+      const day = String(state.purchaseDate.getDate()).padStart(2, '0')
+      localDateString = `${year}-${month}-${day}T00:00:00.000Z`
+    }
+
+    createMutation.mutate({
+      brandCode: state.brand.id, // Already the correct brand code
+      denominationGram: parseFloat(state.weight),
+      quantity: 1,
+      buyPrice: state.purchasePrice ? Math.round(parseFloat(state.purchasePrice)) : undefined,
+      buyDate: localDateString,
+      notes: state.brand.isCustom
+        ? `[Custom Brand: ${state.brand.name}] ${state.notes || ''}`.trim()
+        : (state.notes || undefined),
+    })
   }
 
   return (
@@ -141,7 +186,7 @@ function AddHoldingContent() {
       <WizardFooter
         onNext={step === 3 ? handleSave : nextStep}
         nextLabel={step === 3 ? 'Save Holding' : 'Continue'}
-        disabled={!canProceed()}
+        disabled={!canProceed() || createMutation.isPending}
       />
     </div>
   )
@@ -204,7 +249,7 @@ function BrandSelectionStep({
               onChange={(e) => {
                 setCustomName(e.target.value)
                 const name = e.target.value
-                const b = name ? { id: 'custom-temp', name, hasOfficialPrice: false, isCustom: true } : null
+                const b = name ? { id: 'OTHER', name, hasOfficialPrice: false, isCustom: true } : null
                 onSelect(b as any)
               }}
               className="p-4 rounded-xl bg-surface-elevated border-border text-foreground text-lg font-semibold h-14"
@@ -278,11 +323,13 @@ function BrandSelectionStepWrapper({ selected, onSelect }: { selected: Brand | n
     throw error
   }
 
-  const brands: Brand[] = (data?.items || []).map(item => ({
-    id: item.code.toLowerCase(),
-    name: item.name,
-    hasOfficialPrice: ['ANTAM', 'GALERI24'].includes(item.code.toUpperCase())
-  }))
+  const brands: Brand[] = (data?.items || [])
+    .filter(item => item.code !== 'OTHER')
+    .map(item => ({
+      id: item.code, // Use actual brand code as ID
+      name: item.name,
+      hasOfficialPrice: ['ANTAM', 'GALERI24'].includes(item.code.toUpperCase())
+    }))
 
   return <BrandSelectionStep selected={selected} onSelect={onSelect} brands={brands} />
 }
@@ -358,6 +405,7 @@ function GoldDetailsStep({ state, onChange }: { state: HoldingState, onChange: (
               <DatePicker
                 value={state.purchaseDate}
                 onChange={(date) => onChange({ purchaseDate: date })}
+                disabled={(date) => date > new Date()}
               />
             </Stack>
 

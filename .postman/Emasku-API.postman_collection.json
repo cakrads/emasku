@@ -15,59 +15,7 @@
   ],
   "item": [
     {
-      "name": "Market",
-      "item": [
-        {
-          "name": "Get Market Overview",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": {
-              "raw": "{{baseUrl}}/market/overview",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "market",
-                "overview"
-              ]
-            },
-            "description": "Get current market snapshot with 24h delta for ANTAM 1g spot price."
-          },
-          "response": [
-            {
-              "name": "Success Response",
-              "originalRequest": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/market/overview",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "market",
-                    "overview"
-                  ]
-                }
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "body": "{\n  \"code\": 200,\n  \"success\": true,\n  \"message\": \"Market overview retrieved\",\n  \"data\": {\n    \"referenceBrand\": \"ANTAM\",\n    \"spotPrice\": 2605000,\n    \"delta24h\": 16000,\n    \"deltaPercentage\": 0.6179992275009656,\n    \"lastUpdated\": \"2025-12-27T08:57:26.000Z\"\n  },\n  \"details\": {\n    \"source\": \"Galeri 24 Scraper\"\n  }\n}"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Price",
+      "name": "Prices",
       "item": [
         {
           "name": "Get Spot Price Series",
@@ -75,19 +23,19 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/price/spot?brand=ANTAM&from=2024-12-01T00:00:00Z&to=2024-12-31T23:59:59Z&denomination=1",
+              "raw": "{{baseUrl}}/prices/spot?brand=ANTAM&from=2024-12-01T00:00:00Z&to=2024-12-31T23:59:59Z&denomination=1",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "price",
+                "prices",
                 "spot"
               ],
               "query": [
                 {
                   "key": "brand",
                   "value": "ANTAM",
-                  "description": "Brand code (ANTAM, UBS, GALERI24, LOTUS)"
+                  "description": "Brand code (ANTAM, UBS, GALERI24, LOTUS_ARCHI)"
                 },
                 {
                   "key": "from",
@@ -116,12 +64,12 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "{{baseUrl}}/price/spot?brand=ANTAM&from=2024-12-01T00:00:00Z&to=2024-12-27T23:59:59Z",
+                  "raw": "{{baseUrl}}/prices/spot?brand=ANTAM&from=2024-12-01T00:00:00Z&to=2024-12-27T23:59:59Z",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
-                    "price",
+                    "prices",
                     "spot"
                   ],
                   "query": [
@@ -149,7 +97,7 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"code\": 200,\n  \"success\": true,\n  \"message\": \"Spot price series retrieved\",\n  \"data\": {\n    \"brand\": \"ANTAM\",\n    \"priceType\": \"SPOT\",\n    \"denominationGram\": 1,\n    \"currency\": \"IDR\",\n    \"series\": [\n      {\n        \"priceAt\": \"2024-12-01T08:07:05.000Z\",\n        \"price\": 1514000\n      },\n      {\n        \"priceAt\": \"2024-12-27T08:10:59.000Z\",\n        \"price\": 1528000\n      }\n    ]\n  },\n  \"details\": {\n    \"totalPoints\": 27,\n    \"interval\": \"1 day\"\n  }\n}"
+              "body": "{\n  \"code\": 200,\n  \"success\": true,\n  \"message\": \"Spot price series retrieved\",\n  \"data\": {\n    \"brand\": \"Antam\",\n    \"priceType\": \"SPOT\",\n    \"denominationGram\": 1,\n    \"currency\": \"IDR\",\n    \"series\": [\n      {\n        \"priceAt\": \"2024-12-01T08:07:05.000Z\",\n        \"price\": 1514000\n      },\n      {\n        \"priceAt\": \"2024-12-27T08:10:59.000Z\",\n        \"price\": 1528000\n      }\n    ]\n  },\n  \"details\": {\n    \"totalPoints\": 27,\n    \"interval\": \"1 day\"\n  }\n}"
             }
           ]
         },
@@ -159,12 +107,12 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/price/today",
+              "raw": "{{baseUrl}}/prices/today",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
-                "price",
+                "prices",
                 "today"
               ],
               "query": [
@@ -191,12 +139,12 @@
                 "method": "GET",
                 "header": [],
                 "url": {
-                  "raw": "{{baseUrl}}/price/today",
+                  "raw": "{{baseUrl}}/prices/today",
                   "host": [
                     "{{baseUrl}}"
                   ],
                   "path": [
-                    "price",
+                    "prices",
                     "today"
                   ]
                 }
@@ -210,40 +158,7 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"code\": 200,\n  \"success\": true,\n  \"message\": \"Current prices retrieved\",\n  \"data\": {\n    \"date\": \"2025-12-29\",\n    \"currency\": \"IDR\",\n    \"brands\": [\n      {\n        \"brand\": \"ANTAM\",\n        \"prices\": [\n          {\n            \"denominationGram\": 1,\n            \"sellPrice\": 2841000,\n            \"buybackPrice\": 2452000\n          },\n          {\n            \"denominationGram\": 1000,\n            \"sellPrice\": 2790260000,\n            \"buybackPrice\": 2436710000\n          }\n        ]\n      }\n    ]\n  },\n  \"details\": {\n    \"source\": \"Galeri 24 Scraper\",\n    \"fetchedAt\": \"2025-12-29T16:37:10.150Z\"\n  }\n}"
-            },
-            {
-              "name": "Filtered by Brand",
-              "originalRequest": {
-                "method": "GET",
-                "header": [],
-                "url": {
-                  "raw": "{{baseUrl}}/price/today?brand=ANTAM",
-                  "host": [
-                    "{{baseUrl}}"
-                  ],
-                  "path": [
-                    "price",
-                    "today"
-                  ],
-                  "query": [
-                    {
-                      "key": "brand",
-                      "value": "ANTAM"
-                    }
-                  ]
-                }
-              },
-              "status": "OK",
-              "code": 200,
-              "_postman_previewlanguage": "json",
-              "header": [
-                {
-                  "key": "Content-Type",
-                  "value": "application/json"
-                }
-              ],
-              "body": "{\n  \"code\": 200,\n  \"success\": true,\n  \"message\": \"Current prices retrieved\",\n  \"data\": {\n    \"date\": \"2025-12-29\",\n    \"currency\": \"IDR\",\n    \"brands\": [\n      {\n        \"brand\": \"ANTAM\",\n        \"prices\": [\n          {\n            \"denominationGram\": 1,\n            \"sellPrice\": 2841000,\n            \"buybackPrice\": 2452000\n          }\n        ]\n      }\n    ]\n  }\n}"
+              "body": "{\n  \"code\": 200,\n  \"success\": true,\n  \"message\": \"Current prices retrieved\",\n  \"data\": {\n    \"date\": \"2025-12-29\",\n    \"currency\": \"IDR\",\n    \"brands\": [\n      {\n        \"brand\": \"Antam\",\n        \"prices\": [\n          {\n            \"denominationGram\": 1,\n            \"sellPrice\": 1580000,\n            \"buybackPrice\": 1180000\n          }\n        ]\n      }\n    ]\n  },\n  \"details\": {\n    \"source\": \"Galeri 24 Scraper\",\n    \"fetchedAt\": \"2025-12-29T16:37:10.150Z\"\n  }\n}"
             }
           ]
         }
@@ -293,7 +208,249 @@
                   "value": "application/json"
                 }
               ],
-              "body": "{\n  \"code\": 200,\n  \"success\": true,\n  \"message\": \"Supported brands retrieved\",\n  \"data\": {\n    \"items\": [\n      {\n        \"code\": \"ANTAM\",\n        \"name\": \"Aneka Tambang (ANTAM)\",\n        \"isActive\": true\n      },\n      {\n        \"code\": \"GALERI24\",\n        \"name\": \"Galeri 24\",\n        \"isActive\": true\n      },\n      {\n        \"code\": \"LOTUS\",\n        \"name\": \"Lotus Archi\",\n        \"isActive\": true\n      },\n      {\n        \"code\": \"UBS\",\n        \"name\": \"UBS Gold\",\n        \"isActive\": true\n      }\n    ]\n  },\n  \"details\": {\n    \"totalAvailable\": 5\n  }\n}"
+              "body": "{\n  \"code\": 200,\n  \"success\": true,\n  \"message\": \"Supported brands retrieved\",\n  \"data\": {\n    \"items\": [\n      {\n        \"code\": \"ANTAM\",\n        \"name\": \"Antam\",\n        \"isActive\": true\n      },\n      {\n        \"code\": \"UBS\",\n        \"name\": \"UBS Gold\",\n        \"isActive\": true\n      },\n      {\n        \"code\": \"GALERI24\",\n        \"name\": \"Galeri24\",\n        \"isActive\": true\n      },\n      {\n        \"code\": \"LOTUS_ARCHI\",\n        \"name\": \"Lotus Archi\",\n        \"isActive\": true\n      }\n    ]\n  },\n  \"details\": {\n    \"totalAvailable\": 4\n  }\n}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Portfolio",
+      "item": [
+        {
+          "name": "Get Portfolio Summary",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-user-id",
+                "value": "user-uuid-123",
+                "description": "Simulated User ID for development"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/portfolio/summary",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "portfolio",
+                "summary"
+              ]
+            },
+            "description": "Get aggregated portfolio summary with valuation coverage and brand allocations."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-user-id",
+                    "value": "user-uuid-123"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/portfolio/summary",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "portfolio",
+                    "summary"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": 200,\n  \"success\": true,\n  \"message\": \"Portfolio summary computed\",\n  \"data\": {\n    \"totalBuyValue\": 150000000,\n    \"totalCurrentValue\": 165000000,\n    \"totalPnL\": 15000000,\n    \"pnlPercentage\": 10.00,\n    \"totalWeightGram\": 100.5,\n    \"holdingCount\": 5,\n    \"lastUpdated\": \"2026-01-06T12:00:00.000Z\",\n    \"brandAllocation\": [\n      {\n        \"brandCode\": \"ANTAM\",\n        \"brandName\": \"ANTAM\",\n        \"totalGrams\": 50,\n        \"currentValue\": 82500000,\n        \"valuationSource\": \"BUYBACK\",\n        \"deltaValue\": 7500000,\n        \"deltaPercentage\": 10.00\n      }\n    ],\n    \"disclaimer\": \"Valuations based on latest available market prices\",\n    \"excludedCount\": 0,\n    \"valuationCoverage\": 100\n  },\n  \"details\": {\n    \"holdingCount\": 5,\n    \"lastUpdated\": \"2026-01-06T12:00:00.000Z\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Portfolio Holdings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-user-id",
+                "value": "user-uuid-123",
+                "description": "Simulated User ID for development"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/portfolio",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "portfolio"
+              ]
+            },
+            "description": "Get all portfolio holdings with current valuations and PnL."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-user-id",
+                    "value": "user-uuid-123"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/portfolio",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "portfolio"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": 200,\n  \"success\": true,\n  \"message\": \"Portfolio retrieved\",\n  \"data\": {\n    \"currency\": \"IDR\",\n    \"items\": [\n      {\n        \"id\": \"holding-1\",\n        \"brand\": \"ANTAM\",\n        \"brandName\": \"ANTAM\",\n        \"denominationGram\": 10,\n        \"quantity\": 1,\n        \"buyDate\": \"2024-01-15\",\n        \"avgBuyPrice\": 1200000,\n        \"currentBuybackPrice\": 1350000,\n        \"totalBuyValue\": 12000000,\n        \"currentValue\": 13500000,\n        \"unrealizedPnL\": 1500000,\n        \"pnlPercentage\": 12.50,\n        \"valuationSource\": \"BUYBACK\",\n        \"priceAsOf\": \"2026-01-06T10:00:00.000Z\",\n        \"notes\": \"Gold bar #1\"\n      }\n    ]\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Holding Detail",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-user-id",
+                "value": "user-uuid-123",
+                "description": "Simulated User ID for development"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/portfolio/:id",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "portfolio",
+                ":id"
+              ],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "holding-uuid-123",
+                  "description": "Holding ID"
+                }
+              ]
+            },
+            "description": "Get detailed information for a specific holding."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-user-id",
+                    "value": "user-uuid-123"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/portfolio/holding-1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "portfolio",
+                    "holding-1"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": 200,\n  \"success\": true,\n  \"message\": \"Holding detail retrieved\",\n  \"data\": {\n    \"id\": \"holding-1\",\n    \"brand\": \"ANTAM\",\n    \"brandName\": \"ANTAM\",\n    \"denominationGram\": 10,\n    \"quantity\": 1,\n    \"buyDate\": \"2024-01-15\",\n    \"avgBuyPrice\": 1200000,\n    \"currentBuybackPrice\": 1350000,\n    \"totalBuyValue\": 12000000,\n    \"currentValue\": 13500000,\n    \"unrealizedPnL\": 1500000,\n    \"pnlPercentage\": 12.50,\n    \"valuationSource\": \"BUYBACK\",\n    \"priceAsOf\": \"2026-01-06T10:00:00.000Z\",\n    \"notes\": \"Gold bar #1\"\n  }\n}"
+            }
+          ]
+        },
+        {
+          "name": "Get Portfolio History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "x-user-id",
+                "value": "user-uuid-123",
+                "description": "Simulated User ID for development"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/portfolio/history",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "portfolio",
+                "history"
+              ]
+            },
+            "description": "Get portfolio purchase timeline."
+          },
+          "response": [
+            {
+              "name": "Success Response",
+              "originalRequest": {
+                "method": "GET",
+                "header": [
+                  {
+                    "key": "x-user-id",
+                    "value": "user-uuid-123"
+                  }
+                ],
+                "url": {
+                  "raw": "{{baseUrl}}/portfolio/history",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "portfolio",
+                    "history"
+                  ]
+                }
+              },
+              "status": "OK",
+              "code": 200,
+              "_postman_previewlanguage": "json",
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{\n  \"code\": 200,\n  \"success\": true,\n  \"message\": \"Portfolio history retrieved\",\n  \"data\": {\n    \"timeline\": [\n      {\n        \"date\": \"2024-01-15\",\n        \"brandCode\": \"ANTAM\",\n        \"brandName\": \"ANTAM\",\n        \"denominationGram\": 10,\n        \"quantity\": 1,\n        \"buyValue\": 12000000,\n        \"notes\": \"First purchase\"\n      },\n      {\n        \"date\": \"2024-03-20\",\n        \"brandCode\": \"UBS\",\n        \"brandName\": \"UBS Gold\",\n        \"denominationGram\": 5,\n        \"quantity\": 2,\n        \"buyValue\": 13000000,\n        \"notes\": null\n      }\n    ]\n  }\n}"
             }
           ]
         }

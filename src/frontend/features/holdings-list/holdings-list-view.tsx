@@ -48,11 +48,12 @@ function HoldingsListContent() {
   const [brandFilter, setBrandFilter] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<'date' | 'value'>('date')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  const [statusFilter, setStatusFilter] = useState<'active' | 'sold' | 'all'>('active')
 
   // Fetch holdings
   const { data, isLoading, error } = useQuery({
-    queryKey: ['portfolio', 'list'],
-    queryFn: fetchPortfolioList,
+    queryKey: ['portfolio', 'list', statusFilter],
+    queryFn: () => fetchPortfolioList({ status: statusFilter }),
   })
 
   // Fetch all brands for the filter
@@ -103,7 +104,11 @@ function HoldingsListContent() {
         sortBy={sortBy}
         onSortByChange={setSortBy}
         sortOrder={sortOrder}
+        onSortByChange={setSortBy}
+        sortOrder={sortOrder}
         onSortOrderChange={setSortOrder}
+        status={statusFilter}
+        onStatusChange={setStatusFilter}
       />
 
       {/* Holdings Table */}

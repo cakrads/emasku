@@ -1,0 +1,66 @@
+[
+  {
+    "brandCode": "ANTAM",
+    "brandName": "Antam",
+    "denominationGram": 1,
+    "priceType": "SPOT",
+    "price": "1528000",
+    "source": "Manual Seed"
+  },
+  {
+    "brandCode": "ANTAM",
+    "brandName": "Antam",
+    "denominationGram": 1,
+    "priceType": "SELL",
+    "price": "1580000",
+    "source": "Manual Seed"
+  },
+  {
+    "brandCode": "ANTAM",
+    "brandName": "Antam",
+    "denominationGram": 1,
+    "priceType": "BUYBACK",
+    "price": "1180000",
+    "source": "Manual Seed"
+  },
+  {
+    "brandCode": "ANTAM",
+    "brandName": "Antam",
+    "denominationGram": 10,
+    "priceType": "BUYBACK",
+    "price": "1180000",
+    "source": "Manual Seed"
+  },
+  {
+    "brandCode": "ANTAM",
+    "brandName": "Antam",
+    "denominationGram": 25,
+    "priceType": "BUYBACK",
+    "price": "1180000",
+    "source": "Manual Seed"
+  },
+  {
+    "brandCode": "UBS",
+    "brandName": "UBS Gold",
+    "denominationGram": 10,
+    "priceType": "SPOT",
+    "price": "1530000",
+    "source": "Manual Seed"
+  },
+  {
+    "brandCode": "GALERI24",
+    "brandName": "Galeri 24",
+    "denominationGram": 15,
+    "priceType": "BUYBACK",
+    "price": "1177000",
+    "source": "Manual Seed"
+  },
+  {
+    "brandCode": "GALERI24",
+    "brandName": "Galeri 24",
+    "denominationGram": 20,
+    "priceType": "BUYBACK",
+    "price": "1177000",
+    "source": "Manual Seed"
+  }
+]

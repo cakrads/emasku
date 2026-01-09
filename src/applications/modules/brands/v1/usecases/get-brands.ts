@@ -6,18 +6,14 @@
 
 import { logger } from '@/applications/shared/lib/logger'
 import { BrandDomain } from '../domain/brand.domain'
+import { BRAND_CONFIG } from '../domain/brands.const'
 
 export class GetBrandsUsecase {
   async execute(): Promise<BrandDomain[]> {
     logger.info('Fetching brands')
 
-    // Static brand list
-    const brands: BrandDomain[] = [
-      { code: 'ANTAM', name: 'Antam', isActive: true },
-      { code: 'UBS', name: 'UBS Gold', isActive: true },
-      { code: 'GALERI24', name: 'Galeri24', isActive: true },
-      { code: 'LOTUS_ARCHI', name: 'Lotus Archi', isActive: true },
-    ]
+    // Use shared configuration as single source of truth
+    const brands: BrandDomain[] = [...BRAND_CONFIG]
 
     logger.info('Brands fetched', { count: brands.length })
 

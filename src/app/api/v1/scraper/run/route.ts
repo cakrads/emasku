@@ -11,6 +11,8 @@ import { PrismaPg } from '@prisma/adapter-pg'
 import pg from 'pg'
 import { Galeri24Scraper } from '@/applications/shared/scrapers/galeri24.scraper'
 import { DATABASE_URL, SCRAPER_SECRET } from '@/applications/shared/lib/env'
+import { PrismaPriceRepository } from '@/applications/modules/prices/v1/repository/prisma-price-repository'
+import { ScrapeAndPersistPrices } from '@/applications/modules/prices/v1/usecases/scrape-and-persist-prices'
 
 export async function POST(request: NextRequest) {
   // Validate Authorization if SECRET is configured
@@ -34,9 +36,12 @@ export async function POST(request: NextRequest) {
   const prisma = new PrismaClient({ adapter })
 
   try {
-    // Run scraper
-    const scraper = new Galeri24Scraper(prisma)
-    const logs = await scraper.scrapeAndPersist()
+    // Correct Dependency Injection:
+    // API -> Controller (this file acts as controller) -> Usecase -> Repository
+    const priceRepository = new PrismaPriceRepository(prisma)
+    const usecase = new ScrapeAndPersistPrices(priceRepository)
+
+    const logs = await usecase.execute()
 
     return NextResponse.json(
       {

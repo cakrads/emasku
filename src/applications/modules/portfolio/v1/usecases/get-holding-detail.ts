@@ -1,59 +1,74 @@
 /**
  * Get Holding Detail Usecase
  * 
- * Business logic to fetch a single holding by ID.
+ * Business logic to fetch single holding with valuation.
+ * Implements BUYBACK → SPOT → NULL fallback logic.
  */
 
+import Decimal from 'decimal.js'
+import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
+import { PrismaPriceRepository } from '@/applications/shared/persistence/repositories/prisma-price-repository'
+import { ValuatedHoldingDomain } from '../domain/portfolio.domain'
 import { logger } from '@/applications/shared/lib/logger'
-import { HoldingDomain } from '../domain/portfolio.domain'
 
 export class GetHoldingDetailUsecase {
-  async execute(id: string): Promise<HoldingDomain | null> {
+  private portfolioRepo = new PrismaPortfolioRepository()
+  private priceRepo = new PrismaPriceRepository()
+
+  async execute(id: string): Promise<ValuatedHoldingDomain | null> {
     logger.info('Fetching holding detail', { id })
 
-    // Dummy holdings data (same as list)
-    const holdings: HoldingDomain[] = [
-      {
-        id: 'h1',
-        brandCode: 'ANTAM',
-        brandName: 'ANTAM',
-        denominationGram: 10,
-        quantity: 1,
-        buyDate: new Date('2024-01-15'),
-        avgBuyPrice: 1264300,
-        currentBuybackPrice: 1180000,
-        totalBuyValue: 12643000,
-        currentValue: 11800000,
-        unrealizedPnL: -843000,
-        pnlPercentage: -6.67,
-        notes: 'First purchase - 10g bar',
-      },
-      {
-        id: 'h2',
-        brandCode: 'ANTAM',
-        brandName: 'ANTAM',
-        denominationGram: 25,
-        quantity: 1,
-        buyDate: new Date('2024-02-20'),
-        avgBuyPrice: 1260000,
-        currentBuybackPrice: 1180000,
-        totalBuyValue: 31500000,
-        currentValue: 29500000,
-        unrealizedPnL: -2000000,
-        pnlPercentage: -6.35,
-        notes: '25g bar',
-      },
-    ]
+    const holding = await this.portfolioRepo.findById(id)
+    if (!holding) return null
 
-    const holding = holdings.find((h) => h.id === id)
+    // Try BUYBACK first, fallback to SPOT
+    let priceResult = await this.priceRepo.getLatestBuybackPrice(
+      holding.brandCode,
+      holding.denominationGram
+    )
+    let source: 'BUYBACK' | 'SPOT' | 'NONE' = 'BUYBACK'
 
-    if (!holding) {
-      logger.warn('Holding not found', { id })
-      return null
+    if (!priceResult) {
+      priceResult = await this.priceRepo.getLatestSpotPrice(
+        holding.brandCode,
+        holding.denominationGram
+      )
+      source = priceResult ? 'SPOT' : 'NONE'
     }
 
-    logger.info('Holding detail fetched', { id })
+    const buyValue = new Decimal(holding.buyPrice)
+      .times(holding.quantity)
+      .times(holding.denominationGram)
 
-    return holding
+    if (!priceResult) {
+      return {
+        ...holding,
+        currentPrice: null,
+        currentValue: null,
+        unrealizedPnL: null,
+        pnlPercentage: null,
+        valuationSource: 'NONE',
+        priceAsOf: null
+      }
+    }
+
+    const currentValue = new Decimal(priceResult.price)
+      .times(holding.quantity)
+      .times(holding.denominationGram)
+
+    const unrealizedPnL = currentValue.minus(buyValue)
+    const pnlPercentage = buyValue.greaterThan(0)
+      ? unrealizedPnL.dividedBy(buyValue).times(100)
+      : new Decimal(0)
+
+    return {
+      ...holding,
+      currentPrice: priceResult.price,
+      currentValue: currentValue.toNumber(),
+      unrealizedPnL: unrealizedPnL.toNumber(),
+      pnlPercentage: pnlPercentage.toNumber(),
+      valuationSource: source,
+      priceAsOf: priceResult.priceAt
+    }
   }
 }

@@ -12,47 +12,126 @@ const adapter = new PrismaPg(pool)
 const prisma = new PrismaClient({ adapter })
 
 async function main() {
-  // 1. Seed Historical Prices (Assuming ANTAM 1g for now)
+  console.log('🌱 Starting database seeding...\n')
+
+  // 1. Seed Test User
+  console.log('📝 Seeding test user...')
+  const testUser = await prisma.user.upsert({
+    where: { email: 'test@emasku.com' },
+    update: {},
+    create: {
+      email: 'test@emasku.com',
+      name: 'Test User'
+    }
+  })
+  console.log(`✅ User created: ${testUser.email}\n`)
+
+  // 2. Seed Historical SPOT Prices (ANTAM 1g)
   const priceDataPath = path.join(__dirname, 'data', '5-years-gold-price.json')
 
   if (fs.existsSync(priceDataPath)) {
     const priceRawData = fs.readFileSync(priceDataPath, 'utf-8')
     const prices: [number, number][] = JSON.parse(priceRawData)
 
-    console.log(`Seeding ${prices.length} price snapshots for ANTAM...`)
+    console.log(`📊 Seeding ${prices.length} historical SPOT prices for ANTAM 1g...`)
 
     // Process in chunks (createMany is much faster than upsert loop)
     const CHUNK_SIZE = 5000
     for (let i = 0; i < prices.length; i += CHUNK_SIZE) {
       const chunk = prices.slice(i, i + CHUNK_SIZE)
-      console.log(`Processing chunk ${i / CHUNK_SIZE + 1} of ${Math.ceil(prices.length / CHUNK_SIZE)}...`)
+      console.log(`   Processing chunk ${i / CHUNK_SIZE + 1} of ${Math.ceil(prices.length / CHUNK_SIZE)}...`)
 
       const data = chunk.map(([timestamp, price]) => ({
         brandCode: 'ANTAM',
         brandName: 'ANTAM',
         priceType: PriceType.SPOT,
         denominationGram: new Decimal(1),
-        price: BigInt(price), // Map to BigInt for DB
+        price: BigInt(price),
         priceAt: new Date(timestamp),
         recordedAt: new Date(),
         source: 'Logam Mulia (Manual Seed)',
       }))
 
-      await (prisma as any).goldPrice.createMany({
+      await prisma.goldPrice.createMany({
         data,
         skipDuplicates: true,
       })
     }
+    console.log(`✅ Historical SPOT prices seeded\n`)
   } else {
-    console.log('No historical price data found, skipping.')
+    console.log('⚠️  No historical price data found, skipping.\n')
   }
 
-  console.log('Seeding completed.')
+  // 3. Seed Recent SELL and BUYBACK Prices
+  console.log('💰 Seeding recent SELL and BUYBACK prices...')
+
+  const recentPricesPath = path.join(__dirname, 'data', 'recent-prices.json')
+  let recentPrices: any[] = []
+
+  if (fs.existsSync(recentPricesPath)) {
+    const rawData = fs.readFileSync(recentPricesPath, 'utf-8')
+    const jsonData = JSON.parse(rawData)
+
+    recentPrices = jsonData.map((p: any) => ({
+      brandCode: p.brandCode,
+      brandName: p.brandName,
+      denominationGram: new Decimal(p.denominationGram),
+      priceType: p.priceType as PriceType,
+      price: BigInt(p.price),
+      priceAt: new Date(), // Use current time for "recent" prices
+      source: p.source
+    }))
+
+    await prisma.goldPrice.createMany({
+      data: recentPrices,
+      skipDuplicates: true
+    })
+    console.log(`✅ Recent prices seeded (${recentPrices.length} records)\n`)
+  } else {
+    console.log('⚠️  No recent price data found at prisma/data/recent-prices.json\n')
+  }
+
+  // 4. Seed Portfolio Holdings
+  console.log('💼 Seeding portfolio holdings...')
+
+  const holdingsPath = path.join(__dirname, 'data', 'portfolio-holdings.json')
+  let holdingsCount = 0
+
+  if (fs.existsSync(holdingsPath)) {
+    const rawData = fs.readFileSync(holdingsPath, 'utf-8')
+    const jsonData = JSON.parse(rawData)
+
+    const holdings = jsonData.map((h: any) => ({
+      userId: testUser.id,
+      brandCode: h.brandCode,
+      brandName: h.brandName,
+      denominationGram: new Decimal(h.denominationGram),
+      quantity: h.quantity,
+      buyPrice: BigInt(h.buyPrice),
+      boughtAt: new Date(h.boughtAt),
+      notes: h.notes
+    }))
+
+    await prisma.portfolioHolding.createMany({
+      data: holdings,
+      skipDuplicates: true
+    })
+    holdingsCount = holdings.length
+    console.log(`✅ Portfolio holdings seeded (${holdings.length} records)\n`)
+  } else {
+    console.log('⚠️  No portfolio holding data found at prisma/data/portfolio-holdings.json\n')
+  }
+  console.log('🎉 Seeding completed successfully!')
+  console.log('\n📋 Summary:')
+  console.log(`   - Users: 1`)
+  console.log(`   - Portfolio Holdings: ${holdingsCount}`)
+  console.log(`   - Recent Prices: ${recentPrices.length}`)
+  console.log(`   - Historical SPOT Prices: ${fs.existsSync(priceDataPath) ? 'Yes' : 'No'}`)
 }
 
 main()
   .catch((e) => {
-    console.error(e)
+    console.error('❌ Seeding failed:', e)
     process.exit(1)
   })
   .finally(async () => {

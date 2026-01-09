@@ -65,7 +65,7 @@ export default function HoldingsTable({ holdings, backUrl }: HoldingsTableProps)
                   const target = ROUTES.HOLDING_DETAIL(holding.id) + (backUrl ? `?backUrl=${encodeURIComponent(backUrl)}` : '')
                   router.push(target)
                 }}
-                className="border-b border-(--border) hover:bg-(--surface-elevated) cursor-pointer transition-colors"
+                className="border-b border-(--border) hover:bg-muted/50 cursor-pointer transition-colors"
               >
                 <td className="py-4 px-4">
                   <Typography variant="body-sm">{holding.buyDate}</Typography>
@@ -75,8 +75,13 @@ export default function HoldingsTable({ holdings, backUrl }: HoldingsTableProps)
                     <Typography variant="body-sm" className="font-medium">
                       {holding.weight}
                     </Typography>
-                    <Typography variant="caption" className="text-muted-foreground">
+                    <Typography variant="caption" className="text-muted-foreground flex items-center gap-2">
                       {holding.brandName}
+                      {holding.isSold && (
+                        <span className="inline-flex items-center rounded-md bg-orange-100 px-2 py-1 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-600/20">
+                          SOLD
+                        </span>
+                      )}
                     </Typography>
                   </Stack>
                 </td>

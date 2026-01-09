@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   /* Neutral financial colors - calm and trustworthy */
   --background: oklch(1 0 0);
@@ -74,6 +76,10 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.552 0.016 285.938);
+  
+  /* Missing surface variables overrides for dark mode */
+  --surface: oklch(0.141 0.005 285.823); /* Same as background */
+  --surface-elevated: oklch(0.21 0.006 285.885); /* Same as card */
 }
 
 @theme inline {

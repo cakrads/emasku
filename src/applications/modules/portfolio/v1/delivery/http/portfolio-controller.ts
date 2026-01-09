@@ -6,21 +6,48 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { successResponse, errorResponse } from '@/applications/shared/lib/response'
-import { NotFoundError } from '@/applications/shared/lib/errors'
+import { NotFoundError, ValidationError } from '@/applications/shared/lib/errors'
 import { GetPortfolioSummaryUsecase } from '../../usecases/get-portfolio-summary'
 import { GetPortfolioHoldingsUsecase } from '../../usecases/get-portfolio-holdings'
 import { GetHoldingDetailUsecase } from '../../usecases/get-holding-detail'
 import { GetPortfolioHistoryUsecase } from '../../usecases/get-portfolio-history'
 import { PortfolioMapper } from './portfolio.mapper'
 import { PortfolioSummarySchema, PortfolioListSchema, HoldingDetailSchema, PortfolioHistorySchema } from '@/shared/contracts/portfolio.contract'
+import { CreateHoldingRequestSchema, CreateHoldingResponseSchema } from '@/shared/contracts/create-holding.contract'
+import { UpdateHoldingRequestSchema, UpdateHoldingResponseSchema } from '@/shared/contracts/update-holding.contract'
+import { PrismaUserRepository } from '@/applications/shared/persistence/repositories/prisma-user-repository'
+import { CreateHoldingUsecase } from '../../usecases/create-holding.usecase'
+import { UpdateHoldingUsecase } from '../../usecases/update-holding.usecase'
+import { DeleteHoldingUsecase } from '../../usecases/delete-holding.usecase'
+import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
+import { getBrandName } from '@/applications/modules/brands/v1/domain/brands.const'
 
 export class PortfolioController {
+  private userRepo = new PrismaUserRepository()
+
+  /**
+   * Resolve User ID from Request or Fallback (Dev).
+   */
+  private async resolveUserId(req: NextRequest): Promise<string> {
+    // 1. TODO: Extract from Auth Header (JWT/Session)
+
+    // 2. Fallback for Development: Use seeded "Test User"
+    if (process.env.NODE_ENV !== 'production') {
+      const testUser = await this.userRepo.findByEmail('test@emasku.com')
+      if (testUser) {
+        return testUser.id
+      }
+    }
+
+    return 'default-user-id'
+  }
   /**
    * GET /api/v1/portfolio/summary
    */
-  async getPortfolioSummary(): Promise<NextResponse> {
+  async getPortfolioSummary(req: NextRequest): Promise<NextResponse> {
+    const userId = await this.resolveUserId(req)
     const usecase = new GetPortfolioSummaryUsecase()
-    const domain = await usecase.execute()
+    const domain = await usecase.execute(userId)
     const dto = PortfolioMapper.toPortfolioSummaryResponse(domain)
     const validated = PortfolioSummarySchema.parse(dto)
 
@@ -33,9 +60,15 @@ export class PortfolioController {
   /**
    * GET /api/v1/portfolio
    */
-  async getPortfolioHoldings(): Promise<NextResponse> {
+  async getPortfolioHoldings(req: NextRequest): Promise<NextResponse> {
+    const userId = await this.resolveUserId(req)
+    const { searchParams } = new URL(req.url)
+    const status = searchParams.get('status') as 'active' | 'sold' | 'all' | null
+
     const usecase = new GetPortfolioHoldingsUsecase()
-    const holdings = await usecase.execute()
+    // We pass the filter if it exists, otherwise usecase defaults to 'active'
+    const holdings = await usecase.execute(userId, status ? { status } : undefined)
+
     const dto = PortfolioMapper.toPortfolioListResponse(holdings)
     const validated = PortfolioListSchema.parse(dto)
 
@@ -71,12 +104,124 @@ export class PortfolioController {
   /**
    * GET /api/v1/portfolio/history
    */
-  async getPortfolioHistory(): Promise<NextResponse> {
+  async getPortfolioHistory(req: NextRequest): Promise<NextResponse> {
+    const userId = await this.resolveUserId(req)
     const usecase = new GetPortfolioHistoryUsecase()
-    const domain = await usecase.execute()
+    const domain = await usecase.execute(userId)
     const dto = PortfolioMapper.toPortfolioHistoryResponse(domain)
     const validated = PortfolioHistorySchema.parse(dto)
 
     return successResponse(validated, 'Portfolio history retrieved')
+  }
+
+  /**
+   * POST /api/v1/portfolio
+   */
+  async createHolding(req: NextRequest): Promise<NextResponse> {
+    const userId = await this.resolveUserId(req)
+    const body = await req.json()
+
+    // Validate request body
+    const parsed = CreateHoldingRequestSchema.safeParse(body)
+    if (!parsed.success) {
+      const fieldErrors = parsed.error.flatten().fieldErrors
+      console.log('Validation failed:', fieldErrors)
+      throw new ValidationError(
+        'Validation failed',
+        { errors: fieldErrors }
+      )
+    }
+
+    const portfolioRepo = new PrismaPortfolioRepository()
+    const usecase = new CreateHoldingUsecase(portfolioRepo)
+    const holding = await usecase.execute(userId, parsed.data)
+
+    // Map to response
+    const brandName = getBrandName(holding.brandCode)
+    const response = {
+      id: holding.id,
+      brandCode: holding.brandCode,
+      brandName,
+      denominationGram: holding.denominationGram,
+      quantity: holding.quantity,
+      buyPrice: holding.buyPrice,
+      buyDate: holding.boughtAt.toISOString().split('T')[0],
+      notes: holding.notes,
+      createdAt: new Date().toISOString(),
+    }
+
+    const validated = CreateHoldingResponseSchema.parse(response)
+
+    return NextResponse.json(
+      {
+        code: 201,
+        success: true,
+        message: 'Holding created successfully',
+        data: validated,
+      },
+      { status: 201 }
+    )
+  }
+
+  /**
+   * PUT /api/v1/portfolio/{id}
+   */
+  async updateHolding(req: NextRequest, id: string): Promise<NextResponse> {
+    const userId = await this.resolveUserId(req)
+    const body = await req.json()
+
+    // Validate request body
+    const parsed = UpdateHoldingRequestSchema.safeParse(body)
+    if (!parsed.success) {
+      const fieldErrors = parsed.error.flatten().fieldErrors
+      console.log('Update validation failed:', fieldErrors)
+      throw new ValidationError(
+        'Validation failed',
+        { errors: fieldErrors }
+      )
+    }
+
+    const portfolioRepo = new PrismaPortfolioRepository()
+    const usecase = new UpdateHoldingUsecase(portfolioRepo)
+    const holding = await usecase.execute(userId, id, parsed.data)
+
+    // Map to response
+    const brandName = getBrandName(holding.brandCode)
+    const response = {
+      id: holding.id,
+      brandCode: holding.brandCode,
+      brandName,
+      denominationGram: holding.denominationGram,
+      quantity: holding.quantity,
+      buyPrice: holding.buyPrice,
+      buyDate: holding.boughtAt.toISOString().split('T')[0],
+      notes: holding.notes,
+      updatedAt: new Date().toISOString(),
+    }
+
+    const validated = UpdateHoldingResponseSchema.parse(response)
+
+    return successResponse(validated, 'Holding updated successfully')
+  }
+
+  /**
+   * DELETE /api/v1/portfolio/{id}
+   */
+  async deleteHolding(req: NextRequest, id: string): Promise<NextResponse> {
+    const userId = await this.resolveUserId(req)
+
+    const portfolioRepo = new PrismaPortfolioRepository()
+    const usecase = new DeleteHoldingUsecase(portfolioRepo)
+    await usecase.execute(userId, id)
+
+    return NextResponse.json(
+      {
+        code: 200,
+        success: true,
+        message: 'Holding deleted successfully',
+        data: null,
+      },
+      { status: 200 }
+    )
   }
 }

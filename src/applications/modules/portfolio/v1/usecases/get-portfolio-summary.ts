@@ -1,119 +1,191 @@
 /**
  * Get Portfolio Summary Usecase
  * 
- * Business logic to compute portfolio aggregates.
+ * Business logic to compute portfolio aggregates with spec-compliant valuation.
+ * Implements BUYBACK → SPOT → NULL fallback logic.
  */
 
+import Decimal from 'decimal.js'
+import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
+import { PrismaPriceRepository } from '@/applications/shared/persistence/repositories/prisma-price-repository'
+import { PortfolioSummaryDomain, BrandAllocationDomain, PortfolioHoldingDomain } from '../domain/portfolio.domain'
 import { logger } from '@/applications/shared/lib/logger'
-import { PortfolioSummaryDomain, HoldingDomain, BrandAllocationDomain } from '../domain/portfolio.domain'
 
 export class GetPortfolioSummaryUsecase {
-  async execute(): Promise<PortfolioSummaryDomain> {
-    logger.info('Computing portfolio summary')
+  private portfolioRepo = new PrismaPortfolioRepository()
+  private priceRepo = new PrismaPriceRepository()
 
-    // Dummy holdings data
-    const holdings: HoldingDomain[] = [
-      {
-        id: 'h1',
-        brandCode: 'ANTAM',
-        brandName: 'ANTAM',
-        denominationGram: 10,
-        quantity: 1,
-        buyDate: new Date('2024-01-15'),
-        avgBuyPrice: 1264300,
-        currentBuybackPrice: 1180000,
-        totalBuyValue: 12643000,
-        currentValue: 11800000,
-        unrealizedPnL: -843000,
-        pnlPercentage: -6.67,
-      },
-      {
-        id: 'h2',
-        brandCode: 'ANTAM',
-        brandName: 'ANTAM',
-        denominationGram: 25,
-        quantity: 1,
-        buyDate: new Date('2024-02-20'),
-        avgBuyPrice: 1260000,
-        currentBuybackPrice: 1180000,
-        totalBuyValue: 31500000,
-        currentValue: 29500000,
-        unrealizedPnL: -2000000,
-        pnlPercentage: -6.35,
-      },
-      {
-        id: 'h3',
-        brandCode: 'UBS',
-        brandName: 'UBS',
-        denominationGram: 10,
-        quantity: 1,
-        buyDate: new Date('2024-05-15'),
-        avgBuyPrice: 1278000,
-        currentBuybackPrice: 1185000,
-        totalBuyValue: 12780000,
-        currentValue: 11850000,
-        unrealizedPnL: -930000,
-        pnlPercentage: -7.28,
-      },
-    ]
+  async execute(userId: string = 'default-user-id'): Promise<PortfolioSummaryDomain> {
+    logger.info('Computing portfolio summary', { userId })
 
-    // Calculate aggregates
-    const totalBuyValue = holdings.reduce((sum, h) => sum + h.totalBuyValue, 0)
-    const totalCurrentValue = holdings.reduce((sum, h) => sum + h.currentValue, 0)
-    const totalPnL = totalCurrentValue - totalBuyValue
-    const pnlPercentage = totalBuyValue > 0 ? (totalPnL / totalBuyValue) * 100 : 0
-    const totalWeightGram = holdings.reduce((sum, h) => sum + h.denominationGram * h.quantity, 0)
+    // 1. Fetch raw holdings
+    const holdings = await this.portfolioRepo.findAllByUserId(userId)
 
-    // Group by Brand
+    if (holdings.length === 0) {
+      return this.emptyPortfolio()
+    }
+
+    // 2. Enrich with valuations
+    const valuatedHoldings = await Promise.all(
+      holdings.map(async (holding) => {
+        const valuation = await this.getValuation(holding)
+        return { holding, valuation }
+      })
+    )
+
+    // 3. Calculate aggregates using decimal.js for precision
+    let totalBuyValue = new Decimal(0)
+    let totalCurrentValue = new Decimal(0)
+    let totalWeightGram = new Decimal(0)
+    let valuatedCount = 0
+
     const brandMap = new Map<string, BrandAllocationDomain>()
 
-    for (const h of holdings) {
-      const existing = brandMap.get(h.brandCode)
-      if (existing) {
-        existing.totalGrams += h.denominationGram * h.quantity
-        existing.currentValue += h.currentValue
-        // Weight-adjusted calc or simple sum for delta? Simple sum for now.
-        existing.deltaValue += h.unrealizedPnL // Assuming unrealizedPnL is delta value
-      } else {
-        brandMap.set(h.brandCode, {
-          brandCode: h.brandCode,
-          brandName: h.brandName,
-          totalGrams: h.denominationGram * h.quantity,
-          currentValue: h.currentValue,
-          valuationSource: 'OFFICIAL', // Default for now
-          deltaValue: h.unrealizedPnL,
-          deltaPercentage: 0 // Will calc after
-        })
+    for (const { holding, valuation } of valuatedHoldings) {
+      const buyValue = new Decimal(holding.buyPrice)
+        .times(holding.quantity)
+        .times(holding.denominationGram)
+
+      totalBuyValue = totalBuyValue.plus(buyValue)
+      totalWeightGram = totalWeightGram.plus(
+        new Decimal(holding.denominationGram).times(holding.quantity)
+      )
+
+      if (valuation.currentValue !== null) {
+        totalCurrentValue = totalCurrentValue.plus(valuation.currentValue)
+        valuatedCount++
+      }
+
+      // Aggregate by brand
+      this.aggregateBrand(brandMap, holding, valuation, buyValue)
+    }
+
+    const totalPnL = totalCurrentValue.minus(totalBuyValue)
+    const pnlPercentage = totalBuyValue.greaterThan(0)
+      ? totalPnL.dividedBy(totalBuyValue).times(100)
+      : new Decimal(0)
+
+    const valuationCoverage = holdings.length > 0
+      ? (valuatedCount / holdings.length) * 100
+      : 0
+
+    return {
+      totalBuyValue: totalBuyValue.toNumber(),
+      totalCurrentValue: totalCurrentValue.toNumber(),
+      totalPnL: totalPnL.toNumber(),
+      pnlPercentage: pnlPercentage.toNumber(),
+      totalWeightGram: totalWeightGram.toNumber(),
+      holdingCount: holdings.length,
+      lastUpdated: new Date(),
+      brandAllocation: Array.from(brandMap.values()),
+      disclaimer: 'Valuations based on latest available market prices',
+      excludedCount: holdings.length - valuatedCount,
+      valuationCoverage
+    }
+  }
+
+  /**
+   * Get valuation for a holding using fallback logic:
+   * BUYBACK → SPOT → NULL
+   * 
+   * This implements the spec requirement that valuation is NOT hardcoded to BUYBACK.
+   */
+  private async getValuation(holding: PortfolioHoldingDomain) {
+    // Try BUYBACK first
+    let priceResult = await this.priceRepo.getLatestBuybackPrice(
+      holding.brandCode,
+      holding.denominationGram
+    )
+    let source: 'BUYBACK' | 'SPOT' | 'NONE' = 'BUYBACK'
+
+    // Fallback to SPOT
+    if (!priceResult) {
+      priceResult = await this.priceRepo.getLatestSpotPrice(
+        holding.brandCode,
+        holding.denominationGram
+      )
+      source = priceResult ? 'SPOT' : 'NONE'
+    }
+
+    if (!priceResult) {
+      return {
+        currentValue: null,
+        valuationSource: 'NONE' as const,
+        priceAsOf: null
       }
     }
 
-    const brandAllocation = Array.from(brandMap.values()).map(b => {
-      // Recalculate percentage based on total buy value for that brand? 
-      // Or just re-use PnL percentage formula? 
-      // We don't have totalBuyValue per brand easily here without another map. 
-      // Let's assume simpler: deltaPercentage = (current - buy) / buy
-      // But we only have deltaValue (PnL) and currentValue.
-      // BuyValue = Current - PnL
-      const buyValue = b.currentValue - b.deltaValue
-      b.deltaPercentage = buyValue > 0 ? (b.deltaValue / buyValue) * 100 : 0
-      return b
-    })
+    const currentValue = new Decimal(priceResult.price)
+      .times(holding.quantity)
+      .times(holding.denominationGram)
+      .toNumber()
 
-    const summary: PortfolioSummaryDomain = {
-      totalBuyValue,
-      totalCurrentValue,
-      totalPnL,
-      pnlPercentage,
-      totalWeightGram,
-      holdingCount: holdings.length,
-      lastUpdated: new Date(),
-      brandAllocation,
-      disclaimer: 'Calculated based on current buyback prices',
-      excludedCount: 0 // Default for now
+    return {
+      currentValue,
+      valuationSource: source,
+      priceAsOf: priceResult.priceAt
     }
+  }
 
-    logger.info('Portfolio summary computed', { holdingCount: summary.holdingCount })
+  /**
+   * Aggregate holdings by brand code.
+   * Calculates brand-level totals and PnL.
+   */
+  private aggregateBrand(
+    brandMap: Map<string, BrandAllocationDomain>,
+    holding: PortfolioHoldingDomain,
+    valuation: any,
+    buyValue: Decimal
+  ) {
+    const existing = brandMap.get(holding.brandCode)
+    const grams = new Decimal(holding.denominationGram).times(holding.quantity).toNumber()
 
-    return summary
+    if (existing) {
+      existing.totalGrams += grams
+      if (valuation.currentValue !== null) {
+        existing.currentValue += valuation.currentValue
+      }
+      existing.deltaValue += (valuation.currentValue || 0) - buyValue.toNumber()
+
+      // Update valuation source to MIXED if sources differ
+      if (existing.valuationSource !== valuation.valuationSource) {
+        existing.valuationSource = 'MIXED'
+      }
+    } else {
+      const currentValue = valuation.currentValue || 0
+      const deltaValue = currentValue - buyValue.toNumber()
+      const deltaPercentage = buyValue.greaterThan(0)
+        ? new Decimal(deltaValue).dividedBy(buyValue).times(100).toNumber()
+        : 0
+
+      brandMap.set(holding.brandCode, {
+        brandCode: holding.brandCode,
+        brandName: holding.brandName,
+        totalGrams: grams,
+        currentValue,
+        valuationSource: valuation.valuationSource,
+        deltaValue,
+        deltaPercentage
+      })
+    }
+  }
+
+  /**
+   * Return empty portfolio when no holdings exist.
+   */
+  private emptyPortfolio(): PortfolioSummaryDomain {
+    return {
+      totalBuyValue: 0,
+      totalCurrentValue: 0,
+      totalPnL: 0,
+      pnlPercentage: 0,
+      totalWeightGram: 0,
+      holdingCount: 0,
+      lastUpdated: new Date(),
+      brandAllocation: [],
+      disclaimer: 'No holdings in portfolio',
+      excludedCount: 0,
+      valuationCoverage: 0
+    }
   }
 }

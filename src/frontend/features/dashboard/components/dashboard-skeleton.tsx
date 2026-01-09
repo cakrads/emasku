@@ -1,7 +1,7 @@
 import { Stack, Section } from '@/frontend/components/ui/layout'
 import { Skeleton } from '@/frontend/components/ui/skeleton'
 import { PortfolioSummarySkeleton } from './portfolio-summary-skeleton'
-import { MarketOverviewSkeleton } from './market-overview-skeleton'
+import { PricesOverviewSkeleton } from './prices-overview-skeleton'
 import { PortfolioChartSkeleton } from './portfolio-chart-skeleton'
 import { Typography } from '@/frontend/components/ui/typography'
 
@@ -28,7 +28,7 @@ export function DashboardSkeleton() {
           <div className="lg:col-span-1 lg:relative min-w-0">
             <div className="flex flex-col h-full lg:absolute lg:inset-0 w-full">
               <div className="flex-1 overflow-hidden min-h-0">
-                <MarketOverviewSkeleton />
+                <PricesOverviewSkeleton />
               </div>
             </div>
           </div>

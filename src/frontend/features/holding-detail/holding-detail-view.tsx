@@ -1,19 +1,33 @@
 'use client'
 
-import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Card, CardContent } from '@/frontend/components/ui/card'
 import { Button } from '@/frontend/components/ui/button'
 import { Stack, Section } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
-import { TrendingUp, TrendingDown, Pencil } from 'lucide-react'
+import { TrendingUp, TrendingDown, Pencil, TriangleAlert, Info } from 'lucide-react'
 import { cn } from '@/frontend/utils/cn'
 import { ROUTES } from '@/frontend/config/routes'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
 import Link from 'next/link'
-import { fetchHoldingDetail } from '@/frontend/services/portfolio/portfolio.api'
+import { fetchHoldingDetail, deleteHolding } from '@/frontend/services/portfolio/portfolio.api'
 import { transformHoldingDetail } from '@/frontend/view-model/portfolio.vm'
 import { HoldingDetailSkeleton } from './components/holding-detail-skeleton'
 import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
+import { toast } from 'sonner'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/frontend/components/ui/alert-dialog'
+import { Alert, AlertDescription, AlertTitle } from '@/frontend/components/ui/alert'
 
 interface HoldingDetailViewProps {
   holdingId: string
@@ -21,10 +35,38 @@ interface HoldingDetailViewProps {
 }
 
 function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
+  const router = useRouter()
+  const queryClient = useQueryClient()
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+
   const { data, isLoading, error } = useQuery({
     queryKey: ['portfolio', 'holding', holdingId],
     queryFn: () => fetchHoldingDetail(holdingId),
   })
+
+  // Delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: () => deleteHolding(holdingId),
+    onSuccess: () => {
+      toast.success('Holding sold successfully!', {
+        description: 'The holding has been removed from your portfolio.'
+      })
+      queryClient.invalidateQueries({ queryKey: ['portfolio'] })
+      queryClient.invalidateQueries({ queryKey: ['holdings'] })
+      router.push(ROUTES.HOLDINGS_LIST)
+    },
+    onError: (error: any) => {
+      toast.error('Error', {
+        description: error?.message || 'Failed to delete holding',
+        duration: 4000,
+      })
+    }
+  })
+
+  const handleSold = () => {
+    deleteMutation.mutate()
+    setShowDeleteDialog(false)
+  }
 
   if (isLoading) {
     return <HoldingDetailSkeleton />
@@ -36,6 +78,9 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
 
   const holding = transformHoldingDetail(data)
   const isPositive = holding.pnlColor !== 'negative'
+
+  // Check if holding.totalValue is placeholder '-'
+  const hasMissingValue = holding.totalValue === '-'
 
   return (
     <div className="max-w-xl mx-auto pb-24">
@@ -86,6 +131,19 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
                   <Typography variant="body-sm">Buy Price (per gram)</Typography>
                   <Typography variant="body" className="font-medium">{holding.avgBuyPrice}</Typography>
                 </Stack>
+                {holding.isSold && holding.soldAt && (
+                  <Stack direction="horizontal" className="justify-between items-center">
+                    <Typography variant="body-sm">Status</Typography>
+                    <Stack direction="horizontal" gap="xs" className="items-center">
+                      <span className="inline-flex items-center rounded-md bg-orange-100 px-2 py-1 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-600/20">
+                        SOLD
+                      </span>
+                      <Typography variant="body" className="font-medium text-muted-foreground">
+                        {holding.soldAt}
+                      </Typography>
+                    </Stack>
+                  </Stack>
+                )}
 
                 <div className="h-px bg-(--border) w-full" />
 
@@ -126,6 +184,16 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
             <Stack gap="md">
               <Typography variant="h3" className="text-sm">Current Valuation</Typography>
 
+              {hasMissingValue && (
+                <Alert className="bg-zinc-50 border-zinc-200 dark:bg-blue-950/20 dark:border-blue-900/50">
+                  <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <AlertTitle className="text-zinc-900 dark:text-blue-100">Values missing</AlertTitle>
+                  <AlertDescription className="text-zinc-600 dark:text-blue-300">
+                    Calculations are unavailable because no price was provided.
+                  </AlertDescription>
+                </Alert>
+              )}
+
               <Stack gap="md">
                 <Stack direction="horizontal" className="justify-between items-center">
                   <Typography variant="body-sm">Current Price (per gram)</Typography>
@@ -160,6 +228,50 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
           </CardContent>
         </Card>
       </Section>
+
+      {/* Sold Button - Only show if ACTIVE */}
+      {!holding.isSold && (
+        <Section className="px-0 mt-6">
+          <Button
+            variant="outline"
+            className="w-full h-14 rounded-xl text-base font-medium text-orange-400 bg-orange-50 border-orange-200 hover:bg-orange-100 hover:border-orange-300 hover:text-orange-600 dark:bg-orange-950/20 dark:text-orange-400 dark:border-orange-800 dark:hover:bg-orange-900/40 dark:hover:border-orange-700 dark:hover:text-orange-300 transition-all shadow-sm"
+            onClick={() => setShowDeleteDialog(true)}
+          >
+            <svg
+              className="w-5 h-5 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+            Mark as Sold
+          </Button>
+        </Section>
+      )}
+
+      {/* Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Mark holding as sold?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will mark this holding as SOLD. It will remain in your history but will be excluded from your active portfolio value.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleSold} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {deleteMutation.isPending ? 'Removing...' : 'Yes, mark as sold'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
@@ -175,6 +287,18 @@ export default function HoldingDetailView(props: HoldingDetailViewProps) {
         { label: 'Detail' }
       ]}
       action={
+        // Check if holding data is available to make decision.
+        // Since this is server component wrapping client component, we might not have data yet.
+        // Wait, 'data' is fetched inside 'HoldingDetailContent'.
+        // We can't disable this button based on data from child.
+        // We should move Action button inside HoldingDetailContent or accept data.
+        // OR simpler: Just link to Edit Page, and Handle "Cannot Edit Sold Item" on Edit Page.
+        // For now, let's keep it but perhaps we can't Conditional rendering it here easily without prop drilling.
+        // Actually, we can move the action prop to HoldingDetailContent if StandardPageLayout supports it there, 
+        // OR just leave it enabled and handle validation on edit. 
+        // User asked "when sold handle the button". 
+        // Let's modify the "Mark as Sold" button FIRST.
+        // I will stick to modifying the "Mark as Sold" button logic inside HoldingDetailContent.
         <Link href={ROUTES.EDIT_HOLDING(props.holdingId)}>
           <Button variant="outline" size="sm">
             <Pencil className="w-4 h-4 mr-2" />

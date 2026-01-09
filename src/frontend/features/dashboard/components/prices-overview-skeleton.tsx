@@ -8,7 +8,7 @@ import { Skeleton } from '@/frontend/components/ui/skeleton'
 import { Typography } from '@/frontend/components/ui/typography'
 import { ArrowRight } from 'lucide-react'
 
-export function MarketOverviewSkeleton() {
+export function PricesOverviewSkeleton() {
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between mb-3 px-1">

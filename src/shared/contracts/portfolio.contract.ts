@@ -12,7 +12,7 @@ export const BrandAllocationSchema = z.object({
   brandName: z.string(),
   totalGrams: z.number().positive(),
   currentValue: z.number().int().nonnegative(),
-  valuationSource: z.enum(['OFFICIAL', 'SPOT', 'USER', 'UNVALUED']),
+  valuationSource: z.enum(['BUYBACK', 'SPOT', 'USER', 'NONE', 'MIXED']),
   // We can add delta if needed, for now optional or derived
   deltaValue: z.number().int().default(0),
   deltaPercentage: z.number().default(0),
@@ -29,7 +29,7 @@ export const PortfolioSummarySchema = z.object({
   totalCurrentValue: z.number().int().nonnegative(),
   totalPnL: z.number().int(),
   pnlPercentage: z.number(),
-  totalWeightGram: z.number().positive(),
+  totalWeightGram: z.number().nonnegative(),
   brandAllocation: z.array(BrandAllocationSchema),
   disclaimer: z.string().optional(),
   excludedCount: z.number().int().default(0),
@@ -48,12 +48,15 @@ export const HoldingItemSchema = z.object({
   quantity: z.number().int().positive(),
   buyDate: z.string(), // ISO date
   avgBuyPrice: z.number().int().nonnegative(),
-  currentBuybackPrice: z.number().int().nonnegative(),
+  currentBuybackPrice: z.number().int().nonnegative().nullable(),
   totalBuyValue: z.number().int().nonnegative(),
-  currentValue: z.number().int().nonnegative(),
-  unrealizedPnL: z.number().int(),
-  pnlPercentage: z.number(),
-  notes: z.string().optional(),
+  currentValue: z.number().int().nonnegative().nullable(),
+  unrealizedPnL: z.number().int().nullable(),
+  pnlPercentage: z.number().nullable(),
+  valuationSource: z.enum(['BUYBACK', 'SPOT', 'USER', 'NONE', 'MIXED']),
+  priceAsOf: z.string().nullable(), // ISO datetime
+  soldAt: z.string().nullable().optional(),
+  notes: z.string().nullable().optional(),
 })
 
 export type HoldingItem = z.infer<typeof HoldingItemSchema>
@@ -81,14 +84,21 @@ export type HoldingDetail = z.infer<typeof HoldingDetailSchema>
  * Portfolio History Response
  * GET /api/v1/portfolio/history
  */
-export const PortfolioHistoryPointSchema = z.object({
-  date: z.string(), // ISO Date YYYY-MM-DD
-  value: z.number().int().nonnegative(),
+/**
+ * Portfolio History Item
+ */
+export const HistoryItemSchema = z.object({
+  date: z.string(),
+  brandCode: z.string(),
+  brandName: z.string(),
+  denominationGram: z.number().positive(),
+  quantity: z.number().int().positive(),
+  buyValue: z.number().int().nonnegative(),
+  notes: z.string().nullable().optional(),
 })
 
 export const PortfolioHistorySchema = z.object({
-  brandBreakdown: z.array(z.string()).optional(), // Optional: if we want multi-line chart later
-  series: z.array(PortfolioHistoryPointSchema),
+  timeline: z.array(HistoryItemSchema),
 })
 
 export type PortfolioHistory = z.infer<typeof PortfolioHistorySchema>

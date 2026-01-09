@@ -19,7 +19,7 @@ interface BrandCardProps {
   currentValue: number
   deltaValue: number
   deltaPercentage: number
-  valuationSource: 'OFFICIAL' | 'SPOT' | 'USER' | 'UNVALUED'
+  valuationSource: 'BUYBACK' | 'SPOT' | 'USER' | 'NONE' | 'MIXED'
 }
 
 export default function BrandCard({
@@ -32,7 +32,7 @@ export default function BrandCard({
   valuationSource,
 }: BrandCardProps) {
   const isPositive = deltaValue >= 0
-  const isUnvalued = valuationSource === 'UNVALUED'
+  const isUnvalued = valuationSource === 'NONE'
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('id-ID', {
@@ -47,11 +47,15 @@ export default function BrandCard({
 
   const getValuationTooltip = () => {
     switch (valuationSource) {
+      case 'BUYBACK':
+        return 'Official buyback price from brand'
       case 'SPOT':
-        return 'Market reference price (not official)'
+        return 'Market reference price (non-official fallback)'
       case 'USER':
         return 'Based on your purchase price'
-      case 'UNVALUED':
+      case 'MIXED':
+        return 'Mixed valuation sources (Official + Market)'
+      case 'NONE':
         return 'No market price available'
       default:
         return null

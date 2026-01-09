@@ -1,0 +1,65 @@
+[
+  {
+    "brandCode": "ANTAM",
+    "brandName": "Antam",
+    "denominationGram": 10,
+    "quantity": 1,
+    "buyPrice": "1264300",
+    "boughtAt": "2024-01-15T00:00:00.000Z",
+    "notes": "First purchase - 10g bar"
+  },
+  {
+    "brandCode": "ANTAM",
+    "brandName": "Antam",
+    "denominationGram": 25,
+    "quantity": 1,
+    "buyPrice": "1260000",
+    "boughtAt": "2024-02-20T00:00:00.000Z",
+    "notes": "25g bar"
+  },
+  {
+    "brandCode": "ANTAM",
+    "brandName": "Antam",
+    "denominationGram": 15,
+    "quantity": 1,
+    "buyPrice": "1262000",
+    "boughtAt": "2024-03-05T00:00:00.000Z",
+    "notes": "15g bar"
+  },
+  {
+    "brandCode": "GALERI24",
+    "brandName": "Galeri 24",
+    "denominationGram": 15,
+    "quantity": 1,
+    "buyPrice": "1262000",
+    "boughtAt": "2024-03-10T00:00:00.000Z",
+    "notes": "15g bar"
+  },
+  {
+    "brandCode": "GALERI24",
+    "brandName": "Galeri 24",
+    "denominationGram": 20,
+    "quantity": 1,
+    "buyPrice": "1263000",
+    "boughtAt": "2024-04-01T00:00:00.000Z",
+    "notes": "20g bar"
+  },
+  {
+    "brandCode": "UBS",
+    "brandName": "UBS Gold",
+    "denominationGram": 10,
+    "quantity": 1,
+    "buyPrice": "1278000",
+    "boughtAt": "2024-05-15T00:00:00.000Z",
+    "notes": "UBS 10g bar - will use SPOT fallback"
+  },
+  {
+    "brandCode": "UBS",
+    "brandName": "UBS Gold",
+    "denominationGram": 5,
+    "quantity": 1,
+    "buyPrice": "1280000",
+    "boughtAt": "2024-06-01T00:00:00.000Z",
+    "notes": "5g bar - no price available (tests NONE)"
+  }
+]

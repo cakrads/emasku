@@ -7,15 +7,47 @@
  * MUST NOT mutate API types.
  */
 
-import { PricesTodayResponse } from '@/shared/contracts/prices.contract'
+import { PricesTodayResponse, SpotPriceSeries } from '@/shared/contracts/prices.contract'
+
+// ... (other VM interfaces)
+
+/**
+ * UI-friendly spot price series
+ */
+export interface PricePointVM {
+  date: string // Formatted date
+  price: number
+  priceFormatted: string
+}
+
+export interface SpotPriceSeriesVM {
+  brand: string
+  weight: string
+  points: PricePointVM[]
+}
+
+/**
+ * Transform API spot series to view model
+ */
+export function transformSpotPriceSeries(api: SpotPriceSeries): SpotPriceSeriesVM {
+  return {
+    brand: api.brand,
+    weight: `${api.denominationGram} g`,
+    points: api.series.map((point) => ({
+      date: formatDate(point.priceAt),
+      price: point.price,
+      priceFormatted: formatIDR(point.price),
+    })),
+  }
+}
 
 /**
  * UI-friendly price entry
  */
 export interface PriceEntryVM {
   denominationGram: number
-  sellPrice: number
-  buybackPrice: number
+  sellPrice: number | null
+  buybackPrice: number | null
   sellPriceFormatted: string
   buybackPriceFormatted: string
   weightLabel: string
@@ -40,8 +72,8 @@ export interface TodayPricesVM {
 /**
  * Format IDR currency
  */
-function formatIDR(value: number): string {
-  if (value === 0) return '-'
+function formatIDR(value: number | null): string {
+  if (value === null || value === 0) return '-'
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',

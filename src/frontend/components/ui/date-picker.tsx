@@ -18,6 +18,7 @@ interface DatePickerProps {
   onChange?: (date: Date | undefined) => void
   placeholder?: string
   className?: string
+  disabled?: (date: Date) => boolean
 }
 
 export function DatePicker({
@@ -25,6 +26,7 @@ export function DatePicker({
   onChange,
   placeholder = "Pick a date",
   className,
+  disabled,
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false)
 
@@ -51,6 +53,7 @@ export function DatePicker({
             onChange?.(date)
             setOpen(false)
           }}
+          disabled={disabled}
           initialFocus
           captionLayout="dropdown"
           fromYear={2000}
