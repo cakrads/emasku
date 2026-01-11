@@ -11,9 +11,9 @@
 export class ApiError extends Error {
   public status: number
   public code: number | string
-  public details?: Record<string, any>
+  public details?: Record<string, unknown>
 
-  constructor(message: string, status: number, details?: Record<string, any>, code: number | string = status) {
+  constructor(message: string, status: number, details?: Record<string, unknown>, code: number | string = status) {
     super(message)
     this.name = 'ApiError'
     this.status = status
@@ -22,7 +22,7 @@ export class ApiError extends Error {
   }
 
   get description(): string {
-    return this.details?.description || ''
+    return (this.details?.description as string) || ''
   }
 }
 
@@ -56,7 +56,7 @@ export async function fetchJson<T>(url: string, options?: RequestInit): Promise<
           errorDetails = errorData.details
           if (errorData.code) errorCode = errorData.code
         }
-      } catch (e) {
+      } catch {
         // Fallback to text if JSON parsing fails
         // or keep default message
       }

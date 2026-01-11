@@ -65,7 +65,7 @@ export async function recordConsent(params: {
     }
 
     return { success: true, data: undefined }
-  } catch (error) {
+  } catch {
     return { success: false, error: { code: 'AUTH_UNKNOWN', userMessage: 'Gagal mencatat persetujuan' } }
   }
 }

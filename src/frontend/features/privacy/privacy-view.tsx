@@ -197,7 +197,7 @@ export function PrivacyView() {
   )
 }
 
-function RightCard({ icon: Icon, title, desc }: { icon: any, title: string, desc: string }) {
+function RightCard({ icon: Icon, title, desc }: { icon: React.ElementType, title: string, desc: string }) {
   return (
     <div className="border rounded-lg p-4 flex gap-3 items-start hover:bg-accent/5 transition-colors">
       <div className="bg-primary/10 p-2 rounded-full shrink-0">
@@ -211,7 +211,7 @@ function RightCard({ icon: Icon, title, desc }: { icon: any, title: string, desc
   )
 }
 
-function UserIcon(props: any) {
+function UserIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}
@@ -231,7 +231,7 @@ function UserIcon(props: any) {
   )
 }
 
-function WalletIcon(props: any) {
+function WalletIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
     <svg
       {...props}

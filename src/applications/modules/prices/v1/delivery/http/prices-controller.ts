@@ -25,6 +25,12 @@ import { GetTodayPricesUsecase } from '../../usecases/get-today-prices'
 
 import { getBrandName } from '@/applications/modules/brands/v1/domain/brands.const'
 
+interface PriceEntry {
+  denominationGram: number
+  sellPrice: number | null
+  buybackPrice: number | null
+}
+
 export class PricesController {
 
 
@@ -135,7 +141,7 @@ export class PricesController {
       })
 
       // Group by brand (as per api-contract.md structure)
-      const brandGroups = new Map<string, any[]>()
+      const brandGroups = new Map<string, PriceEntry[]>()
 
       for (const price of prices) {
         // Use Display Name (Title) for the brand key if requested by user

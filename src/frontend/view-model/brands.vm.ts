@@ -2,7 +2,7 @@
  * Brands View Model
  */
 
-import { BrandsList, BrandItem } from '@/shared/contracts/brands.contract'
+import { BrandsList } from '@/shared/contracts/brands.contract'
 
 export interface BrandItemVM {
   code: string

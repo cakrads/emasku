@@ -32,7 +32,6 @@ export function ProfileView() {
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)
 
   useEffect(() => {
-    // eslint-disable-next-line
     setMounted(true)
   }, [])
 

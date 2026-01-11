@@ -17,7 +17,7 @@ import {
  * Fetch today's prices from API
  */
 export async function fetchTodayPrices(): Promise<PricesTodayResponse> {
-  const data = await fetchJson<any>('/api/v1/prices/today')
+  const data = await fetchJson<unknown>('/api/v1/prices/today')
   return PricesTodayResponseSchema.parse(data)
 }
 
@@ -37,6 +37,6 @@ export async function fetchSpotPriceSeries(params: {
     ...(params.denomination && { denomination: params.denomination.toString() }),
   })
 
-  const data = await fetchJson<any>(`/api/v1/prices/spot?${searchParams}`)
+  const data = await fetchJson<unknown>(`/api/v1/prices/spot?${searchParams}`)
   return SpotPriceSeriesSchema.parse(data)
 }

@@ -17,7 +17,6 @@ import { Stack } from '@/frontend/components/ui/layout'
 import { loginAsGuest, loginWithGoogle, recordConsent } from '@/frontend/services/auth/auth.api'
 import { useAuthStore } from '@/frontend/providers/auth.store'
 import { ROUTES } from '@/frontend/config/routes'
-import type { AuthError } from '@/applications/shared/auth'
 import { Checkbox } from '@/frontend/components/ui/checkbox'
 import { Label } from '@/frontend/components/ui/label'
 

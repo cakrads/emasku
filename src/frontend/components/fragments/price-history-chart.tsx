@@ -22,20 +22,22 @@ export interface PriceHistoryChartProps {
  * Format IDR currency
  * Example: 1270000 → "Rp 1,270,000"
  */
-function formatIDR(value: number): string {
+function formatIDR(value: unknown): string {
+  const num = Number(value)
   return new Intl.NumberFormat('id-ID', {
     style: 'currency',
     currency: 'IDR',
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
-  }).format(value)
+  }).format(num)
 }
 
 /**
  * Format date for display
  * Example: "2026-01-02" → "Jan 2"
  */
-function formatDate(dateString: string): string {
+function formatDate(value: unknown): string {
+  const dateString = String(value)
   const date = new Date(dateString)
   return new Intl.DateTimeFormat('en-US', {
     month: 'short',

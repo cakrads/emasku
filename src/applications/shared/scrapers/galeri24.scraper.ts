@@ -12,7 +12,7 @@
  */
 
 import { SCRAPER_SOURCE_URL } from '../lib/env'
-import { BRAND_CONFIG, getBrandName } from '../../modules/brands/v1/domain/brands.const'
+import { getBrandName } from '../../modules/brands/v1/domain/brands.const'
 
 /**
  * Raw price structure from upstream source
@@ -44,7 +44,7 @@ export class Galeri24Scraper {
       const rawData = await this.fetchSourceData()
 
       // Step 2: Parse prices
-      const parsedPrices = await this.parsePrices(rawData)
+      const parsedPrices = await this.parsePrices(rawData as unknown[])
 
       console.log(`[Galeri24] Scrape completed. Found ${parsedPrices.length} items.`)
 
@@ -58,7 +58,7 @@ export class Galeri24Scraper {
   /**
    * Fetch raw HTML/JSON from source
    */
-  private async fetchSourceData(): Promise<any> {
+  private async fetchSourceData(): Promise<unknown> {
     console.log(`[Galeri24] Fetching data from ${this.sourceUrl}`)
 
     const response = await fetch(this.sourceUrl, {
@@ -116,7 +116,7 @@ export class Galeri24Scraper {
    * - "GALERI 24" variants → GALERI24
    * - "LOTUS" variants → LOTUS
    */
-  private async parsePrices(rawPayload: any[]): Promise<RawPriceData[]> {
+  private async parsePrices(rawPayload: unknown[]): Promise<RawPriceData[]> {
     console.log(`[Galeri24] Parsing price data using deserializer`)
 
     // Import deserializer dynamically

@@ -8,7 +8,7 @@
  * - Optimized queries
  */
 
-import { PrismaClient, PriceType } from '@prisma/client'
+import { PrismaClient, PriceType, GoldPrice } from '@prisma/client'
 import { Decimal } from 'decimal.js'
 import { IPriceRepository } from './price-repository.interface'
 import { GoldPriceRecord, TodayPriceGroup } from '../domain/gold-price'
@@ -161,7 +161,7 @@ export class PrismaPriceRepository implements IPriceRepository {
       return { inserted: 0, skipped: 0 }
     }
 
-    const result = await (this.prisma as any).goldPrice.createMany({
+    const result = await this.prisma.goldPrice.createMany({
       data: prices.map(p => ({
         brandCode: p.brandCode,
         brandName: p.brandName,
@@ -171,7 +171,7 @@ export class PrismaPriceRepository implements IPriceRepository {
         priceAt: p.priceAt,
         recordedAt: new Date(), // Set ingestion time
         source: p.source,
-        rawPayload: p.rawPayload
+        rawPayload: p.rawPayload as import('@prisma/client').Prisma.InputJsonValue
       })),
       skipDuplicates: true
     })
@@ -191,7 +191,7 @@ export class PrismaPriceRepository implements IPriceRepository {
   /**
    * Convert Prisma model to domain model
    */
-  private toDomainModel(price: any): GoldPriceRecord {
+  private toDomainModel(price: GoldPrice): GoldPriceRecord {
     return {
       id: price.id,
       brandCode: price.brandCode,

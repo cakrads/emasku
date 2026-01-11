@@ -36,5 +36,5 @@ export interface CreatePriceInput {
   price: number
   priceAt: Date
   source: string
-  rawPayload: any
+  rawPayload: unknown
 }

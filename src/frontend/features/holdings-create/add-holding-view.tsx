@@ -80,9 +80,10 @@ function AddHoldingContent() {
       queryClient.invalidateQueries({ queryKey: ['holdings'] })
       router.push(ROUTES.HOLDINGS_LIST)
     },
-    onError: (error: any) => {
-      const errorMessage = error?.message || 'Failed to create holding'
-      const errorDetails = error?.details?.errors
+    onError: (error: unknown) => {
+      const apiError = error as { message?: string, details?: { errors?: Record<string, string | string[]> } }
+      const errorMessage = apiError?.message || 'Failed to create holding'
+      const errorDetails = apiError?.details?.errors
 
       if (errorDetails) {
         // Show field-specific errors
@@ -250,7 +251,7 @@ function BrandSelectionStep({
                 setCustomName(e.target.value)
                 const name = e.target.value
                 const b = name ? { id: 'OTHER', name, hasOfficialPrice: false, isCustom: true } : null
-                onSelect(b as any)
+                if (b) onSelect(b)
               }}
               className="p-4 rounded-xl bg-surface-elevated border-border text-foreground text-lg font-semibold h-14"
               placeholder="e.g. Grandma's Ring"

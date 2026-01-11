@@ -1,5 +1,4 @@
 import { PriceType } from '@prisma/client'
-import { Decimal } from 'decimal.js'
 import { IPriceRepository } from '../repository/price-repository.interface'
 import { Galeri24Scraper, RawPriceData } from '@/applications/shared/scrapers/galeri24.scraper'
 import { CreatePriceInput } from '../domain/gold-price'
@@ -8,7 +7,7 @@ import { ScraperLogger } from '@/applications/shared/scrapers/scraper-logger'
 export class ScrapeAndPersistPrices {
   constructor(private priceRepository: IPriceRepository) { }
 
-  async execute(): Promise<any> {
+  async execute(): Promise<{ success: boolean, inserted: number, skipped: number }> {
     const logger = new ScraperLogger()
     const scraper = new Galeri24Scraper()
 
@@ -20,7 +19,7 @@ export class ScrapeAndPersistPrices {
 
       if (rawPrices.length === 0) {
         console.warn('[ScrapeAndPersistPrices] No prices scraped')
-        return { success: true, count: 0 }
+        return { success: true, inserted: 0, skipped: 0 }
       }
 
       // 2. Transform to Domain Input

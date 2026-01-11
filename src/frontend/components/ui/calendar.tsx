@@ -182,6 +182,7 @@ function Calendar({
 function CalendarDayButton({
   className,
   modifiers,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   color,
   ...props
 }: React.ComponentProps<typeof DayButton>) {

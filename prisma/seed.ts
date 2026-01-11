@@ -66,19 +66,34 @@ async function main() {
   console.log('💰 Seeding recent SELL and BUYBACK prices...')
 
   const recentPricesPath = path.join(__dirname, 'data', 'recent-prices.json')
-  let recentPrices: any[] = []
+  let recentPrices: {
+    brandCode: string
+    brandName: string
+    denominationGram: Decimal | number | string
+    priceType: PriceType
+    price: bigint | number
+    priceAt: Date
+    source: string
+  }[] = []
 
   if (fs.existsSync(recentPricesPath)) {
     const rawData = fs.readFileSync(recentPricesPath, 'utf-8')
     const jsonData = JSON.parse(rawData)
 
-    recentPrices = jsonData.map((p: any) => ({
+    recentPrices = jsonData.map((p: {
+      brandCode: string
+      brandName: string
+      denominationGram: number
+      priceType: string
+      price: number | string
+      source: string
+    }) => ({
       brandCode: p.brandCode,
       brandName: p.brandName,
-      denominationGram: new Decimal(p.denominationGram),
+      denominationGram: Number(p.denominationGram),
       priceType: p.priceType as PriceType,
       price: BigInt(p.price),
-      priceAt: new Date(), // Use current time for "recent" prices
+      priceAt: new Date(),
       source: p.source
     }))
 
@@ -101,7 +116,15 @@ async function main() {
     const rawData = fs.readFileSync(holdingsPath, 'utf-8')
     const jsonData = JSON.parse(rawData)
 
-    const holdings = jsonData.map((h: any) => ({
+    const holdings = jsonData.map((h: {
+      brandCode: string
+      brandName: string
+      denominationGram: number
+      quantity: number
+      buyPrice: number | string
+      boughtAt: string
+      notes?: string
+    }) => ({
       userId: testUser.id,
       brandCode: h.brandCode,
       brandName: h.brandName,

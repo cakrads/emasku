@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/frontend/components/ui/card'
 import { Button } from '@/frontend/components/ui/button'
 import { Stack, Section } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
-import { TrendingUp, TrendingDown, Pencil, TriangleAlert, Info } from 'lucide-react'
+import { TrendingUp, TrendingDown, Pencil, Info } from 'lucide-react'
 import { cn } from '@/frontend/utils/cn'
 import { ROUTES } from '@/frontend/config/routes'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
@@ -55,9 +55,10 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
       queryClient.invalidateQueries({ queryKey: ['holdings'] })
       router.push(ROUTES.HOLDINGS_LIST)
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
+      const apiError = error as { message?: string }
       toast.error('Error', {
-        description: error?.message || 'Failed to delete holding',
+        description: apiError?.message || 'Failed to delete holding',
         duration: 4000,
       })
     }
@@ -77,7 +78,6 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
   }
 
   const holding = transformHoldingDetail(data)
-  const isPositive = holding.pnlColor !== 'negative'
 
   // Check if holding.totalValue is placeholder '-'
   const hasMissingValue = holding.totalValue === '-'

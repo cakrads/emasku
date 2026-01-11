@@ -29,7 +29,7 @@ export interface ChartConfig {
 
 export interface ChartRendererProps {
   /** Array of data objects */
-  data: Array<Record<string, any>>
+  data: Array<Record<string, unknown>>
   /** Key for X-axis values */
   xKey: string
   /** Key for Y-axis values */
@@ -37,11 +37,11 @@ export interface ChartRendererProps {
   /** Optional configuration */
   config?: ChartConfig
   /** Optional custom tooltip formatter */
-  tooltipFormatter?: (value: any) => string
+  tooltipFormatter?: (value: unknown) => string
   /** Optional custom X-axis formatter */
-  xAxisFormatter?: (value: any) => string
+  xAxisFormatter?: (value: unknown) => string
   /** Optional custom Y-axis formatter */
-  yAxisFormatter?: (value: any) => string
+  yAxisFormatter?: (value: unknown) => string
 }
 
 const DEFAULT_CONFIG: ChartConfig = {

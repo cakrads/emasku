@@ -4,16 +4,15 @@ import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { Input } from '@/frontend/components/ui/input'
 import { Label } from '@/frontend/components/ui/label'
-import { Button } from '@/frontend/components/ui/button'
 import { Typography } from '@/frontend/components/ui/typography'
 import { Stack, Section } from '@/frontend/components/ui/layout'
 import { DetailActions } from '@/frontend/components/fragments/detail-actions'
 import { ROUTES } from '@/frontend/config/routes'
 import { DatePicker } from '@/frontend/components/ui/date-picker'
-import Link from 'next/link'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchHoldingDetail, updateHolding } from '@/frontend/services/portfolio/portfolio.api'
+import { UpdateHoldingRequest } from '@/shared/contracts/update-holding.contract'
 import { toast } from 'sonner'
 import { Skeleton } from '@/frontend/components/ui/skeleton'
 import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
@@ -41,7 +40,7 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
   // Initialize form when data loads
   useEffect(() => {
     if (holding) {
-      // eslint-disable-next-line
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setWeight(holding.denominationGram.toString())
       setBuyPrice(holding.avgBuyPrice.toString())
       setBuyDate(new Date(holding.buyDate))
@@ -51,7 +50,7 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
 
   // Update mutation
   const updateMutation = useMutation({
-    mutationFn: (data: any) => updateHolding(holdingId, data),
+    mutationFn: (data: UpdateHoldingRequest) => updateHolding(holdingId, data),
     onSuccess: () => {
       toast.success('Holding updated successfully!', {
         description: 'Your changes have been saved.'
@@ -61,12 +60,13 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
       queryClient.invalidateQueries({ queryKey: ['holdings'] })
       router.push(ROUTES.HOLDINGS_LIST)
     },
-    onError: (error: any) => {
+    onError: (error: unknown) => {
       console.error('Update holding error:', error)
+      const apiError = error as { message?: string, details?: { errors?: Record<string, string | string[]> } }
 
-      if (error?.details?.errors) {
-        const fieldErrors = Object.entries(error.details.errors)
-          .map(([field, messages]: [string, any]) => {
+      if (apiError?.details?.errors) {
+        const fieldErrors = Object.entries(apiError.details.errors)
+          .map(([field, messages]) => {
             const msgArray = Array.isArray(messages) ? messages : [messages]
             return `${field}: ${msgArray.join(', ')}`
           })
@@ -78,7 +78,7 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
         })
       } else {
         toast.error('Error Updating Holding', {
-          description: error?.message || 'Failed to update holding',
+          description: apiError?.message || 'Failed to update holding',
           duration: 4000,
         })
       }

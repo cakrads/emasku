@@ -31,7 +31,7 @@ export interface DeserializedGoldPrice {
  * If the value is a number, treat it as an index reference.
  * Otherwise, return the value as-is.
  */
-function resolveValue(data: any[], value: any): any {
+function resolveValue(data: unknown[], value: unknown): unknown {
   if (typeof value === 'number' && value >= 0 && value < data.length) {
     const resolved = data[value]
 
@@ -42,7 +42,7 @@ function resolveValue(data: any[], value: any): any {
 
     // If it's an object, resolve all its properties
     if (typeof resolved === 'object' && resolved !== null && !Array.isArray(resolved)) {
-      const resolvedObj: any = {}
+      const resolvedObj: Record<string, unknown> = {}
       for (const [key, val] of Object.entries(resolved)) {
         resolvedObj[key] = resolveValue(data, val)
       }
@@ -54,7 +54,7 @@ function resolveValue(data: any[], value: any): any {
 
   // If it's an object, resolve all properties
   if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
-    const resolvedObj: any = {}
+    const resolvedObj: Record<string, unknown> = {}
     for (const [key, val] of Object.entries(value)) {
       resolvedObj[key] = resolveValue(data, val)
     }
@@ -67,7 +67,7 @@ function resolveValue(data: any[], value: any): any {
 /**
  * Deserialize Nuxt.js __NUXT_DATA__ array into structured gold price data
  */
-export function deserializeNuxtData(data: any[]): DeserializedGoldPrice[] {
+export function deserializeNuxtData(data: unknown[]): DeserializedGoldPrice[] {
   // Index 3 contains the array of item indices
   const itemIndices = data[3]
 
@@ -91,7 +91,7 @@ export function deserializeNuxtData(data: any[]): DeserializedGoldPrice[] {
       }
 
       // Resolve all references in the template
-      const resolved = resolveValue(data, template)
+      const resolved = resolveValue(data, template) as Record<string, unknown>
 
       // Validate and convert to DeserializedGoldPrice
       if (resolved.id && resolved.price !== undefined) {
@@ -100,7 +100,7 @@ export function deserializeNuxtData(data: any[]): DeserializedGoldPrice[] {
           price: parseFloat(String(resolved.price)) || 0,
           sellingPrice: parseFloat(String(resolved.sellingPrice)) || 0,
           buybackPrice: parseFloat(String(resolved.buybackPrice)) || 0,
-          description: resolved.description || null,
+          description: (resolved.description as string | null) || null,
           vendorCode: String(resolved.vendorCode || ''),
           date: String(resolved.date || ''),
           denomination: parseFloat(String(resolved.denomination)) || 0,

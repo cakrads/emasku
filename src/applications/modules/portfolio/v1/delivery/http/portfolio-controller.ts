@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server'
-import { successResponse, errorResponse } from '@/applications/shared/lib/response'
+import { successResponse } from '@/applications/shared/lib/response'
 import { NotFoundError, ValidationError } from '@/applications/shared/lib/errors'
 import { GetPortfolioSummaryUsecase } from '../../usecases/get-portfolio-summary'
 import { GetPortfolioHoldingsUsecase } from '../../usecases/get-portfolio-holdings'

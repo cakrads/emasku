@@ -31,7 +31,7 @@ async function main() {
   console.log('\n--- Step 2: Running Scraper ---')
   try {
     execSync('npm run scraper:run', { stdio: 'inherit' })
-  } catch (e) {
+  } catch {
     console.error('Scraper failed to run via execSync')
   }
 

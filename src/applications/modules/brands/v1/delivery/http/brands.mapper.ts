@@ -5,7 +5,7 @@
  */
 
 import { BrandDomain } from '../../domain/brand.domain'
-import { BrandsList, BrandItem } from '@/shared/contracts/brands.contract'
+import { BrandsList } from '@/shared/contracts/brands.contract'
 
 export class BrandsMapper {
   static toBrandsListResponse(domains: BrandDomain[]): BrandsList {

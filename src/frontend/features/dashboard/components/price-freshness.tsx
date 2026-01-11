@@ -1,8 +1,6 @@
 'use client'
 
-import { Stack, Section } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
-import { RefreshCcw } from 'lucide-react'
 
 interface PriceFreshnessProps {
   lastUpdated: Date

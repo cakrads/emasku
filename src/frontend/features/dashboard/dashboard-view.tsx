@@ -11,7 +11,6 @@ import { PricesTodayCards } from './components/prices-today-cards'
 import { fetchPortfolioSummary, fetchPortfolioHistory } from '@/frontend/services/portfolio/portfolio.api'
 import { transformPortfolioSummary, transformPortfolioHistory } from '@/frontend/view-model/portfolio.vm'
 import { DashboardSkeleton } from './components/dashboard-skeleton'
-import { PortfolioChartSkeleton } from './components/portfolio-chart-skeleton'
 
 import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
 

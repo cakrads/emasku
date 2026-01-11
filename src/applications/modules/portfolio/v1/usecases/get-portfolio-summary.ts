@@ -134,7 +134,7 @@ export class GetPortfolioSummaryUsecase {
   private aggregateBrand(
     brandMap: Map<string, BrandAllocationDomain>,
     holding: PortfolioHoldingDomain,
-    valuation: any,
+    valuation: { currentValue: number | null, valuationSource: string },
     buyValue: Decimal
   ) {
     const existing = brandMap.get(holding.brandCode)
@@ -163,7 +163,7 @@ export class GetPortfolioSummaryUsecase {
         brandName: holding.brandName,
         totalGrams: grams,
         currentValue,
-        valuationSource: valuation.valuationSource,
+        valuationSource: valuation.valuationSource as 'NONE' | 'BUYBACK' | 'SPOT' | 'MIXED',
         deltaValue,
         deltaPercentage
       })

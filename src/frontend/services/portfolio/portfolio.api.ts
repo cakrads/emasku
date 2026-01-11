@@ -30,7 +30,7 @@ import {
  * Fetch portfolio summary
  */
 export async function fetchPortfolioSummary(): Promise<PortfolioSummary> {
-  const data = await fetchJson<any>('/api/v1/portfolio/summary')
+  const data = await fetchJson<unknown>('/api/v1/portfolio/summary')
   return PortfolioSummarySchema.parse(data)
 }
 
@@ -39,7 +39,7 @@ export async function fetchPortfolioSummary(): Promise<PortfolioSummary> {
  */
 export async function fetchPortfolioList(filter?: { status?: 'active' | 'sold' | 'all' }): Promise<PortfolioList> {
   const query = filter?.status ? `?status=${filter.status}` : ''
-  const data = await fetchJson<any>(`/api/v1/portfolio${query}`)
+  const data = await fetchJson<unknown>(`/api/v1/portfolio${query}`)
   return PortfolioListSchema.parse(data)
 }
 
@@ -47,7 +47,7 @@ export async function fetchPortfolioList(filter?: { status?: 'active' | 'sold' |
  * Fetch holding detail by ID
  */
 export async function fetchHoldingDetail(id: string): Promise<HoldingDetail> {
-  const data = await fetchJson<any>(`/api/v1/portfolio/${id}`)
+  const data = await fetchJson<unknown>(`/api/v1/portfolio/${id}`)
   return HoldingDetailSchema.parse(data)
 }
 
@@ -55,7 +55,7 @@ export async function fetchHoldingDetail(id: string): Promise<HoldingDetail> {
  * Fetch portfolio history
  */
 export async function fetchPortfolioHistory(): Promise<PortfolioHistory> {
-  const data = await fetchJson<any>('/api/v1/portfolio/history')
+  const data = await fetchJson<unknown>('/api/v1/portfolio/history')
   return PortfolioHistorySchema.parse(data)
 }
 
@@ -63,7 +63,7 @@ export async function fetchPortfolioHistory(): Promise<PortfolioHistory> {
  * Create a new holding
  */
 export async function createHolding(request: CreateHoldingRequest): Promise<CreateHoldingResponse> {
-  const data = await fetchJson<any>('/api/v1/portfolio', {
+  const data = await fetchJson<unknown>('/api/v1/portfolio', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(request),
@@ -75,7 +75,7 @@ export async function createHolding(request: CreateHoldingRequest): Promise<Crea
  * Update an existing holding
  */
 export async function updateHolding(id: string, request: UpdateHoldingRequest): Promise<UpdateHoldingResponse> {
-  const data = await fetchJson<any>(`/api/v1/portfolio/${id}`, {
+  const data = await fetchJson<unknown>(`/api/v1/portfolio/${id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(request),
@@ -87,7 +87,7 @@ export async function updateHolding(id: string, request: UpdateHoldingRequest): 
  * Delete a holding (mark as sold)
  */
 export async function deleteHolding(id: string): Promise<void> {
-  await fetchJson<any>(`/api/v1/portfolio/${id}`, {
+  await fetchJson<unknown>(`/api/v1/portfolio/${id}`, {
     method: 'DELETE',
   })
 }

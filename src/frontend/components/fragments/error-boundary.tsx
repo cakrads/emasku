@@ -22,6 +22,7 @@ import {
 } from '@/frontend/components/ui/empty'
 import { Button } from '@/frontend/components/ui/button'
 import React, { Component, ReactNode } from 'react'
+import { ApiError } from '@/frontend/utils/api-client'
 
 interface ErrorBoundaryProps {
   children: ReactNode
@@ -69,12 +70,11 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       }
 
       // Custom error handling for ApiError
-      const isApiError = this.state.error && this.state.error.name === 'ApiError'
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const apiError = isApiError ? (this.state.error as any) : null
+      const isApiError = this.state.error instanceof ApiError
+      const apiError = isApiError ? (this.state.error as ApiError) : null
 
       const title = apiError ? apiError.message : 'Something went wrong'
-      const description = apiError?.description || apiError?.details?.originalError || 'An unexpected error occurred. Please try refreshing the page.'
+      const description = apiError?.description || (typeof apiError?.details?.originalError === 'string' ? apiError.details.originalError : JSON.stringify(apiError?.details?.originalError)) || 'An unexpected error occurred. Please try refreshing the page.'
 
       // Default fallback UI
       return (

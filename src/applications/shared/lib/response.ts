@@ -12,7 +12,7 @@ import { BaseError } from './errors'
 /**
  * Standard API response envelope
  */
-interface ApiResponse<T = any> {
+interface ApiResponse<T = unknown> {
   code: number
   success: boolean
   message: string

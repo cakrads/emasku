@@ -6,6 +6,7 @@
  */
 
 import { prisma } from '../prisma-client'
+import { Prisma, PortfolioHolding } from '@prisma/client'
 import { PortfolioHoldingDomain } from '@/applications/modules/portfolio/v1/domain/portfolio.domain'
 import { logger } from '@/applications/shared/lib/logger'
 
@@ -18,7 +19,7 @@ export class PrismaPortfolioRepository {
   async findAllByUserId(userId: string, filter?: { status?: 'active' | 'sold' | 'all' }): Promise<PortfolioHoldingDomain[]> {
     const startTime = Date.now()
 
-    const where: any = { userId }
+    const where: Prisma.PortfolioHoldingWhereInput = { userId }
 
     // Apply status filter
     const status = filter?.status || 'active'
@@ -104,7 +105,7 @@ export class PrismaPortfolioRepository {
     notes?: string
     brandCode?: string
   }): Promise<PortfolioHoldingDomain> {
-    const updateData: any = {}
+    const updateData: Prisma.PortfolioHoldingUpdateInput = {}
 
     // Explicitly map fields
     if (data.denominationGram !== undefined) updateData.denominationGram = data.denominationGram
@@ -183,7 +184,7 @@ export class PrismaPortfolioRepository {
    * Converts BigInt → number and Decimal → number.
    * NO business logic - pure data transformation.
    */
-  private toDomain(prismaHolding: any): PortfolioHoldingDomain {
+  private toDomain(prismaHolding: PortfolioHolding): PortfolioHoldingDomain {
     return {
       id: prismaHolding.id,
       brandCode: prismaHolding.brandCode,
@@ -193,7 +194,7 @@ export class PrismaPortfolioRepository {
       buyPrice: Number(prismaHolding.buyPrice),
       boughtAt: prismaHolding.boughtAt,
       soldAt: prismaHolding.soldAt,
-      notes: prismaHolding.notes,
+      notes: prismaHolding.notes || undefined,
     }
   }
 }
