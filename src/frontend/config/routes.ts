@@ -19,7 +19,8 @@ export const ROUTES = {
   HOLDING_DETAIL: (id: string) => `/holdings/${id}`,
   EDIT_HOLDING: (id: string) => `/holdings/${id}/edit`,
   BRAND_DETAIL: (id: string) => `/holdings/brands/${id}`,
-  ADD_HOLDING: '/add-holding',
+  ADD_HOLDING: '/holdings/create',
+  PROFILE: '/profile',
 } as const
 
 export type AppRoute = typeof ROUTES[keyof typeof ROUTES]

@@ -112,7 +112,7 @@ export function LoginView() {
               </div>
             )}
 
-            <div className="flex items-start space-x-3 p-4 rounded-lg bg-muted/50 border border-muted ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 transition-all">
+            <div className="flex items-start space-x-3 p-4 rounded-lg bg-muted/50 border border-muted ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 transition-all cursor-pointer">
               <Checkbox
                 id="consent"
                 checked={hasConsented}

@@ -182,6 +182,7 @@ function Calendar({
 function CalendarDayButton({
   className,
   modifiers,
+  color,
   ...props
 }: React.ComponentProps<typeof DayButton>) {
 

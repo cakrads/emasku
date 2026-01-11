@@ -52,9 +52,9 @@ These rules are enforced by structure and convention:
 │   │   ├── api/v1/                # Versioned API controllers
 │   │   └── (dashboard)/           # UI Route Groups
 │   ├── frontend/                  # Pillar 2: Frontend Boundary
-│   │   ├── components/            # Atomic UI Components
-│   │   ├── features/              # Stateful Feature Modules
-│   │   ├── providers/             # ReactQuery, Theme, etc.
+│   │   ├── components/            # Atomic UI Components (ui/, fragments/)
+│   │   ├── features/              # Stateful Feature Modules (flat structure, e.g., holdings-list)
+│   │   ├── providers/             # ReactQuery, Theme, Auth, etc.
 │   │   ├── services/              # API Clients
 │   │   ├── types/                 # DTOs & Interfaces
 │   │   ├── data/                  # Static/Dummy data
@@ -117,5 +117,7 @@ Inside `src/applications/modules/`, each feature follows a strict Clean Architec
 
 - [Functional Spec](.spec/spec.md)
 - [Technical Spec](.spec/tech-spec.md)
+- [Frontend Guidelines](.docs/frontend-guidelines.md)
+- [UI Architecture manifest](.docs/ui-structure-manifest.md)
 - [Scraper Implementation Guide](.docs/scraper-guide.md)
 - [Database Setup](.docs/database-setup.md)

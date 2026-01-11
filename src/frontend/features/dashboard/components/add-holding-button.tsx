@@ -15,7 +15,9 @@ export default function AddHoldingButton({ onClick }: AddHoldingButtonProps) {
         <Button
           onClick={onClick}
           size="icon"
-          className="h-16 w-16 rounded-full bg-accent-gold shadow-lg hover:scale-105 hover:bg-accent-gold/90 active:scale-95 transition-all cursor-pointer border-none"
+          color="primary"
+          rounded="full"
+          className="h-16 w-16"
           aria-label="Add Gold Holding"
         >
           <Plus className="h-8 w-8 text-white" strokeWidth={2.5} />

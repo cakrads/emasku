@@ -6,7 +6,7 @@ import { Stack, Section } from '@/frontend/components/ui/layout'
 import { fetchPortfolioList } from '@/frontend/services/portfolio/portfolio.api'
 import { transformHoldingItem } from '@/frontend/view-model/portfolio.vm'
 import FilterBar from './components/filter-bar'
-import HoldingsTable from '../brand-category/components/holdings-table'
+import HoldingsTable from '../holdings-brand-category/components/holdings-table'
 import { HoldingsListSkeleton } from './components/holdings-list-skeleton'
 import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
@@ -28,9 +28,7 @@ export default function HoldingsListView() {
       ]}
       action={
         <Link href={ROUTES.ADD_HOLDING}>
-          <Button
-            className="flex items-center gap-2 bg-accent-gold hover:bg-accent-gold/90 text-white shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all border-none"
-          >
+          <Button color="primary" className="flex items-center gap-2">
             <Plus className="h-4 w-4" />
             <span>Add New Holding</span>
           </Button>

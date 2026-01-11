@@ -234,7 +234,10 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
         <Section className="px-0 mt-6">
           <Button
             variant="outline"
-            className="w-full h-14 rounded-xl text-base font-medium text-orange-400 bg-orange-50 border-orange-200 hover:bg-orange-100 hover:border-orange-300 hover:text-orange-600 dark:bg-orange-950/20 dark:text-orange-400 dark:border-orange-800 dark:hover:bg-orange-900/40 dark:hover:border-orange-700 dark:hover:text-orange-300 transition-all shadow-sm"
+            color="warning"
+            size="xl"
+            rounded="xl"
+            fullWidth
             onClick={() => setShowDeleteDialog(true)}
           >
             <svg

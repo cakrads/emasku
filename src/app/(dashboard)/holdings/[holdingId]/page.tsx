@@ -1,4 +1,4 @@
-import HoldingDetailView from '@/frontend/features/holding-detail/holding-detail-view'
+import HoldingDetailView from '@/frontend/features/holdings-detail/holding-detail-view'
 
 interface PageProps {
   params: Promise<{ holdingId: string }>

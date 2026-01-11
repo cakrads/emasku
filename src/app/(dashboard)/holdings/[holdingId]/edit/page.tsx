@@ -1,5 +1,5 @@
 
-import EditHoldingView from '@/frontend/features/edit-holding/edit-holding-view'
+import EditHoldingView from '@/frontend/features/holdings-edit/edit-holding-view'
 
 interface PageProps {
   params: Promise<{ holdingId: string }>

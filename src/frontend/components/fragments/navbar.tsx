@@ -40,7 +40,7 @@ export function Navbar() {
     { href: ROUTES.PRICES, label: 'Prices', icon: Coins },
     { href: ROUTES.HOLDINGS_LIST, label: 'Holdings', icon: Wallet },
     // Profile item for Mobile only
-    { href: '/profile', label: 'Profile', icon: User, mobileOnly: true },
+    { href: ROUTES.PROFILE, label: 'Profile', icon: User, mobileOnly: true },
   ]
 
   const isActionPage = pathname === ROUTES.ADD_HOLDING || (pathname.startsWith('/holdings/') && pathname.endsWith('/edit'))
@@ -133,7 +133,7 @@ export function Navbar() {
                   <DropdownMenuLabel>My Account</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link href="/profile" className="cursor-pointer w-full flex items-center">
+                    <Link href={ROUTES.PROFILE} className="cursor-pointer w-full flex items-center">
                       <User className="mr-2 h-4 w-4" />
                       <span>Profile</span>
                     </Link>
