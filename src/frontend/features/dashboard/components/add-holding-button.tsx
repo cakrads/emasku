@@ -10,7 +10,7 @@ interface AddHoldingButtonProps {
 
 export default function AddHoldingButton({ onClick }: AddHoldingButtonProps) {
   return (
-    <Stack className="fixed bottom-6 right-6 z-50">
+    <Stack className="hidden md:flex fixed bottom-6 right-6 z-50">
       <Link href={ROUTES.ADD_HOLDING}>
         <Button
           onClick={onClick}

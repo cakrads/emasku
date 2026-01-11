@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react'
 import { Stack } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { Card } from '@/frontend/components/ui/card'
+import { TrendingUp } from 'lucide-react'
 
 interface ChartDataPoint {
   date: string
@@ -103,6 +104,32 @@ export default function PortfolioChart({ data }: PortfolioChartProps) {
       ctx.fillText(label, x, rect.height - 8)
     })
   }, [data])
+
+  // Empty state
+  if (data.length === 0) {
+    return (
+      <Stack gap="sm">
+        <Stack gap="none">
+          <Typography variant="h3">Performance</Typography>
+          <Typography variant="body-sm">Last 7 days</Typography>
+        </Stack>
+
+        <Card className="p-4 bg-(--surface-elevated) border-(--border) shadow-(--shadow-sm)">
+          <div
+            className="w-full flex flex-col items-center justify-center text-center gap-3"
+            style={{ height: '200px' }}
+          >
+            <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center">
+              <TrendingUp className="w-6 h-6 text-muted-foreground" />
+            </div>
+            <Typography variant="body-sm" className="text-muted-foreground max-w-xs">
+              Grafik pergerakan nilai akan muncul setelah kamu menambahkan emas
+            </Typography>
+          </div>
+        </Card>
+      </Stack>
+    )
+  }
 
   return (
     <Stack gap="sm">

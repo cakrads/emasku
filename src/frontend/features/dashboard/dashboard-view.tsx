@@ -7,18 +7,21 @@ import PriceFreshness from './components/price-freshness'
 import BrandBreakdown from './components/brand-breakdown'
 import PortfolioChart from './components/portfolio-chart'
 import AddHoldingButton from './components/add-holding-button'
+import PortfolioHeroEmpty from './components/portfolio-hero-empty'
+import BrandBreakdownEmpty from './components/brand-breakdown-empty'
 import { PricesTodayCards } from './components/prices-today-cards'
 import { fetchPortfolioSummary, fetchPortfolioHistory } from '@/frontend/services/portfolio/portfolio.api'
 import { transformPortfolioSummary, transformPortfolioHistory } from '@/frontend/view-model/portfolio.vm'
-import { DashboardSkeleton } from './components/dashboard-skeleton'
-
+import { PortfolioSummarySkeleton } from './components/portfolio-summary-skeleton'
+import { BrandBreakdownSkeleton } from './components/brand-breakdown-skeleton'
+import { PortfolioChartSkeleton } from './components/portfolio-chart-skeleton'
 import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
 
 // Re-using dummy chart data for now as it's not yet in the summary API
 // DUMMY_CHART_DATA removed
 
 function DashboardContent() {
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['portfolio', 'summary'],
     queryFn: fetchPortfolioSummary,
   })
@@ -43,15 +46,10 @@ function DashboardContent() {
 
   const viewModel = data ? transformPortfolioSummary(data) : null
   const historyViewModel = historyData ? transformPortfolioHistory(historyData) : []
-  const lastUpdated = new Date() // Should come from API or just use current time
+  const lastUpdated = data ? new Date() : undefined // Ideally from API
 
-  if (isLoading || isHistoryLoading) {
-    return <DashboardSkeleton />
-  }
-
-  if (error || !viewModel) {
-    throw error || new Error('Failed to load portfolio')
-  }
+  // Empty state detection
+  const hasHoldings = viewModel && viewModel.brandAllocation.length > 0
 
   return (
     <div className="animate-fade-in">
@@ -59,20 +57,28 @@ function DashboardContent() {
         {/* Top Section: Date + Hero + Market Today */}
         <Stack gap="md">
           <div className="flex justify-end mb-4 lg:mb-0">
-            <PriceFreshness lastUpdated={lastUpdated} />
+            <PriceFreshness lastUpdated={lastUpdated} isLoading={isLoading} />
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2 min-h-auto md:min-h-[190px]">
-              <PortfolioHero
-                totalValue={viewModel.totalCurrentValue}
-                gainLossPercentage={viewModel.pnlPercentage}
-                todayChange={viewModel.totalPnL} // API returns total PnL, not today change distinctively yet
-                todayChangePercentage={viewModel.pnlPercentage} // Same here, using total for now
-                pnlColor={viewModel.pnlColor}
-                disclaimer={viewModel.disclaimer}
-                excludedCount={viewModel.excludedCount}
-              />
+              <ErrorBoundary>
+                {isLoading ? (
+                  <PortfolioSummarySkeleton />
+                ) : hasHoldings && viewModel ? (
+                  <PortfolioHero
+                    totalValue={viewModel.totalCurrentValue}
+                    gainLossPercentage={viewModel.pnlPercentage}
+                    todayChange={viewModel.totalPnL}
+                    todayChangePercentage={viewModel.pnlPercentage}
+                    pnlColor={viewModel.pnlColor}
+                    disclaimer={viewModel.disclaimer}
+                    excludedCount={viewModel.excludedCount}
+                  />
+                ) : (
+                  <PortfolioHeroEmpty />
+                )}
+              </ErrorBoundary>
             </div>
 
             <div className="lg:col-span-1 lg:relative min-w-0">
@@ -85,11 +91,25 @@ function DashboardContent() {
           </div>
         </Stack>
 
-        {/* Brand Breakdown - Real Data */}
-        <BrandBreakdown brands={viewModel.brandAllocation} />
+        {/* Brand Breakdown - Granular Loading */}
+        <ErrorBoundary>
+          {isLoading ? (
+            <BrandBreakdownSkeleton />
+          ) : hasHoldings && viewModel ? (
+            <BrandBreakdown brands={viewModel.brandAllocation} />
+          ) : (
+            <BrandBreakdownEmpty />
+          )}
+        </ErrorBoundary>
 
-        {/* Portfolio performance snapshot */}
-        <PortfolioChart data={historyViewModel} />
+        {/* Portfolio performance snapshot - Granular Loading */}
+        <ErrorBoundary>
+          {isHistoryLoading ? (
+            <PortfolioChartSkeleton />
+          ) : (
+            <PortfolioChart data={historyViewModel} />
+          )}
+        </ErrorBoundary>
 
         {/* Primary action FAB */}
         <AddHoldingButton onClick={() => console.log('Add button clicked')} />

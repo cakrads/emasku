@@ -20,8 +20,8 @@ export function PricesOverviewSkeleton() {
 
       <div className="overflow-y-auto flex-1 min-h-0">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-1 gap-3 pb-1">
-          {/* Single Card Skeleton */}
-          {[1].map((i) => (
+          {/* 3 cards to match loaded state */}
+          {[1, 2, 3].map((i) => (
             <div
               key={i}
               className="flex flex-col justify-between p-3 rounded-xl border border-border bg-card h-[100px] shrink-0"

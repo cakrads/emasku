@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { LayoutDashboard, Coins, Wallet, LogOut, User, Sun, Moon } from 'lucide-react'
+import { LayoutDashboard, Coins, Wallet, LogOut, User, Sun, Moon, Plus } from 'lucide-react'
 import { cn } from '@/frontend/utils/cn'
 import { ROUTES } from '@/frontend/config/routes'
 import { useTheme } from "next-themes"
@@ -35,13 +35,22 @@ export function Navbar() {
     setMounted(true)
   }, [])
 
-  const items = [
-    { href: ROUTES.DASHBOARD, label: 'Dashboard', icon: LayoutDashboard },
-    { href: ROUTES.PRICES, label: 'Prices', icon: Coins },
-    { href: ROUTES.HOLDINGS_LIST, label: 'Holdings', icon: Wallet },
-    // Profile item for Mobile only
-    { href: ROUTES.PROFILE, label: 'Profile', icon: User, mobileOnly: true },
+  // Nav items configuration
+  const allItems = [
+    { href: ROUTES.DASHBOARD, label: 'Dashboard', icon: LayoutDashboard, requiresAuth: true },
+    { href: ROUTES.PRICES, label: 'Prices', icon: Coins, requiresAuth: false },
+    // Special 'Add' button for mobile - handled in render logic
+    { href: ROUTES.ADD_HOLDING, label: 'Add', icon: Plus, requiresAuth: true, isAddButton: true, mobileOnly: true },
+    { href: ROUTES.HOLDINGS_LIST, label: 'Holdings', icon: Wallet, requiresAuth: true },
+    { href: ROUTES.PROFILE, label: 'Profile', icon: User, mobileOnly: true, requiresAuth: true },
   ]
+
+  // Filter items based on auth state
+  // For the Add button, we only show it if authenticated
+  const items = allItems.filter(item => {
+    if (item.requiresAuth && !isAuthenticated) return false
+    return true
+  })
 
   const isActionPage = pathname === ROUTES.ADD_HOLDING || (pathname.startsWith('/holdings/') && pathname.endsWith('/edit'))
   const isLoginPage = pathname === ROUTES.LOGIN
@@ -59,38 +68,21 @@ export function Navbar() {
   return (
     <>
       <nav className={cn(
-        "fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50 md:top-0 md:bottom-auto md:border-t-0 md:border-b",
+        "fixed bottom-0 left-0 right-0 bg-background/80 backdrop-blur-md border-t border-border z-50 md:top-0 md:bottom-auto md:border-t-0 md:border-b",
         isActionPage && "hidden md:block" // Hide on mobile action pages, show on desktop
       )}>
-        <div className="mx-auto flex h-16 max-w-lg items-center justify-around px-6 md:max-w-7xl md:justify-between md:gap-8">
+        <div className="mx-auto flex h-16 md:h-16 max-w-lg items-center px-4 md:max-w-7xl md:justify-between md:gap-8 md:px-6">
 
-          {/* Mobile: Distributed Space Around. Desktop: Left aligned with gap */}
-          <div className="flex w-full justify-around md:justify-start md:gap-8">
+          {/* Desktop: Standard Flex Layout */}
+          <div className="hidden md:flex md:w-full md:justify-start md:gap-8">
             {items.map((item) => {
-              // Skip mobile-only items on desktop
-              if (item.mobileOnly) {
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={cn(
-                      "flex flex-col items-center gap-1 rounded-lg p-2 transition-colors md:hidden",
-                      pathname === item.href
-                        ? "text-accent-gold font-medium bg-accent-gold/10"
-                        : "text-muted-foreground hover:text-foreground"
-                    )}
-                  >
-                    <item.icon className={cn("h-6 w-6", pathname === item.href && "fill-current")} />
-                    <span className="text-[10px]">{item.label}</span>
-                  </Link>
-                )
-              }
+              // Skip mobile-only items on desktop (Profile, Add Button)
+              if (item.mobileOnly) return null
 
               const isActive =
                 item.href === ROUTES.DASHBOARD
                   ? pathname === ROUTES.DASHBOARD
-                  : (pathname === item.href || pathname.startsWith(`${item.href}/`)) ||
-                  (item.label === 'Holdings' && pathname === ROUTES.ADD_HOLDING)
+                  : (pathname === item.href || pathname.startsWith(`${item.href}/`))
 
               const Icon = item.icon
 
@@ -99,20 +91,74 @@ export function Navbar() {
                   key={item.href}
                   href={item.href}
                   className={cn(
-                    "flex flex-col items-center gap-1 rounded-lg p-2 transition-colors md:flex-row md:gap-2",
+                    "flex flex-row items-center gap-2 rounded-lg p-2 transition-colors",
                     isActive
-                      ? "text-accent-gold font-medium bg-accent-gold/10 md:bg-transparent"
+                      ? "text-accent-gold font-medium bg-transparent"
                       : "text-muted-foreground hover:text-foreground"
                   )}
                 >
-                  <Icon className={cn("h-6 w-6 md:h-5 md:w-5", isActive && "fill-current md:fill-none")} />
-                  <span className="text-[10px] md:text-sm">{item.label}</span>
+                  <Icon className={cn("h-5 w-5", isActive && "fill-current md:fill-none")} />
+                  <span className="text-sm">{item.label}</span>
+                </Link>
+              )
+            })}
+          </div>
+
+          {/* Mobile: Grid Layout (5 columns for perfect centering) */}
+          <div className="w-full grid grid-cols-5 items-end pb-2 md:hidden">
+            {items.map((item) => {
+              // Handle special Add button (Mobile Center)
+              if (item.isAddButton) {
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className="flex flex-col items-center justify-end relative h-full group"
+                  >
+                    <div className="absolute -top-6 bg-accent-gold rounded-full p-4 shadow-lg border-[6px] border-background flex items-center justify-center transition-transform active:scale-95 group-hover:-translate-y-1">
+                      <Plus className="h-6 w-6 text-white" strokeWidth={3} />
+                    </div>
+                    {/* Spacer text to keep grid height but remains hidden/empty or label */}
+                    <span className="text-[10px] opacity-0">Add</span>
+                  </Link>
+                )
+              }
+
+              const isActive =
+                item.href === ROUTES.DASHBOARD
+                  ? pathname === ROUTES.DASHBOARD
+                  : (pathname === item.href || pathname.startsWith(`${item.href}/`))
+
+              const Icon = item.icon
+
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    "flex flex-col items-center gap-1 transition-colors",
+                    isActive
+                      ? "text-accent-gold"
+                      : "text-muted-foreground hover:text-foreground"
+                  )}
+                >
+                  <Icon className={cn("h-6 w-6", isActive && "fill-current")} strokeWidth={isActive ? 2.5 : 2} />
+                  <span className={cn("text-[10px] font-medium", isActive ? "opacity-100" : "opacity-70")}>
+                    {item.label}
+                  </span>
                 </Link>
               )
             })}
           </div>
 
           <div className="hidden md:flex md:items-center md:gap-4">
+            {/* Desktop: Login button for guests */}
+            {!isAuthenticated && !isLoading && (
+              <Button asChild color="primary" size="sm">
+                <Link href={ROUTES.LOGIN}>Login</Link>
+              </Button>
+            )}
+
             {/* Desktop User Dropdown */}
             {isAuthenticated && !isLoading && (
               <DropdownMenu modal={false}>

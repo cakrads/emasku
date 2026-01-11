@@ -1,27 +1,31 @@
 'use client'
 
+import { Skeleton } from '@/frontend/components/ui/skeleton'
 import { Typography } from '@/frontend/components/ui/typography'
 
 interface PriceFreshnessProps {
-  lastUpdated: Date
+  lastUpdated?: Date
+  isLoading?: boolean
 }
 
-export default function PriceFreshness({ lastUpdated }: PriceFreshnessProps) {
-  const formattedDate = new Intl.DateTimeFormat('id-ID', {
-    dateStyle: 'medium',
-    timeStyle: 'short',
-  }).format(lastUpdated)
+export default function PriceFreshness({ lastUpdated, isLoading }: PriceFreshnessProps) {
+  if (isLoading) {
+    return (
+      <div className="flex items-center gap-2">
+        <Skeleton className="h-2 w-2 rounded-full" />
+        <Skeleton className="h-4 w-32" />
+      </div>
+    )
+  }
+
+  if (!lastUpdated) return null
 
   return (
-    <div className="flex items-center gap-2">
-      <div className="relative flex h-2 w-2">
-        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-        <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-      </div>
-      <Typography variant="caption" className="text-xs font-medium text-(--text-muted)">
-        Updated {formattedDate}
+    <div className="flex items-center gap-2 text-muted-foreground/60">
+      <div className="w-2 h-2 rounded-full bg-(--positive) animate-pulse" />
+      <Typography variant="caption">
+        Last updated: {lastUpdated.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
       </Typography>
     </div>
   )
 }
-

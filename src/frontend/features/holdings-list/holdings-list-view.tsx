@@ -8,6 +8,7 @@ import { transformHoldingItem } from '@/frontend/view-model/portfolio.vm'
 import FilterBar from './components/filter-bar'
 import HoldingsTable from '../holdings-brand-category/components/holdings-table'
 import { HoldingsListSkeleton } from './components/holdings-list-skeleton'
+import HoldingsListEmpty from './components/holdings-list-empty'
 import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
 import { Button } from '@/frontend/components/ui/button'
@@ -28,7 +29,7 @@ export default function HoldingsListView() {
       ]}
       action={
         <Link href={ROUTES.ADD_HOLDING}>
-          <Button color="primary" className="flex items-center gap-2">
+          <Button color="primary" className="hidden md:flex items-center gap-2">
             <Plus className="h-4 w-4" />
             <span>Add New Holding</span>
           </Button>
@@ -90,6 +91,13 @@ function HoldingsListContent() {
   // Transform to View Models
   const viewModels = filteredHoldings.map(transformHoldingItem)
 
+
+  // Empty state when no holdings at all
+  const hasNoHoldings = allHoldings.length === 0
+
+  if (hasNoHoldings) {
+    return <HoldingsListEmpty />
+  }
 
   return (
     <Stack gap="lg">

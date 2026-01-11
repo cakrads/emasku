@@ -10,7 +10,7 @@ import { SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY } from './ap
  */
 
 // Routes that don't require authentication
-const PUBLIC_ROUTES = ['/login', '/auth/callback', '/privacy']
+const PUBLIC_ROUTES = ['/login', '/auth/callback', '/privacy', '/prices']
 
 // Routes that should skip middleware entirely
 const SKIP_ROUTES = ['/api/', '/_next/', '/favicon.ico']

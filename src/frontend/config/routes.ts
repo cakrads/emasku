@@ -10,7 +10,7 @@ export const ROUTES = {
   LOGIN: '/login',
 
   // Main Navigation
-  DASHBOARD: '/',
+  DASHBOARD: '/dashboard',
   PRICES: '/prices',
   PRICES_HISTORY: '/prices/history',
   HOLDINGS_LIST: '/holdings',

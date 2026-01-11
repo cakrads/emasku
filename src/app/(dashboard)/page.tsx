@@ -1,9 +1,6 @@
-import DashboardView from "@/frontend/features/dashboard/dashboard-view";
+import { redirect } from 'next/navigation'
+import { ROUTES } from '@/frontend/config/routes'
 
 export default function Home() {
-  return (
-    <main>
-      <DashboardView />
-    </main>
-  );
+  redirect(ROUTES.DASHBOARD)
 }

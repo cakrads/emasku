@@ -11,7 +11,7 @@ const buttonVariants = cva(
       variant: {
         default: "bg-primary text-primary-foreground shadow hover:bg-primary/90",
         destructive:
-          "bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90",
+          "bg-destructive text-white shadow-sm hover:bg-destructive/90",
         outline:
           "border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground",
         secondary:
@@ -68,7 +68,7 @@ const buttonVariants = cva(
       {
         variant: "default",
         color: "error",
-        className: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-sm",
+        className: "bg-destructive text-white hover:bg-destructive/90 shadow-sm",
       },
       {
         variant: "outline",
