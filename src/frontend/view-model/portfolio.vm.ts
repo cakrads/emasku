@@ -141,7 +141,7 @@ export function transformHoldingItem(api: HoldingItem): HoldingItemVM {
     pnlColor: api.unrealizedPnL ? getPnLColor(api.unrealizedPnL) : 'neutral',
     isSold: !!api.soldAt,
     soldAt: api.soldAt ? formatDate(api.soldAt) : undefined,
-    notes: api.notes,
+    notes: api.notes || undefined,
   }
 }
 

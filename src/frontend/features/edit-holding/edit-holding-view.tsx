@@ -41,6 +41,7 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
   // Initialize form when data loads
   useEffect(() => {
     if (holding) {
+      // eslint-disable-next-line
       setWeight(holding.denominationGram.toString())
       setBuyPrice(holding.avgBuyPrice.toString())
       setBuyDate(new Date(holding.buyDate))

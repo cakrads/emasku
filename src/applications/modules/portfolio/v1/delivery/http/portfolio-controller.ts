@@ -21,31 +21,17 @@ import { UpdateHoldingUsecase } from '../../usecases/update-holding.usecase'
 import { DeleteHoldingUsecase } from '../../usecases/delete-holding.usecase'
 import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
 import { getBrandName } from '@/applications/modules/brands/v1/domain/brands.const'
+import { verifyUser } from '@/applications/shared/auth/auth.utils'
 
 export class PortfolioController {
   private userRepo = new PrismaUserRepository()
 
-  /**
-   * Resolve User ID from Request or Fallback (Dev).
-   */
-  private async resolveUserId(req: NextRequest): Promise<string> {
-    // 1. TODO: Extract from Auth Header (JWT/Session)
 
-    // 2. Fallback for Development: Use seeded "Test User"
-    if (process.env.NODE_ENV !== 'production') {
-      const testUser = await this.userRepo.findByEmail('test@emasku.com')
-      if (testUser) {
-        return testUser.id
-      }
-    }
-
-    return 'default-user-id'
-  }
   /**
    * GET /api/v1/portfolio/summary
    */
   async getPortfolioSummary(req: NextRequest): Promise<NextResponse> {
-    const userId = await this.resolveUserId(req)
+    const userId = await verifyUser(req)
     const usecase = new GetPortfolioSummaryUsecase()
     const domain = await usecase.execute(userId)
     const dto = PortfolioMapper.toPortfolioSummaryResponse(domain)
@@ -61,7 +47,7 @@ export class PortfolioController {
    * GET /api/v1/portfolio
    */
   async getPortfolioHoldings(req: NextRequest): Promise<NextResponse> {
-    const userId = await this.resolveUserId(req)
+    const userId = await verifyUser(req)
     const { searchParams } = new URL(req.url)
     const status = searchParams.get('status') as 'active' | 'sold' | 'all' | null
 
@@ -105,7 +91,7 @@ export class PortfolioController {
    * GET /api/v1/portfolio/history
    */
   async getPortfolioHistory(req: NextRequest): Promise<NextResponse> {
-    const userId = await this.resolveUserId(req)
+    const userId = await verifyUser(req)
     const usecase = new GetPortfolioHistoryUsecase()
     const domain = await usecase.execute(userId)
     const dto = PortfolioMapper.toPortfolioHistoryResponse(domain)
@@ -118,7 +104,7 @@ export class PortfolioController {
    * POST /api/v1/portfolio
    */
   async createHolding(req: NextRequest): Promise<NextResponse> {
-    const userId = await this.resolveUserId(req)
+    const userId = await verifyUser(req)
     const body = await req.json()
 
     // Validate request body
@@ -167,7 +153,7 @@ export class PortfolioController {
    * PUT /api/v1/portfolio/{id}
    */
   async updateHolding(req: NextRequest, id: string): Promise<NextResponse> {
-    const userId = await this.resolveUserId(req)
+    const userId = await verifyUser(req)
     const body = await req.json()
 
     // Validate request body
@@ -208,7 +194,7 @@ export class PortfolioController {
    * DELETE /api/v1/portfolio/{id}
    */
   async deleteHolding(req: NextRequest, id: string): Promise<NextResponse> {
-    const userId = await this.resolveUserId(req)
+    const userId = await verifyUser(req)
 
     const portfolioRepo = new PrismaPortfolioRepository()
     const usecase = new DeleteHoldingUsecase(portfolioRepo)

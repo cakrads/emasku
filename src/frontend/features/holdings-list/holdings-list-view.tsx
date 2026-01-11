@@ -84,7 +84,7 @@ function HoldingsListContent() {
     if (sortBy === 'date') {
       output = new Date(a.buyDate).getTime() - new Date(b.buyDate).getTime()
     } else {
-      output = a.currentValue - b.currentValue
+      output = (a.currentValue || 0) - (b.currentValue || 0)
     }
     return sortOrder === 'asc' ? output : -output
   })
@@ -102,8 +102,6 @@ function HoldingsListContent() {
         selectedBrand={brandFilter}
         onBrandChange={setBrandFilter}
         sortBy={sortBy}
-        onSortByChange={setSortBy}
-        sortOrder={sortOrder}
         onSortByChange={setSortBy}
         sortOrder={sortOrder}
         onSortOrderChange={setSortOrder}

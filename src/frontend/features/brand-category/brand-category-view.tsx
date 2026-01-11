@@ -40,7 +40,7 @@ function BrandCategoryContent({ brandId }: BrandCategoryViewProps) {
   // Fetch all holdings
   const { data, isLoading, error } = useQuery({
     queryKey: ['portfolio', 'list'],
-    queryFn: fetchPortfolioList,
+    queryFn: () => fetchPortfolioList(),
   })
 
   if (isLoading) {
@@ -74,7 +74,7 @@ function BrandCategoryContent({ brandId }: BrandCategoryViewProps) {
   // Aggregate data
   const totalWeight = brandHoldings.reduce((sum, h) => sum + (h.denominationGram * h.quantity), 0)
   const totalBuyValue = brandHoldings.reduce((sum, h) => sum + h.totalBuyValue, 0)
-  const totalCurrentValue = brandHoldings.reduce((sum, h) => sum + h.currentValue, 0)
+  const totalCurrentValue = brandHoldings.reduce((sum, h) => sum + (h.currentValue || 0), 0)
   const unrealizedPL = totalCurrentValue - totalBuyValue
   const unrealizedPLPercentage = totalBuyValue > 0 ? (unrealizedPL / totalBuyValue) * 100 : 0
   const brandName = brandHoldings[0].brandName

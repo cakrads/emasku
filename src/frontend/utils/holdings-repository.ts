@@ -50,7 +50,7 @@ export const holdingsRepository = {
   save: (holding: Holding) => {
     try {
       const local = localStorage.getItem(STORAGE_KEY)
-      let localItems: any[] = local ? JSON.parse(local) : []
+      const localItems: any[] = local ? JSON.parse(local) : []
 
       const idx = localItems.findIndex((h: any) => h.id === holding.id)
       if (idx >= 0) {

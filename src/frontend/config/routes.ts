@@ -6,6 +6,9 @@
  */
 
 export const ROUTES = {
+  // Auth
+  LOGIN: '/login',
+
   // Main Navigation
   DASHBOARD: '/',
   PRICES: '/prices',

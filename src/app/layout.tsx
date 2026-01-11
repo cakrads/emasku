@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import ReactQueryProvider from "@/frontend/providers/react-query-provider";
 import { ThemeProvider } from "@/frontend/providers/theme-provider";
+import { AuthProvider } from "@/frontend/providers/auth-provider";
 import { Navbar } from "@/frontend/components/fragments/navbar";
 import { Toaster } from "@/frontend/components/ui/sonner";
 
@@ -28,12 +29,15 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <Navbar />
-            {children}
-            <Toaster position="top-right" />
+            <AuthProvider>
+              <Navbar />
+              {children}
+              <Toaster position="top-right" />
+            </AuthProvider>
           </ThemeProvider>
         </ReactQueryProvider>
       </body>
     </html>
   );
 }
+

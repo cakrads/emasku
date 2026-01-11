@@ -108,6 +108,33 @@ model User {
   updatedAt DateTime @updatedAt
 
   holdings PortfolioHolding[]
+  consents Consent[]
+}
+
+enum ConsentPurpose {
+  ACCOUNT_CREATION
+  PORTFOLIO_ANALYTICS
+  MARKETING
+  THIRD_PARTY_SHARING
+}
+
+/// Audit trail of user consents for UU PDP compliance
+model Consent {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  purpose   ConsentPurpose
+  isGranted Boolean // true = Granted, false = Withdrawn
+
+  version   String // Policy version agreed to, e.g. "v1.0"
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now()) // Timestamp of the action
+
+  @@index([userId, purpose])
 }
 
 /**
