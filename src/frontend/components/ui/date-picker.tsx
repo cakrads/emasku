@@ -13,6 +13,9 @@ import {
   PopoverTrigger,
 } from "@/frontend/components/ui/popover"
 
+import { id, enUS } from "date-fns/locale"
+import { useLanguage } from "@/frontend/hooks/use-language"
+
 interface DatePickerProps {
   value?: Date
   onChange?: (date: Date | undefined) => void
@@ -29,6 +32,9 @@ export function DatePicker({
   disabled,
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false)
+  const { language, t } = useLanguage()
+  const locale = language === 'id' ? id : enUS
+  const displayPlaceholder = placeholder || t('common.pickDate')
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -42,7 +48,7 @@ export function DatePicker({
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
-          {value ? format(value, "PPP") : <span>{placeholder}</span>}
+          {value ? format(value, "PPP", { locale }) : <span>{displayPlaceholder}</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0 z-50" align="start">
@@ -58,6 +64,7 @@ export function DatePicker({
           captionLayout="dropdown"
           fromYear={2000}
           toYear={new Date().getFullYear()}
+          locale={locale}
         />
       </PopoverContent>
     </Popover>

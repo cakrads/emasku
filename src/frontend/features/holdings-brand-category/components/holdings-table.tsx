@@ -7,6 +7,7 @@ import { cn } from '@/frontend/utils/cn'
 import { useRouter } from 'next/navigation'
 import { ROUTES } from '@/frontend/config/routes'
 import { HoldingItemVM } from '@/frontend/view-model/portfolio.vm'
+import { useLanguage } from '@/frontend/hooks/use-language'
 
 interface HoldingsTableProps {
   holdings: HoldingItemVM[]
@@ -15,11 +16,12 @@ interface HoldingsTableProps {
 
 export default function HoldingsTable({ holdings, backUrl }: HoldingsTableProps) {
   const router = useRouter()
+  const { t } = useLanguage()
 
   if (holdings.length === 0) {
     return (
       <div className="text-center py-12 text-(--foreground-muted)">
-        <Typography variant="body">No holdings found</Typography>
+        <Typography variant="body">{t('holdings.table.empty')}</Typography>
       </div>
     )
   }
@@ -31,27 +33,27 @@ export default function HoldingsTable({ holdings, backUrl }: HoldingsTableProps)
           <tr className="border-b border-(--border)">
             <th className="text-left py-3 px-4">
               <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
-                Date
+                {t('holdings.table.date')}
               </Typography>
             </th>
             <th className="text-left py-3 px-4">
               <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
-                Weight
+                {t('holdings.table.weight')}
               </Typography>
             </th>
             <th className="text-right py-3 px-4">
               <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
-                Buy Price
+                {t('holdings.table.buyPrice')}
               </Typography>
             </th>
             <th className="text-right py-3 px-4">
               <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
-                Current Value
+                {t('holdings.table.currentValue')}
               </Typography>
             </th>
             <th className="text-right py-3 px-4">
               <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
-                P/L
+                {t('holdings.table.pnl')}
               </Typography>
             </th>
           </tr>
@@ -79,7 +81,7 @@ export default function HoldingsTable({ holdings, backUrl }: HoldingsTableProps)
                       {holding.brandName}
                       {holding.isSold && (
                         <span className="inline-flex items-center rounded-md bg-orange-100 px-2 py-1 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-600/20">
-                          SOLD
+                          {t('holdings.filters.options.sold').toUpperCase()}
                         </span>
                       )}
                     </Typography>

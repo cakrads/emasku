@@ -5,6 +5,7 @@ import { Stack } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { Card } from '@/frontend/components/ui/card'
 import { TrendingUp } from 'lucide-react'
+import { useLanguage } from '@/frontend/hooks/use-language'
 
 interface ChartDataPoint {
   date: string
@@ -17,6 +18,7 @@ interface PortfolioChartProps {
 
 export default function PortfolioChart({ data }: PortfolioChartProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
+  const { t, language } = useLanguage()
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -100,18 +102,18 @@ export default function PortfolioChart({ data }: PortfolioChartProps) {
       const point = data[index]
       const x = padding.left + (chartWidth / (data.length - 1)) * index
       const date = new Date(point.date)
-      const label = date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' })
+      const label = date.toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', { day: 'numeric', month: 'short' })
       ctx.fillText(label, x, rect.height - 8)
     })
-  }, [data])
+  }, [data, language])
 
   // Empty state
   if (data.length === 0) {
     return (
       <Stack gap="sm">
         <Stack gap="none">
-          <Typography variant="h3">Performance</Typography>
-          <Typography variant="body-sm">Last 7 days</Typography>
+          <Typography variant="h3">{t('dashboard.performance')}</Typography>
+          <Typography variant="body-sm">{t('dashboard.last7Days')}</Typography>
         </Stack>
 
         <Card className="p-4 bg-(--surface-elevated) border-(--border) shadow-(--shadow-sm)">
@@ -123,7 +125,7 @@ export default function PortfolioChart({ data }: PortfolioChartProps) {
               <TrendingUp className="w-6 h-6 text-muted-foreground" />
             </div>
             <Typography variant="body-sm" className="text-muted-foreground max-w-xs">
-              Grafik pergerakan nilai akan muncul setelah kamu menambahkan emas
+              {t('dashboard.chartEmpty')}
             </Typography>
           </div>
         </Card>
@@ -134,8 +136,8 @@ export default function PortfolioChart({ data }: PortfolioChartProps) {
   return (
     <Stack gap="sm">
       <Stack gap="none">
-        <Typography variant="h3">Performance</Typography>
-        <Typography variant="body-sm">Last 7 days</Typography>
+        <Typography variant="h3">{t('dashboard.performance')}</Typography>
+        <Typography variant="body-sm">{t('dashboard.last7Days')}</Typography>
       </Stack>
 
       <Card className="p-4 bg-(--surface-elevated) border-(--border) shadow-(--shadow-sm)">

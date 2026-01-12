@@ -5,6 +5,7 @@ import { Typography } from '@/frontend/components/ui/typography'
 import { TrendingUp, Info } from 'lucide-react'
 import { cn } from '@/frontend/utils/cn'
 import { ROUTES } from '@/frontend/config/routes'
+import { useLanguage } from '@/frontend/hooks/use-language'
 import {
   Tooltip,
   TooltipContent,
@@ -31,11 +32,12 @@ export default function BrandCard({
   deltaPercentage,
   valuationSource,
 }: BrandCardProps) {
+  const { t, language } = useLanguage()
   const isPositive = deltaValue >= 0
   const isUnvalued = valuationSource === 'NONE'
 
   const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat('id-ID', {
+    return new Intl.NumberFormat(language === 'id' ? 'id-ID' : 'en-US', {
       style: 'currency',
       currency: 'IDR',
       minimumFractionDigits: 0,
@@ -43,20 +45,20 @@ export default function BrandCard({
     }).format(value)
   }
 
-  const formatWeight = (grams: number) => `${(grams || 0).toFixed(2)}g`
+  const formatWeight = (grams: number) => `${new Intl.NumberFormat(language === 'id' ? 'id-ID' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(grams || 0)}g`
 
   const getValuationTooltip = () => {
     switch (valuationSource) {
       case 'BUYBACK':
-        return 'Official buyback price from brand'
+        return t('dashboard.valuationTooltip.buyback')
       case 'SPOT':
-        return 'Market reference price (non-official fallback)'
+        return t('dashboard.valuationTooltip.spot')
       case 'USER':
-        return 'Based on your purchase price'
+        return t('dashboard.valuationTooltip.user')
       case 'MIXED':
-        return 'Mixed valuation sources (Official + Market)'
+        return t('dashboard.valuationTooltip.mixed')
       case 'NONE':
-        return 'No market price available'
+        return t('dashboard.valuationTooltip.none')
       default:
         return null
     }

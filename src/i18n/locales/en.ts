@@ -1,0 +1,363 @@
+export default {
+  common: {
+    language: 'Language',
+    darkMode: 'Dark Mode',
+    profile: 'Profile',
+    logout: 'Log Out',
+    login: 'Login',
+    guest: 'Guest',
+    cancel: 'Cancel',
+    confirm: 'Yes, Continue',
+    delete: 'Delete',
+    save: 'Save',
+    account: 'Account',
+    exporting: 'Exporting...',
+    export: 'Export',
+    error: 'Error',
+    errorTitle: 'Error',
+    pickDate: 'Pick a date',
+    saveChanges: 'Save Changes',
+    saving: 'Saving...',
+  },
+  profile: {
+    title: 'Profile',
+    preferences: 'Preferences',
+    privacy: 'Privacy & Data (UU PDP)',
+    exportData: 'Export Data',
+    exportDesc: 'Download all your investment and profile data (JSON).',
+    privacyPolicy: 'Privacy Policy',
+    privacyDesc: 'Learn how we protect your data.',
+    deleteAccount: 'Delete Account',
+    deleteDesc: 'Permanently delete your account and all investment data.',
+    temporaryAccount: 'Temporary Account',
+    joined: 'Joined',
+    justNow: 'Just now',
+    deleteDialogTitle: 'Delete Account Permanently?',
+    deleteDialogDesc: 'This action cannot be undone. All your portfolio data, transaction history, and profile information will be permanently deleted from our servers in accordance with UU PDP deletion rights.',
+    deleteConfirm: 'Yes, Delete Permanently',
+    messages: {
+      deleteSuccess: 'Your account and data have been deleted',
+      deleteError: 'Failed to delete account',
+      exportSuccess: 'Data downloaded successfully',
+      exportError: 'Failed to download data',
+    }
+  },
+  navbar: {
+    dashboard: 'Dashboard',
+    prices: 'Prices',
+    holdings: 'Portfolio',
+    add: 'Add',
+    profile: 'Profile',
+  },
+  logout: {
+    title: 'Are you sure you want to log out?',
+    description: 'You will need to sign in again to access your portfolio.',
+    cancel: 'Cancel',
+    confirm: 'Log out',
+  },
+  errorBoundary: {
+    title: 'Something went wrong',
+    description: 'An unexpected error occurred. Please try refreshing the page.',
+    refresh: 'Refresh Page',
+    devTitle: 'Error details (dev only)',
+  },
+  login: {
+    title: 'Welcome',
+    subtitle: 'Sign in to track your gold portfolio',
+    privacyConsent: 'I agree to the Privacy Policy',
+    privacyDescription: 'I authorize Emasku to process my personal data in accordance with the {link}',
+    privacyLink: 'PDP Law Privacy Policy',
+    googleLogin: 'Sign in with Google',
+    guestLogin: 'Continue as Guest',
+    or: 'or',
+    securityTitle: 'Security Guarantee',
+    securityDesc: 'Your data is safe and confidential. We never share your personal data with third parties without your permission.',
+    tagline: 'Emasku - Your Gold Investment Tracker',
+    error: {
+      consentRequired: 'You must agree to the Privacy Policy to proceed.',
+    },
+  },
+  privacy: {
+    title: 'Privacy Policy',
+    subtitle: 'Our commitment to protecting your personal data in accordance with Indonesia\'s PDP Law standards.',
+    back: 'Back',
+    lastUpdated: 'Last updated: {date}',
+    demoAlert: {
+      title: 'Learning Project (Demo Only)',
+      description: 'The Emasku application is currently still in development and is used specifically for learning purposes. This service is not yet ready for public production use. Do not use real or sensitive data within this application.',
+    },
+    intro: 'PT Emasku Finansial Digital ("Emasku", "we", "our") is committed to protecting your privacy and personal data security. This Privacy Policy explains how we collect, use, and protect your data in accordance with Law No. 27 of 2022 on Personal Data Protection (PDP Law).',
+    securityGuarantee: {
+      title: 'Security Guarantee',
+      description: 'By using Emasku services, you agree to the collection and use of information in accordance with this policy. We guarantee that your data will not be sold to third parties without your explicit consent.',
+    },
+    sections: {
+      collectedData: {
+        title: 'Data We Collect',
+        identity: {
+          title: 'Identity',
+          items: ['Full name', 'Email address', 'Profile picture (OAuth)', 'User ID'],
+        },
+        financial: {
+          title: 'Financial',
+          items: ['Gold history', 'Asset quantity', 'Purchase price', 'Portfolio notes'],
+        },
+        technical: {
+          title: 'Technical',
+          items: ['IP address', 'Browser & OS', 'Access logs', 'Active sessions'],
+        },
+      },
+      purpose: {
+        title: 'Data Processing Purpose',
+        items: [
+          'Providing portfolio tracking services',
+          'Account security and identity verification',
+          'Personal investment performance analytics',
+          'Compliance with Indonesian financial regulations',
+          'Prevention of fraud and abuse',
+        ],
+      },
+      rights: {
+        title: 'Your Rights (Under PDP Law)',
+        access: {
+          title: 'Right of Access',
+          description: 'Request a copy of the personal data we store about you.',
+        },
+        correction: {
+          title: 'Right to Rectification',
+          description: 'Request correction of inaccurate or incomplete data.',
+        },
+        deletion: {
+          title: 'Right to Erasure',
+          description: 'Delete your account and data permanently (Right to be Forgotten).',
+        },
+        withdrawal: {
+          title: 'Right to Withdraw Consent',
+          description: 'Withdraw your consent for personal data processing at any time.',
+        },
+        note: 'Exercise your rights through the Profile > Privacy & Data menu within the Emasku app.',
+      },
+      retention: {
+        title: 'Storage & Security',
+        description: 'Transaction data is stored for at least 5 years in accordance with OJK regulations & Government Regulation No. 71/2019. We use AES-256 encryption and TLS 1.3 protocol to guarantee your data security from unauthorized access.',
+      },
+      contact: {
+        title: 'Consumer Complaint Service',
+        privacyTeam: 'Emasku Privacy Team',
+        dpo: 'Data Protection Officer (DPO)',
+        location: 'Jakarta, Indonesia',
+        processingTime: 'Your complaint will be processed within a maximum of 3x24 business hours in accordance with our PDP Law Complaint Handling Standard Operating Procedure (SOP).',
+      },
+    },
+  },
+  dashboard: {
+    portfolioValue: 'Gold Portfolio',
+    unableToCalculate: 'Unable to calculate total',
+    allTime: 'all time',
+    today: 'today',
+    excludedHoldings: 'holding(s) excluded from total',
+    marketToday: 'Market Today',
+    viewAllPrices: 'View All Prices',
+    holdings: 'My Gold',
+    byBrand: 'By brand',
+    performance: 'Performance',
+    last7Days: 'Last 7 days',
+    chartEmpty: 'Chart will appear once you add your first holding',
+    emptyPortfolio: 'You don\'t have any gold in your portfolio yet',
+    emptyPortfolioDesc: 'Add your first gold to start monitoring its value and movement',
+    brandBreakdownEmptyDesc: 'Every gold you input will be automatically grouped by brand',
+    lastUpdated: 'Last updated',
+    addGoldHoldingSimple: 'Add Gold',
+    addGoldHolding: 'Add Gold',
+    valuationTooltip: {
+      buyback: 'Official buyback price from brand',
+      spot: 'Market reference price (non-official fallback)',
+      user: 'Based on your purchase price',
+      mixed: 'Mixed valuation sources (Official + Market)',
+      none: 'No market price available',
+    },
+  },
+  prices: {
+    title: 'Today\'s Prices',
+    description: 'Gold price monitoring by brand and weight',
+    table: {
+      weight: 'Weight',
+      sell: 'Sell Price',
+      buyback: 'Buyback Price',
+    },
+    viewHistory: 'View Price History',
+  },
+  priceHistory: {
+    title: 'ANTAM Price History',
+    description: 'SPOT · 1 gram · IDR',
+    breadcrumbs: {
+      history: 'History',
+    },
+    referenceNote: 'Reference price only. Not personalized. Start date: {date}',
+  },
+  holdings: {
+    title: 'My Gold',
+    description: 'Detailed overview of your gold investments',
+    addHolding: 'Add Gold',
+    filters: {
+      status: 'Status:',
+      brand: 'Brand:',
+      sort: 'Sort:',
+      options: {
+        active: 'Active',
+        sold: 'Sold',
+        all: 'All',
+        allBrands: 'All Brands',
+        date: 'Date',
+        value: 'Value',
+        newest: 'Newest',
+        oldest: 'Oldest',
+      }
+    },
+    table: {
+      date: 'Date',
+      weight: 'Weight',
+      buyPrice: 'Buy Price',
+      currentValue: 'Current Value',
+      pnl: 'P/L',
+      empty: 'No gold found',
+    },
+    emptyState: {
+      title: 'You don\'t have any gold yet',
+      description: 'Start tracking your gold investments by adding your first holding. You can track value, movement, and portfolio performance in real-time.',
+      action: 'Add Gold',
+      secondaryAction: 'Or check gold prices today',
+    }
+  },
+  addHolding: {
+    title: 'Add Gold',
+    breadcrumbs: {
+      add: 'Add'
+    },
+    steps: {
+      brand: 'Select Brand',
+      details: 'Gold Details',
+      review: 'Review',
+    },
+    brandSelection: {
+      title: 'Select Brand',
+      subtitle: 'Which brand produced this gold item?',
+      brandName: 'Brand Name',
+      customBrand: {
+        title: 'Custom Brand',
+        subtitle: 'Enter the name of the brand or manufacturer.',
+        placeholder: "e.g. Grandma's Ring",
+        button: 'My brand is not listed (Custom)',
+        warning: 'We will save your gold details, but <strong>we cannot provide a market valuation</strong> for custom or unlisted brands.',
+        back: 'Back to list'
+      }
+    },
+    details: {
+      title: 'Gold Details',
+      subtitle: 'Enter the physical details and purchase history.',
+      weight: 'Weight (grams)',
+      purchaseHistory: 'Purchase History (Optional)',
+      purchasePrice: 'Purchase Price (Total IDR)',
+      priceHelp: 'Price you paid when buying this gold.',
+      purchaseDate: 'Purchase Date',
+      notes: 'Notes',
+      notesPlaceholder: 'Optional notes...',
+    },
+    review: {
+      title: 'Review & Confirm',
+      subtitle: 'Please check the details below.',
+      currentValue: 'Current Estimated Value',
+      valuationNote: "Based on today's official buyback prices. This value fluctuates with the market.",
+      customNote: 'Market valuation is not available for custom brands.',
+      customBrandLabel: '(Custom Brand)',
+    },
+    actions: {
+      continue: 'Continue',
+      save: 'Save Gold',
+      back: 'Back',
+    },
+    messages: {
+      success: 'Gold added successfully!',
+      successDetail: '{weight}g of {brand} has been added to your portfolio.',
+      error: 'Failed to add gold',
+      validationError: 'Validation Error',
+      missingFields: 'Missing required fields',
+      missingFieldsDetail: 'Please fill in brand and weight.',
+    }
+  },
+  holdingDetail: {
+    title: 'Gold Details',
+    subtitle: 'Gold bar details and performance',
+    breadcrumbs: {
+      detail: 'Detail'
+    },
+    currentValue: {
+      title: 'Current Value',
+    },
+    purchaseDetails: {
+      title: 'Purchase Details',
+      purchaseDate: 'Purchase Date',
+      weight: 'Weight',
+      buyPricePerGram: 'Buy Price (per gram)',
+      totalBuyValue: 'Total Buy Value',
+      status: 'Status',
+      sold: 'SOLD',
+      notes: 'Notes',
+    },
+    valuation: {
+      title: 'Current Valuation',
+      missingTitle: 'Values missing',
+      missingDesc: 'Calculations are unavailable because no price was provided.',
+      currentPricePerGram: 'Current Price (per gram)',
+      totalCurrentValue: 'Total Current Value',
+      pnl: 'Profit/Loss',
+    },
+    actions: {
+      markAsSold: 'Mark as Sold',
+      edit: 'Edit',
+    },
+    dialog: {
+      markAsSold: {
+        title: 'Mark gold as sold?',
+        description: 'This will mark this item as SOLD. It will remain in your history but will be excluded from your active portfolio value.',
+        cancel: 'Cancel',
+        confirm: 'Yes, mark as sold',
+        confirming: 'Removing...',
+      }
+    },
+    messages: {
+      soldSuccess: 'Gold sold successfully!',
+      soldDetail: 'The item has been removed from your active portfolio.',
+      deleteError: 'Failed to delete item',
+    }
+  },
+  editHolding: {
+    title: 'Edit Holding',
+    breadcrumbs: {
+      edit: 'Edit'
+    },
+    brand: {
+      label: 'Brand',
+      locked: 'Brand cannot be changed.',
+    },
+    form: {
+      weight: 'Weight (g)',
+      buyPrice: 'Buy Price (Total IDR)',
+      purchaseDate: 'Purchase Date',
+      notes: 'Notes',
+      notesPlaceholder: 'Optional notes...',
+    },
+    actions: {
+      cancel: 'Cancel',
+      save: 'Save Changes',
+      saving: 'Saving...',
+    },
+    messages: {
+      success: 'Gold updated successfully!',
+      successDetail: 'Your changes have been saved.',
+      validationError: 'Validation Failed',
+      error: 'Error Updating Gold',
+      missingWeight: 'Please fill in weight.',
+    }
+  }
+} as const;

@@ -3,13 +3,15 @@
 import { Stack, ScrollArea } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { Layers } from 'lucide-react'
+import { useLanguage } from '@/frontend/hooks/use-language'
 
 export default function BrandBreakdownEmpty() {
+  const { t } = useLanguage()
   return (
     <Stack gap="md">
       <Stack gap="none">
-        <Typography as="h2" variant="h3">Holdings</Typography>
-        <Typography variant="body-sm">By brand</Typography>
+        <Typography as="h2" variant="h3">{t('dashboard.holdings')}</Typography>
+        <Typography variant="body-sm">{t('dashboard.byBrand')}</Typography>
       </Stack>
 
       <ScrollArea>
@@ -20,7 +22,7 @@ export default function BrandBreakdownEmpty() {
               <Layers className="w-6 h-6 text-muted-foreground" />
             </div>
             <Typography variant="body-sm" className="text-muted-foreground max-w-[200px]">
-              Setiap emas yang kamu input akan dikelompokkan otomatis berdasarkan brand
+              {t('dashboard.brandBreakdownEmptyDesc')}
             </Typography>
           </div>
           <div className="w-2 shrink-0" />

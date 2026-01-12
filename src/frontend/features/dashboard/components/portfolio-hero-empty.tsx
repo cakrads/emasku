@@ -6,12 +6,14 @@ import { Button } from '@/frontend/components/ui/button'
 import Link from 'next/link'
 import { ROUTES } from '@/frontend/config/routes'
 import { Coins } from 'lucide-react'
+import { useLanguage } from '@/frontend/hooks/use-language'
 
 export default function PortfolioHeroEmpty() {
+  const { t } = useLanguage()
   return (
     <Stack gap="md" className="min-h-auto md:min-h-[190px] justify-center">
       <Stack gap="xs">
-        <Typography variant="h4" className="mb-2">Portfolio Value</Typography>
+        <Typography variant="h4" className="mb-2">{t('dashboard.portfolioValue')}</Typography>
 
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-full bg-accent-gold/10 flex items-center justify-center">
@@ -19,10 +21,10 @@ export default function PortfolioHeroEmpty() {
           </div>
           <Stack gap="xs">
             <Typography variant="h3" className="text-foreground">
-              Belum ada emas di portofoliomu
+              {t('dashboard.emptyPortfolio')}
             </Typography>
             <Typography variant="body-sm" className="text-muted-foreground max-w-sm">
-              Tambahkan emas pertamamu untuk mulai memantau nilai dan pergerakannya
+              {t('dashboard.emptyPortfolioDesc')}
             </Typography>
           </Stack>
         </div>
@@ -30,13 +32,13 @@ export default function PortfolioHeroEmpty() {
 
       <Stack direction="horizontal" gap="md" className="items-center flex-wrap">
         <Button asChild color="primary" size="sm">
-          <Link href={ROUTES.ADD_HOLDING}>Tambah Emas</Link>
+          <Link href={ROUTES.ADD_HOLDING}>{t('dashboard.addGoldHolding')}</Link>
         </Button>
         <Link
           href={ROUTES.PRICES}
           className="text-sm text-muted-foreground hover:text-accent-gold transition-colors"
         >
-          Lihat Harga Emas Hari Ini
+          {t('dashboard.checkGoldPrice')}
         </Link>
       </Stack>
     </Stack>

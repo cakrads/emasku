@@ -16,11 +16,13 @@ import { PortfolioSummarySkeleton } from './components/portfolio-summary-skeleto
 import { BrandBreakdownSkeleton } from './components/brand-breakdown-skeleton'
 import { PortfolioChartSkeleton } from './components/portfolio-chart-skeleton'
 import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
+import { useLanguage } from '@/frontend/hooks/use-language'
 
 // Re-using dummy chart data for now as it's not yet in the summary API
 // DUMMY_CHART_DATA removed
 
 function DashboardContent() {
+  const { language } = useLanguage()
   const { data, isLoading } = useQuery({
     queryKey: ['portfolio', 'summary'],
     queryFn: fetchPortfolioSummary,
@@ -44,7 +46,7 @@ function DashboardContent() {
     queryFn: fetchPortfolioHistory,
   })
 
-  const viewModel = data ? transformPortfolioSummary(data) : null
+  const viewModel = data ? transformPortfolioSummary(data, language === 'id' ? 'id-ID' : 'en-US') : null
   const historyViewModel = historyData ? transformPortfolioHistory(historyData) : []
   const lastUpdated = data ? new Date() : undefined // Ideally from API
 

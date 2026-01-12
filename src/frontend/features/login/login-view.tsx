@@ -7,7 +7,7 @@
  * Follows UI architecture rules - uses primitives from components/ui.
  */
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { User, Chrome, AlertCircle, Shield } from 'lucide-react'
 import { Button } from '@/frontend/components/ui/button'
@@ -19,11 +19,14 @@ import { useAuthStore } from '@/frontend/providers/auth.store'
 import { ROUTES } from '@/frontend/config/routes'
 import { Checkbox } from '@/frontend/components/ui/checkbox'
 import { Label } from '@/frontend/components/ui/label'
+import { useLanguage } from '@/frontend/hooks/use-language'
+import { cn } from '@/frontend/utils/cn'
 
 export function LoginView() {
   const router = useRouter()
   const setSession = useAuthStore((state) => state.setSession)
 
+  const { t, language, setLanguage } = useLanguage()
   const [isLoadingGuest, setIsLoadingGuest] = useState(false)
   const [isLoadingGoogle, setIsLoadingGoogle] = useState(false)
   const [hasConsented, setHasConsented] = useState(false)
@@ -31,7 +34,7 @@ export function LoginView() {
 
   const handleGuestLogin = async () => {
     if (!hasConsented) {
-      setError({ userMessage: 'Anda harus menyetujui Kebijakan Privasi untuk melanjutkan.' })
+      setError({ userMessage: t('login.error.consentRequired') })
       return
     }
 
@@ -59,7 +62,7 @@ export function LoginView() {
 
   const handleGoogleLogin = async () => {
     if (!hasConsented) {
-      setError({ userMessage: 'Anda harus menyetujui Kebijakan Privasi untuk melanjutkan.' })
+      setError({ userMessage: t('login.error.consentRequired') })
       return
     }
 
@@ -89,11 +92,11 @@ export function LoginView() {
             <div className="w-8 h-8 bg-accent-gold rounded-full" />
           </div>
           <CardTitle>
-            <Typography variant="h2">Selamat Datang</Typography>
+            <Typography variant="h2">{t('login.title')}</Typography>
           </CardTitle>
           <CardDescription>
             <Typography variant="body-sm">
-              Masuk untuk melacak portofolio emas Anda
+              {t('login.subtitle')}
             </Typography>
           </CardDescription>
         </CardHeader>
@@ -123,13 +126,19 @@ export function LoginView() {
                   htmlFor="consent"
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                 >
-                  Saya menyetujui Kebijakan Privasi
+                  {t('login.privacyConsent')}
                 </Label>
                 <p className="text-xs text-muted-foreground">
-                  Saya memberikan izin kepada Emasku untuk memproses data pribadi saya sesuai dengan{' '}
-                  <a href="/privacy" className="text-accent-gold hover:underline" target="_blank">
-                    Kebijakan Privasi UU PDP
-                  </a>.
+                  {t('login.privacyDescription').split('{link}').map((part, i, arr) => (
+                    <React.Fragment key={i}>
+                      {part}
+                      {i < arr.length - 1 && (
+                        <a href="/privacy" className="text-accent-gold hover:underline" target="_blank">
+                          {t('login.privacyLink')}
+                        </a>
+                      )}
+                    </React.Fragment>
+                  ))}
                 </p>
               </div>
             </div>
@@ -146,7 +155,7 @@ export function LoginView() {
               ) : (
                 <Chrome className="h-5 w-5 mr-2" />
               )}
-              Masuk dengan Google
+              {t('login.googleLogin')}
             </Button>
 
             <div className="relative my-2">
@@ -154,7 +163,7 @@ export function LoginView() {
                 <span className="w-full border-t" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">atau</span>
+                <span className="bg-card px-2 text-muted-foreground">{t('login.or')}</span>
               </div>
             </div>
 
@@ -170,25 +179,60 @@ export function LoginView() {
               ) : (
                 <User className="h-5 w-5 mr-2" />
               )}
-              Lanjutkan sebagai Tamu
+              {t('login.guestLogin')}
             </Button>
 
             <div className="mt-4 p-4 rounded-xl bg-accent-gold/10 border border-accent-gold/20 flex gap-3 text-sm text-yellow-800 dark:text-yellow-200">
               <Shield className="h-5 w-5 shrink-0 mt-0.5" />
               <div className="space-y-1">
-                <p className="font-bold">Jaminan Keamanan</p>
+                <p className="font-bold">{t('login.securityTitle')}</p>
                 <p className="text-xs leading-relaxed opacity-90">
-                  Data Anda aman dan rahasia. Kami tidak pernah membagikan data pribadi Anda kepada pihak ketiga tanpa izin Anda.
+                  {t('login.securityDesc')}
                 </p>
               </div>
             </div>
 
             <Typography variant="caption" className="text-center text-muted-foreground mt-4 italic">
-              Emasku - Pencatat Investasi Emas Anda
+              {t('login.tagline')}
             </Typography>
           </Stack>
         </CardContent>
       </Card>
+
+      {/* Language Switcher */}
+      <div className="fixed top-4 right-4 flex items-center bg-card/80 backdrop-blur-sm p-1 rounded-full border shadow-sm z-50">
+        <div className="relative flex items-center">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setLanguage('id')}
+            className={cn(
+              "h-8 w-11 p-0 rounded-full text-xs font-bold transition-all relative z-10",
+              language === 'id' ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            ID
+          </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setLanguage('en')}
+            className={cn(
+              "h-8 w-11 p-0 rounded-full text-xs font-bold transition-all relative z-10",
+              language === 'en' ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+            )}
+          >
+            EN
+          </Button>
+          {/* Animated Background Slide */}
+          <div
+            className={cn(
+              "absolute h-8 w-11 bg-primary rounded-full transition-all duration-200 ease-in-out shadow-sm",
+              language === 'id' ? "translate-x-0" : "translate-x-full"
+            )}
+          />
+        </div>
+      </div>
     </div>
   )
 }

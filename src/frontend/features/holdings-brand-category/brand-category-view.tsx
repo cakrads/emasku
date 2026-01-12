@@ -9,6 +9,7 @@ import BrandSummary from './components/brand-summary'
 import HoldingsTable from './components/holdings-table'
 import { ROUTES } from '@/frontend/config/routes'
 import { HoldingsListSkeleton } from '@/frontend/features/holdings-list/components/holdings-list-skeleton'
+import { useLanguage } from '@/frontend/hooks/use-language'
 
 interface BrandCategoryViewProps {
   brandId: string
@@ -37,6 +38,7 @@ export default function BrandCategoryView(props: BrandCategoryViewProps) {
 }
 
 function BrandCategoryContent({ brandId }: BrandCategoryViewProps) {
+  const { language } = useLanguage()
   // Fetch all holdings
   const { data, isLoading, error } = useQuery({
     queryKey: ['portfolio', 'list'],
@@ -91,7 +93,7 @@ function BrandCategoryContent({ brandId }: BrandCategoryViewProps) {
   }
 
   // Transform to view models for table
-  const viewModels = brandHoldings.map(transformHoldingItem)
+  const viewModels = brandHoldings.map(item => transformHoldingItem(item, language === 'id' ? 'id-ID' : 'en-US'))
 
   return (
     <Stack gap="lg">

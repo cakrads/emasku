@@ -6,8 +6,10 @@ import { Button } from '@/frontend/components/ui/button'
 import Link from 'next/link'
 import { ROUTES } from '@/frontend/config/routes'
 import { Coins } from 'lucide-react'
+import { useLanguage } from '@/frontend/hooks/use-language'
 
 export default function HoldingsListEmpty() {
+  const { t } = useLanguage()
   return (
     <Stack
       gap="lg"
@@ -19,22 +21,22 @@ export default function HoldingsListEmpty() {
 
       <Stack gap="xs" className="items-center max-w-md">
         <Typography variant="h3" className="text-foreground">
-          Belum ada emas di portofoliomu
+          {t('holdings.emptyState.title')}
         </Typography>
         <Typography variant="body" className="text-muted-foreground">
-          Mulai lacak investasi emasmu dengan menambahkan holding pertama. Kamu bisa melacak nilai, pergerakan, dan performa portofolio secara real-time.
+          {t('holdings.emptyState.description')}
         </Typography>
       </Stack>
 
       <Stack gap="sm" className="items-center">
         <Button asChild color="primary" size="lg">
-          <Link href={ROUTES.ADD_HOLDING}>Tambah Emas Pertama</Link>
+          <Link href={ROUTES.ADD_HOLDING}>{t('holdings.emptyState.action')}</Link>
         </Button>
         <Link
           href={ROUTES.PRICES}
           className="text-sm text-muted-foreground hover:text-accent-gold transition-colors"
         >
-          Atau lihat harga emas hari ini
+          {t('holdings.emptyState.secondaryAction')}
         </Link>
       </Stack>
     </Stack>

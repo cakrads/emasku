@@ -15,8 +15,11 @@ import { ROUTES } from '@/frontend/config/routes'
 import { fetchSpotPriceSeries } from '@/frontend/services/prices/prices.api'
 import { PricesHistorySkeleton } from './components/prices-history-skeleton'
 import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
+import { useLanguage } from '@/frontend/hooks/use-language'
 
 function PricesHistoryContent() {
+  const { t, language } = useLanguage()
+  const locale = language === 'id' ? 'id-ID' : 'en-US'
   // Calculate date range (last 30 days)
   const endDate = new Date()
   const startDate = new Date()
@@ -55,14 +58,15 @@ function PricesHistoryContent() {
   return (
     <div className="flex flex-col">
       {/* Chart Section */}
+      {/* Chart Section */}
       <div className="bg-card rounded-lg border border-border p-6 mb-6">
-        <PriceHistoryChart data={chartData} height={400} />
+        <PriceHistoryChart data={chartData} height={400} locale={locale} />
       </div>
 
       {/* Footer Note */}
       <div className="text-center">
         <Typography variant="body-sm" className="text-muted-foreground">
-          Reference price only. Not personalized. Start date: {from}
+          {t('priceHistory.referenceNote').replace('{date}', new Date(from).toLocaleDateString(locale, { dateStyle: 'long' }))}
         </Typography>
       </div>
     </div>
@@ -70,14 +74,16 @@ function PricesHistoryContent() {
 }
 
 export function PricesHistoryView() {
+  const { t } = useLanguage()
+
   return (
     <StandardPageLayout
-      title="ANTAM Price History"
-      description="SPOT · 1 gram · IDR"
+      title={t('priceHistory.title')}
+      description={t('priceHistory.description')}
       breadcrumbs={[
         { label: 'Home', href: ROUTES.DASHBOARD },
-        { label: 'Prices', href: ROUTES.PRICES },
-        { label: 'History' }
+        { label: t('navbar.prices'), href: ROUTES.PRICES },
+        { label: t('priceHistory.breadcrumbs.history') }
       ]}
     >
       <ErrorBoundary>

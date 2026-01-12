@@ -9,15 +9,17 @@ import { ArrowRight } from 'lucide-react'
 import { ROUTES } from '@/frontend/config/routes'
 import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
 import { PricesOverviewSkeleton } from './prices-overview-skeleton'
+import { useLanguage } from '@/frontend/hooks/use-language'
 
 function PricesTodayContent() {
+  const { t, language } = useLanguage()
   const { data, isLoading, error } = useQuery({
     queryKey: ['prices', 'today'],
     queryFn: fetchTodayPrices,
   })
 
   // Transform data if available
-  const viewModel = data ? transformTodayPrices(data) : null
+  const viewModel = data ? transformTodayPrices(data, language === 'id' ? 'id-ID' : 'en-US') : null
 
   if (isLoading) {
     return <PricesOverviewSkeleton />
@@ -34,9 +36,9 @@ function PricesTodayContent() {
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between mb-3 px-1">
         <div className="flex items-center gap-2">
-          <Typography as="h2" variant="h3">Market Today</Typography>
+          <Typography as="h2" variant="h3">{t('dashboard.marketToday')}</Typography>
           <span className="px-2 py-0.5 text-[10px] font-medium bg-accent-gold/10 text-accent-gold rounded-full">
-            Today
+            {t('dashboard.today')}
           </span>
         </div>
         <Link href={ROUTES.PRICES} className="group p-1 hover:bg-muted rounded-full transition-colors hidden lg:block">
@@ -86,7 +88,7 @@ function PricesTodayContent() {
               <ArrowRight className="w-4 h-4" />
             </div>
             <Typography variant="caption" className="font-medium text-muted-foreground group-hover:text-accent-gold">
-              View All Prices
+              {t('dashboard.viewAllPrices')}
             </Typography>
           </Link>
         </div>

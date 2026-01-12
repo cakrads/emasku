@@ -3,6 +3,7 @@
 import { Stack, ScrollArea } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import BrandCard from './brand-card'
+import { useLanguage } from '@/frontend/hooks/use-language'
 
 interface BrandData {
   brandCode: string
@@ -19,11 +20,12 @@ interface BrandBreakdownProps {
 }
 
 export default function BrandBreakdown({ brands }: BrandBreakdownProps) {
+  const { t } = useLanguage()
   return (
     <Stack gap="md">
       <Stack gap="none">
-        <Typography as="h2" variant="h3">Holdings</Typography>
-        <Typography variant="body-sm">By brand</Typography>
+        <Typography as="h2" variant="h3">{t('dashboard.holdings')}</Typography>
+        <Typography variant="body-sm">{t('dashboard.byBrand')}</Typography>
       </Stack>
 
       <ScrollArea>

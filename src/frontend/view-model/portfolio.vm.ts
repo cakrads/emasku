@@ -57,8 +57,8 @@ export interface HoldingItemVM {
 /**
  * Format IDR currency
  */
-function formatIDR(value: number): string {
-  return new Intl.NumberFormat('id-ID', {
+function formatIDR(value: number, locale: string = 'id-ID'): string {
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: 'IDR',
     minimumFractionDigits: 0,
@@ -77,9 +77,9 @@ function formatPercentage(value: number): string {
 /**
  * Format date
  */
-function formatDate(dateString: string): string {
+function formatDate(dateString: string, locale: string = 'id-ID'): string {
   const date = new Date(dateString)
-  return new Intl.DateTimeFormat('id-ID', {
+  return new Intl.DateTimeFormat(locale, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
@@ -98,11 +98,11 @@ function getPnLColor(value: number): 'positive' | 'negative' | 'neutral' {
 /**
  * Transform portfolio summary to view model
  */
-export function transformPortfolioSummary(api: PortfolioSummary): PortfolioSummaryVM {
+export function transformPortfolioSummary(api: PortfolioSummary, locale: string = 'id-ID'): PortfolioSummaryVM {
   return {
-    totalBuyValue: formatIDR(api.totalBuyValue),
-    totalCurrentValue: formatIDR(api.totalCurrentValue),
-    totalPnL: formatIDR(Math.abs(api.totalPnL)),
+    totalBuyValue: formatIDR(api.totalBuyValue, locale),
+    totalCurrentValue: formatIDR(api.totalCurrentValue, locale),
+    totalPnL: formatIDR(Math.abs(api.totalPnL), locale),
     pnlPercentage: formatPercentage(api.pnlPercentage),
     totalWeightGram: `${api.totalWeightGram.toFixed(2)} g`,
     pnlColor: getPnLColor(api.totalPnL),
@@ -124,23 +124,23 @@ export function transformPortfolioSummary(api: PortfolioSummary): PortfolioSumma
 /**
  * Transform holding item to view model
  */
-export function transformHoldingItem(api: HoldingItem): HoldingItemVM {
+export function transformHoldingItem(api: HoldingItem, locale: string = 'id-ID'): HoldingItemVM {
   return {
     id: api.id,
     brand: api.brand,
     brandName: api.brandName,
     weight: `${api.denominationGram} g`,
     quantity: api.quantity,
-    buyDate: formatDate(api.buyDate),
-    avgBuyPrice: formatIDR(api.avgBuyPrice),
-    currentPrice: api.currentBuybackPrice ? formatIDR(api.currentBuybackPrice) : '-',
-    totalBuyValue: formatIDR(api.totalBuyValue),
-    totalValue: api.currentValue ? formatIDR(api.currentValue) : '-',
-    pnl: api.unrealizedPnL ? formatIDR(Math.abs(api.unrealizedPnL)) : '-',
+    buyDate: formatDate(api.buyDate, locale),
+    avgBuyPrice: formatIDR(api.avgBuyPrice, locale),
+    currentPrice: api.currentBuybackPrice ? formatIDR(api.currentBuybackPrice, locale) : '-',
+    totalBuyValue: formatIDR(api.totalBuyValue, locale),
+    totalValue: api.currentValue ? formatIDR(api.currentValue, locale) : '-',
+    pnl: api.unrealizedPnL ? formatIDR(Math.abs(api.unrealizedPnL), locale) : '-',
     pnlPercentage: api.pnlPercentage ? formatPercentage(api.pnlPercentage) : '0.00%',
     pnlColor: api.unrealizedPnL ? getPnLColor(api.unrealizedPnL) : 'neutral',
     isSold: !!api.soldAt,
-    soldAt: api.soldAt ? formatDate(api.soldAt) : undefined,
+    soldAt: api.soldAt ? formatDate(api.soldAt, locale) : undefined,
     notes: api.notes || undefined,
   }
 }
@@ -148,15 +148,15 @@ export function transformHoldingItem(api: HoldingItem): HoldingItemVM {
 /**
  * Transform portfolio list to view model
  */
-export function transformPortfolioList(api: PortfolioList): HoldingItemVM[] {
-  return api.items.map(transformHoldingItem)
+export function transformPortfolioList(api: PortfolioList, locale: string = 'id-ID'): HoldingItemVM[] {
+  return api.items.map(item => transformHoldingItem(item, locale))
 }
 
 /**
  * Transform holding detail to view model
  */
-export function transformHoldingDetail(api: HoldingDetail): HoldingItemVM {
-  return transformHoldingItem(api)
+export function transformHoldingDetail(api: HoldingDetail, locale: string = 'id-ID'): HoldingItemVM {
+  return transformHoldingItem(api, locale)
 }
 
 /**

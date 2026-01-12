@@ -16,6 +16,8 @@ export interface PriceHistoryChartProps {
   data: Array<{ timestamp: string; price: number }>
   /** Optional chart height */
   height?: number
+  /** Locale for date formatting */
+  locale?: string
 }
 
 /**
@@ -36,10 +38,10 @@ function formatIDR(value: unknown): string {
  * Format date for display
  * Example: "2026-01-02" → "Jan 2"
  */
-function formatDate(value: unknown): string {
+function formatDate(value: unknown, locale: string = 'en-US'): string {
   const dateString = String(value)
   const date = new Date(dateString)
-  return new Intl.DateTimeFormat('en-US', {
+  return new Intl.DateTimeFormat(locale, {
     month: 'short',
     day: 'numeric',
   }).format(date)
@@ -50,7 +52,7 @@ function formatDate(value: unknown): string {
  * 
  * Displays a line chart of historical gold prices with proper formatting.
  */
-export function PriceHistoryChart({ data, height = 300 }: PriceHistoryChartProps) {
+export function PriceHistoryChart({ data, height = 300, locale = 'en-US' }: PriceHistoryChartProps) {
   return (
     <ChartRenderer
       data={data}
@@ -61,7 +63,7 @@ export function PriceHistoryChart({ data, height = 300 }: PriceHistoryChartProps
         lineColor: '#D4AF37', // Gold accent
         strokeWidth: 2,
       }}
-      xAxisFormatter={formatDate}
+      xAxisFormatter={(value) => formatDate(value, locale)}
       yAxisFormatter={(value) => formatIDR(value).replace('Rp', '').trim()}
       tooltipFormatter={(value) => formatIDR(value)}
     />

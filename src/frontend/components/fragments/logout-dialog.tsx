@@ -11,6 +11,8 @@ import {
   AlertDialogTitle,
 } from "@/frontend/components/ui/alert-dialog"
 
+import { useLanguage } from '@/frontend/hooks/use-language'
+
 interface LogoutDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -18,19 +20,21 @@ interface LogoutDialogProps {
 }
 
 export function LogoutDialog({ open, onOpenChange, onConfirm }: LogoutDialogProps) {
+  const { t } = useLanguage()
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Are you sure you want to log out?</AlertDialogTitle>
+          <AlertDialogTitle>{t('logout.title')}</AlertDialogTitle>
           <AlertDialogDescription>
-            You will need to sign in again to access your portfolio.
+            {t('logout.description')}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogCancel>{t('logout.cancel')}</AlertDialogCancel>
           <AlertDialogAction onClick={onConfirm} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-            Min Log out
+            {t('logout.confirm')}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

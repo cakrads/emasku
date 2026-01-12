@@ -16,6 +16,7 @@ import { UpdateHoldingRequest } from '@/shared/contracts/update-holding.contract
 import { toast } from 'sonner'
 import { Skeleton } from '@/frontend/components/ui/skeleton'
 import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
+import { useLanguage } from '@/frontend/hooks/use-language'
 
 interface EditHoldingViewProps {
   holdingId: string
@@ -23,6 +24,7 @@ interface EditHoldingViewProps {
 
 function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
   const router = useRouter()
+  const { t } = useLanguage()
   const queryClient = useQueryClient()
 
   // Fetch holding data
@@ -52,8 +54,8 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
   const updateMutation = useMutation({
     mutationFn: (data: UpdateHoldingRequest) => updateHolding(holdingId, data),
     onSuccess: () => {
-      toast.success('Holding updated successfully!', {
-        description: 'Your changes have been saved.'
+      toast.success(t('editHolding.messages.success'), {
+        description: t('editHolding.messages.successDetail')
       })
       queryClient.invalidateQueries({ queryKey: ['holding', holdingId] })
       queryClient.invalidateQueries({ queryKey: ['portfolio'] })
@@ -72,12 +74,12 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
           })
           .join('\n')
 
-        toast.error('Validation Failed', {
+        toast.error(t('editHolding.messages.validationError'), {
           description: fieldErrors,
           duration: 5000,
         })
       } else {
-        toast.error('Error Updating Holding', {
+        toast.error(t('editHolding.messages.error'), {
           description: apiError?.message || 'Failed to update holding',
           duration: 4000,
         })
@@ -87,8 +89,8 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
 
   const handleSave = () => {
     if (!weight) {
-      toast.error('Missing required fields', {
-        description: 'Please fill in weight.'
+      toast.error(t('editHolding.messages.missingWeight'), {
+        description: t('addHolding.messages.missingFieldsDetail')
       })
       return
     }
@@ -139,13 +141,13 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
       <Section className="px-0">
         <Stack gap="xl">
           <Stack gap="sm">
-            <Label className="text-text-secondary font-medium uppercase tracking-wider">Brand</Label>
+            <Label className="text-text-secondary font-medium uppercase tracking-wider">{t('editHolding.brand.label')}</Label>
             <Input value={holding.brandName} disabled className="p-4 rounded-xl bg-muted border-border text-foreground text-lg font-semibold h-14 opacity-100" />
-            <Typography variant="caption" className="text-muted-foreground">Brand cannot be changed.</Typography>
+            <Typography variant="caption" className="text-muted-foreground">{t('editHolding.brand.locked')}</Typography>
           </Stack>
 
           <Stack gap="sm">
-            <Label className="text-text-secondary font-medium uppercase tracking-wider">Weight (g)</Label>
+            <Label className="text-text-secondary font-medium uppercase tracking-wider">{t('editHolding.form.weight')}</Label>
             <Input
               type="number"
               value={weight}
@@ -156,7 +158,7 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
           </Stack>
 
           <Stack gap="sm">
-            <Label className="text-text-secondary font-medium uppercase tracking-wider">Buy Price (Total IDR)</Label>
+            <Label className="text-text-secondary font-medium uppercase tracking-wider">{t('editHolding.form.buyPrice')}</Label>
             <Input
               type="number"
               value={buyPrice}
@@ -167,7 +169,7 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
           </Stack>
 
           <Stack gap="sm">
-            <Label className="text-text-secondary font-medium uppercase tracking-wider">Purchase Date</Label>
+            <Label className="text-text-secondary font-medium uppercase tracking-wider">{t('editHolding.form.purchaseDate')}</Label>
             <DatePicker
               value={buyDate}
               onChange={setBuyDate}
@@ -176,12 +178,12 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
           </Stack>
 
           <Stack gap="sm">
-            <Label className="text-text-secondary font-medium uppercase tracking-wider">Notes</Label>
+            <Label className="text-text-secondary font-medium uppercase tracking-wider">{t('editHolding.form.notes')}</Label>
             <Input
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
               className="p-4 rounded-xl bg-surface-elevated border-border text-foreground text-lg font-semibold h-14"
-              placeholder="Optional notes..."
+              placeholder={t('editHolding.form.notesPlaceholder')}
             />
           </Stack>
         </Stack>
@@ -190,13 +192,13 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
       <DetailActions
         actions={[
           {
-            label: 'Cancel',
+            label: t('editHolding.actions.cancel'),
             variant: 'outline',
             onClick: () => router.push(ROUTES.HOLDINGS_LIST),
             disabled: updateMutation.isPending
           },
           {
-            label: updateMutation.isPending ? 'Saving...' : 'Save Changes',
+            label: updateMutation.isPending ? t('editHolding.actions.saving') : t('editHolding.actions.save'),
             variant: 'default',
             onClick: handleSave,
             disabled: updateMutation.isPending
@@ -208,13 +210,14 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
 }
 
 export default function EditHoldingView({ holdingId }: EditHoldingViewProps) {
+  const { t } = useLanguage()
   return (
     <StandardPageLayout
-      title="Edit Holding"
+      title={t('editHolding.title')}
       breadcrumbs={[
         { label: 'Home', href: ROUTES.DASHBOARD },
         { label: 'Holdings', href: ROUTES.HOLDINGS_LIST },
-        { label: 'Edit' }
+        { label: t('editHolding.breadcrumbs.edit') }
       ]}
     >
       <ErrorBoundary>

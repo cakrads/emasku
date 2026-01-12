@@ -3,6 +3,7 @@
 import { Stack, Divider } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { Info } from 'lucide-react'
+import { useLanguage } from '@/frontend/hooks/use-language'
 
 interface PortfolioHeroProps {
   totalValue: string
@@ -23,6 +24,7 @@ export default function PortfolioHero({
   excludedCount,
   pnlColor = 'neutral',
 }: PortfolioHeroProps) {
+  const { t } = useLanguage()
   const isGainPositive = pnlColor === 'positive'
   const isGainNeutral = pnlColor === 'neutral'
 
@@ -32,13 +34,13 @@ export default function PortfolioHero({
   return (
     <Stack gap="md">
       <Stack gap="xs">
-        <Typography variant="h4" className='mb-2'>Portfolio Value</Typography>
+        <Typography variant="h4" className='mb-2'>{t('dashboard.portfolioValue')}</Typography>
         <Typography as="h1" className="text-5xl md:text-5xl font-bold financial-value">
           {totalValue || '—'}
         </Typography>
 
         {!totalValue && (
-          <Typography variant="body-sm">Unable to calculate total</Typography>
+          <Typography variant="body-sm">{t('dashboard.unableToCalculate')}</Typography>
         )}
       </Stack>
 
@@ -52,7 +54,7 @@ export default function PortfolioHero({
               >
                 {gainLossPercentage}
               </Typography>
-              <Typography variant="caption" className="text-(--text-muted)">all time</Typography>
+              <Typography variant="caption" className="text-(--text-muted)">{t('dashboard.allTime')}</Typography>
             </Stack>
 
             <Divider direction="vertical" className="h-4" />
@@ -64,7 +66,7 @@ export default function PortfolioHero({
               >
                 {todayChangePercentage}
               </Typography>
-              <Typography variant="caption" className="text-(--text-muted)">today</Typography>
+              <Typography variant="caption" className="text-(--text-muted)">{t('dashboard.today')}</Typography>
             </Stack>
           </Stack>
         )}
@@ -73,7 +75,7 @@ export default function PortfolioHero({
           <Stack gap="xs">
             {(excludedCount ?? 0) > 0 && (
               <Typography variant="caption" className="text-(--text-muted)">
-                {excludedCount} holding{(excludedCount ?? 0) > 1 ? 's' : ''} excluded from total
+                {excludedCount} {t('dashboard.excludedHoldings')}
               </Typography>
             )}
             {disclaimer && totalValue && (

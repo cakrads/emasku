@@ -29,14 +29,14 @@ export interface SpotPriceSeriesVM {
 /**
  * Transform API spot series to view model
  */
-export function transformSpotPriceSeries(api: SpotPriceSeries): SpotPriceSeriesVM {
+export function transformSpotPriceSeries(api: SpotPriceSeries, locale: string = 'id-ID'): SpotPriceSeriesVM {
   return {
     brand: api.brand,
     weight: `${api.denominationGram} g`,
     points: api.series.map((point) => ({
-      date: formatDate(point.priceAt),
+      date: formatDate(point.priceAt, locale),
       price: point.price,
-      priceFormatted: formatIDR(point.price),
+      priceFormatted: formatIDR(point.price, locale),
     })),
   }
 }
@@ -72,9 +72,9 @@ export interface TodayPricesVM {
 /**
  * Format IDR currency
  */
-function formatIDR(value: number | null): string {
+function formatIDR(value: number | null, locale: string = 'id-ID'): string {
   if (value === null || value === 0) return '-'
-  return new Intl.NumberFormat('id-ID', {
+  return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: 'IDR',
     minimumFractionDigits: 0,
@@ -85,9 +85,9 @@ function formatIDR(value: number | null): string {
 /**
  * Format date for display
  */
-function formatDate(dateString: string): string {
+function formatDate(dateString: string, locale: string = 'en-US'): string {
   const date = new Date(dateString)
-  return new Intl.DateTimeFormat('en-US', {
+  return new Intl.DateTimeFormat(locale, {
     dateStyle: 'full',
   }).format(date)
 }
@@ -95,9 +95,9 @@ function formatDate(dateString: string): string {
 /**
  * Transform API response to view model
  */
-export function transformTodayPrices(apiData: PricesTodayResponse): TodayPricesVM {
+export function transformTodayPrices(apiData: PricesTodayResponse, locale: string = 'id-ID'): TodayPricesVM {
   return {
-    lastUpdated: formatDate(apiData.date),
+    lastUpdated: formatDate(apiData.date, locale),
     brands: apiData.brands.map((brandGroup) => ({
       brandName: brandGroup.brand,
       prices: brandGroup.prices
@@ -105,8 +105,8 @@ export function transformTodayPrices(apiData: PricesTodayResponse): TodayPricesV
           denominationGram: price.denominationGram,
           sellPrice: price.sellPrice,
           buybackPrice: price.buybackPrice,
-          sellPriceFormatted: formatIDR(price.sellPrice),
-          buybackPriceFormatted: formatIDR(price.buybackPrice),
+          sellPriceFormatted: formatIDR(price.sellPrice, locale),
+          buybackPriceFormatted: formatIDR(price.buybackPrice, locale),
           weightLabel: `${price.denominationGram} g`,
         }))
         // Sort by weight ascending

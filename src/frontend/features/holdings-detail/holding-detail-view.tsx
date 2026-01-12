@@ -17,6 +17,7 @@ import { transformHoldingDetail } from '@/frontend/view-model/portfolio.vm'
 import { HoldingDetailSkeleton } from './components/holding-detail-skeleton'
 import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
 import { toast } from 'sonner'
+import { useLanguage } from '@/frontend/hooks/use-language'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -36,6 +37,7 @@ interface HoldingDetailViewProps {
 
 function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
   const router = useRouter()
+  const { t, language } = useLanguage()
   const queryClient = useQueryClient()
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
 
@@ -48,8 +50,8 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
   const deleteMutation = useMutation({
     mutationFn: () => deleteHolding(holdingId),
     onSuccess: () => {
-      toast.success('Holding sold successfully!', {
-        description: 'The holding has been removed from your portfolio.'
+      toast.success(t('holdingDetail.messages.soldSuccess'), {
+        description: t('holdingDetail.messages.soldDetail')
       })
       queryClient.invalidateQueries({ queryKey: ['portfolio'] })
       queryClient.invalidateQueries({ queryKey: ['holdings'] })
@@ -57,8 +59,8 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
     },
     onError: (error: unknown) => {
       const apiError = error as { message?: string }
-      toast.error('Error', {
-        description: apiError?.message || 'Failed to delete holding',
+      toast.error(t('common.errorTitle'), {
+        description: apiError?.message || t('holdingDetail.messages.deleteError'),
         duration: 4000,
       })
     }
@@ -77,7 +79,7 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
     throw error || new Error('Failed to load holding')
   }
 
-  const holding = transformHoldingDetail(data)
+  const holding = transformHoldingDetail(data, language === 'id' ? 'id-ID' : 'en-US')
 
   // Check if holding.totalValue is placeholder '-'
   const hasMissingValue = holding.totalValue === '-'
@@ -87,7 +89,7 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
       {/* Current Value Section (Hero) */}
       <Section className="px-6 text-center mb-8">
         <Stack gap="sm">
-          <Typography variant="h4">Current Value</Typography>
+          <Typography variant="h4">{t('holdingDetail.currentValue.title')}</Typography>
           <Typography variant="h1" className="text-4xl financial-value">
             {holding.totalValue}
           </Typography>
@@ -116,27 +118,27 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
         <Card className="bg-(--surface-elevated) border-(--border) shadow-(--shadow-sm)">
           <CardContent className="p-5">
             <Stack gap="md">
-              <Typography variant="h3" className="text-sm">Purchase Details</Typography>
+              <Typography variant="h3" className="text-sm">{t('holdingDetail.purchaseDetails.title')}</Typography>
 
               <Stack gap="md">
                 <Stack direction="horizontal" className="justify-between items-center">
-                  <Typography variant="body-sm">Purchase Date</Typography>
+                  <Typography variant="body-sm">{t('holdingDetail.purchaseDetails.purchaseDate')}</Typography>
                   <Typography variant="body" className="font-medium">{holding.buyDate}</Typography>
                 </Stack>
                 <Stack direction="horizontal" className="justify-between items-center">
-                  <Typography variant="body-sm">Weight</Typography>
+                  <Typography variant="body-sm">{t('holdingDetail.purchaseDetails.weight')}</Typography>
                   <Typography variant="body" className="font-medium">{holding.weight}</Typography>
                 </Stack>
                 <Stack direction="horizontal" className="justify-between items-center">
-                  <Typography variant="body-sm">Buy Price (per gram)</Typography>
+                  <Typography variant="body-sm">{t('holdingDetail.purchaseDetails.buyPricePerGram')}</Typography>
                   <Typography variant="body" className="font-medium">{holding.avgBuyPrice}</Typography>
                 </Stack>
                 {holding.isSold && holding.soldAt && (
                   <Stack direction="horizontal" className="justify-between items-center">
-                    <Typography variant="body-sm">Status</Typography>
+                    <Typography variant="body-sm">{t('holdingDetail.purchaseDetails.status')}</Typography>
                     <Stack direction="horizontal" gap="xs" className="items-center">
                       <span className="inline-flex items-center rounded-md bg-orange-100 px-2 py-1 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-600/20">
-                        SOLD
+                        {t('holdingDetail.purchaseDetails.sold')}
                       </span>
                       <Typography variant="body" className="font-medium text-muted-foreground">
                         {holding.soldAt}
@@ -159,14 +161,14 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
                     I need to add totalBuyValue to ViewModel! 
                 */}
                 <Stack direction="horizontal" className="justify-between items-center">
-                  <Typography variant="body-sm">Total Buy Value</Typography>
+                  <Typography variant="body-sm">{t('holdingDetail.purchaseDetails.totalBuyValue')}</Typography>
                   <Typography variant="body" className="font-medium financial-value">{holding.totalBuyValue}</Typography>
                 </Stack>
               </Stack>
 
               {holding.notes && (
                 <Stack gap="xs" className="mt-2 pt-3 border-t border-(--border)">
-                  <Typography variant="caption">Notes</Typography>
+                  <Typography variant="caption">{t('holdingDetail.purchaseDetails.notes')}</Typography>
                   <Typography variant="body-sm">
                     {holding.notes}
                   </Typography>
@@ -182,37 +184,37 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
         <Card className="bg-(--surface-elevated) border-(--border) shadow-(--shadow-sm)">
           <CardContent className="p-5">
             <Stack gap="md">
-              <Typography variant="h3" className="text-sm">Current Valuation</Typography>
+              <Typography variant="h3" className="text-sm">{t('holdingDetail.valuation.title')}</Typography>
 
               {hasMissingValue && (
                 <Alert className="bg-zinc-50 border-zinc-200 dark:bg-blue-950/20 dark:border-blue-900/50">
                   <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                  <AlertTitle className="text-zinc-900 dark:text-blue-100">Values missing</AlertTitle>
+                  <AlertTitle className="text-zinc-900 dark:text-blue-100">{t('holdingDetail.valuation.missingTitle')}</AlertTitle>
                   <AlertDescription className="text-zinc-600 dark:text-blue-300">
-                    Calculations are unavailable because no price was provided.
+                    {t('holdingDetail.valuation.missingDesc')}
                   </AlertDescription>
                 </Alert>
               )}
 
               <Stack gap="md">
                 <Stack direction="horizontal" className="justify-between items-center">
-                  <Typography variant="body-sm">Current Price (per gram)</Typography>
+                  <Typography variant="body-sm">{t('holdingDetail.valuation.currentPricePerGram')}</Typography>
                   <Typography variant="body" className="font-medium">{holding.currentPrice}</Typography>
                 </Stack>
                 <Stack direction="horizontal" className="justify-between items-center">
-                  <Typography variant="body-sm">Weight</Typography>
+                  <Typography variant="body-sm">{t('holdingDetail.purchaseDetails.weight')}</Typography>
                   <Typography variant="body" className="font-medium">{holding.weight}</Typography>
                 </Stack>
 
                 <div className="h-px bg-(--border) w-full" />
 
                 <Stack direction="horizontal" className="justify-between items-center">
-                  <Typography variant="h3" className="text-sm">Total Current Value</Typography>
+                  <Typography variant="h3" className="text-sm">{t('holdingDetail.valuation.totalCurrentValue')}</Typography>
                   <Typography variant="h2" className="financial-value">{holding.totalValue}</Typography>
                 </Stack>
 
                 <Stack direction="horizontal" className="justify-between items-center">
-                  <Typography variant="body-sm">Profit/Loss</Typography>
+                  <Typography variant="body-sm">{t('holdingDetail.valuation.pnl')}</Typography>
                   <Typography
                     variant="body"
                     className={cn(
@@ -253,7 +255,7 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            Mark as Sold
+            {t('holdingDetail.actions.markAsSold')}
           </Button>
         </Section>
       )}
@@ -262,15 +264,15 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Mark holding as sold?</AlertDialogTitle>
+            <AlertDialogTitle>{t('holdingDetail.dialog.markAsSold.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will mark this holding as SOLD. It will remain in your history but will be excluded from your active portfolio value.
+              {t('holdingDetail.dialog.markAsSold.description')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('holdingDetail.dialog.markAsSold.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleSold} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-              {deleteMutation.isPending ? 'Removing...' : 'Yes, mark as sold'}
+              {deleteMutation.isPending ? t('holdingDetail.dialog.markAsSold.confirming') : t('holdingDetail.dialog.markAsSold.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -280,14 +282,15 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
 }
 
 export default function HoldingDetailView(props: HoldingDetailViewProps) {
+  const { t } = useLanguage()
   return (
     <StandardPageLayout
-      title="Holding Details"
-      description="Gold bar details and performance"
+      title={t('holdingDetail.title')}
+      description={t('holdingDetail.subtitle')}
       breadcrumbs={[
         { label: 'Home', href: ROUTES.DASHBOARD },
         { label: 'Holdings', href: ROUTES.HOLDINGS_LIST },
-        { label: 'Detail' }
+        { label: t('holdingDetail.breadcrumbs.detail') }
       ]}
       action={
         // Check if holding data is available to make decision.
@@ -305,7 +308,7 @@ export default function HoldingDetailView(props: HoldingDetailViewProps) {
         <Link href={ROUTES.EDIT_HOLDING(props.holdingId)}>
           <Button variant="outline" size="sm">
             <Pencil className="w-4 h-4 mr-2" />
-            Edit
+            {t('holdingDetail.actions.edit')}
           </Button>
         </Link>
       }

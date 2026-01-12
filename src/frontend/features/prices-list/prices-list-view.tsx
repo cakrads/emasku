@@ -15,11 +15,16 @@ import { fetchTodayPrices } from '@/frontend/services/prices/prices.api'
 import { transformTodayPrices, BrandPriceGroupVM } from '@/frontend/view-model/prices.vm'
 import { BrandPriceSkeletonSection } from './components/brand-price-skeleton'
 import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
+import { useLanguage } from '@/frontend/hooks/use-language'
+import { Button } from '@/frontend/components/ui/button'
+import Link from 'next/link'
+import { History } from 'lucide-react'
 
 /**
  * Brand Price Section Component
  */
 function BrandPriceSection({ brandName, prices }: BrandPriceGroupVM) {
+  const { t } = useLanguage()
   return (
     <div className="mb-8 last:mb-0">
       {/* Brand Header */}
@@ -36,17 +41,17 @@ function BrandPriceSection({ brandName, prices }: BrandPriceGroupVM) {
             <tr className="bg-muted/50 border-b border-border">
               <th className="px-6 py-3 text-left">
                 <Typography variant="body-sm" className="font-medium">
-                  Weight
+                  {t('prices.table.weight')}
                 </Typography>
               </th>
               <th className="px-6 py-3 text-right">
                 <Typography variant="body-sm" className="font-medium">
-                  Sell Price
+                  {t('prices.table.sell')}
                 </Typography>
               </th>
               <th className="px-6 py-3 text-right">
                 <Typography variant="body-sm" className="font-medium">
-                  Buyback Price
+                  {t('prices.table.buyback')}
                 </Typography>
               </th>
             </tr>
@@ -76,14 +81,17 @@ function BrandPriceSection({ brandName, prices }: BrandPriceGroupVM) {
 }
 
 function PricesListViewContent() {
+  const { t, language } = useLanguage()
   // Fetch prices from API
   const { data, isLoading, error } = useQuery({
     queryKey: ['prices', 'today'],
     queryFn: fetchTodayPrices,
   })
 
+
+
   // Transform to view model
-  const viewModel = data ? transformTodayPrices(data) : null
+  const viewModel = data ? transformTodayPrices(data, language === 'id' ? 'id-ID' : 'en-US') : null
 
 
   if (isLoading) {
@@ -126,8 +134,16 @@ function PricesListViewContent() {
 
   return (
     <div className="flex flex-col gap-8">
-      <div className="text-sm text-muted-foreground -mb-4 text-right">
-        Latest update: {viewModel.lastUpdated}
+      <div className="flex justify-between items-center -mb-4">
+        <Button variant="ghost" size="sm" asChild className="text-muted-foreground hover:text-foreground">
+          <Link href={ROUTES.PRICES_HISTORY} className="flex items-center gap-2">
+            <History className="w-4 h-4" />
+            {t('prices.viewHistory')}
+          </Link>
+        </Button>
+        <div className="text-sm text-muted-foreground text-right">
+          {t('dashboard.lastUpdated')}: {viewModel.lastUpdated}
+        </div>
       </div>
 
       {/* Brand Sections */}
@@ -143,11 +159,12 @@ function PricesListViewContent() {
 }
 
 export function PricesListView() {
+  const { t } = useLanguage()
   return (
     <StandardPageLayout
-      title="Today's Prices"
-      description="Gold price monitoring by brand and weight"
-      breadcrumbs={[{ label: 'Home', href: ROUTES.DASHBOARD }, { label: 'Prices' }]}
+      title={t('prices.title')}
+      description={t('prices.description')}
+      breadcrumbs={[{ label: t('navbar.dashboard'), href: ROUTES.DASHBOARD }, { label: t('navbar.prices') }]}
     >
       <ErrorBoundary>
         <PricesListViewContent />

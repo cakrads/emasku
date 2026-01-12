@@ -12,6 +12,7 @@ import { StepHeader } from '@/frontend/components/fragments/step-header'
 import { WizardFooter } from '@/frontend/components/fragments/wizard-footer'
 import { Button } from '@/frontend/components/ui/button'
 import { format } from 'date-fns'
+import { id, enUS } from 'date-fns/locale'
 import { Info, Check } from 'lucide-react'
 
 import { cn } from '@/frontend/utils/cn'
@@ -21,6 +22,7 @@ import { fetchBrands } from '@/frontend/services/brands/brands.api'
 import { createHolding } from '@/frontend/services/portfolio/portfolio.api'
 import { Skeleton } from '@/frontend/components/ui/skeleton'
 import { toast } from 'sonner'
+import { useLanguage } from '@/frontend/hooks/use-language'
 
 // --- Types ---
 
@@ -56,6 +58,7 @@ import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
 
 function AddHoldingContent() {
   const router = useRouter()
+  const { t } = useLanguage()
   const queryClient = useQueryClient()
   const [step, setStep] = useState<Step>(1)
   const [state, setState] = useState<HoldingState>({
@@ -72,8 +75,10 @@ function AddHoldingContent() {
   const createMutation = useMutation({
     mutationFn: createHolding,
     onSuccess: () => {
-      toast.success('Holding created successfully!', {
-        description: `${state.weight}g of ${state.brand?.name} has been added to your portfolio.`
+      toast.success(t('addHolding.messages.success'), {
+        description: t('addHolding.messages.successDetail')
+          .replace('{weight}', state.weight)
+          .replace('{brand}', state.brand?.name || '')
       })
       // Invalidate portfolio queries to refresh data
       queryClient.invalidateQueries({ queryKey: ['portfolio'] })
@@ -82,7 +87,7 @@ function AddHoldingContent() {
     },
     onError: (error: unknown) => {
       const apiError = error as { message?: string, details?: { errors?: Record<string, string | string[]> } }
-      const errorMessage = apiError?.message || 'Failed to create holding'
+      const errorMessage = apiError?.message || t('addHolding.messages.error')
       const errorDetails = apiError?.details?.errors
 
       if (errorDetails) {
@@ -90,11 +95,11 @@ function AddHoldingContent() {
         const fieldErrors = Object.entries(errorDetails)
           .map(([field, messages]) => `${field}: ${Array.isArray(messages) ? messages.join(', ') : messages}`)
           .join('\n')
-        toast.error('Validation Error', {
+        toast.error(t('addHolding.messages.validationError'), {
           description: fieldErrors
         })
       } else {
-        toast.error('Error', {
+        toast.error(t('common.errorTitle'), {
           description: errorMessage
         })
       }
@@ -119,8 +124,8 @@ function AddHoldingContent() {
 
   const handleSave = () => {
     if (!state.brand || !state.weight) {
-      toast.error('Missing required fields', {
-        description: 'Please fill in brand and weight.'
+      toast.error(t('addHolding.messages.missingFields'), {
+        description: t('addHolding.messages.missingFieldsDetail')
       })
       return
     }
@@ -186,7 +191,7 @@ function AddHoldingContent() {
 
       <WizardFooter
         onNext={step === 3 ? handleSave : nextStep}
-        nextLabel={step === 3 ? 'Save Holding' : 'Continue'}
+        nextLabel={step === 3 ? t('addHolding.actions.save') : t('addHolding.actions.continue')}
         disabled={!canProceed() || createMutation.isPending}
       />
     </div>
@@ -194,13 +199,14 @@ function AddHoldingContent() {
 }
 
 export default function AddHoldingView() {
+  const { t } = useLanguage()
   return (
     <StandardPageLayout
-      title="Add New Holding"
+      title={t('addHolding.title')}
       breadcrumbs={[
         { label: 'Home', href: ROUTES.DASHBOARD },
         { label: 'Holdings', href: ROUTES.HOLDINGS_LIST },
-        { label: 'Add' }
+        { label: t('addHolding.breadcrumbs.add') }
       ]}
     >
       <ErrorBoundary>
@@ -221,6 +227,7 @@ function BrandSelectionStep({
   onSelect: (b: Brand) => void,
   brands: Brand[]
 }) {
+  const { t } = useLanguage()
   const [isCustomMode, setIsCustomMode] = useState(false)
   const [customName, setCustomName] = useState('')
 
@@ -228,22 +235,20 @@ function BrandSelectionStep({
     return (
       <Stack gap="lg" className="animate-in fade-in slide-in-from-right-4 duration-300">
         <Stack gap="xs">
-          <Typography as="h2" variant="h1">Custom Brand</Typography>
-          <Typography variant="body-sm">Enter the name of the brand or manufacturer.</Typography>
+          <Typography as="h2" variant="h1">{t('addHolding.brandSelection.customBrand.title')}</Typography>
+          <Typography variant="body-sm">{t('addHolding.brandSelection.customBrand.subtitle')}</Typography>
         </Stack>
 
         <Section className="p-4 rounded-xl border border-border bg-surface-elevated py-4">
           <Stack direction="horizontal" gap="md" className="items-start text-text-secondary">
             <Info className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
-            <Typography variant="caption" className="text-text-secondary leading-relaxed">
-              We will save your gold holding details, but <strong className="text-foreground">we cannot provide a market valuation</strong> for custom or unlisted brands.
-            </Typography>
+            <Typography variant="caption" className="text-text-secondary leading-relaxed" dangerouslySetInnerHTML={{ __html: t('addHolding.brandSelection.customBrand.warning') }} />
           </Stack>
         </Section>
 
         <Stack gap="md">
           <Stack gap="sm">
-            <Label className="uppercase text-text-secondary font-medium tracking-wider">Brand Name</Label>
+            <Label className="uppercase text-text-secondary font-medium tracking-wider">{t('addHolding.brandSelection.brandName')}</Label>
             <Input
               autoFocus
               value={customName}
@@ -254,7 +259,7 @@ function BrandSelectionStep({
                 if (b) onSelect(b)
               }}
               className="p-4 rounded-xl bg-surface-elevated border-border text-foreground text-lg font-semibold h-14"
-              placeholder="e.g. Grandma's Ring"
+              placeholder={t('addHolding.brandSelection.customBrand.placeholder')}
             />
           </Stack>
           <Button
@@ -263,7 +268,7 @@ function BrandSelectionStep({
 
             onClick={() => setIsCustomMode(false)}
           >
-            Back to list
+            {t('addHolding.brandSelection.customBrand.back')}
           </Button>
         </Stack>
       </Stack>
@@ -273,8 +278,8 @@ function BrandSelectionStep({
   return (
     <Stack gap="lg" className="animate-in fade-in slide-in-from-right-4 duration-300">
       <Stack gap="xs">
-        <Typography as="h2" variant="h1">Select Brand</Typography>
-        <Typography variant="body-sm">Which brand produced this gold item?</Typography>
+        <Typography as="h2" variant="h1">{t('addHolding.brandSelection.title')}</Typography>
+        <Typography variant="body-sm">{t('addHolding.brandSelection.subtitle')}</Typography>
       </Stack>
 
       <Stack gap="sm">
@@ -303,7 +308,7 @@ function BrandSelectionStep({
           <div className="h-8 w-8 rounded-full bg-surface flex items-center justify-center">
             <Typography variant="h3" className="font-light">+</Typography>
           </div>
-          <Typography variant="body" className="font-medium">My brand is not listed (Custom)</Typography>
+          <Typography variant="body" className="font-medium">{t('addHolding.brandSelection.customBrand.button')}</Typography>
         </Button>
       </Stack>
     </Stack>
@@ -356,18 +361,19 @@ function BrandSelectionSkeleton() {
 // --- Step 2: Gold Details ---
 
 function GoldDetailsStep({ state, onChange }: { state: HoldingState, onChange: (u: Partial<HoldingState>) => void }) {
+  const { t } = useLanguage()
   return (
     <Stack gap="lg" className="animate-in fade-in slide-in-from-right-4 duration-300">
       <Stack gap="xs">
-        <Typography as="h2" variant="h1">Gold Details</Typography>
-        <Typography variant="body-sm">Enter the physical details and purchase history.</Typography>
+        <Typography as="h2" variant="h1">{t('addHolding.details.title')}</Typography>
+        <Typography variant="body-sm">{t('addHolding.details.subtitle')}</Typography>
       </Stack>
 
       <Stack gap="xl">
         {/* Weight */}
         <Stack gap="sm">
           <Label className="uppercase text-text-secondary font-medium tracking-wider">
-            Weight (grams) <span className="text-red-500">*</span>
+            {t('addHolding.details.weight')} <span className="text-red-500">*</span>
           </Label>
           <Input
             type="number"
@@ -382,11 +388,11 @@ function GoldDetailsStep({ state, onChange }: { state: HoldingState, onChange: (
 
         {/* Purchase Info Section */}
         <Stack gap="lg" className="pt-6 border-t border-border">
-          <Typography variant="h4">Purchase History (Optional)</Typography>
+          <Typography variant="h4">{t('addHolding.details.purchaseHistory')}</Typography>
 
           <Stack gap="lg">
             <Stack gap="xs">
-              <Label className="text-text-secondary font-medium">Purchase Price (Total IDR)</Label>
+              <Label className="text-text-secondary font-medium">{t('addHolding.details.purchasePrice')}</Label>
               <Input
                 type="number"
                 inputMode="decimal"
@@ -398,11 +404,11 @@ function GoldDetailsStep({ state, onChange }: { state: HoldingState, onChange: (
                 )}
                 placeholder="e.g. 5,000,000"
               />
-              <Typography variant="caption">Price you paid when buying this gold.</Typography>
+              <Typography variant="caption">{t('addHolding.details.priceHelp')}</Typography>
             </Stack>
 
             <Stack gap="sm">
-              <Label className="text-text-secondary font-medium">Purchase Date</Label>
+              <Label className="text-text-secondary font-medium">{t('addHolding.details.purchaseDate')}</Label>
               <DatePicker
                 value={state.purchaseDate}
                 onChange={(date) => onChange({ purchaseDate: date })}
@@ -411,12 +417,12 @@ function GoldDetailsStep({ state, onChange }: { state: HoldingState, onChange: (
             </Stack>
 
             <Stack gap="sm">
-              <Label className="text-text-secondary font-medium">Notes</Label>
+              <Label className="text-text-secondary font-medium">{t('addHolding.details.notes')}</Label>
               <Input
                 value={state.notes}
                 onChange={(e) => onChange({ notes: e.target.value })}
                 className="p-4 rounded-xl bg-surface-elevated border-border text-foreground text-lg font-semibold h-14"
-                placeholder="Optional notes..."
+                placeholder={t('addHolding.details.notesPlaceholder')}
               />
             </Stack>
           </Stack>
@@ -429,16 +435,17 @@ function GoldDetailsStep({ state, onChange }: { state: HoldingState, onChange: (
 // --- Step 3: Review ---
 
 function ReviewStep({ state }: { state: HoldingState }) {
+  const { t, language } = useLanguage()
   const isOfficial = state.brand?.hasOfficialPrice
 
-  const formatCurrency = (val: number) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val)
+  const formatCurrency = (val: number) => new Intl.NumberFormat(language === 'id' ? 'id-ID' : 'en-US', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val)
   const estimatedValue = isOfficial ? MOCK_OFFICIAL_PRICE * parseFloat(state.weight || '0') : 0
 
   return (
     <Stack gap="lg" className="animate-in fade-in slide-in-from-right-4 duration-300">
       <Stack gap="xs">
-        <Typography as="h2" variant="h1">Review & Confirm</Typography>
-        <Typography variant="body-sm">Please check the details below.</Typography>
+        <Typography as="h2" variant="h1">{t('addHolding.review.title')}</Typography>
+        <Typography variant="body-sm">{t('addHolding.review.subtitle')}</Typography>
       </Stack>
 
       <Card className="overflow-hidden bg-surface-elevated border-border">
@@ -447,12 +454,12 @@ function ReviewStep({ state }: { state: HoldingState }) {
           <div className="p-6 border-b border-border">
             <div className="flex justify-between items-start">
               <div>
-                <dt className="text-text-secondary uppercase tracking-wider font-medium text-xs mb-1 block">Brand</dt>
+                <dt className="text-text-secondary uppercase tracking-wider font-medium text-xs mb-1 block">{t('addHolding.brandSelection.brandName')}</dt>
                 <dd className="text-2xl font-semibold leading-tight text-foreground">{state.brand?.name}</dd>
-                {!isOfficial && <dd className="text-text-secondary text-xs mt-1 block">(Custom Brand)</dd>}
+                {!isOfficial && <dd className="text-text-secondary text-xs mt-1 block">{t('addHolding.review.customBrandLabel')}</dd>}
               </div>
               <div className="text-right">
-                <dt className="text-text-secondary uppercase tracking-wider font-medium text-xs mb-1 block">Weight</dt>
+                <dt className="text-text-secondary uppercase tracking-wider font-medium text-xs mb-1 block">{t('addHolding.details.weight')}</dt>
                 <dd className="text-2xl font-semibold leading-tight text-foreground">{state.weight}g</dd>
               </div>
             </div>
@@ -466,7 +473,7 @@ function ReviewStep({ state }: { state: HoldingState }) {
                 <div className="grid grid-cols-2 gap-6">
                   {state.purchasePrice && (
                     <div>
-                      <dt className="text-text-secondary uppercase tracking-wider font-medium text-xs mb-1 block">Purchase Price</dt>
+                      <dt className="text-text-secondary uppercase tracking-wider font-medium text-xs mb-1 block">{t('addHolding.details.purchasePrice')}</dt>
                       <dd className="font-semibold tabular-nums text-lg text-foreground">
                         {formatCurrency(parseFloat(state.purchasePrice))}
                       </dd>
@@ -474,9 +481,11 @@ function ReviewStep({ state }: { state: HoldingState }) {
                   )}
                   {state.purchaseDate && (
                     <div className={state.purchasePrice ? "text-right" : ""}>
-                      <dt className="text-text-secondary uppercase tracking-wider font-medium text-xs mb-1 block">Date Bought</dt>
+                      <dt className="text-text-secondary uppercase tracking-wider font-medium text-xs mb-1 block">{t('addHolding.details.purchaseDate')}</dt>
                       <dd className="font-semibold text-lg text-foreground">
-                        {state.purchaseDate instanceof Date ? format(state.purchaseDate, 'PPP') : state.purchaseDate}
+                        {state.purchaseDate instanceof Date
+                          ? format(state.purchaseDate, 'PPP', { locale: language === 'id' ? id : enUS })
+                          : state.purchaseDate}
                       </dd>
                     </div>
                   )}
@@ -486,7 +495,7 @@ function ReviewStep({ state }: { state: HoldingState }) {
               {/* Notes */}
               {state.notes && (
                 <div className={(state.purchasePrice || state.purchaseDate) ? "mt-4 pt-4 border-t border-border" : ""}>
-                  <dt className="text-text-secondary uppercase tracking-wider font-medium text-xs mb-2 block">Notes</dt>
+                  <dt className="text-text-secondary uppercase tracking-wider font-medium text-xs mb-2 block">{t('addHolding.details.notes')}</dt>
                   <dd className="text-foreground leading-relaxed text-base">
                     {state.notes}
                   </dd>
@@ -500,7 +509,7 @@ function ReviewStep({ state }: { state: HoldingState }) {
         <footer className="p-6 bg-surface border-t border-border">
           <Stack gap="sm">
             <div className="flex justify-between items-end">
-              <span className="text-text-secondary uppercase tracking-wider font-medium text-xs mb-1">Current Estimated Value</span>
+              <span className="text-text-secondary uppercase tracking-wider font-medium text-xs mb-1">{t('addHolding.review.currentValue')}</span>
             </div>
 
             <div className="flex justify-between items-center">
@@ -515,8 +524,8 @@ function ReviewStep({ state }: { state: HoldingState }) {
               <Info className="h-4 w-4 shrink-0" />
               <span className="text-xs leading-snug">
                 {isOfficial
-                  ? "Based on today's official buyback prices. This value fluctuates with the market."
-                  : "Market valuation is not available for custom brands."}
+                  ? t('addHolding.review.valuationNote')
+                  : t('addHolding.review.customNote')}
               </span>
             </div>
           </Stack>

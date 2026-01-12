@@ -5,6 +5,8 @@ import ReactQueryProvider from "@/frontend/providers/react-query-provider";
 import { ThemeProvider } from "@/frontend/providers/theme-provider";
 import { AuthProvider } from "@/frontend/providers/auth-provider";
 import { Toaster } from "@/frontend/components/ui/sonner";
+import { LanguageProvider } from "@/frontend/context/language-context";
+import { Navbar } from "@/frontend/components/fragments/navbar";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -29,8 +31,15 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <AuthProvider>
-              {children}
-              <Toaster position="top-right" />
+              <LanguageProvider>
+                <div className="bg-background min-h-screen pb-16 md:pb-0 md:pt-16">
+                  <Navbar />
+                  <main className="flex-1">
+                    {children}
+                  </main>
+                </div>
+                <Toaster position="top-right" />
+              </LanguageProvider>
             </AuthProvider>
           </ThemeProvider>
         </ReactQueryProvider>

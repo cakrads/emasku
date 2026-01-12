@@ -16,13 +16,15 @@ import { Plus } from 'lucide-react'
 import Link from 'next/link'
 import { ROUTES } from '@/frontend/config/routes'
 import { fetchBrands } from '@/frontend/services/brands/brands.api'
+import { useLanguage } from '@/frontend/hooks/use-language'
 
 
 export default function HoldingsListView() {
+  const { t } = useLanguage()
   return (
     <StandardPageLayout
-      title="Portfolio Holdings"
-      description="Detailed overview of your gold investments"
+      title={t('holdings.title')}
+      description={t('holdings.description')}
       breadcrumbs={[
         { label: 'Home', href: ROUTES.DASHBOARD },
         { label: 'Holdings' }
@@ -31,7 +33,7 @@ export default function HoldingsListView() {
         <Link href={ROUTES.ADD_HOLDING}>
           <Button color="primary" className="hidden md:flex items-center gap-2">
             <Plus className="h-4 w-4" />
-            <span>Add New Holding</span>
+            <span>{t('holdings.addHolding')}</span>
           </Button>
         </Link>
       }
@@ -44,6 +46,7 @@ export default function HoldingsListView() {
 }
 
 function HoldingsListContent() {
+  const { language, t } = useLanguage()
   const [brandFilter, setBrandFilter] = useState<string | null>(null)
   const [sortBy, setSortBy] = useState<'date' | 'value'>('date')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
@@ -89,7 +92,7 @@ function HoldingsListContent() {
   })
 
   // Transform to View Models
-  const viewModels = filteredHoldings.map(transformHoldingItem)
+  const viewModels = filteredHoldings.map(item => transformHoldingItem(item, language === 'id' ? 'id-ID' : 'en-US'))
 
 
   // Empty state when no holdings at all
