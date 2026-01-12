@@ -1,234 +1,261 @@
-TASK: Implement Language-Aware UX (i18n) with Indonesian-First Experience
+# PROMPT — Implement Holdings Input Wizard (Market-Driven UX)
 
-CONTEXT
-Project: Emasku
+## Role & Goal
 
-Current UI text is mixed between Indonesian and English.
-This creates inconsistency and poor UX.
+You are a **senior frontend engineer** implementing a **gold holdings input wizard** with strong UX, data integrity, and scalability.
 
-We want to:
+Your task is to implement a **3-step wizard** for adding gold holdings where:
 
-- Standardize language handling
-- Default to Indonesian for users
-- Support English for professional / portfolio context
-- Go beyond simple translation by adjusting tone and UX copy per language
+- Market data drives user choices
+- User effort is minimized
+- Invalid data is prevented by design
+- Architecture remains clean and maintainable
 
-This task focuses on **frontend language architecture and UX copy structure**.
-
----
-
-LANGUAGE STRATEGY (FINAL DECISION)
-
-1. Default language: Indonesian (id)
-2. Secondary language: English (en)
-3. Codebase language: English only
-4. No hardcoded UI text in components
-5. Language affects:
-   - wording
-   - tone
-   - clarity
-   - user guidance
+⚠️ This task is **UI + UX only**.  
+⚠️ No backend changes.  
+⚠️ API may be mocked or reused if already available.
 
 ---
 
-DESIGN PRINCIPLES
+## Core UX Principles (Mandatory)
 
-- Indonesian copy:
-  - Friendly
-  - Clear
-  - Slightly conversational
-  - Helps first-time users
+1. User should not type what the system already knows
+2. Reduce number of clicks
+3. Prevent invalid weights by design
+4. Market data is the source of truth
+5. Custom input is allowed **only** for non-market brands
 
-- English copy:
-  - Professional
-  - Neutral
-  - Concise
-  - Portfolio / reviewer friendly
-
-Do NOT do literal word-by-word translation.
-Each language may have slightly different phrasing.
+Violation of these principles is NOT allowed.
 
 ---
 
-FILE STRUCTURE (MANDATORY)
+## Wizard Flow (Final Decision)
 
-Use the following structure:
+### Step 1 — Select Brand
 
-src/i18n/
-config.ts  
-index.ts  
+**UI**
 
-src/i18n/locales/
-id.ts  
-en.ts  
+- Card or grid list of brands
+- Example: ANTAM, UBS, GALERI24
+- Include one option: **“Other / Custom Brand”** existing
+
+**Behavior**
+
+- Selecting a brand:
+  - Immediately selects the brand
+  - Automatically advances to Step 2
+- “Next” button still exists as fallback (accessibility)
+
+**State**
+
+- brandCode
+- brandName
+- isCustomBrand (boolean)
+or use existing state which ready as payload
 
 ---
 
-STEP 1: I18N CONFIGURATION
+### Step 2 — Select Weight
 
-config.ts responsibilities:
+#### Case A — Market Brand
 
-- Define supported languages
-- Define default language
-- Expose language type
+**Data Source**
+
+- `/prices`
+- Filter by selected brand
+- Extract unique `denominationGram`
+
+**UI**
+
+- Selectable cards or segmented buttons
+- Example:
+  - 1 gram
+  - 2 gram
+  - 5 gram
+  - 10 gram
+- Optional: show today price as secondary text
+
+**Behavior**
+
+- Selecting a weight:
+  - Immediately selects weight
+  - Automatically advances to Step 3
+- “Next” button still exists
+
+**Rules**
+
+- Manual weight input is DISABLED
+- Only weights from market data allowed
+
+---
+
+#### Case B — Custom Brand
+
+If `isCustomBrand === true`:
+
+**UI**
+
+- Manual weight input
+
+**Validation**
+
+- Numeric
+- Minimum: 0.1 gram
+- Reasonable max limit
+
+**Helper Text**
+
+- “Custom brand does not have market-defined weights”
+
+---
+
+### Step 3 — Purchase Details
+
+**Fields**
+
+- Purchase date (date picker)
+- Quantity (default = 1)
+- Total buy price (IDR)
+- Notes (optional)
+
+**Rules**
+
+- Buy price is TOTAL price
+- Do NOT ask price per gram
+- System calculates internal values later
+
+**Actions**
+
+- Primary: Save Holding
+- Secondary: Back
+
+---
+
+### Step 4 — Review Like existing Step 3
+
+---
+
+## Click Reduction Rules (Required)
+
+- Selecting brand → auto-advance to Step 2
+- Selecting weight → auto-advance to Step 3
+- Next button still exists for accessibility
+
+---
+
+---
+
+in mobile android, back button is used to go back to previous step
+
+use useful name, don't use Wizard Setup
+
+---
+
+## Component Architecture (Mandatory)
+
+Split into composable components:
+
+- HoldingsWizard
+- BrandSelector
+- WeightSelector
+- PurchaseForm
+- WizardFooter
 
 Rules:
 
-- No UI logic
-- No environment access here
+- No API calls inside UI components
+- Data access via service layer or hooks
+- Wizard state centralized (parent or context)
 
 ---
 
-STEP 2: LOCALE FILES (COPY-AWARE)
+## State Model (Required)
 
-Create locale files that reflect **UX intent**, not literal translation.
+Wizard state MUST contain which ready as payload:
 
-Example:
+- brandCode
+- brandName
+- isCustomBrand
+- denominationGram
+- quantity
+- buyPriceTotal
+- boughtAt
+- notes
 
-id.ts:
-
-- "Tambah Emas"
-- "Belum ada emas di portofoliomu"
-- "Grafik akan muncul setelah kamu menambahkan emas"
-
-en.ts:
-
-- "Add Gold"
-- "You don't have any gold yet"
-- "Charts will appear once you add your first holding"
-
-Copy may differ slightly as long as intent is preserved.
+❌ Do NOT store derived or calculated values.
 
 ---
 
-STEP 3: TRANSLATION HELPER
+## UX Copy (Required)
 
-Implement a simple translation helper:
+**Step Titles**
 
-Responsibilities:
+- Step 1  
+  - ID: Pilih Jenis Emas  
+  - EN: Select Gold Brand
 
-- Resolve nested keys (e.g. dashboard.empty.title)
-- Return key if translation missing (safe fallback)
-- Use current active language
+- Step 2  
+  - ID: Pilih Berat  
+  - EN: Select Weight
 
-Avoid:
+- Step 3  
+  - ID: Detail Pembelian  
+  - EN: Purchase Details
 
-- heavy i18n libraries
-- ICU message formatting
-- overengineering
+**Helper Text**
 
----
+Market brand:
 
-STEP 4: LANGUAGE STATE MANAGEMENT
+- “Berat diambil dari data harga pasar”
 
-Implement language state:
+Custom brand:
 
-- Default language = Indonesian
-- Detect preferred language:
-  - localStorage (if exists)
-  - fallback to default
-- Provide setter to switch language
-
-Rules:
-
-- No re-render hacks
-- No context overuse
-- Simple and predictable
+- “Berat dimasukkan manual karena merek tidak tersedia”
 
 ---
 
-STEP 5: MIGRATE EXISTING UI TEXT
+## Validation Rules
 
-Systematically replace:
-
-- Hardcoded strings in components
-- Mixed-language labels
-
-With:
-
-- translation keys
-
-Rules:
-
-- Group keys by feature (dashboard, prices, holdings)
-- Do NOT create one massive "common" file
-- Use semantic keys, not sentence-based keys
+- Brand must be selected
+- Weight must be selected
+- Cannot save without:
+  - Buy price
+  - Purchase date
+- Inline validation only
+- No alert dialogs
 
 ---
 
-STEP 6: LANGUAGE-AWARE UX COPY
+## Non-Goals (Do NOT Implement)
 
-Ensure the following components use language-appropriate copy:
-
-- Dashboard empty states
-- Call-To-Action buttons
-- Section titles
-- Helper texts
-- Confirmation messages
-
-Avoid:
-
-- slang
-- jokes
-- culturally specific metaphors
-
-Keep tone:
-
-- Calm
-- Trustworthy
-- Financial-app appropriate
+- Backend changes
+- Authentication
+- Price history chart
+- Valuation or PnL calculation
+- UI redesign beyond wizard
 
 ---
 
-STEP 7: OPTIONAL LANGUAGE SWITCHER (NO UI YET)
+## Success Criteria
 
-Prepare infrastructure for:
+Implementation is correct if:
 
-- Language toggle (id / en)
-- Persist choice in localStorage
-
-Do NOT:
-
-- Implement switch UI
-- Expose toggle in navbar yet
-
-Infrastructure only.
+- User can add a holding with minimal clicks
+- Manual weight only appears for custom brand
+- Invalid weights are impossible
+- Code is modular and maintainable
+- UX feels fast and intentional
 
 ---
 
-STEP 8: VALIDATION CHECKLIST
+## Final Instruction
 
-After implementation:
+Optimize for:
 
-- No visible mixed-language text
-- Switching language updates all UI text
-- Missing keys fail gracefully
-- No component contains hardcoded UI copy
+- Data correctness
+- User trust
+- Long-term maintainability
 
----
-
-OUT OF SCOPE
-
-- Date / currency locale formatting
-- RTL language support
-- Backend internationalization
-- Content marketing copy
-
----
-
-DELIVERABLES
-
-- i18n folder and configuration
-- Locale files with thoughtful copy
-- Updated components using translation helper
-- Clean, consistent UI language experience
-
----
-
-QUALITY BAR
-
-- Clean structure
-- Easy to extend
-- UX-appropriate wording
-- No overengineering
-- Professional-grade result
+Do not over-engineer.  
+Do not shortcut architecture.  
+Deliver production-ready code.
