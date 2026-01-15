@@ -1,250 +1,224 @@
-# PROMPT — Implement Holdings Input Wizard (Market-Driven UX)
+# PROMPT — Market Price Indicator (FINAL)
 
 ## Role & Goal
 
-You are a **senior frontend engineer** implementing a **gold holdings input wizard** with strong UX, data integrity, and scalability.
+You are a senior frontend engineer implementing a **gold market price indicator** (ANTAM, Galeri 24).
 
-Your task is to implement a **3-step wizard** for adding gold holdings where:
+The indicator must show:
 
-- Market data drives user choices
-- User effort is minimized
-- Invalid data is prevented by design
-- Architecture remains clean and maintainable
+- Current price
+- Direction of movement
+- Percentage change
+- Clear temporal context
 
-⚠️ This task is **UI + UX only**.  
-⚠️ No backend changes.  
-⚠️ API may be mocked or reused if already available.
-
----
-
-## Core UX Principles (Mandatory)
-
-1. User should not type what the system already knows
-2. Reduce number of clicks
-3. Prevent invalid weights by design
-4. Market data is the source of truth
-5. Custom input is allowed **only** for non-market brands
-
-Violation of these principles is NOT allowed.
+This task is **UI / UX logic only**.
+Do NOT modify backend schema or scraper behavior.
 
 ---
 
-## Wizard Flow (Final Decision)
+## Core Principles (STRICT)
 
-### Step 1 — Select Brand
-
-**UI**
-
-- Card or grid list of brands
-- Example: ANTAM, UBS, GALERI24
-- Include one option: **“Other / Custom Brand”** existing
-
-**Behavior**
-
-- Selecting a brand:
-  - Immediately selects the brand
-  - Automatically advances to Step 2
-- “Next” button still exists as fallback (accessibility)
-
-**State**
-
-- brandCode
-- brandName
-- isCustomBrand (boolean)
-or use existing state which ready as payload
+1. Market update time (`priceAt`) is the only source of truth
+2. Scraping frequency must NOT affect price movement
+3. Price movement is shown ONLY when the market updates
+4. Never show misleading 0%
+5. If information is ambiguous, show less — not more
 
 ---
 
-### Step 2 — Select Weight
+## Available Data
 
-#### Case A — Market Brand
+Each price record provides:
 
-**Data Source**
-
-- `/prices`
-- Filter by selected brand
-- Extract unique `denominationGram`
-
-**UI**
-
-- Selectable cards or segmented buttons
-- Example:
-  - 1 gram
-  - 2 gram
-  - 5 gram
-  - 10 gram
-- Optional: show today price as secondary text
-
-**Behavior**
-
-- Selecting a weight:
-  - Immediately selects weight
-  - Automatically advances to Step 3
-- “Next” button still exists
-
-**Rules**
-
-- Manual weight input is DISABLED
-- Only weights from market data allowed
+- `price` (BigInt)
+- `priceAt` (DateTime, market update timestamp)
+- `recordedAt` (DateTime, ingestion time — IGNORE)
+- `priceType` (SPOT / RETAIL / SELL / BUYBACK)
 
 ---
 
-#### Case B — Custom Brand
+## Primary Price Display (Always Visible)
 
-If `isCustomBrand === true`:
+Format:
+Rp <formatted_price>
 
-**UI**
+makefile
+Salin kode
 
-- Manual weight input
+Example:
+Rp 2.918.000
 
-**Validation**
-
-- Numeric
-- Minimum: 0.1 gram
-- Reasonable max limit
-
-**Helper Text**
-
-- “Custom brand does not have market-defined weights”
+yaml
+Salin kode
 
 ---
 
-### Step 3 — Purchase Details
+## Comparison Rule (MANDATORY)
 
-**Fields**
+To compute movement:
 
-- Purchase date (date picker)
-- Quantity (default = 1)
-- Total buy price (IDR)
-- Notes (optional)
+- Compare the **latest record**
+- With the **previous record where `price != latest.price`**
+- Within the SAME `brandCode` and `priceType`
 
-**Rules**
+DO NOT:
 
-- Buy price is TOTAL price
-- Do NOT ask price per gram
-- System calculates internal values later
-
-**Actions**
-
-- Primary: Save Holding
-- Secondary: Back
+- Compare per scrape
+- Compare per hour
+- Compare across price types
+- Compare records with identical `priceAt`
 
 ---
 
-### Step 4 — Review Like existing Step 3
+## Movement Calculation
+
+delta = latest.price - previousDifferent.price
+percent = (delta / previousDifferent.price) * 100
+
+yaml
+Salin kode
+
+Values are for display only and must NOT be persisted.
 
 ---
 
-## Click Reduction Rules (Required)
+## Display Rules
 
-- Selecting brand → auto-advance to Step 2
-- Selecting weight → auto-advance to Step 3
-- Next button still exists for accessibility
+### Case 1 — Market Price Increased
 
----
+Condition:
 
----
+- `latest.priceAt` > `previousDifferent.priceAt`
+- `latest.price` > `previousDifferent.price`
 
-in mobile android, back button is used to go back to previous step
+Display:
+↑ Rp 23.000 (+0.79%)
 
-use useful name, don't use Wizard Setup
+csharp
+Salin kode
 
----
+Helper text (required):
+sejak update terakhir (09:12 WIB)
 
-## Component Architecture (Mandatory)
-
-Split into composable components:
-
-- HoldingsWizard
-- BrandSelector
-- WeightSelector
-- PurchaseForm
-- WizardFooter
-
-Rules:
-
-- No API calls inside UI components
-- Data access via service layer or hooks
-- Wizard state centralized (parent or context)
+yaml
+Salin kode
 
 ---
 
-## State Model (Required)
+### Case 2 — Market Price Decreased
 
-Wizard state MUST contain which ready as payload:
+Condition:
 
-- brandCode
-- brandName
-- isCustomBrand
-- denominationGram
-- quantity
-- buyPriceTotal
-- boughtAt
-- notes
+- `latest.priceAt` > `previousDifferent.priceAt`
+- `latest.price` < `previousDifferent.price`
 
-❌ Do NOT store derived or calculated values.
+Display:
+↓ Rp 15.000 (-0.51%)
 
----
+csharp
+Salin kode
 
-## UX Copy (Required)
+Helper text (required):
+sejak update terakhir (09:12 WIB)
 
-**Step Titles**
-
-- Step 1  
-  - ID: Pilih Jenis Emas  
-  - EN: Select Gold Brand
-
-- Step 2  
-  - ID: Pilih Berat  
-  - EN: Select Weight
-
-- Step 3  
-  - ID: Detail Pembelian  
-  - EN: Purchase Details
-
-**Helper Text**
-
-Market brand:
-
-- “Berat diambil dari data harga pasar”
-
-Custom brand:
-
-- “Berat dimasukkan manual karena merek tidak tersedia”
+yaml
+Salin kode
 
 ---
 
-## Validation Rules
+### Case 3 — Market Updated, Price Unchanged
 
-- Brand must be selected
-- Weight must be selected
-- Cannot save without:
-  - Buy price
-  - Purchase date
-- Inline validation only
-- No alert dialogs
+Condition:
+
+- `latest.priceAt` > `previousDifferent.priceAt`
+- `latest.price == previousDifferent.price`
+
+Display:
+→ Rp 0 (0.00%)
+
+csharp
+Salin kode
+
+Helper text (required):
+harga tidak berubah sejak update terakhir (09:12 WIB)
+
+yaml
+Salin kode
+
+This case ONLY applies if the SOURCE explicitly updated the market data.
 
 ---
 
-## Non-Goals (Do NOT Implement)
+### Case 4 — No Market Update (Duplicate Snapshot)
 
-- Backend changes
-- Authentication
-- Price history chart
-- Valuation or PnL calculation
-- UI redesign beyond wizard
+Condition:
+
+- No new `priceAt`
+- Scraper ran again with identical market timestamp
+
+Display:
+
+- Show price ONLY
+- Do NOT show arrows, deltas, or percentages
+
+Example:
+Rp 2.918.000
+
+csharp
+Salin kode
+
+Helper text (required):
+menunggu update harga terbaru
+
+yaml
+Salin kode
+
+---
+
+### Case 5 — Weekend / Holiday / Market Closed
+
+Condition:
+
+- No new `priceAt` for a prolonged period (e.g. weekend or holiday)
+
+Display:
+
+- Same as Case 4
+
+Helper text (required):
+pasar belum memperbarui harga
+
+yaml
+Salin kode
+
+---
+
+## UX Rules (STRICT)
+
+- Never show 0% caused by scraper frequency
+- Never imply price stability if the market has not updated
+- Directional indicators must reflect real market events
+- Helper text is mandatory whenever movement is shown
+
+---
+
+## Non-Goals
+
+- No price prediction
+- No intraday charts
+- No backend changes
+- No financial advice
 
 ---
 
 ## Success Criteria
 
-Implementation is correct if:
+The implementation is correct if:
 
-- User can add a holding with minimal clicks
-- Manual weight only appears for custom brand
-- Invalid weights are impossible
-- Code is modular and maintainable
-- UX feels fast and intentional
+- Re-scraping does NOT change displayed movement
+- Users never see misleading 0%
+- Movement feels stable and trustworthy
+- Indicator reflects real market behavior, not system behavior
 
 ---
 
@@ -252,10 +226,10 @@ Implementation is correct if:
 
 Optimize for:
 
-- Data correctness
 - User trust
+- Financial correctness
 - Long-term maintainability
 
-Do not over-engineer.  
-Do not shortcut architecture.  
-Deliver production-ready code.
+Do not over-engineer.
+Do not shortcut logic.
+Ship production-ready UI behavior.

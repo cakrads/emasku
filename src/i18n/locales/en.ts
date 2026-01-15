@@ -189,15 +189,15 @@ export default {
       sell: 'Sell Price',
       buyback: 'Buyback Price',
     },
-    viewHistory: 'View Price History',
+    viewHistory: 'View Price Chart',
   },
   priceHistory: {
     title: 'ANTAM Price History',
-    description: 'SPOT · 1 gram · IDR',
+    description: '1 gram · IDR',
     breadcrumbs: {
       history: 'History',
     },
-    referenceNote: 'Reference price only. Not personalized. Start date: {date}',
+    referenceNote: 'Market reference price only. Not personalized. Data starts from {date}',
   },
   holdings: {
     title: 'My Gold',

@@ -189,15 +189,15 @@ export default {
       sell: 'Harga Jual',
       buyback: 'Harga Buyback',
     },
-    viewHistory: 'Lihat Riwayat Harga',
+    viewHistory: 'Lihat Grafik Harga',
   },
   priceHistory: {
     title: 'Riwayat Harga ANTAM',
-    description: 'SPOT · 1 gram · IDR',
+    description: '1 gram · IDR',
     breadcrumbs: {
       history: 'Riwayat',
     },
-    referenceNote: 'Harga referensi saja. Tidak dipersonalisasi. Mulai tanggal: {date}',
+    referenceNote: 'Harga hanya sebagai referensi pasar. Tidak dipersonalisasi. Data dimulai sejak {date}',
   },
   holdings: {
     title: 'Emas Saya',

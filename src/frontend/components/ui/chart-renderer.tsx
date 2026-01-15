@@ -38,6 +38,8 @@ export interface ChartRendererProps {
   config?: ChartConfig
   /** Optional custom tooltip formatter */
   tooltipFormatter?: (value: unknown) => string
+  /** Optional custom tooltip label formatter (X-axis) */
+  labelFormatter?: (label: unknown) => string
   /** Optional custom X-axis formatter */
   xAxisFormatter?: (value: unknown) => string
   /** Optional custom Y-axis formatter */
@@ -52,6 +54,30 @@ const DEFAULT_CONFIG: ChartConfig = {
   height: 300,
 }
 
+interface CustomTooltipProps {
+  active?: boolean
+  payload?: Array<{ value: number | string, name: string, color: string, dataKey: string }>
+  label?: string | number
+  labelFormatter?: (label: unknown) => string
+  formatter?: (value: unknown) => string
+}
+
+function CustomTooltip({ active, payload, label, labelFormatter, formatter }: CustomTooltipProps) {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-popover border border-border px-3 py-2 rounded-lg shadow-sm">
+        <p className="text-muted-foreground text-xs mb-1">
+          {labelFormatter ? labelFormatter(label) : String(label)}
+        </p>
+        <p className="font-medium text-foreground">
+          {formatter ? formatter(payload[0].value) : String(payload[0].value)}
+        </p>
+      </div>
+    )
+  }
+  return null
+}
+
 /**
  * ChartRenderer Component
  * 
@@ -64,6 +90,7 @@ export function ChartRenderer({
   yKey,
   config = {},
   tooltipFormatter,
+  labelFormatter,
   xAxisFormatter,
   yAxisFormatter,
 }: ChartRendererProps) {
@@ -95,12 +122,8 @@ export function ChartRenderer({
 
         {finalConfig.showTooltip && (
           <Tooltip
-            contentStyle={{
-              backgroundColor: 'hsl(var(--card))',
-              border: '1px solid hsl(var(--border))',
-              borderRadius: '6px',
-            }}
-            formatter={tooltipFormatter}
+            content={<CustomTooltip labelFormatter={labelFormatter} formatter={tooltipFormatter} />}
+            cursor={{ stroke: 'hsl(var(--muted-foreground))', strokeWidth: 1, strokeDasharray: '4 4' }}
           />
         )}
 

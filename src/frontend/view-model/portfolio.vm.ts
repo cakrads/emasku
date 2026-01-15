@@ -186,11 +186,31 @@ export type PortfolioHistoryVM = PortfolioHistoryPointVM[]
 
 /**
  * Transform portfolio history to view model
+ * Aggregates cumulative buy value for the last 7 days.
  */
 export function transformPortfolioHistory(api: PortfolioHistory): PortfolioHistoryVM {
   const items = api.timeline || []
-  return items.map(element => ({
-    date: element.date,
-    value: element.buyValue
-  }))
+
+  // 1. Generate last 7 days range (T-6 to T)
+  const dates: string[] = []
+  const today = new Date()
+  for (let i = 6; i >= 0; i--) {
+    const d = new Date(today)
+    d.setDate(today.getDate() - i)
+    dates.push(d.toISOString().split('T')[0])
+  }
+
+  // 2. For each day, calculate cumulative value
+  return dates.map(date => {
+    // Find all items bought on or before this date
+    // Note: Assuming element.date is YYYY-MM-DD
+    const cumulativeValue = items
+      .filter(item => item.date <= date && item.brandCode !== 'OTHER')
+      .reduce((sum, item) => sum + item.buyValue, 0)
+
+    return {
+      date: date,
+      value: cumulativeValue
+    }
+  })
 }

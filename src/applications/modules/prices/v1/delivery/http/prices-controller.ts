@@ -45,8 +45,8 @@ export class PricesController {
 
     const schema = z.object({
       brand: z.string().min(1, 'brand is required'),
-      from: z.string().datetime('from must be valid ISO date'),
-      to: z.string().datetime('to must be valid ISO date'),
+      from: z.string().refine(v => !isNaN(Date.parse(v)), 'from must be a valid date'),
+      to: z.string().refine(v => !isNaN(Date.parse(v)), 'to must be a valid date'),
       denomination: z.coerce.number().positive().optional().default(1),
     })
 

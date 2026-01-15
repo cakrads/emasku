@@ -65,6 +65,14 @@ export function PriceHistoryChart({ data, height = 300, locale = 'en-US' }: Pric
       }}
       xAxisFormatter={(value) => formatDate(value, locale)}
       yAxisFormatter={(value) => formatIDR(value).replace('Rp', '').trim()}
+      labelFormatter={(value) => {
+        const date = new Date(String(value))
+        return new Intl.DateTimeFormat(locale, {
+          day: 'numeric',
+          month: 'short',
+          year: 'numeric'
+        }).format(date)
+      }}
       tooltipFormatter={(value) => formatIDR(value)}
     />
   )

@@ -23,7 +23,7 @@ function PricesHistoryContent() {
   // Calculate date range (last 30 days)
   const endDate = new Date()
   const startDate = new Date()
-  startDate.setDate(startDate.getDate() - 30)
+  startDate.setFullYear(startDate.getFullYear() - 5)
 
   const to = endDate.toISOString().split('T')[0]
   const from = startDate.toISOString().split('T')[0]
