@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Stack, Section } from '@/frontend/components/ui/layout'
+import { Typography } from '@/frontend/components/ui/typography'
 import { fetchPortfolioList } from '@/frontend/services/portfolio/portfolio.api'
 import { transformHoldingItem } from '@/frontend/view-model/portfolio.vm'
 import FilterBar from './components/filter-bar'
@@ -52,10 +53,16 @@ function HoldingsListContent() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [statusFilter, setStatusFilter] = useState<'active' | 'sold' | 'all'>('active')
 
-  // Fetch holdings
-  const { data, isLoading, error } = useQuery({
+  // Fetch holdings (filtered by status)
+  const { data: filteredData, isLoading: isLoadingFiltered, error } = useQuery({
     queryKey: ['portfolio', 'list', statusFilter],
     queryFn: () => fetchPortfolioList({ status: statusFilter }),
+  })
+
+  // Fetch all holdings to check for total data presence
+  const { data: allData, isLoading: isLoadingAll } = useQuery({
+    queryKey: ['portfolio', 'list', 'all'],
+    queryFn: () => fetchPortfolioList({ status: 'all' }),
   })
 
   // Fetch all brands for the filter
@@ -65,23 +72,24 @@ function HoldingsListContent() {
   })
 
   // Handle loading and error
-  if (isLoading) return (
+  if (isLoadingFiltered || isLoadingAll) return (
     <HoldingsListSkeleton />
   )
 
-  if (error || !data) {
+  if (error || !filteredData || !allData) {
     throw error || new Error('Failed to load holdings')
   }
 
-  const allHoldings = data.items
+  const allHoldings = filteredData.items
+  const totalHoldingsCount = allData.items.length
 
-  // Filter holdings
-  let filteredHoldings = brandFilter
-    ? allHoldings.filter((h) => h.brand === brandFilter) // API returns brand code in 'brand'
+  // Filter holdings by brand
+  let brandFilteredHoldings = brandFilter
+    ? allHoldings.filter((h) => h.brand === brandFilter)
     : allHoldings
 
   // Sort holdings
-  filteredHoldings = [...filteredHoldings].sort((a, b) => {
+  brandFilteredHoldings = [...brandFilteredHoldings].sort((a, b) => {
     let output = 0
     if (sortBy === 'date') {
       output = new Date(a.buyDate).getTime() - new Date(b.buyDate).getTime()
@@ -92,13 +100,10 @@ function HoldingsListContent() {
   })
 
   // Transform to View Models
-  const viewModels = filteredHoldings.map(item => transformHoldingItem(item, language === 'id' ? 'id-ID' : 'en-US'))
+  const viewModels = brandFilteredHoldings.map(item => transformHoldingItem(item, language === 'id' ? 'id-ID' : 'en-US'))
 
-
-  // Empty state when no holdings at all
-  const hasNoHoldings = allHoldings.length === 0
-
-  if (hasNoHoldings) {
+  // Global empty state: User has absolutely no data
+  if (totalHoldingsCount === 0) {
     return <HoldingsListEmpty />
   }
 
@@ -118,9 +123,17 @@ function HoldingsListContent() {
         onStatusChange={setStatusFilter}
       />
 
-      {/* Holdings Table */}
+      {/* Holdings Table or Filtered Empty Message */}
       <Section>
-        <HoldingsTable holdings={viewModels} />
+        {viewModels.length > 0 ? (
+          <HoldingsTable holdings={viewModels} />
+        ) : (
+          <div className="py-20 text-center border border-dashed border-border rounded-xl bg-surface/50">
+            <Typography variant="body" className="text-muted-foreground uppercase tracking-widest text-xs font-semibold">
+              {t('holdings.noItemsFound')}
+            </Typography>
+          </div>
+        )}
       </Section>
 
       {/* Bottom spacing */}

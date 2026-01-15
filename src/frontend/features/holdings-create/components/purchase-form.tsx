@@ -9,7 +9,14 @@ import { CurrencyInput } from '@/frontend/components/ui/currency-input'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { cn } from '@/frontend/utils/cn'
 
+import { fetchTodayPrices } from '@/frontend/services/prices/prices.api'
+import { transformTodayPrices } from '@/frontend/view-model/prices.vm'
+import { Brand } from './brand-selector'
+
 interface PurchaseFormProps {
+  brand: Brand | null
+  weight: string
+  pricesData?: any
   purchaseDate: Date | undefined
   purchasePrice: string
   quantity: string
@@ -17,8 +24,16 @@ interface PurchaseFormProps {
   onChange: (updates: { purchaseDate?: Date; purchasePrice?: string; quantity?: string; notes?: string }) => void
 }
 
-export function PurchaseForm({ purchaseDate, purchasePrice, quantity, notes, onChange }: PurchaseFormProps) {
-  const { t } = useLanguage()
+export function PurchaseForm({ brand, weight, pricesData, purchaseDate, purchasePrice, quantity, notes, onChange }: PurchaseFormProps) {
+  const { t, language } = useLanguage()
+
+  const viewModel = pricesData ? transformTodayPrices(pricesData, language === 'id' ? 'id-ID' : 'en-US') : null
+  const brandPrices = viewModel?.brands.find(b => b.brandName.toUpperCase() === brand?.name.toUpperCase())
+  const weightNum = parseFloat(weight || '0')
+  const specificPrice = brandPrices?.prices.find(p => p.denominationGram === weightNum)
+  const currentSellPrice = specificPrice?.sellPrice || 0
+
+  const formatCurrency = (val: number) => new Intl.NumberFormat(language === 'id' ? 'id-ID' : 'en-US', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val)
 
   return (
     <Stack gap="lg" className="animate-in fade-in slide-in-from-right-4 duration-300">
@@ -41,9 +56,20 @@ export function PurchaseForm({ purchaseDate, purchasePrice, quantity, notes, onC
               className="p-4 rounded-xl bg-surface-elevated border-border text-foreground text-lg font-semibold h-14"
               placeholder="e.g. 1.300.000"
             />
-            <Typography variant="caption" className="text-text-secondary">
-              {t('addHolding.details.priceHelp')}
-            </Typography>
+            <div className="flex justify-between items-center">
+              <Typography variant="caption" className="text-text-secondary">
+                {t('addHolding.details.priceHelp')}
+              </Typography>
+              {currentSellPrice > 0 && (
+                <button
+                  type="button"
+                  onClick={() => onChange({ purchasePrice: currentSellPrice.toString() })}
+                  className="text-[10px] font-medium text-accent-gold hover:underline uppercase tracking-tight"
+                >
+                  {t('common.useToday')}: {formatCurrency(currentSellPrice)}
+                </button>
+              )}
+            </div>
           </Stack>
 
           {/* Purchase Date */}

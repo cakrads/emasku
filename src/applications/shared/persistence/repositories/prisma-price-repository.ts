@@ -54,7 +54,7 @@ export class PrismaPriceRepository {
         denominationGram,
         priceType
       },
-      orderBy: { priceAt: 'desc' }
+      orderBy: { recordedAt: 'desc' }
     })
 
     const duration = Date.now() - startTime
@@ -71,6 +71,33 @@ export class PrismaPriceRepository {
     return {
       price: Number(priceRecord.price),
       priceAt: priceRecord.priceAt
+    }
+  }
+
+  /**
+   * Get the penultimate price record for comparison.
+   */
+  async getPreviousPrice(
+    brandCode: string,
+    denominationGram: number,
+    priceType: PriceType
+  ): Promise<PriceResult | null> {
+    const records = await prisma.goldPrice.findMany({
+      where: {
+        brandCode,
+        denominationGram,
+        priceType
+      },
+      orderBy: { recordedAt: 'desc' }, // Use recordedAt to break ties if priceAt is same
+      take: 2
+    })
+
+    if (records.length < 2) return null
+
+    const prev = records[1]
+    return {
+      price: Number(prev.price),
+      priceAt: prev.priceAt
     }
   }
 }

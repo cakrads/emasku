@@ -11,8 +11,8 @@ import { PrismaPortfolioRepository } from '@/applications/shared/persistence/rep
 export class DeleteHoldingUsecase {
   constructor(private portfolioRepo: PrismaPortfolioRepository) { }
 
-  async execute(userId: string, holdingId: string): Promise<void> {
-    logger.info('Deleting holding', { userId, holdingId })
+  async execute(userId: string, holdingId: string, hard: boolean = false): Promise<void> {
+    logger.info('Deleting holding', { userId, holdingId, hard })
 
     // Verify holding exists and belongs to user
     const exists = await this.portfolioRepo.existsByUserIdAndId(userId, holdingId)
@@ -22,9 +22,14 @@ export class DeleteHoldingUsecase {
       })
     }
 
-    // Soft-delete holding (mark as sold)
-    await this.portfolioRepo.markAsSold(userId, holdingId)
-
-    logger.info('Holding marked as sold', { holdingId })
+    if (hard) {
+      // Hard-delete holding (permanently remove)
+      await this.portfolioRepo.delete(userId, holdingId)
+      logger.info('Holding permanently deleted', { holdingId })
+    } else {
+      // Soft-delete holding (mark as sold)
+      await this.portfolioRepo.markAsSold(userId, holdingId)
+      logger.info('Holding marked as sold', { holdingId })
+    }
   }
 }

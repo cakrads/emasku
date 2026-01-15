@@ -9,9 +9,12 @@ import { id, enUS } from 'date-fns/locale'
 
 import { ROUTES } from '@/frontend/config/routes'
 import { createHolding } from '@/frontend/services/portfolio/portfolio.api'
+import { fetchTodayPrices } from '@/frontend/services/prices/prices.api'
+import { transformTodayPrices } from '@/frontend/view-model/prices.vm'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
 import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
+import { useQuery } from '@tanstack/react-query'
 import { StepHeader } from '@/frontend/components/fragments/step-header'
 import { WizardFooter } from '@/frontend/components/fragments/wizard-footer'
 import { Stack, Section } from '@/frontend/components/ui/layout'
@@ -37,13 +40,17 @@ interface HoldingState {
   notes: string
 }
 
-const MOCK_OFFICIAL_PRICE = 1350000 // Keep matching existing logic for valuation
 
 function AddHoldingContent() {
   const router = useRouter()
   const { t, language } = useLanguage()
   const queryClient = useQueryClient()
   const [step, setStep] = useState<Step>(1)
+
+  const { data: pricesToday, isLoading: isLoadingPrices } = useQuery({
+    queryKey: ['prices', 'today'],
+    queryFn: fetchTodayPrices,
+  })
   const [state, setState] = useState<HoldingState>({
     brand: null,
     weight: '',
@@ -159,11 +166,16 @@ function AddHoldingContent() {
               brand={state.brand}
               selectedWeight={state.weight}
               onSelect={handleWeightSelect}
+              data={pricesToday}
+              isLoading={isLoadingPrices}
             />
           )}
 
           {step === 3 && (
             <PurchaseForm
+              brand={state.brand}
+              weight={state.weight}
+              pricesData={pricesToday}
               purchaseDate={state.purchaseDate}
               purchasePrice={state.purchasePrice}
               quantity={state.quantity}
@@ -172,7 +184,7 @@ function AddHoldingContent() {
             />
           )}
 
-          {step === 4 && <ReviewStep state={state} />}
+          {step === 4 && <ReviewStep state={state} pricesData={pricesToday} />}
         </Stack>
       </Section>
 
@@ -185,15 +197,23 @@ function AddHoldingContent() {
   )
 }
 
-function ReviewStep({ state }: { state: HoldingState }) {
+function ReviewStep({ state, pricesData }: { state: HoldingState, pricesData?: any }) {
   const { t, language } = useLanguage()
   const isOfficial = state.brand?.hasOfficialPrice
   const formatCurrency = (val: number) => new Intl.NumberFormat(language === 'id' ? 'id-ID' : 'en-US', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val)
 
-  const weight = parseFloat(state.weight || '0')
-  const pricePerGram = parseFloat(state.purchasePrice || '0')
-  const totalBuyPrice = weight * pricePerGram
-  const estimatedValue = isOfficial ? MOCK_OFFICIAL_PRICE * weight : 0
+  const viewModel = pricesData ? transformTodayPrices(pricesData, language === 'id' ? 'id-ID' : 'en-US') : null
+
+  const weightNum = parseFloat(state.weight || '0')
+  const brandPrices = viewModel?.brands.find(b => b.brandName.toUpperCase() === state.brand?.name.toUpperCase())
+  const specificPrice = brandPrices?.prices.find(p => p.denominationGram === weightNum)
+
+  // Use specific denomination buyback price if available, otherwise calculate using 1g price as reference
+  const estimatedValue = specificPrice?.buybackPrice
+    ? specificPrice.buybackPrice
+    : (brandPrices?.prices.find(p => p.denominationGram === 1)?.buybackPrice || 0) * weightNum
+
+  const purchasePricePerGram = parseFloat(state.purchasePrice || '0')
 
   return (
     <Stack gap="lg" className="animate-in fade-in slide-in-from-right-4 duration-300">
@@ -219,23 +239,14 @@ function ReviewStep({ state }: { state: HoldingState }) {
           </div>
 
           <div className="p-6 bg-surface-elevated">
-            <div className="grid grid-cols-2 gap-6 pb-4 mb-4 border-b border-border/50">
+            <div className="grid grid-cols-2 gap-6">
               <div>
                 <dt className="text-text-secondary uppercase tracking-wider font-medium text-xs mb-1 block">{t('addHolding.details.purchasePrice')}</dt>
                 <dd className="font-semibold tabular-nums text-lg text-foreground">
-                  {formatCurrency(pricePerGram)}
+                  {formatCurrency(purchasePricePerGram)}
                 </dd>
               </div>
               <div className="text-right">
-                <dt className="text-text-secondary uppercase tracking-wider font-medium text-xs mb-1 block">{t('addHolding.review.totalCost')}</dt>
-                <dd className="font-bold tabular-nums text-xl text-foreground">
-                  {formatCurrency(totalBuyPrice)}
-                </dd>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 gap-6">
-              <div>
                 <dt className="text-text-secondary uppercase tracking-wider font-medium text-xs mb-1 block">{t('addHolding.details.purchaseDate')}</dt>
                 <dd className="font-medium text-foreground">
                   {state.purchaseDate ? format(state.purchaseDate, 'PPP', { locale: language === 'id' ? id : enUS }) : '—'}

@@ -12,6 +12,7 @@ import {
 } from "@/frontend/components/ui/alert-dialog"
 
 import { useLanguage } from '@/frontend/hooks/use-language'
+import { buttonVariants } from '@/frontend/components/ui/button'
 
 interface LogoutDialogProps {
   open: boolean
@@ -33,7 +34,7 @@ export function LogoutDialog({ open, onOpenChange, onConfirm }: LogoutDialogProp
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{t('logout.cancel')}</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+          <AlertDialogAction onClick={onConfirm} className={buttonVariants({ variant: 'default', color: 'error' })}>
             {t('logout.confirm')}
           </AlertDialogAction>
         </AlertDialogFooter>

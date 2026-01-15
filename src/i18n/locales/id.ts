@@ -19,6 +19,7 @@ export default {
     saveChanges: 'Simpan Perubahan',
     saving: 'Menyimpan...',
     home: 'Beranda',
+    useToday: 'Hari Ini',
   },
   profile: {
     title: 'Profil',
@@ -177,6 +178,8 @@ export default {
       mixed: 'Sumber valuasi campuran (Resmi + Pasar)',
       none: 'Harga pasar tidak tersedia',
     },
+    valuationDisclaimer: 'Valuasi berdasarkan harga pasar terbaru yang tersedia',
+    noHoldingsDisclaimer: 'Belum ada emas di portofolio',
   },
   prices: {
     title: 'Harga Emas Hari Ini',
@@ -206,7 +209,7 @@ export default {
       sort: 'Urutkan:',
       options: {
         active: 'Aktif',
-        sold: 'Terjual',
+        sold: 'Dijual',
         all: 'Semua',
         allBrands: 'Semua Merek',
         date: 'Tanggal',
@@ -262,7 +265,7 @@ export default {
       weightHelp: '“Berat dimasukkan manual karena merek tidak tersedia”',
       marketWeightHelp: 'Pilih berat yang sesuai dengan emas Anda.',
       purchaseHistory: 'Riwayat Pembelian',
-      purchasePrice: 'Harga Beli (per gram)',
+      purchasePrice: 'Harga Beli / Estimasi',
       priceHelp: 'Harga yang Anda bayar untuk setiap 1 gram emas.',
       purchaseDate: 'Tanggal Beli / Estimasi',
       notes: 'Catatan',
@@ -310,7 +313,7 @@ export default {
       buyPricePerGram: 'Harga Beli (per gram)',
       totalBuyValue: 'Total Nilai Beli',
       status: 'Status',
-      sold: 'TERJUAL',
+      sold: 'DIJUAL',
       notes: 'Catatan',
     },
     valuation: {
@@ -322,22 +325,32 @@ export default {
       pnl: 'Untung/Rugi',
     },
     actions: {
-      markAsSold: 'Tandai Terjual',
       edit: 'Ubah',
+      markAsSold: 'Tandai Dijual',
+      deletePermanent: 'Hapus Data Permanen',
     },
     dialog: {
       markAsSold: {
-        title: 'Tandai emas sebagai terjual?',
-        description: 'Ini akan menandai emas ini sebagai TERJUAL. Item akan tetap ada di riwayat Anda tetapi akan dikeluarkan dari nilai portofolio aktif.',
+        title: 'Tandai emas sebagai dijual?',
+        description: 'Ini akan menandai emas ini sebagai DIJUAL. Item akan tetap ada di riwayat Anda tetapi akan dikeluarkan dari nilai portofolio aktif.',
         cancel: 'Batal',
-        confirm: 'Ya, tandai terjual',
+        confirm: 'Ya, tandai dijual',
         confirming: 'Memproses...',
+      },
+      hardDelete: {
+        title: 'Hapus Permanen?',
+        description: 'Data ini akan dihapus selamanya dari database Anda. Tindakan ini tidak dapat dibatalkan.',
+        cancel: 'Batal',
+        confirm: 'Ya, Hapus Selamanya',
+        confirming: 'Menghapus...',
       }
     },
     messages: {
-      soldSuccess: 'Emas berhasil dijual!',
-      soldDetail: 'Emas telah dihapus dari portofolio aktif Anda.',
-      deleteError: 'Gagal menghapus emas',
+      soldSuccess: 'Berhasil diperbarui',
+      soldDetail: 'Emas telah ditandai sebagai dijual.',
+      deleteSuccess: 'Data dihapus',
+      deleteDetail: 'Emas telah dihapus secara permanen.',
+      deleteError: 'Gagal menghapus data',
     }
   },
   editHolding: {
@@ -351,7 +364,7 @@ export default {
     },
     form: {
       weight: 'Berat (g)',
-      buyPrice: 'Harga Beli (Total IDR)',
+      buyPrice: 'Harga Beli / Estimasi',
       purchaseDate: 'Tanggal Beli',
       notes: 'Catatan',
       notesPlaceholder: 'Catatan tambahan...',

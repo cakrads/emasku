@@ -9,6 +9,7 @@ import Decimal from 'decimal.js'
 import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
 import { PrismaPriceRepository } from '@/applications/shared/persistence/repositories/prisma-price-repository'
 import { PortfolioSummaryDomain, BrandAllocationDomain, PortfolioHoldingDomain } from '../domain/portfolio.domain'
+import { PriceType } from '@prisma/client'
 import { logger } from '@/applications/shared/lib/logger'
 
 export class GetPortfolioSummaryUsecase {
@@ -36,24 +37,43 @@ export class GetPortfolioSummaryUsecase {
     // 3. Calculate aggregates using decimal.js for precision
     let totalBuyValue = new Decimal(0)
     let totalCurrentValue = new Decimal(0)
+    let totalPreviousValue = new Decimal(0) // Basis for Daily Change
     let totalWeightGram = new Decimal(0)
     let valuatedCount = 0
 
     const brandMap = new Map<string, BrandAllocationDomain>()
+    const prevPriceCache = new Map<string, number | null>()
 
     for (const { holding, valuation } of valuatedHoldings) {
       const buyValue = new Decimal(holding.buyPrice)
         .times(holding.quantity)
         .times(holding.denominationGram)
 
-      totalBuyValue = totalBuyValue.plus(buyValue)
-      totalWeightGram = totalWeightGram.plus(
-        new Decimal(holding.denominationGram).times(holding.quantity)
-      )
-
+      // CRITICAL: Only include in global aggregates if we have a valid valuation
       if (valuation.currentValue !== null) {
+        totalBuyValue = totalBuyValue.plus(buyValue)
         totalCurrentValue = totalCurrentValue.plus(valuation.currentValue)
+        totalWeightGram = totalWeightGram.plus(
+          new Decimal(holding.denominationGram).times(holding.quantity)
+        )
         valuatedCount++
+
+        // Calculate Today's Change basis
+        const cacheKey = `${holding.brandCode}-${holding.denominationGram}-${valuation.valuationSource}`
+        let prevPrice = prevPriceCache.get(cacheKey)
+
+        if (prevPrice === undefined) {
+          const type = valuation.valuationSource === 'SPOT' ? PriceType.SPOT : PriceType.BUYBACK
+          const prevResult = await this.priceRepo.getPreviousPrice(holding.brandCode, Number(holding.denominationGram), type)
+          prevPrice = prevResult?.price ?? null
+          prevPriceCache.set(cacheKey, prevPrice)
+        }
+
+        // If we have a previous price, use it. Otherwise, use buy price or current as 0-change fallback
+        const basisPrice = prevPrice ?? valuation.currentValue / (holding.quantity * Number(holding.denominationGram))
+        totalPreviousValue = totalPreviousValue.plus(
+          new Decimal(basisPrice).times(holding.quantity).times(holding.denominationGram)
+        )
       }
 
       // Aggregate by brand
@@ -65,6 +85,11 @@ export class GetPortfolioSummaryUsecase {
       ? totalPnL.dividedBy(totalBuyValue).times(100)
       : new Decimal(0)
 
+    const totalDailyPnL = totalCurrentValue.minus(totalPreviousValue)
+    const totalDailyPnLPercentage = totalPreviousValue.greaterThan(0)
+      ? totalDailyPnL.dividedBy(totalPreviousValue).times(100)
+      : new Decimal(0)
+
     const valuationCoverage = holdings.length > 0
       ? (valuatedCount / holdings.length) * 100
       : 0
@@ -74,6 +99,8 @@ export class GetPortfolioSummaryUsecase {
       totalCurrentValue: totalCurrentValue.toNumber(),
       totalPnL: totalPnL.toNumber(),
       pnlPercentage: pnlPercentage.toNumber(),
+      totalDailyPnL: totalDailyPnL.toNumber(),
+      totalDailyPnLPercentage: totalDailyPnLPercentage.toNumber(),
       totalWeightGram: totalWeightGram.toNumber(),
       holdingCount: holdings.length,
       lastUpdated: new Date(),
@@ -139,13 +166,22 @@ export class GetPortfolioSummaryUsecase {
   ) {
     const existing = brandMap.get(holding.brandCode)
     const grams = new Decimal(holding.denominationGram).times(holding.quantity).toNumber()
+    const hasValuation = valuation.currentValue !== null
 
     if (existing) {
       existing.totalGrams += grams
-      if (valuation.currentValue !== null) {
-        existing.currentValue += valuation.currentValue
+      if (hasValuation) {
+        existing.currentValue += valuation.currentValue!
+        existing.deltaValue += (valuation.currentValue! - buyValue.toNumber())
+
+        // Recalculate brand-level percentage if we have any valuated items in this brand
+        // Note: This is an approximation if the brand has mixed valuated/unvaluated items, 
+        // but since valSource is per-holding, usually a brand is either all valuated or all not.
+        const totalBuyOfValuated = new Decimal(existing.currentValue).minus(existing.deltaValue)
+        existing.deltaPercentage = totalBuyOfValuated.greaterThan(0)
+          ? new Decimal(existing.deltaValue).dividedBy(totalBuyOfValuated).times(100).toNumber()
+          : 0
       }
-      existing.deltaValue += (valuation.currentValue || 0) - buyValue.toNumber()
 
       // Update valuation source to MIXED if sources differ
       if (existing.valuationSource !== valuation.valuationSource) {
@@ -153,8 +189,8 @@ export class GetPortfolioSummaryUsecase {
       }
     } else {
       const currentValue = valuation.currentValue || 0
-      const deltaValue = currentValue - buyValue.toNumber()
-      const deltaPercentage = buyValue.greaterThan(0)
+      const deltaValue = hasValuation ? (currentValue - buyValue.toNumber()) : 0
+      const deltaPercentage = (hasValuation && buyValue.greaterThan(0))
         ? new Decimal(deltaValue).dividedBy(buyValue).times(100).toNumber()
         : 0
 
@@ -179,6 +215,8 @@ export class GetPortfolioSummaryUsecase {
       totalCurrentValue: 0,
       totalPnL: 0,
       pnlPercentage: 0,
+      totalDailyPnL: 0,
+      totalDailyPnLPercentage: 0,
       totalWeightGram: 0,
       holdingCount: 0,
       lastUpdated: new Date(),

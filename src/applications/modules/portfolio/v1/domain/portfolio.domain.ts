@@ -58,6 +58,8 @@ export interface PortfolioSummaryDomain {
   totalCurrentValue: number
   totalPnL: number
   pnlPercentage: number
+  totalDailyPnL: number          // NEW: Change vs previous scrap
+  totalDailyPnLPercentage: number // NEW: % move vs previous scrap
   totalWeightGram: number
   holdingCount: number
   lastUpdated: Date

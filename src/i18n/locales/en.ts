@@ -19,6 +19,7 @@ export default {
     saveChanges: 'Save Changes',
     saving: 'Saving...',
     home: 'Home',
+    useToday: 'Today',
   },
   profile: {
     title: 'Profile',
@@ -177,6 +178,8 @@ export default {
       mixed: 'Mixed valuation sources (Official + Market)',
       none: 'No market price available',
     },
+    valuationDisclaimer: 'Valuations based on latest available market prices',
+    noHoldingsDisclaimer: 'No holdings in portfolio',
   },
   prices: {
     title: 'Today\'s Prices',
@@ -262,7 +265,7 @@ export default {
       weightHelp: '“Manual weight input for custom brands”',
       marketWeightHelp: 'Choose the weight that matches your gold.',
       purchaseHistory: 'Purchase History',
-      purchasePrice: 'Purchase Price (per gram)',
+      purchasePrice: 'Purchase Price / Estimate',
       priceHelp: 'The price you paid for each 1 gram of gold.',
       purchaseDate: 'Purchase Date / Estimate',
       notes: 'Notes',
@@ -322,22 +325,32 @@ export default {
       pnl: 'Profit/Loss',
     },
     actions: {
+      edit: 'Edit Gold',
       markAsSold: 'Mark as Sold',
-      edit: 'Edit',
+      deletePermanent: 'Permanently Delete Data',
     },
     dialog: {
       markAsSold: {
-        title: 'Mark gold as sold?',
-        description: 'This will mark this item as SOLD. It will remain in your history but will be excluded from your active portfolio value.',
+        title: 'Mark as Sold?',
+        description: 'This holding will be moved to the "Sold" list and will no longer be counted in your active portfolio.',
         cancel: 'Cancel',
-        confirm: 'Yes, mark as sold',
-        confirming: 'Removing...',
+        confirm: 'Yes, Mark as Sold',
+        confirming: 'Processing...',
+      },
+      hardDelete: {
+        title: 'Permanently Delete?',
+        description: 'This data will be forever removed from your database. This action cannot be undone.',
+        cancel: 'Cancel',
+        confirm: 'Yes, Delete Forever',
+        confirming: 'Deleting...',
       }
     },
     messages: {
-      soldSuccess: 'Gold sold successfully!',
-      soldDetail: 'The item has been removed from your active portfolio.',
-      deleteError: 'Failed to delete item',
+      soldSuccess: 'Update success',
+      soldDetail: 'Gold has been marked as sold.',
+      deleteSuccess: 'Data deleted',
+      deleteDetail: 'Gold has been permanently removed.',
+      deleteError: 'Failed to delete data',
     }
   },
   editHolding: {
@@ -351,7 +364,7 @@ export default {
     },
     form: {
       weight: 'Weight (g)',
-      buyPrice: 'Buy Price (Total IDR)',
+      buyPrice: 'Purchase Price / Estimate',
       purchaseDate: 'Purchase Date',
       notes: 'Notes',
       notesPlaceholder: 'Optional notes...',

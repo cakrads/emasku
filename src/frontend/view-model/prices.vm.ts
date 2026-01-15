@@ -50,6 +50,10 @@ export interface PriceEntryVM {
   buybackPrice: number | null
   sellPriceFormatted: string
   buybackPriceFormatted: string
+  sellDelta: number | null
+  buybackDelta: number | null
+  sellDeltaPercentage: number | null
+  buybackDeltaPercentage: number | null
   weightLabel: string
 }
 
@@ -105,6 +109,10 @@ export function transformTodayPrices(apiData: PricesTodayResponse, locale: strin
           denominationGram: price.denominationGram,
           sellPrice: price.sellPrice,
           buybackPrice: price.buybackPrice,
+          sellDelta: price.sellDelta,
+          buybackDelta: price.buybackDelta,
+          sellDeltaPercentage: (price.sellDelta !== null && price.sellPrice !== null) ? (price.sellDelta / (price.sellPrice - price.sellDelta)) * 100 : null,
+          buybackDeltaPercentage: (price.buybackDelta !== null && price.buybackPrice !== null) ? (price.buybackDelta / (price.buybackPrice - price.buybackDelta)) * 100 : null,
           sellPriceFormatted: formatIDR(price.sellPrice, locale),
           buybackPriceFormatted: formatIDR(price.buybackPrice, locale),
           weightLabel: `${price.denominationGram} g`,

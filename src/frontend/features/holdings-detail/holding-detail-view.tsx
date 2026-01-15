@@ -7,8 +7,9 @@ import { Card, CardContent } from '@/frontend/components/ui/card'
 import { Button } from '@/frontend/components/ui/button'
 import { Stack, Section } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
-import { TrendingUp, TrendingDown, Pencil, Info } from 'lucide-react'
+import { TrendingUp, TrendingDown, Pencil, Info, Trash2, CheckCircle } from 'lucide-react'
 import { cn } from '@/frontend/utils/cn'
+import { buttonVariants } from '@/frontend/components/ui/button'
 import { ROUTES } from '@/frontend/config/routes'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
 import Link from 'next/link'
@@ -40,18 +41,39 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
   const { t, language } = useLanguage()
   const queryClient = useQueryClient()
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [showHardDeleteDialog, setShowHardDeleteDialog] = useState(false)
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['portfolio', 'holding', holdingId],
     queryFn: () => fetchHoldingDetail(holdingId),
   })
 
-  // Delete mutation
+  // Delete mutation (Soft Delete / Mark as Sold)
   const deleteMutation = useMutation({
     mutationFn: () => deleteHolding(holdingId),
     onSuccess: () => {
       toast.success(t('holdingDetail.messages.soldSuccess'), {
         description: t('holdingDetail.messages.soldDetail')
+      })
+      queryClient.invalidateQueries({ queryKey: ['portfolio'] })
+      queryClient.invalidateQueries({ queryKey: ['holdings'] })
+      queryClient.invalidateQueries({ queryKey: ['portfolio', 'holding', holdingId] })
+    },
+    onError: (error: unknown) => {
+      const apiError = error as { message?: string }
+      toast.error(t('common.errorTitle'), {
+        description: apiError?.message || t('holdingDetail.messages.deleteError'),
+        duration: 4000,
+      })
+    }
+  })
+
+  // Hard Delete mutation (Permanent)
+  const hardDeleteMutation = useMutation({
+    mutationFn: () => deleteHolding(holdingId, { hard: true }),
+    onSuccess: () => {
+      toast.success(t('holdingDetail.messages.deleteSuccess'), {
+        description: t('holdingDetail.messages.deleteDetail')
       })
       queryClient.invalidateQueries({ queryKey: ['portfolio'] })
       queryClient.invalidateQueries({ queryKey: ['holdings'] })
@@ -69,6 +91,11 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
   const handleSold = () => {
     deleteMutation.mutate()
     setShowDeleteDialog(false)
+  }
+
+  const handleHardDelete = () => {
+    hardDeleteMutation.mutate()
+    setShowHardDeleteDialog(false)
   }
 
   if (isLoading) {
@@ -153,10 +180,6 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
                     Check HoldingItemVM. Yes it doesn't explicitly have 'totalBuyValue' formatted?
                     Wait, HoldingItem contract has totalBuyValue (number).
                     My HoldingItemVM currently: avgBuyPrice, currentPrice, totalValue (current).
-                    Let's check ViewModel again.
-                    Ah, HoldingItemVM MISSING totalBuyValue formatted string!
-                    I'll double check the ViewModel file content from Step 338.
-                    VM has: avgBuyPrice, currentPrice, totalValue (which is currentValue).
                     It DOES NOT have totalBuyValue.
                     I need to add totalBuyValue to ViewModel! 
                 */}
@@ -231,36 +254,40 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
         </Card>
       </Section>
 
-      {/* Sold Button - Only show if ACTIVE */}
-      {!holding.isSold && (
-        <Section className="px-0 mt-6">
+      {/* Action Section */}
+      <Section className="px-0 mt-8">
+        <Stack gap="md">
+          {/* Sold Button - Only show if ACTIVE */}
+          {!holding.isSold && (
+            <Button
+              variant="outline"
+              color="warning"
+              size="xl"
+              rounded="xl"
+              fullWidth
+              onClick={() => setShowDeleteDialog(true)}
+            >
+              <CheckCircle className="w-5 h-5 mr-2" />
+              {t('holdingDetail.actions.markAsSold')}
+            </Button>
+          )}
+
+          {/* Hard Delete Button (Dev/Management) */}
           <Button
-            variant="outline"
-            color="warning"
+            variant="ghost"
+            className="text-destructive hover:text-destructive hover:bg-destructive/10"
             size="xl"
             rounded="xl"
             fullWidth
-            onClick={() => setShowDeleteDialog(true)}
+            onClick={() => setShowHardDeleteDialog(true)}
           >
-            <svg
-              className="w-5 h-5 mr-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            {t('holdingDetail.actions.markAsSold')}
+            <Trash2 className="w-5 h-5 mr-2" />
+            {t('holdingDetail.actions.deletePermanent')}
           </Button>
-        </Section>
-      )}
+        </Stack>
+      </Section>
 
-      {/* Confirmation Dialog */}
+      {/* Mark as Sold Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -271,8 +298,26 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t('holdingDetail.dialog.markAsSold.cancel')}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleSold} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+            <AlertDialogAction onClick={handleSold} className={buttonVariants({ variant: 'default', color: 'error' })}>
               {deleteMutation.isPending ? t('holdingDetail.dialog.markAsSold.confirming') : t('holdingDetail.dialog.markAsSold.confirm')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Hard Delete Dialog */}
+      <AlertDialog open={showHardDeleteDialog} onOpenChange={setShowHardDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-destructive">{t('holdingDetail.dialog.hardDelete.title')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('holdingDetail.dialog.hardDelete.description')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('holdingDetail.dialog.hardDelete.cancel')}</AlertDialogCancel>
+            <AlertDialogAction onClick={handleHardDelete} className={buttonVariants({ variant: 'default', color: 'error' })}>
+              {hardDeleteMutation.isPending ? t('holdingDetail.dialog.hardDelete.confirming') : t('holdingDetail.dialog.hardDelete.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

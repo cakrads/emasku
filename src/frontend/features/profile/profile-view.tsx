@@ -7,7 +7,7 @@ import { LogOut, Calendar, Mail, Sun, Moon, Shield, Download, Trash2, Info, Glob
 import { useTheme } from "next-themes"
 import { useAuth } from '@/frontend/hooks/use-auth'
 import { useLanguage } from '@/frontend/hooks/use-language'
-import { Button } from '@/frontend/components/ui/button'
+import { Button, buttonVariants } from '@/frontend/components/ui/button'
 import { Switch } from "@/frontend/components/ui/switch"
 import { Avatar, AvatarFallback, AvatarImage } from '@/frontend/components/ui/avatar'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/frontend/components/ui/card'
@@ -251,7 +251,7 @@ export function ProfileView() {
             <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteAccount}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              className={buttonVariants({ variant: 'default', color: 'error' })}
             >
               {t('profile.deleteConfirm')}
             </AlertDialogAction>

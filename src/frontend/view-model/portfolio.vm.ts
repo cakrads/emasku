@@ -14,12 +14,16 @@ export interface PortfolioSummaryVM {
   totalCurrentValue: string // Formatted IDR
   totalPnL: string // Formatted IDR
   pnlPercentage: string // Formatted percentage
+  todayPnL: string // Formatted IDR
+  todayPnLPercentage: string // Formatted percentage
   totalWeightGram: string // Formatted weight
   pnlColor: 'positive' | 'negative' | 'neutral'
+  todayPnLColor: 'positive' | 'negative' | 'neutral'
   pnlSign: '+' | '-' | ''
   brandAllocation: BrandData[]
   disclaimer?: string
   excludedCount: number
+  lastUpdated?: Date
 }
 
 export interface BrandData {
@@ -98,14 +102,24 @@ function getPnLColor(value: number): 'positive' | 'negative' | 'neutral' {
 /**
  * Transform portfolio summary to view model
  */
-export function transformPortfolioSummary(api: PortfolioSummary, locale: string = 'id-ID'): PortfolioSummaryVM {
+export function transformPortfolioSummary(api: PortfolioSummary, t: (key: string) => string, locale: string = 'id-ID'): PortfolioSummaryVM {
+  // Determine disclaimer based on API content or fallback to localized wording
+  const disclaimerRes = api.disclaimer === 'Valuations based on latest available market prices'
+    ? t('dashboard.valuationDisclaimer')
+    : api.disclaimer === 'No holdings in portfolio'
+      ? t('dashboard.noHoldingsDisclaimer')
+      : api.disclaimer
+
   return {
     totalBuyValue: formatIDR(api.totalBuyValue, locale),
     totalCurrentValue: formatIDR(api.totalCurrentValue, locale),
     totalPnL: formatIDR(Math.abs(api.totalPnL), locale),
     pnlPercentage: formatPercentage(api.pnlPercentage),
+    todayPnL: formatIDR(Math.abs(api.totalDailyPnL), locale),
+    todayPnLPercentage: formatPercentage(api.totalDailyPnLPercentage),
     totalWeightGram: `${api.totalWeightGram.toFixed(2)} g`,
     pnlColor: getPnLColor(api.totalPnL),
+    todayPnLColor: getPnLColor(api.totalDailyPnL),
     pnlSign: api.totalPnL > 0 ? '+' : api.totalPnL < 0 ? '-' : '',
     brandAllocation: api.brandAllocation.map((b: BrandAllocation) => ({
       brandCode: b.brandCode,
@@ -116,8 +130,9 @@ export function transformPortfolioSummary(api: PortfolioSummary, locale: string 
       deltaPercentage: b.deltaPercentage,
       valuationSource: b.valuationSource
     })),
-    disclaimer: api.disclaimer,
+    disclaimer: disclaimerRes,
     excludedCount: api.excludedCount,
+    lastUpdated: api.lastUpdated ? new Date(api.lastUpdated) : undefined,
   }
 }
 

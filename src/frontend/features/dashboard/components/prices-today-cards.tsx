@@ -29,8 +29,8 @@ function PricesTodayContent() {
     throw error || new Error('Failed to load market data')
   }
 
-  // Take top 3 brands for cards
-  const previewBrands = viewModel.brands.slice(0, 3)
+  // Take top 6 brands for a better overview
+  const previewBrands = viewModel.brands.slice(0, 6)
 
   return (
     <div className="flex flex-col h-full">
@@ -46,8 +46,8 @@ function PricesTodayContent() {
         </Link>
       </div>
 
-      <div className="overflow-y-auto flex-1 min-h-0">
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-1 gap-3 pb-1">
+      <div className="overflow-y-auto flex-1 min-h-0 pr-1 custom-scrollbar">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-1 gap-3 pb-3">
           {previewBrands.map((brand) => {
             // Find 1g price (usually standard reference)
             const price1g = brand.prices.find(p => p.denominationGram === 1)
@@ -72,19 +72,24 @@ function PricesTodayContent() {
                   </Typography>
                 </div>
 
-                <div className="relative z-10 flex items-center gap-1">
-                  <span className="text-[10px] text-muted-foreground">—</span>
-                </div>
+                {price1g?.sellDelta !== null && price1g?.sellDelta !== undefined && (
+                  <div className="relative z-10 flex items-center gap-1">
+                    <span className={price1g.sellDelta > 0 ? "text-[10px] text-(--positive) font-semibold" : price1g.sellDelta < 0 ? "text-[10px] text-(--negative) font-semibold" : "text-[10px] text-muted-foreground/60 font-semibold"}>
+                      {price1g.sellDelta > 0 ? '↑' : price1g.sellDelta < 0 ? '↓' : '→'} Rp {Math.abs(price1g.sellDelta).toLocaleString(language === 'id' ? 'id-ID' : 'en-US')}
+                      {price1g.sellDeltaPercentage !== null && ` (${price1g.sellDeltaPercentage > 0 ? '+' : ''}${price1g.sellDeltaPercentage.toFixed(2)}%)`}
+                    </span>
+                  </div>
+                )}
               </div>
             )
           })}
 
-          {/* View All Link Card - Mobile/Tablet Only */}
+          {/* View All Link Card - Now visible on all screens as requested */}
           <Link
             href={ROUTES.PRICES}
-            className="group flex flex-col items-center justify-center p-3 rounded-xl border border-dashed border-border hover:border-accent-gold hover:bg-accent-gold/5 transition-all h-[100px] gap-2 lg:hidden"
+            className="group flex flex-col items-center justify-center p-3 rounded-xl border border-dashed border-border hover:border-accent-gold hover:bg-accent-gold/5 transition-all h-[100px] lg:h-[80px] gap-2 lg:flex-row lg:justify-start lg:px-6"
           >
-            <div className="w-8 h-8 rounded-full bg-accent-gold/10 flex items-center justify-center group-hover:bg-accent-gold group-hover:text-white transition-colors">
+            <div className="w-8 h-8 rounded-full bg-accent-gold/10 flex items-center justify-center group-hover:bg-accent-gold group-hover:text-white transition-colors shrink-0">
               <ArrowRight className="w-4 h-4" />
             </div>
             <Typography variant="caption" className="font-medium text-muted-foreground group-hover:text-accent-gold">

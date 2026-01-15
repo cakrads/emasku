@@ -20,6 +20,8 @@ export const PriceEntrySchema = z.object({
   denominationGram: z.number().positive(),
   sellPrice: z.number().int().nonnegative().nullable(),
   buybackPrice: z.number().int().nonnegative().nullable(),
+  sellDelta: z.number().int().nullable().default(null),
+  buybackDelta: z.number().int().nullable().default(null),
 })
 
 export type PriceEntry = z.infer<typeof PriceEntrySchema>
@@ -39,7 +41,7 @@ export type BrandPriceGroup = z.infer<typeof BrandPriceGroupSchema>
  * Matches GET /api/v1/prices/today
  */
 export const PricesTodayResponseSchema = z.object({
-  date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be in YYYY-MM-DD format'),
+  date: z.string(), // ISO datetime preferred for high-precision "Updated at"
   currency: z.literal('IDR'),
   brands: z.array(BrandPriceGroupSchema).min(1),
 })

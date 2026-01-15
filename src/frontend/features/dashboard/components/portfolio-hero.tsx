@@ -13,6 +13,7 @@ interface PortfolioHeroProps {
   disclaimer?: string
   excludedCount?: number
   pnlColor?: 'positive' | 'negative' | 'neutral'
+  todayColor?: 'positive' | 'negative' | 'neutral'
 }
 
 export default function PortfolioHero({
@@ -23,13 +24,14 @@ export default function PortfolioHero({
   disclaimer,
   excludedCount,
   pnlColor = 'neutral',
+  todayColor = 'neutral',
 }: PortfolioHeroProps) {
   const { t } = useLanguage()
   const isGainPositive = pnlColor === 'positive'
   const isGainNeutral = pnlColor === 'neutral'
 
-  // Simplified logic for today change color (could be passed as prop too)
-  const isTodayPositive = todayChange.startsWith('+') || (!todayChange.startsWith('-') && todayChange !== '0' && todayChange !== '—')
+  const isTodayPositive = todayColor === 'positive'
+  const isTodayNeutral = todayColor === 'neutral'
 
   return (
     <Stack gap="md">
@@ -57,17 +59,20 @@ export default function PortfolioHero({
               <Typography variant="caption" className="text-(--text-muted)">{t('dashboard.allTime')}</Typography>
             </Stack>
 
-            <Divider direction="vertical" className="h-4" />
-
-            <Stack direction="horizontal" gap="sm" className="items-center">
-              <Typography
-                variant="body-sm"
-                className={isTodayPositive ? 'text-(--positive) font-medium' : 'text-(--negative) font-medium'}
-              >
-                {todayChangePercentage}
-              </Typography>
-              <Typography variant="caption" className="text-(--text-muted)">{t('dashboard.today')}</Typography>
-            </Stack>
+            {todayChangePercentage !== '—' && (
+              <>
+                <Divider direction="vertical" className="h-4" />
+                <Stack direction="horizontal" gap="sm" className="items-center">
+                  <Typography
+                    variant="body-sm"
+                    className={isTodayPositive ? 'text-(--positive) font-medium' : isTodayNeutral ? 'font-medium' : 'text-(--negative) font-medium'}
+                  >
+                    {todayChangePercentage}
+                  </Typography>
+                  <Typography variant="caption" className="text-(--text-muted)">{t('dashboard.today')}</Typography>
+                </Stack>
+              </>
+            )}
           </Stack>
         )}
 

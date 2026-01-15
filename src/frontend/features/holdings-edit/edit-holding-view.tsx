@@ -12,11 +12,14 @@ import { DatePicker } from '@/frontend/components/ui/date-picker'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { fetchHoldingDetail, updateHolding } from '@/frontend/services/portfolio/portfolio.api'
+import { fetchTodayPrices } from '@/frontend/services/prices/prices.api'
 import { UpdateHoldingRequest } from '@/shared/contracts/update-holding.contract'
 import { toast } from 'sonner'
 import { Skeleton } from '@/frontend/components/ui/skeleton'
 import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
 import { useLanguage } from '@/frontend/hooks/use-language'
+import { WeightSelector } from '../holdings-create/components/weight-selector'
+import { CurrencyInput } from '@/frontend/components/ui/currency-input'
 
 interface EditHoldingViewProps {
   holdingId: string
@@ -28,9 +31,15 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
   const queryClient = useQueryClient()
 
   // Fetch holding data
-  const { data: holding, isLoading, error } = useQuery({
+  const { data: holding, isLoading: isLoadingHolding, error } = useQuery({
     queryKey: ['holding', holdingId],
     queryFn: () => fetchHoldingDetail(holdingId),
+  })
+
+  // Fetch prices for weight selector
+  const { data: pricesToday, isLoading: isLoadingPrices } = useQuery({
+    queryKey: ['prices', 'today'],
+    queryFn: fetchTodayPrices,
   })
 
   // Form State
@@ -50,6 +59,7 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
     }
   }, [holding])
 
+
   // Update mutation
   const updateMutation = useMutation({
     mutationFn: (data: UpdateHoldingRequest) => updateHolding(holdingId, data),
@@ -60,7 +70,7 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
       queryClient.invalidateQueries({ queryKey: ['holding', holdingId] })
       queryClient.invalidateQueries({ queryKey: ['portfolio'] })
       queryClient.invalidateQueries({ queryKey: ['holdings'] })
-      router.push(ROUTES.HOLDINGS_LIST)
+      router.push(ROUTES.HOLDING_DETAIL(holdingId))
     },
     onError: (error: unknown) => {
       console.error('Update holding error:', error)
@@ -114,12 +124,24 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
     })
   }
 
+  const isLoading = isLoadingHolding || isLoadingPrices
+
   if (isLoading) {
     return (
       <div className="max-w-lg mx-auto pb-44">
         <Section className="px-0">
           <Stack gap="xl">
-            {[1, 2, 3, 4].map(i => (
+            <Stack gap="sm">
+              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-14 w-full rounded-xl" />
+            </Stack>
+            <Stack gap="sm">
+              <Skeleton className="h-4 w-24" />
+              <div className="grid grid-cols-2 gap-3">
+                {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}
+              </div>
+            </Stack>
+            {[1, 2].map(i => (
               <Stack key={i} gap="sm">
                 <Skeleton className="h-4 w-24" />
                 <Skeleton className="h-14 w-full rounded-xl" />
@@ -146,25 +168,26 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
             <Typography variant="caption" className="text-muted-foreground">{t('editHolding.brand.locked')}</Typography>
           </Stack>
 
-          <Stack gap="sm">
-            <Label className="text-text-secondary font-medium uppercase tracking-wider">{t('editHolding.form.weight')}</Label>
-            <Input
-              type="number"
-              value={weight}
-              onChange={(e) => setWeight(e.target.value)}
-              className="p-4 rounded-xl bg-surface-elevated border-border text-foreground text-lg font-semibold h-14"
-              inputMode="decimal"
-            />
-          </Stack>
+          <WeightSelector
+            brand={{
+              id: holding.brand,
+              name: holding.brandName,
+              hasOfficialPrice: true, // We assume true for selector context if it exists in DB
+              isCustom: holding.brand === 'OTHER'
+            }}
+            selectedWeight={weight}
+            onSelect={(w) => setWeight(w)}
+            data={pricesToday}
+            isLoading={isLoadingPrices}
+          />
 
           <Stack gap="sm">
             <Label className="text-text-secondary font-medium uppercase tracking-wider">{t('editHolding.form.buyPrice')}</Label>
-            <Input
-              type="number"
+            <CurrencyInput
               value={buyPrice}
-              onChange={(e) => setBuyPrice(e.target.value)}
+              onChange={setBuyPrice}
               className="p-4 rounded-xl bg-surface-elevated border-border text-foreground text-lg font-semibold h-14"
-              inputMode="decimal"
+              placeholder="e.g. 1.300.000"
             />
           </Stack>
 
@@ -189,12 +212,13 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
         </Stack>
       </Section>
 
+
       <DetailActions
         actions={[
           {
             label: t('editHolding.actions.cancel'),
             variant: 'outline',
-            onClick: () => router.push(ROUTES.HOLDINGS_LIST),
+            onClick: () => router.push(ROUTES.HOLDING_DETAIL(holdingId)),
             disabled: updateMutation.isPending
           },
           {
@@ -205,6 +229,7 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
           },
         ]}
       />
+
     </div>
   )
 }

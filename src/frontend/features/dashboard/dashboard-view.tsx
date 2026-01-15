@@ -22,7 +22,7 @@ import { useLanguage } from '@/frontend/hooks/use-language'
 // DUMMY_CHART_DATA removed
 
 function DashboardContent() {
-  const { language } = useLanguage()
+  const { t, language } = useLanguage()
   const { data, isLoading } = useQuery({
     queryKey: ['portfolio', 'summary'],
     queryFn: fetchPortfolioSummary,
@@ -46,9 +46,9 @@ function DashboardContent() {
     queryFn: fetchPortfolioHistory,
   })
 
-  const viewModel = data ? transformPortfolioSummary(data, language === 'id' ? 'id-ID' : 'en-US') : null
+  const viewModel = data ? transformPortfolioSummary(data, t, language === 'id' ? 'id-ID' : 'en-US') : null
   const historyViewModel = historyData ? transformPortfolioHistory(historyData) : []
-  const lastUpdated = data ? new Date() : undefined // Ideally from API
+  const lastUpdated = viewModel?.lastUpdated
 
   // Empty state detection
   const hasHoldings = viewModel && viewModel.brandAllocation.length > 0
@@ -71,9 +71,10 @@ function DashboardContent() {
                   <PortfolioHero
                     totalValue={viewModel.totalCurrentValue}
                     gainLossPercentage={viewModel.pnlPercentage}
-                    todayChange={viewModel.totalPnL}
-                    todayChangePercentage={viewModel.pnlPercentage}
+                    todayChange={viewModel.todayPnL}
+                    todayChangePercentage={viewModel.todayPnLPercentage}
                     pnlColor={viewModel.pnlColor}
+                    todayColor={viewModel.todayPnLColor}
                     disclaimer={viewModel.disclaimer}
                     excludedCount={viewModel.excludedCount}
                   />

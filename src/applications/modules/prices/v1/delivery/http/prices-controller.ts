@@ -29,6 +29,8 @@ interface PriceEntry {
   denominationGram: number
   sellPrice: number | null
   buybackPrice: number | null
+  sellDelta: number | null
+  buybackDelta: number | null
 }
 
 export class PricesController {
@@ -155,11 +157,13 @@ export class PricesController {
           denominationGram: price.denominationGram,
           sellPrice: price.sellPrice,
           buybackPrice: price.buybackPrice,
+          sellDelta: price.sellDelta,
+          buybackDelta: price.buybackDelta,
         })
       }
 
       const dto = {
-        date: new Date().toISOString().split('T')[0],
+        date: new Date().toISOString(),
         currency: 'IDR',
         brands: Array.from(brandGroups.entries()).map(([brand, prices]) => ({
           brand,

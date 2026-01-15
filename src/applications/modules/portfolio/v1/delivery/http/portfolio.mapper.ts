@@ -22,6 +22,8 @@ export class PortfolioMapper {
       totalCurrentValue: Math.round(domain.totalCurrentValue),
       totalPnL: Math.round(domain.totalPnL),
       pnlPercentage: Number(domain.pnlPercentage.toFixed(2)),
+      totalDailyPnL: Math.round(domain.totalDailyPnL),
+      totalDailyPnLPercentage: Number(domain.totalDailyPnLPercentage.toFixed(2)),
       totalWeightGram: Number(domain.totalWeightGram.toFixed(2)),
       brandAllocation: domain.brandAllocation.map(b => ({
         brandCode: b.brandCode,
@@ -34,6 +36,7 @@ export class PortfolioMapper {
       })),
       disclaimer: domain.disclaimer,
       excludedCount: domain.excludedCount,
+      lastUpdated: domain.lastUpdated.toISOString(),
     }
   }
 

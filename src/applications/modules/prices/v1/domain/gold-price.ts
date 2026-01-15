@@ -26,6 +26,8 @@ export interface TodayPriceGroup {
   denominationGram: number
   sellPrice: number | null
   buybackPrice: number | null
+  sellDelta: number | null     // NEW: Gain/loss vs previous record
+  buybackDelta: number | null  // NEW: Gain/loss vs previous record
 }
 
 export interface CreatePriceInput {

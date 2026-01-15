@@ -29,10 +29,13 @@ export const PortfolioSummarySchema = z.object({
   totalCurrentValue: z.number().int().nonnegative(),
   totalPnL: z.number().int(),
   pnlPercentage: z.number(),
+  totalDailyPnL: z.number().int(),
+  totalDailyPnLPercentage: z.number(),
   totalWeightGram: z.number().nonnegative(),
   brandAllocation: z.array(BrandAllocationSchema),
   disclaimer: z.string().optional(),
   excludedCount: z.number().int().default(0),
+  lastUpdated: z.string().optional(), // ISO datetime
 })
 
 export type PortfolioSummary = z.infer<typeof PortfolioSummarySchema>

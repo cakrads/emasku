@@ -84,10 +84,11 @@ export async function updateHolding(id: string, request: UpdateHoldingRequest): 
 }
 
 /**
- * Delete a holding (mark as sold)
+ * Delete a holding (mark as sold or permanent delete)
  */
-export async function deleteHolding(id: string): Promise<void> {
-  await fetchJson<unknown>(`/api/v1/portfolio/${id}`, {
+export async function deleteHolding(id: string, options?: { hard?: boolean }): Promise<void> {
+  const query = options?.hard ? '?hard=true' : ''
+  await fetchJson<unknown>(`/api/v1/portfolio/${id}${query}`, {
     method: 'DELETE',
   })
 }

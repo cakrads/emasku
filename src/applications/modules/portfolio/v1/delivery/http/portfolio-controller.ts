@@ -196,9 +196,12 @@ export class PortfolioController {
   async deleteHolding(req: NextRequest, id: string): Promise<NextResponse> {
     const userId = await verifyUser(req)
 
+    const { searchParams } = new URL(req.url)
+    const hard = searchParams.get('hard') === 'true'
+
     const portfolioRepo = new PrismaPortfolioRepository()
     const usecase = new DeleteHoldingUsecase(portfolioRepo)
-    await usecase.execute(userId, id)
+    await usecase.execute(userId, id, hard)
 
     return NextResponse.json(
       {

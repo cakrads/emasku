@@ -19,17 +19,15 @@ interface WeightSelectorProps {
   brand: Brand
   selectedWeight: string
   onSelect: (weight: string, autoAdvance?: boolean) => void
+  data?: any
+  isLoading?: boolean
 }
 
-export function WeightSelector({ brand, selectedWeight, onSelect }: WeightSelectorProps) {
+export function WeightSelector({ brand, selectedWeight, onSelect, data, isLoading }: WeightSelectorProps) {
   const { t, language } = useLanguage()
   const [showManual, setShowManual] = useState(brand.isCustom)
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['prices', 'today'],
-    queryFn: fetchTodayPrices,
-    enabled: !brand.isCustom
-  })
+  // Remove internal query - now passed from parent
 
   // Sync showManual when brand changes
   useEffect(() => {

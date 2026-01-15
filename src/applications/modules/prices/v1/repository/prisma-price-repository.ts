@@ -108,7 +108,7 @@ export class PrismaPriceRepository implements IPriceRepository {
         ...(denominationGram && { denominationGram }),
         priceType: { in: [PriceType.SELL, PriceType.BUYBACK] },
       },
-      orderBy: [{ brandCode: 'asc' }, { denominationGram: 'asc' }, { priceAt: 'desc' }],
+      orderBy: [{ brandCode: 'asc' }, { denominationGram: 'asc' }, { recordedAt: 'desc' }],
     })
 
     logQuery('getTodayPrices', Date.now() - startTime, {
@@ -116,18 +116,11 @@ export class PrismaPriceRepository implements IPriceRepository {
       count: prices.length
     })
 
-    // Group by brand + denomination and take only the latest price for each type
+    // Group by brand + denomination and track trends
     const grouped = new Map<string, TodayPriceGroup>()
-    const latestPriceKeys = new Set<string>()
 
     for (const price of prices) {
       const key = `${price.brandCode}_${price.denominationGram.toString()}`
-      const priceTypeKey = `${key}_${price.priceType}`
-
-      // Skip if we already have a price for this combination (since ordered by priceAt desc)
-      if (latestPriceKeys.has(priceTypeKey)) continue
-
-      latestPriceKeys.add(priceTypeKey)
 
       if (!grouped.has(key)) {
         grouped.set(key, {
@@ -135,16 +128,28 @@ export class PrismaPriceRepository implements IPriceRepository {
           denominationGram: price.denominationGram.toNumber(),
           sellPrice: null,
           buybackPrice: null,
+          sellDelta: null,
+          buybackDelta: null,
         })
       }
 
       const group = grouped.get(key)!
-      const priceNum = Number(price.price)
+      const priceVal = Number(price.price)
 
       if (price.priceType === PriceType.SELL) {
-        group.sellPrice = priceNum
+        if (group.sellPrice === null) {
+          group.sellPrice = priceVal
+        } else if (group.sellDelta === null && priceVal !== group.sellPrice) {
+          // Found the first DIFFERENT price in history - this is our trend baseline
+          group.sellDelta = group.sellPrice - priceVal
+        }
       } else if (price.priceType === PriceType.BUYBACK) {
-        group.buybackPrice = priceNum
+        if (group.buybackPrice === null) {
+          group.buybackPrice = priceVal
+        } else if (group.buybackDelta === null && priceVal !== group.buybackPrice) {
+          // Found the first DIFFERENT price in history - this is our trend baseline
+          group.buybackDelta = group.buybackPrice - priceVal
+        }
       }
     }
 

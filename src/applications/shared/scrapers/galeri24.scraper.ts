@@ -197,7 +197,9 @@ export class Galeri24Scraper {
         return fromZonedTime(dateStr, TIMEZONE)
       }
 
-      const itemDate = parseDate(validItem.date || validItem.updatedAt)
+      // Use the most precise timestamp from the source.
+      // updatedAt (ISO) > date (YYYY-MM-DD)
+      const itemDate = parseDate(validItem.updatedAt || validItem.date)
 
       // Only store if we don't have this combination yet or if this one is newer
       if (!priceMap.has(key) || itemDate.getTime() > new Date(priceMap.get(key)!.timestamp!).getTime()) {

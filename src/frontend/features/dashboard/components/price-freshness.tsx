@@ -26,7 +26,10 @@ export default function PriceFreshness({ lastUpdated, isLoading }: PriceFreshnes
     <div className="flex items-center gap-2 text-muted-foreground/60">
       <div className="w-2 h-2 rounded-full bg-(--positive) animate-pulse" />
       <Typography variant="caption">
-        {t('dashboard.lastUpdated')}: {lastUpdated.toLocaleTimeString(language === 'id' ? 'id-ID' : 'en-US', { hour: 'numeric', minute: '2-digit' })}
+        {t('dashboard.lastUpdated')}: {lastUpdated.toLocaleString(language === 'id' ? 'id-ID' : 'en-US', {
+          dateStyle: 'medium',
+          timeStyle: 'short'
+        })}
       </Typography>
     </div>
   )
