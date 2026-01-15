@@ -116,12 +116,37 @@ export class Galeri24Scraper {
    * - "GALERI 24" variants → GALERI24
    * - "LOTUS" variants → LOTUS
    */
+  /**
+   * Parse raw payload into structured price data using deserializer
+   * 
+   * Maps vendor names from Galeri24 to our Brand codes:
+   * - "ANTAM" variants → ANTAM
+   * - "UBS" variants → UBS  
+   * - "GALERI 24" variants → GALERI24
+   * - "LOTUS" variants → LOTUS
+   */
   private async parsePrices(rawPayload: unknown[]): Promise<RawPriceData[]> {
     console.log(`[Galeri24] Parsing price data using deserializer`)
 
     // Import deserializer dynamically
     const { deserializeNuxtData } = await import('./nuxt-deserializer')
     const { GoldPriceItemSchema } = await import('./schemas')
+
+    // EXTRACT GLOBAL DATE from Raw Payload (Index 485 based on user observation, or search for "Date")
+    // The structure is ["Date", "2025-12-28T..."]
+    let globalDate: Date | null = null
+    try {
+      // iterate directly to find the tuple ["Date", "TIMESTAMP"]
+      for (const item of rawPayload) {
+        if (Array.isArray(item) && item.length === 2 && item[0] === 'Date' && typeof item[1] === 'string') {
+          globalDate = new Date(item[1])
+          console.log(`[Galeri24] Found Global Source Date: ${globalDate.toISOString()}`)
+          break
+        }
+      }
+    } catch (e) {
+      console.warn('[Galeri24] Failed to extract global date', e)
+    }
 
     const items = deserializeNuxtData(rawPayload)
     console.log(`[Galeri24] Deserialized ${items.length} gold items`)
@@ -187,19 +212,20 @@ export class Galeri24Scraper {
 
       // Helper to parse date string or timestamp to Date object
       const parseDate = (dateStr: string | undefined): Date => {
-        if (!dateStr) return new Date() // Fallback: Server time (Risk: server might be UTC, but distinct enough)
+        if (!dateStr) return new Date()
 
-        // If it looks like ISO (has T), use standard parsing
         if (dateStr.includes('T')) return new Date(dateStr)
 
         // If it is just YYYY-MM-DD, treat as Midnight Jakarta Time
-        // e.g. "2025-12-29" -> "2025-12-29T00:00:00+07:00" -> UTC equivalent
         return fromZonedTime(dateStr, TIMEZONE)
       }
 
-      // Use the most precise timestamp from the source.
-      // updatedAt (ISO) > date (YYYY-MM-DD)
-      const itemDate = parseDate(validItem.updatedAt || validItem.date)
+      // PRIORITY: Global Date > Item updatedAt > Item date
+      let itemDate = globalDate
+
+      if (!itemDate) {
+        itemDate = parseDate(validItem.updatedAt || validItem.date)
+      }
 
       // Only store if we don't have this combination yet or if this one is newer
       if (!priceMap.has(key) || itemDate.getTime() > new Date(priceMap.get(key)!.timestamp!).getTime()) {

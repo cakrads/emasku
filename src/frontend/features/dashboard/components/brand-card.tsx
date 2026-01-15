@@ -45,7 +45,7 @@ export default function BrandCard({
     }).format(value)
   }
 
-  const formatWeight = (grams: number) => `${new Intl.NumberFormat(language === 'id' ? 'id-ID' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(grams || 0)}g`
+  const formatWeight = (grams: number) => `${new Intl.NumberFormat(language === 'id' ? 'id-ID' : 'en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(grams || 0)} g`
 
   const getValuationTooltip = () => {
     switch (valuationSource) {
@@ -78,7 +78,8 @@ export default function BrandCard({
         {/* Subtle background glow on hover */}
         <div className="absolute inset-0 bg-accent-gold/0 group-hover:bg-accent-gold/5 transition-colors duration-300" />
 
-        <Stack gap="none" className="relative z-10">
+        {/* Header: Brand Name + Weight */}
+        <Stack gap="xs" className="relative z-10">
           <div className="flex items-center gap-1.5">
             <Typography as="h3" variant="h3" className="group-hover:text-accent-gold transition-colors">
               {brandName}
@@ -96,42 +97,61 @@ export default function BrandCard({
               </TooltipProvider>
             )}
           </div>
-          <Typography variant="body-sm" className="mt-0.5">{formatWeight(totalGrams)}</Typography>
-        </Stack>
-
-        <Stack direction="horizontal" className="items-center flex-wrap" gap="none">
-          <Typography variant="h2" className="financial-value">
-            {isUnvalued ? '—' : formatCurrency(currentValue)}
+          <Typography variant="caption" className="text-(--text-muted)">
+            {formatWeight(totalGrams)}
           </Typography>
         </Stack>
 
-        {/* Trend Indicator or Placeholder */}
-        <Stack
-          direction="horizontal"
-          gap="sm"
-          className={cn(
-            "items-center w-fit px-2 py-1 rounded-md",
-            !isUnvalued
-              ? (isPositive ? "bg-(--positive-bg)" : "bg-(--negative-bg)")
-              : "invisible" // Reserved space
-          )}
-        >
-          <TrendingUp className={cn("w-3 h-3", !isPositive && "rotate-180 text-(--negative)", isPositive && "text-(--positive)")} />
-          <Stack direction="horizontal" gap="xs">
-            <Typography
-              variant="caption"
-              className={cn("font-semibold", isPositive ? "text-(--positive)" : "text-(--negative)")}
-            >
-              {isUnvalued ? "Rp 0" : formatCurrency(Math.abs(deltaValue))}
-            </Typography>
-            <Typography
-              variant="caption"
-              className={cn("font-medium", isPositive ? "text-(--positive)" : "text-(--negative)")}
-            >
-              ({deltaPercentage >= 0 ? '+' : ''}{deltaPercentage.toFixed(2)}%)
-            </Typography>
-          </Stack>
+        {/* Main Value Section */}
+        <Stack gap="xs" className="relative z-10">
+          <Typography variant="caption" className="text-(--text-muted)">
+            {t('dashboard.brandCard.estimatedSellValue')}
+          </Typography>
+          <Typography variant="h2" className="financial-value">
+            {isUnvalued ? t('dashboard.brandCard.priceNotAvailable') : formatCurrency(currentValue)}
+          </Typography>
         </Stack>
+
+        {/* Daily Change - Only show if valued */}
+        {!isUnvalued && (
+          <Stack
+            direction="horizontal"
+            gap="sm"
+            className={cn(
+              "items-center w-fit px-2 py-1 rounded-md",
+              isPositive ? "bg-(--positive-bg)" : "bg-(--negative-bg)"
+            )}
+          >
+            <TrendingUp className={cn("w-3 h-3", !isPositive && "rotate-180 text-(--negative)", isPositive && "text-(--positive)")} />
+            <Stack direction="horizontal" gap="xs" className="items-center">
+              <Typography
+                variant="caption"
+                className={cn("font-medium", isPositive ? "text-(--positive)" : "text-(--negative)")}
+              >
+                {t('dashboard.brandCard.todayChange')}:
+              </Typography>
+              <Typography
+                variant="caption"
+                className={cn("font-semibold", isPositive ? "text-(--positive)" : "text-(--negative)")}
+              >
+                {isPositive ? '+' : ''}{formatCurrency(deltaValue)}
+              </Typography>
+              <Typography
+                variant="caption"
+                className={cn("font-medium", isPositive ? "text-(--positive)" : "text-(--negative)")}
+              >
+                ({deltaPercentage >= 0 ? '+' : ''}{deltaPercentage.toFixed(2)}%)
+              </Typography>
+            </Stack>
+          </Stack>
+        )}
+
+        {/* Empty state for unvalued */}
+        {isUnvalued && (
+          <Typography variant="caption" className="text-(--text-muted) italic">
+            {t('dashboard.valuationTooltip.none')}
+          </Typography>
+        )}
       </Stack>
     </Link>
   )

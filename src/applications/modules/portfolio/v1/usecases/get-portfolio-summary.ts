@@ -40,6 +40,7 @@ export class GetPortfolioSummaryUsecase {
     let totalPreviousValue = new Decimal(0) // Basis for Daily Change
     let totalWeightGram = new Decimal(0)
     let valuatedCount = 0
+    let latestPriceUpdate: Date | null = null
 
     const brandMap = new Map<string, BrandAllocationDomain>()
     const prevPriceCache = new Map<string, number | null>()
@@ -57,6 +58,11 @@ export class GetPortfolioSummaryUsecase {
           new Decimal(holding.denominationGram).times(holding.quantity)
         )
         valuatedCount++
+
+        // Track latest market update
+        if (valuation.priceAsOf && (!latestPriceUpdate || valuation.priceAsOf > latestPriceUpdate)) {
+          latestPriceUpdate = valuation.priceAsOf
+        }
 
         // Calculate Today's Change basis
         const cacheKey = `${holding.brandCode}-${holding.denominationGram}-${valuation.valuationSource}`
@@ -103,7 +109,7 @@ export class GetPortfolioSummaryUsecase {
       totalDailyPnLPercentage: totalDailyPnLPercentage.toNumber(),
       totalWeightGram: totalWeightGram.toNumber(),
       holdingCount: holdings.length,
-      lastUpdated: new Date(),
+      lastUpdated: latestPriceUpdate ?? new Date(),
       brandAllocation: Array.from(brandMap.values()),
       disclaimer: 'Valuations based on latest available market prices',
       excludedCount: holdings.length - valuatedCount,

@@ -8,8 +8,11 @@ import { transformTodayPrices } from '@/frontend/view-model/prices.vm'
 import { ArrowRight } from 'lucide-react'
 import { ROUTES } from '@/frontend/config/routes'
 import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
-import { PricesOverviewSkeleton } from './prices-overview-skeleton'
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/frontend/components/ui/tooltip'
+import { Popover, PopoverContent, PopoverTrigger } from '@/frontend/components/ui/popover'
+import { Info } from 'lucide-react'
 import { useLanguage } from '@/frontend/hooks/use-language'
+import { PricesOverviewSkeleton } from './prices-overview-skeleton'
 
 function PricesTodayContent() {
   const { t, language } = useLanguage()
@@ -35,11 +38,11 @@ function PricesTodayContent() {
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between mb-3 px-1">
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col">
           <Typography as="h2" variant="h3">{t('dashboard.marketToday')}</Typography>
-          <span className="px-2 py-0.5 text-[10px] font-medium bg-accent-gold/10 text-accent-gold rounded-full">
-            {t('dashboard.today')}
-          </span>
+          <Typography variant="caption" className="text-(--text-muted)">
+            {t('dashboard.marketTodaySubtitle')}
+          </Typography>
         </div>
         <Link href={ROUTES.PRICES} className="group p-1 hover:bg-muted rounded-full transition-colors hidden lg:block">
           <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-accent-gold" />
@@ -52,34 +55,67 @@ function PricesTodayContent() {
             // Find 1g price (usually standard reference)
             const price1g = brand.prices.find(p => p.denominationGram === 1)
 
+            const DeltaIndicator = ({ delta, deltaPercentage }: { delta: number, deltaPercentage: number | null }) => (
+              <div className="flex items-center gap-1 cursor-help w-fit">
+                <span className={delta > 0 ? "text-[10px] text-(--positive) font-semibold" : delta < 0 ? "text-[10px] text-(--negative) font-semibold" : "text-[10px] text-muted-foreground/60 font-semibold"}>
+                  {delta > 0 ? '↑' : delta < 0 ? '↓' : '→'} Rp {Math.abs(delta).toLocaleString(language === 'id' ? 'id-ID' : 'en-US')}
+                  {deltaPercentage !== null && ` (${deltaPercentage > 0 ? '+' : ''}${deltaPercentage.toFixed(2)}%)`}
+                </span>
+                <Info className="w-3 h-3 text-muted-foreground/40" />
+              </div>
+            )
+
             return (
               <div
                 key={brand.brandName}
-                className="group flex flex-col justify-between p-3 rounded-xl border border-border bg-card hover:border-accent-gold/50 hover:shadow-sm transition-all h-[100px] shrink-0 relative overflow-hidden"
+                className="group flex flex-col justify-between p-3 rounded-xl border border-border bg-card hover:border-accent-gold/50 hover:bg-accent-gold/5 hover:shadow-sm transition-all h-[100px] shrink-0"
               >
-                {/* Subtle background gradient hint on hover */}
-                <div className="absolute inset-0 bg-accent-gold/0 group-hover:bg-accent-gold/5 transition-colors duration-300" />
+                {/* Header: Brand + Weight */}
+                <div className="flex justify-between items-start">
+                  <Typography variant="caption" className="font-semibold text-muted-foreground group-hover:text-accent-gold transition-colors">
+                    {brand.brandName}
+                  </Typography>
+                  <span className="text-[10px] text-muted-foreground/60">1g</span>
+                </div>
 
-                <div className="relative z-10">
-                  <div className="flex justify-between items-start mb-1">
-                    <Typography variant="caption" className="font-semibold text-muted-foreground group-hover:text-accent-gold transition-colors">
-                      {brand.brandName}
-                    </Typography>
-                    <span className="text-[10px] text-muted-foreground/60">1g</span>
-                  </div>
+                {/* Price + Delta grouped together */}
+                <div className="flex flex-col gap-1.5 mb-1">
                   <Typography variant="body" className="font-bold -tracking-wide">
                     {price1g?.sellPriceFormatted || '—'}
                   </Typography>
-                </div>
 
-                {price1g?.sellDelta !== null && price1g?.sellDelta !== undefined && (
-                  <div className="relative z-10 flex items-center gap-1">
-                    <span className={price1g.sellDelta > 0 ? "text-[10px] text-(--positive) font-semibold" : price1g.sellDelta < 0 ? "text-[10px] text-(--negative) font-semibold" : "text-[10px] text-muted-foreground/60 font-semibold"}>
-                      {price1g.sellDelta > 0 ? '↑' : price1g.sellDelta < 0 ? '↓' : '→'} Rp {Math.abs(price1g.sellDelta).toLocaleString(language === 'id' ? 'id-ID' : 'en-US')}
-                      {price1g.sellDeltaPercentage !== null && ` (${price1g.sellDeltaPercentage > 0 ? '+' : ''}${price1g.sellDeltaPercentage.toFixed(2)}%)`}
-                    </span>
-                  </div>
-                )}
+                  {price1g?.sellDelta !== null && price1g?.sellDelta !== undefined && (
+                    <>
+                      {/* Desktop: Tooltip (hover) */}
+                      <div className="hidden md:block">
+                        <TooltipProvider delayDuration={200}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div><DeltaIndicator delta={price1g.sellDelta} deltaPercentage={price1g.sellDeltaPercentage} /></div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="text-xs">{t('dashboard.marketPriceTooltip')}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+
+                      {/* Mobile: Popover (click) */}
+                      <div className="block md:hidden">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <button className="outline-none">
+                              <DeltaIndicator delta={price1g.sellDelta} deltaPercentage={price1g.sellDeltaPercentage} />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-60 mx-4" sideOffset={8} collisionPadding={16}>
+                            <p className="text-sm text-muted-foreground">{t('dashboard.marketPriceTooltip')}</p>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    </>
+                  )}
+                </div>
               </div>
             )
           })}
