@@ -59,6 +59,12 @@ function HoldingsListContent() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const [statusFilter, setStatusFilter] = useState<'active' | 'sold' | 'all'>('active')
 
+  // Pagination state (TanStack Table is 0-indexed)
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 10,
+  })
+
   // Modal state
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [isBrandSummaryOpen, setIsBrandSummaryOpen] = useState(false)
@@ -71,11 +77,14 @@ function HoldingsListContent() {
 
   // Fetch holdings (filtered)
   const { data: filteredData, isLoading: isLoadingFiltered, error } = useQuery({
-    queryKey: ['portfolio', 'list', statusFilter, brandFilter, sortBy, sortOrder],
-    queryFn: () => fetchPortfolioList(apiFilter),
+    queryKey: ['portfolio', 'list', statusFilter, brandFilter, sortBy, sortOrder, pagination.pageIndex, pagination.pageSize],
+    queryFn: () => fetchPortfolioList(apiFilter, {
+      page: pagination.pageIndex + 1, // API is 1-indexed
+      pageSize: pagination.pageSize
+    }),
   })
 
-  // Fetch all holdings to check for total data presence (no filters)
+  // Fetch all holdings to check for total data presence (no filters) for empty state check
   const { data: allData, isLoading: isLoadingAll } = useQuery({
     queryKey: ['portfolio', 'list', 'all-count'],
     queryFn: () => fetchPortfolioList({ status: 'all' }),
@@ -103,15 +112,15 @@ function HoldingsListContent() {
   }
 
   const allHoldings = filteredData.items
-  const totalHoldingsCount = allData.pagination.totalItems
+  const totalHoldingsCount = allData.pagination.totalItems // Total items in DB (for empty state check)
 
-  // Filter holdings by brand
-  let brandFilteredHoldings = brandFilter
-    ? allHoldings.filter((h) => h.brand === brandFilter)
-    : allHoldings
+  // Pagination info from current query
+  const totalFilteredItems = filteredData.pagination.totalItems
+  const pageCount = filteredData.pagination.totalPages
 
-  // Sort holdings
-  brandFilteredHoldings = [...brandFilteredHoldings].sort((a, b) => {
+  // Sort holdings (Client-side sorting of current page)
+  // Note: Since API doesn't support sorting yet, we sort the *current page* results.
+  let sortedHoldings = [...allHoldings].sort((a, b) => {
     let output = 0
     if (sortBy === 'date') {
       output = new Date(a.buyDate).getTime() - new Date(b.buyDate).getTime()
@@ -122,7 +131,7 @@ function HoldingsListContent() {
   })
 
   // Transform to View Models
-  const viewModels = brandFilteredHoldings.map(item => transformHoldingItem(item, language === 'id' ? 'id-ID' : 'en-US'))
+  const viewModels = sortedHoldings.map(item => transformHoldingItem(item, language === 'id' ? 'id-ID' : 'en-US'))
   const summaryViewModel = summaryData ? transformPortfolioSummary(summaryData, t, language === 'id' ? 'id-ID' : 'en-US') : null
 
   // Calculate if any filter is active (beyond defaults)
@@ -139,10 +148,13 @@ function HoldingsListContent() {
     setStatusFilter(filters.status)
     setSortBy(filters.sortBy)
     setSortOrder(filters.sortOrder)
+
+    // Reset to first page on filter change
+    setPagination(prev => ({ ...prev, pageIndex: 0 }))
   }
 
-  // Global empty state: User has absolutely no data
-  if (totalHoldingsCount === 0) {
+  // Global empty state: User has absolutely no data (and no filters active to cause it)
+  if (totalHoldingsCount === 0 && !isFiltered) {
     return <HoldingsListEmpty />
   }
 
@@ -156,7 +168,7 @@ function HoldingsListContent() {
 
   return (
     <Stack gap="sm">
-      {/* Action Bar - Filter button + Brand Summary (FIRST, before summary) */}
+      {/* Action Bar - Filter button + Brand Summary */}
       <div className="flex flex-wrap items-center gap-2">
         <Stack direction="horizontal" gap="sm">
           {/* Filter Button */}
@@ -190,7 +202,7 @@ function HoldingsListContent() {
         </Stack>
       </div>
 
-      {/* Portfolio Summary Section (AFTER filter) */}
+      {/* Portfolio Summary Section */}
       <PortfolioSummarySection
         totalWeightGram={summaryData?.totalWeightGram || 0}
         totalBuyValue={summaryData?.totalBuyValue || 0}
@@ -205,7 +217,14 @@ function HoldingsListContent() {
       {/* Holdings Table or Filtered Empty Message */}
       <Section>
         {viewModels.length > 0 ? (
-          <HoldingsTable holdings={viewModels} />
+          <HoldingsTable
+            holdings={viewModels}
+            pageCount={pageCount}
+            totalItems={totalFilteredItems}
+            pagination={pagination}
+            onPaginationChange={setPagination}
+            isLoading={isLoadingFiltered}
+          />
         ) : (
           <div className="py-16 text-center border border-dashed border-border rounded-xl bg-surface/50">
             <Typography variant="body" className="text-muted-foreground uppercase tracking-widest text-xs font-semibold">

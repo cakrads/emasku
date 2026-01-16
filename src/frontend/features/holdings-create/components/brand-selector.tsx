@@ -43,7 +43,7 @@ export function BrandSelector({ selected, onSelect }: BrandSelectorProps) {
     .map(item => ({
       id: item.code,
       name: item.name,
-      hasOfficialPrice: ['ANTAM', 'UBS', 'GALERI24', 'LOTUS'].includes(item.code.toUpperCase())
+      hasOfficialPrice: ['ANTAM', 'UBS', 'GALERI24', 'LOTUS', 'LOTUS ARCHI', 'LOTUS_ARCHI'].includes(item.code.toUpperCase())
     }))
 
   if (isCustomMode) {

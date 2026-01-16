@@ -3,6 +3,7 @@
 import { ResponsiveModal } from '@/frontend/components/ui/responsive-modal'
 import { Stack } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
+import { ResponsiveInfoTip } from '@/frontend/components/ui/responsive-info-tip'
 import { TrendingUp } from 'lucide-react'
 import { cn } from '@/frontend/utils/cn'
 import { useLanguage } from '@/frontend/hooks/use-language'
@@ -67,7 +68,7 @@ export default function BrandSummaryModal({
                 >
                   {/* Header: Brand Name + Weight */}
                   <div className="flex justify-between items-start mb-3 pb-2 border-b border-dashed border-(--border)/50">
-                    <div>
+                    <div className="flex flex-col">
                       <Typography className="font-semibold">{brand.brandName}</Typography>
                       <Typography variant="caption" className="text-muted-foreground">
                         {formatWeight(brand.totalGrams)}
@@ -89,29 +90,35 @@ export default function BrandSummaryModal({
 
                   {/* Values Grid */}
                   <div className="grid grid-cols-3 gap-2 text-sm">
-                    <div>
+                    <div className="min-w-0">
                       <Typography variant="caption" className="text-muted-foreground text-xs block">
                         {t('holdings.summary.purchaseValue')}
                       </Typography>
-                      <Typography className="font-medium financial-value">
-                        {formatCurrency(brand.totalBuyValue)}
-                      </Typography>
+                      <ResponsiveInfoTip content={<p className="font-mono">{formatCurrency(brand.totalBuyValue)}</p>}>
+                        <Typography as="div" className="font-medium financial-value truncate cursor-help">
+                          {formatCurrency(brand.totalBuyValue)}
+                        </Typography>
+                      </ResponsiveInfoTip>
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <Typography variant="caption" className="text-muted-foreground text-xs block">
                         {t('holdings.summary.estimatedValue')}
                       </Typography>
-                      <Typography className="font-medium financial-value">
-                        {isUnvalued ? '—' : formatCurrency(brand.currentValue)}
-                      </Typography>
+                      <ResponsiveInfoTip content={<p className="font-mono">{isUnvalued ? '—' : formatCurrency(brand.currentValue)}</p>}>
+                        <Typography as="div" className="font-medium financial-value truncate cursor-help">
+                          {isUnvalued ? '—' : formatCurrency(brand.currentValue)}
+                        </Typography>
+                      </ResponsiveInfoTip>
                     </div>
-                    <div>
+                    <div className="min-w-0">
                       <Typography variant="caption" className="text-muted-foreground text-xs block">
                         {t('holdings.summary.profitLoss')}
                       </Typography>
-                      <Typography className={cn('font-medium', pnlColor)}>
-                        {isUnvalued ? '—' : `${brand.deltaValue > 0 ? '+' : ''}${formatCurrency(brand.deltaValue)}`}
-                      </Typography>
+                      <ResponsiveInfoTip content={<p className="font-mono">{isUnvalued ? '—' : `${brand.deltaValue > 0 ? '+' : ''}${formatCurrency(brand.deltaValue)}`}</p>}>
+                        <Typography as="div" className={cn('font-medium truncate cursor-help', pnlColor)}>
+                          {isUnvalued ? '—' : `${brand.deltaValue > 0 ? '+' : ''}${formatCurrency(brand.deltaValue)}`}
+                        </Typography>
+                      </ResponsiveInfoTip>
                     </div>
                   </div>
                 </div>

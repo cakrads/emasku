@@ -9,35 +9,7 @@ import { Skeleton } from '@/frontend/components/ui/skeleton'
 import { Popover, PopoverContent, PopoverTrigger } from '@/frontend/components/ui/popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/frontend/components/ui/tooltip'
 import { useIsMobile } from '@/frontend/hooks/use-mobile'
-
-// Helper for responsive tooltips
-const ResponsiveInfoTip = ({ content, children }: { content: React.ReactNode, children: React.ReactNode }) => {
-  const isMobile = useIsMobile()
-
-  if (isMobile) {
-    return (
-      <Popover>
-        <PopoverTrigger asChild>
-          {children}
-        </PopoverTrigger>
-        <PopoverContent side="bottom" className="max-w-[250px] p-2 text-xs">
-          {content}
-        </PopoverContent>
-      </Popover>
-    )
-  }
-
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        {children}
-      </TooltipTrigger>
-      <TooltipContent side="bottom" className="max-w-[250px] text-xs">
-        {content}
-      </TooltipContent>
-    </Tooltip>
-  )
-}
+import { ResponsiveInfoTip } from '@/frontend/components/ui/responsive-info-tip'
 
 interface PortfolioSummarySectionProps {
   totalWeightGram: number
@@ -102,36 +74,40 @@ export default function PortfolioSummarySection({
   return (
     <Section className="bg-(--surface-elevated) border border-(--border) rounded-xl p-4 md:p-6">
 
-      <div className={cn('grid gap-4 md:gap-6', showValuation ? 'grid-cols-2 md:grid-cols-4' : 'grid-cols-2')}>
+      <div className={cn('grid gap-4 md:gap-6', showValuation ? 'grid-cols-2 lg:grid-cols-4' : 'grid-cols-2')}>
         {/* Total Weight */}
-        <div className="space-y-1">
+        <div className="space-y-1 min-w-0">
           <Stack direction="horizontal" gap="xs" className="items-center">
             <Scale className="w-4 h-4 text-muted-foreground shrink-0" />
             <Typography variant="caption" className="text-muted-foreground text-xs">
               {t('holdings.summary.totalWeight')}
             </Typography>
           </Stack>
-          <Typography className="text-lg md:text-2xl font-bold truncate">
-            {formatWeight(totalWeightGram)}
-          </Typography>
+          <ResponsiveInfoTip content={<p className="font-mono">{formatWeight(totalWeightGram)}</p>}>
+            <Typography as="div" className="text-lg md:text-2xl font-bold truncate cursor-help">
+              {formatWeight(totalWeightGram)}
+            </Typography>
+          </ResponsiveInfoTip>
         </div>
 
         {/* Total Purchase Value */}
-        <div className="space-y-1">
+        <div className="space-y-1 min-w-0">
           <Stack direction="horizontal" gap="xs" className="items-center">
             <Wallet className="w-4 h-4 text-muted-foreground shrink-0" />
             <Typography variant="caption" className="text-muted-foreground text-xs">
               {t('holdings.summary.purchaseValue')}
             </Typography>
           </Stack>
-          <Typography className="text-lg md:text-2xl font-bold financial-value truncate">
-            {formatCurrency(totalBuyValue)}
-          </Typography>
+          <ResponsiveInfoTip content={<p className="font-mono">{formatCurrency(totalBuyValue)}</p>}>
+            <Typography as="div" className="text-lg md:text-2xl font-bold financial-value truncate cursor-help">
+              {formatCurrency(totalBuyValue)}
+            </Typography>
+          </ResponsiveInfoTip>
         </div>
 
         {/* Estimated Sell Value with Popover - hidden for sold items */}
         {showValuation && (
-          <div className="space-y-1">
+          <div className="space-y-1 min-w-0">
             <ResponsiveInfoTip content={<p>{t('holdings.summary.estimatedValueTooltip')}</p>}>
               <Stack direction="horizontal" gap="xs" className="items-center cursor-pointer w-fit">
                 <Coins className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -141,15 +117,17 @@ export default function PortfolioSummarySection({
                 <Info className="w-3 h-3 text-muted-foreground/60 shrink-0" />
               </Stack>
             </ResponsiveInfoTip>
-            <Typography className="text-lg md:text-2xl font-bold financial-value text-accent-gold truncate">
-              {formatCurrency(totalCurrentValue)}
-            </Typography>
+            <ResponsiveInfoTip content={<p className="font-mono">{formatCurrency(totalCurrentValue)}</p>}>
+              <Typography as="div" className="text-lg md:text-2xl font-bold financial-value text-accent-gold truncate cursor-help">
+                {formatCurrency(totalCurrentValue)}
+              </Typography>
+            </ResponsiveInfoTip>
           </div>
         )}
 
         {/* Profit/Loss - hidden for sold items */}
         {showValuation && (
-          <div className="space-y-1">
+          <div className="space-y-1 min-w-0">
             <ResponsiveInfoTip content={
               <>
                 <p>{t('holdings.summary.profitLossTooltip')}</p>
@@ -169,9 +147,11 @@ export default function PortfolioSummarySection({
             </ResponsiveInfoTip>
 
             <div className={cn('flex flex-col xl:flex-row xl:items-baseline gap-x-2', pnlColor)}>
-              <Typography className="text-lg md:text-2xl font-bold truncate">
-                {totalPnL > 0 ? '+' : ''}{formatCurrency(totalPnL)}
-              </Typography>
+              <ResponsiveInfoTip content={<p className="font-mono">{totalPnL > 0 ? '+' : ''}{formatCurrency(totalPnL)}</p>}>
+                <Typography as="div" className="text-lg md:text-2xl font-bold truncate cursor-help">
+                  {totalPnL > 0 ? '+' : ''}{formatCurrency(totalPnL)}
+                </Typography>
+              </ResponsiveInfoTip>
               <Typography variant="caption" className="text-xs shrink-0">
                 ({pnlPercentage > 0 ? '+' : ''}{pnlPercentage.toFixed(2)}%)
               </Typography>

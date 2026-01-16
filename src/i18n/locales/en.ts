@@ -252,6 +252,9 @@ export default {
       viewDetail: 'View details',
     },
     noItemsFound: 'No items match your filters',
+    pagination: {
+      showing: 'Showing {from} - {to} of {total} items',
+    },
     table: {
       date: 'Date',
       weight: 'Weight',

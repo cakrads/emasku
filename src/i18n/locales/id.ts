@@ -250,7 +250,10 @@ export default {
       empty: 'Tidak ada data merek',
       viewDetail: 'Lihat detail',
     },
-    noItemsFound: 'Tidak ada item yang sesuai dengan filter',
+    noItemsFound: 'Tidak ada item yang cocok dengan filter Anda',
+    pagination: {
+      showing: 'Menampilkan {from} - {to} dari {total} item',
+    },
     table: {
       date: 'Tanggal',
       weight: 'Berat',
