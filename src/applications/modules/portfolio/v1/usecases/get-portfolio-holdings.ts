@@ -65,7 +65,6 @@ export class GetPortfolioHoldingsUsecase {
 
         const buyValue = new Decimal(holding.buyPrice)
           .times(holding.quantity)
-          .times(holding.denominationGram)
 
         if (!priceResult) {
           return {
@@ -81,7 +80,6 @@ export class GetPortfolioHoldingsUsecase {
 
         const currentValue = new Decimal(priceResult.price)
           .times(holding.quantity)
-          .times(holding.denominationGram)
 
         const unrealizedPnL = currentValue.minus(buyValue)
         const pnlPercentage = buyValue.greaterThan(0)

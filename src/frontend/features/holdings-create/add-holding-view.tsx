@@ -55,7 +55,7 @@ function AddHoldingContent() {
     brand: null,
     weight: '',
     purchaseDate: new Date(),
-    purchasePrice: '', // This is now Price per Gram
+    purchasePrice: '', // This is Total Price
     quantity: '1',
     notes: ''
   })
@@ -114,16 +114,21 @@ function AddHoldingContent() {
     const d = state.purchaseDate
     isoDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}T00:00:00.000Z`
 
-    // IMPORTANT: API expects TOTAL buy price. User inputs PRICE PER GRAM.
-    const pricePerGram = parseFloat(state.purchasePrice)
+    // IMPORTANT: API expects TOTAL PRICE per Unit. User inputs TOTAL PRICE.
+    const totalPrice = parseFloat(state.purchasePrice)
     const weight = parseFloat(state.weight)
-    const totalBuyPrice = Math.round(pricePerGram * weight)
+
+    // Correct Logic:
+    // User inputs Total Price. Backend now expects Total Price per Unit.
+    // We send straight Total Price.
+
+    // const pricePerGram = Math.round(totalPrice / weight) - REVERTED
 
     createMutation.mutate({
       brandCode: state.brand.id,
       denominationGram: weight,
       quantity: 1,
-      buyPrice: totalBuyPrice,
+      buyPrice: totalPrice,
       buyDate: isoDate,
       notes: state.brand.isCustom
         ? `[${state.brand.name}] ${state.notes}`.trim()
@@ -213,7 +218,9 @@ function ReviewStep({ state, pricesData }: { state: HoldingState, pricesData?: a
     ? specificPrice.buybackPrice
     : (brandPrices?.prices.find(p => p.denominationGram === 1)?.buybackPrice || 0) * weightNum
 
-  const purchasePricePerGram = parseFloat(state.purchasePrice || '0')
+  // Review display:
+  // state.purchasePrice is now TOTAL Price.
+  const totalPurchasePrice = parseFloat(state.purchasePrice || '0')
 
   return (
     <Stack gap="lg" className="animate-in fade-in slide-in-from-right-4 duration-300">
@@ -243,7 +250,7 @@ function ReviewStep({ state, pricesData }: { state: HoldingState, pricesData?: a
               <div>
                 <dt className="text-text-secondary uppercase tracking-wider font-medium text-xs mb-1 block">{t('addHolding.details.purchasePrice')}</dt>
                 <dd className="font-semibold tabular-nums text-lg text-foreground">
-                  {formatCurrency(purchasePricePerGram)}
+                  {formatCurrency(totalPurchasePrice)}
                 </dd>
               </div>
               <div className="text-right">

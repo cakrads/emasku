@@ -9,6 +9,7 @@ import {
   ColumnDef,
   PaginationState,
 } from '@tanstack/react-table'
+import { intervalToDuration } from 'date-fns' // Added import
 import { Stack } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { Button } from '@/frontend/components/ui/button'
@@ -58,9 +59,44 @@ export default function HoldingsTable({
             {t('holdings.table.date')}
           </Typography>
         ),
-        cell: ({ getValue }) => (
-          <Typography variant="body-sm">{getValue() as string}</Typography>
-        ),
+        cell: ({ getValue }) => {
+          const dateStr = getValue() as string
+          const buyDate = new Date(dateStr)
+          const now = new Date()
+
+          // Calculate duration
+          const duration = intervalToDuration({
+            start: buyDate,
+            end: now
+          })
+
+          let durationLabel = ''
+          const { years, months } = duration
+
+          if (years && years > 0) {
+            const yUnit = years === 1 ? t('common.duration.year') : t('common.duration.years')
+            durationLabel = `${years} ${yUnit}`
+
+            if (months && months > 0) {
+              const mUnit = months === 1 ? t('common.duration.month') : t('common.duration.months')
+              durationLabel += ` ${months} ${mUnit}`
+            }
+          } else if (months && months > 0) {
+            const mUnit = months === 1 ? t('common.duration.month') : t('common.duration.months')
+            durationLabel = `${months} ${mUnit}`
+          } else {
+            durationLabel = t('common.duration.lessThanMonth')
+          }
+
+          return (
+            <div className="flex flex-col">
+              <Typography variant="body-sm">{dateStr}</Typography>
+              <Typography variant="caption" className="text-muted-foreground text-xs">
+                {durationLabel}
+              </Typography>
+            </div>
+          )
+        },
       },
       {
         accessorKey: 'weight',

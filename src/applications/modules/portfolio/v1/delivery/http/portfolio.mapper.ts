@@ -55,7 +55,8 @@ export class PortfolioMapper {
       buyDate: domain.boughtAt.toISOString().split('T')[0], // YYYY-MM-DD
       avgBuyPrice: Math.round(domain.buyPrice),
       currentBuybackPrice: domain.currentPrice ? Math.round(domain.currentPrice) : null,
-      totalBuyValue: Math.round(domain.buyPrice * domain.quantity * domain.denominationGram),
+      // Total Value = Price * Quantity (since Price is now per-unit)
+      totalBuyValue: Math.round(domain.buyPrice * domain.quantity),
       currentValue: domain.currentValue ? Math.round(domain.currentValue) : null,
       unrealizedPnL: domain.unrealizedPnL ? Math.round(domain.unrealizedPnL) : null,
       pnlPercentage: domain.pnlPercentage ? Number(domain.pnlPercentage.toFixed(2)) : null,

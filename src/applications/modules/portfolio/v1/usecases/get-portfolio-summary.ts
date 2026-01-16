@@ -55,7 +55,6 @@ export class GetPortfolioSummaryUsecase {
     for (const { holding, valuation } of valuatedHoldings) {
       const buyValue = new Decimal(holding.buyPrice)
         .times(holding.quantity)
-        .times(holding.denominationGram)
 
       // CRITICAL: Only include in global aggregates if we have a valid valuation
       if (valuation.currentValue !== null) {
@@ -83,9 +82,11 @@ export class GetPortfolioSummaryUsecase {
         }
 
         // If we have a previous price, use it. Otherwise, use buy price or current as 0-change fallback
-        const basisPrice = prevPrice ?? valuation.currentValue / (holding.quantity * Number(holding.denominationGram))
+        // basisPrice should be UNIT PRICE (per bar)
+        const basisPrice = prevPrice ?? (valuation.currentValue / holding.quantity)
+
         totalPreviousValue = totalPreviousValue.plus(
-          new Decimal(basisPrice).times(holding.quantity).times(holding.denominationGram)
+          new Decimal(basisPrice).times(holding.quantity)
         )
       }
 
@@ -157,7 +158,6 @@ export class GetPortfolioSummaryUsecase {
 
     const currentValue = new Decimal(priceResult.price)
       .times(holding.quantity)
-      .times(holding.denominationGram)
       .toNumber()
 
     return {
