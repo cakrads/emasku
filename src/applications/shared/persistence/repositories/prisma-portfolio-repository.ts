@@ -12,11 +12,26 @@ import { logger } from '@/applications/shared/lib/logger'
 
 export class PrismaPortfolioRepository {
   private prisma = prisma
+
   /**
-   * Fetch all holdings for a user.
+   * Extended filter type for holdings queries.
+   */
+  // Defining inline type instead of interface for class member compatibility
+
+  /**
+   * Fetch all holdings for a user with optional filters and pagination.
    * NO valuation logic - returns raw holding data only.
    */
-  async findAllByUserId(userId: string, filter?: { status?: 'active' | 'sold' | 'all' }): Promise<PortfolioHoldingDomain[]> {
+  async findAllByUserId(
+    userId: string,
+    filter?: {
+      status?: 'active' | 'sold' | 'all'
+      brandCodes?: string[]
+      dateFrom?: string
+      dateTo?: string
+    },
+    pagination?: { page: number; pageSize: number }
+  ): Promise<{ items: PortfolioHoldingDomain[]; total: number }> {
     const startTime = Date.now()
 
     const where: Prisma.PortfolioHoldingWhereInput = { userId }
@@ -30,9 +45,34 @@ export class PrismaPortfolioRepository {
     }
     // If 'all', do not add soldAt condition
 
+    // Apply brand filter (multi-select)
+    if (filter?.brandCodes && filter.brandCodes.length > 0) {
+      where.brandCode = { in: filter.brandCodes }
+    }
+
+    // Apply date range filter
+    if (filter?.dateFrom || filter?.dateTo) {
+      where.boughtAt = {}
+      if (filter.dateFrom) {
+        where.boughtAt.gte = new Date(filter.dateFrom)
+      }
+      if (filter.dateTo) {
+        where.boughtAt.lte = new Date(filter.dateTo)
+      }
+    }
+
+    // Get total count for pagination
+    const total = await prisma.portfolioHolding.count({ where })
+
+    // Apply pagination
+    const skip = pagination ? (pagination.page - 1) * pagination.pageSize : undefined
+    const take = pagination?.pageSize
+
     const holdings = await prisma.portfolioHolding.findMany({
       where,
-      orderBy: { boughtAt: 'desc' }
+      orderBy: { boughtAt: 'desc' },
+      skip,
+      take,
     })
 
     const duration = Date.now() - startTime
@@ -40,9 +80,9 @@ export class PrismaPortfolioRepository {
       logger.warn('Slow portfolio query', { userId, duration, count: holdings.length })
     }
 
-    logger.debug('Portfolio holdings fetched', { userId, count: holdings.length })
+    logger.debug('Portfolio holdings fetched', { userId, count: holdings.length, total })
 
-    return holdings.map(this.toDomain)
+    return { items: holdings.map(this.toDomain), total }
   }
 
   /**

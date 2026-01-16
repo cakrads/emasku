@@ -30,6 +30,7 @@ export interface BrandData {
   brandCode: string
   brandName: string
   totalGrams: number
+  totalBuyValue: number
   currentValue: number
   deltaValue: number
   deltaPercentage: number
@@ -125,6 +126,7 @@ export function transformPortfolioSummary(api: PortfolioSummary, t: (key: string
       brandCode: b.brandCode,
       brandName: b.brandName,
       totalGrams: b.totalGrams,
+      totalBuyValue: b.totalBuyValue,
       currentValue: b.currentValue,
       deltaValue: b.deltaValue,
       deltaPercentage: b.deltaPercentage,

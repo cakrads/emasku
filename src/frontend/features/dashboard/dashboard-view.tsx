@@ -25,7 +25,7 @@ function DashboardContent() {
   const { t, language } = useLanguage()
   const { data, isLoading } = useQuery({
     queryKey: ['portfolio', 'summary'],
-    queryFn: fetchPortfolioSummary,
+    queryFn: () => fetchPortfolioSummary(),
   })
 
   // We should also fetch holdings to populate BrandBreakdown

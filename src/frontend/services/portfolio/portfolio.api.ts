@@ -27,18 +27,57 @@ import {
 } from '@/shared/contracts/update-holding.contract'
 
 /**
- * Fetch portfolio summary
+ * Holdings filter parameters
  */
-export async function fetchPortfolioSummary(): Promise<PortfolioSummary> {
-  const data = await fetchJson<unknown>('/api/v1/portfolio/summary')
+export interface HoldingsFilter {
+  status?: 'active' | 'sold' | 'all'
+  brandCodes?: string[]
+  dateFrom?: string
+  dateTo?: string
+}
+
+/**
+ * Pagination parameters
+ */
+export interface PaginationParams {
+  page?: number
+  pageSize?: number
+}
+
+/**
+ * Build query string from filter and pagination params
+ */
+function buildQueryString(filter?: HoldingsFilter, pagination?: PaginationParams): string {
+  const params = new URLSearchParams()
+
+  if (filter?.status) params.set('status', filter.status)
+  if (filter?.brandCodes?.length) params.set('brandCodes', filter.brandCodes.join(','))
+  if (filter?.dateFrom) params.set('dateFrom', filter.dateFrom)
+  if (filter?.dateTo) params.set('dateTo', filter.dateTo)
+  if (pagination?.page) params.set('page', pagination.page.toString())
+  if (pagination?.pageSize) params.set('pageSize', pagination.pageSize.toString())
+
+  const query = params.toString()
+  return query ? `?${query}` : ''
+}
+
+/**
+ * Fetch portfolio summary (optionally filtered)
+ */
+export async function fetchPortfolioSummary(filter?: HoldingsFilter): Promise<PortfolioSummary> {
+  const query = buildQueryString(filter)
+  const data = await fetchJson<unknown>(`/api/v1/portfolio/summary${query}`)
   return PortfolioSummarySchema.parse(data)
 }
 
 /**
- * Fetch portfolio holdings list
+ * Fetch portfolio holdings list with filters and pagination
  */
-export async function fetchPortfolioList(filter?: { status?: 'active' | 'sold' | 'all' }): Promise<PortfolioList> {
-  const query = filter?.status ? `?status=${filter.status}` : ''
+export async function fetchPortfolioList(
+  filter?: HoldingsFilter,
+  pagination?: PaginationParams
+): Promise<PortfolioList> {
+  const query = buildQueryString(filter, pagination)
   const data = await fetchJson<unknown>(`/api/v1/portfolio${query}`)
   return PortfolioListSchema.parse(data)
 }

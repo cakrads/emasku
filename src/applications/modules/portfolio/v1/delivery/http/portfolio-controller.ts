@@ -29,11 +29,28 @@ export class PortfolioController {
 
   /**
    * GET /api/v1/portfolio/summary
+   * Accepts optional filter params: status, brandCodes, dateFrom, dateTo
    */
   async getPortfolioSummary(req: NextRequest): Promise<NextResponse> {
     const userId = await verifyUser(req)
+    const { searchParams } = new URL(req.url)
+
+    // Parse filter params
+    const status = searchParams.get('status') as 'active' | 'sold' | 'all' | null
+    const brandCodesParam = searchParams.get('brandCodes')
+    const brandCodes = brandCodesParam ? brandCodesParam.split(',') : undefined
+    const dateFrom = searchParams.get('dateFrom') || undefined
+    const dateTo = searchParams.get('dateTo') || undefined
+
+    const filter = {
+      status: status || undefined,
+      brandCodes,
+      dateFrom,
+      dateTo,
+    }
+
     const usecase = new GetPortfolioSummaryUsecase()
-    const domain = await usecase.execute(userId)
+    const domain = await usecase.execute(userId, filter)
     const dto = PortfolioMapper.toPortfolioSummaryResponse(domain)
     const validated = PortfolioSummarySchema.parse(dto)
 
@@ -45,21 +62,45 @@ export class PortfolioController {
 
   /**
    * GET /api/v1/portfolio
+   * Accepts optional filter params: status, brandCodes, dateFrom, dateTo
+   * Accepts pagination params: page, pageSize
    */
   async getPortfolioHoldings(req: NextRequest): Promise<NextResponse> {
     const userId = await verifyUser(req)
     const { searchParams } = new URL(req.url)
+
+    // Parse filter params
     const status = searchParams.get('status') as 'active' | 'sold' | 'all' | null
+    const brandCodesParam = searchParams.get('brandCodes')
+    const brandCodes = brandCodesParam ? brandCodesParam.split(',') : undefined
+    const dateFrom = searchParams.get('dateFrom') || undefined
+    const dateTo = searchParams.get('dateTo') || undefined
+
+    const filter = {
+      status: status || undefined,
+      brandCodes,
+      dateFrom,
+      dateTo,
+    }
+
+    // Parse pagination params
+    const page = parseInt(searchParams.get('page') || '1', 10)
+    const pageSize = parseInt(searchParams.get('pageSize') || '20', 10)
+    const pagination = { page, pageSize }
 
     const usecase = new GetPortfolioHoldingsUsecase()
-    // We pass the filter if it exists, otherwise usecase defaults to 'active'
-    const holdings = await usecase.execute(userId, status ? { status } : undefined)
+    const result = await usecase.execute(userId, filter, pagination)
 
-    const dto = PortfolioMapper.toPortfolioListResponse(holdings)
-    const validated = PortfolioListSchema.parse(dto)
+    const dto = PortfolioMapper.toPortfolioListResponse(result.items)
+    // Add pagination to response
+    const response = {
+      ...dto,
+      pagination: result.pagination,
+    }
+    const validated = PortfolioListSchema.parse(response)
 
     return successResponse(validated, 'Portfolio retrieved', {
-      totalItems: holdings.length,
+      totalItems: result.pagination.totalItems,
       valuationMethod: 'LATEST_BUYBACK',
       priceAsOf: new Date().toISOString(),
     })

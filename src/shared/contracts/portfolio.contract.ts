@@ -11,6 +11,7 @@ export const BrandAllocationSchema = z.object({
   brandCode: z.string(),
   brandName: z.string(),
   totalGrams: z.number().positive(),
+  totalBuyValue: z.number().int().nonnegative().default(0),
   currentValue: z.number().int().nonnegative(),
   valuationSource: z.enum(['BUYBACK', 'SPOT', 'USER', 'NONE', 'MIXED']),
   // We can add delta if needed, for now optional or derived
@@ -71,6 +72,12 @@ export type HoldingItem = z.infer<typeof HoldingItemSchema>
 export const PortfolioListSchema = z.object({
   currency: z.literal('IDR'),
   items: z.array(HoldingItemSchema),
+  pagination: z.object({
+    page: z.number().int().positive(),
+    pageSize: z.number().int().positive(),
+    totalItems: z.number().int().nonnegative(),
+    totalPages: z.number().int().nonnegative(),
+  }),
 })
 
 export type PortfolioList = z.infer<typeof PortfolioListSchema>

@@ -12,15 +12,22 @@ import { PortfolioSummaryDomain, BrandAllocationDomain, PortfolioHoldingDomain }
 import { PriceType } from '@prisma/client'
 import { logger } from '@/applications/shared/lib/logger'
 
+export interface HoldingsFilter {
+  status?: 'active' | 'sold' | 'all'
+  brandCodes?: string[]
+  dateFrom?: string
+  dateTo?: string
+}
+
 export class GetPortfolioSummaryUsecase {
   private portfolioRepo = new PrismaPortfolioRepository()
   private priceRepo = new PrismaPriceRepository()
 
-  async execute(userId: string = 'default-user-id'): Promise<PortfolioSummaryDomain> {
-    logger.info('Computing portfolio summary', { userId })
+  async execute(userId: string = 'default-user-id', filter: HoldingsFilter = {}): Promise<PortfolioSummaryDomain> {
+    logger.info('Computing portfolio summary', { userId, filter })
 
-    // 1. Fetch raw holdings
-    const holdings = await this.portfolioRepo.findAllByUserId(userId)
+    // 1. Fetch raw holdings with filters (no pagination for summary)
+    const { items: holdings } = await this.portfolioRepo.findAllByUserId(userId, filter)
 
     if (holdings.length === 0) {
       return this.emptyPortfolio()
@@ -176,6 +183,7 @@ export class GetPortfolioSummaryUsecase {
 
     if (existing) {
       existing.totalGrams += grams
+      existing.totalBuyValue += buyValue.toNumber()
       if (hasValuation) {
         existing.currentValue += valuation.currentValue!
         existing.deltaValue += (valuation.currentValue! - buyValue.toNumber())
@@ -204,6 +212,7 @@ export class GetPortfolioSummaryUsecase {
         brandCode: holding.brandCode,
         brandName: holding.brandName,
         totalGrams: grams,
+        totalBuyValue: buyValue.toNumber(),
         currentValue,
         valuationSource: valuation.valuationSource as 'NONE' | 'BUYBACK' | 'SPOT' | 'MIXED',
         deltaValue,

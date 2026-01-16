@@ -43,6 +43,7 @@ export interface BrandAllocationDomain {
   brandCode: string
   brandName: string
   totalGrams: number
+  totalBuyValue: number
   currentValue: number
   valuationSource: 'BUYBACK' | 'SPOT' | 'MIXED' | 'NONE'
   deltaValue: number

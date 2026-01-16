@@ -87,7 +87,7 @@ export default function PortfolioChart({ data }: PortfolioChartProps) {
 
       <Card className="p-4 bg-(--surface-elevated) border-(--border) shadow-(--shadow-sm)">
         <ChartRenderer
-          data={data}
+          data={data as unknown as Array<Record<string, unknown>>}
           xKey="date"
           yKey="value"
           config={{

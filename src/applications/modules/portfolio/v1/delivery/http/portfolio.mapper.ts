@@ -29,6 +29,7 @@ export class PortfolioMapper {
         brandCode: b.brandCode,
         brandName: b.brandName,
         totalGrams: Number(b.totalGrams.toFixed(3)),
+        totalBuyValue: Math.round(b.totalBuyValue),
         currentValue: Math.round(b.currentValue),
         valuationSource: b.valuationSource,
         deltaValue: Math.round(b.deltaValue),

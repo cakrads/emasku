@@ -1,7 +1,7 @@
 /**
  * Get Portfolio Holdings Usecase
  * 
- * Business logic to fetch all holdings with valuations.
+ * Business logic to fetch holdings with valuations and pagination.
  * Implements BUYBACK → SPOT → NULL fallback logic.
  */
 
@@ -11,14 +11,40 @@ import { PrismaPriceRepository } from '@/applications/shared/persistence/reposit
 import { ValuatedHoldingDomain } from '../domain/portfolio.domain'
 import { logger } from '@/applications/shared/lib/logger'
 
+export interface HoldingsFilter {
+  status?: 'active' | 'sold' | 'all'
+  brandCodes?: string[]
+  dateFrom?: string
+  dateTo?: string
+}
+
+export interface PaginationParams {
+  page: number
+  pageSize: number
+}
+
+export interface PaginatedHoldings {
+  items: ValuatedHoldingDomain[]
+  pagination: {
+    page: number
+    pageSize: number
+    totalItems: number
+    totalPages: number
+  }
+}
+
 export class GetPortfolioHoldingsUsecase {
   private portfolioRepo = new PrismaPortfolioRepository()
   private priceRepo = new PrismaPriceRepository()
 
-  async execute(userId: string = 'default-user-id', filter: { status?: 'active' | 'sold' | 'all' } = { status: 'active' }): Promise<ValuatedHoldingDomain[]> {
-    logger.info('Fetching portfolio holdings', { userId, filter })
+  async execute(
+    userId: string = 'default-user-id',
+    filter: HoldingsFilter = { status: 'active' },
+    pagination: PaginationParams = { page: 1, pageSize: 20 }
+  ): Promise<PaginatedHoldings> {
+    logger.info('Fetching portfolio holdings', { userId, filter, pagination })
 
-    const holdings = await this.portfolioRepo.findAllByUserId(userId, filter)
+    const { items: holdings, total } = await this.portfolioRepo.findAllByUserId(userId, filter, pagination)
 
     const valuatedHoldings = await Promise.all(
       holdings.map(async (holding) => {
@@ -74,7 +100,17 @@ export class GetPortfolioHoldingsUsecase {
       })
     )
 
-    logger.info('Portfolio holdings fetched', { count: valuatedHoldings.length })
-    return valuatedHoldings
+    logger.info('Portfolio holdings fetched', { count: valuatedHoldings.length, total })
+
+    return {
+      items: valuatedHoldings,
+      pagination: {
+        page: pagination.page,
+        pageSize: pagination.pageSize,
+        totalItems: total,
+        totalPages: Math.ceil(total / pagination.pageSize),
+      }
+    }
   }
 }
+

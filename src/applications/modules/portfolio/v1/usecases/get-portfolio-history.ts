@@ -16,7 +16,7 @@ export class GetPortfolioHistoryUsecase {
   async execute(userId: string = 'default-user-id'): Promise<PortfolioHistoryDomain> {
     logger.info('Fetching portfolio history', { userId })
 
-    const holdings = await this.portfolioRepo.findAllByUserId(userId)
+    const { items: holdings } = await this.portfolioRepo.findAllByUserId(userId)
 
     const timeline: HistoryEntryDomain[] = holdings.map((holding) => {
       const buyValue = new Decimal(holding.buyPrice)
