@@ -18,7 +18,7 @@ import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { Button } from '@/frontend/components/ui/button'
 import Link from 'next/link'
-import { History } from 'lucide-react'
+import { LineChart } from 'lucide-react'
 
 /**
  * Brand Price Section Component
@@ -135,14 +135,33 @@ function PricesListViewContent() {
   return (
     <div className="flex flex-col gap-8">
       <div className="flex justify-between items-center -mb-4">
-        <Button variant="ghost" size="sm" asChild className="text-muted-foreground hover:text-foreground">
+        {/* Desktop: View History Button (Left) */}
+        <Button variant="outline" size="sm" asChild className="hidden md:flex">
           <Link href={ROUTES.PRICES_HISTORY} className="flex items-center gap-2">
-            <History className="w-4 h-4" />
+            <LineChart className="w-4 h-4" />
             {t('prices.viewHistory')}
           </Link>
         </Button>
-        <div className="text-sm text-muted-foreground text-right">
-          {t('dashboard.lastUpdated')}: {viewModel.lastUpdated}
+
+        {/* Mobile: Last Updated (Left) */}
+        <div className="flex md:hidden items-center gap-2 text-muted-foreground/60">
+          <div className="w-2 h-2 rounded-full bg-(--positive) animate-pulse" />
+          <Typography variant="caption" className="text-xs">
+            {t('dashboard.lastUpdated')}: {viewModel.lastUpdated}
+          </Typography>
+        </div>
+
+        {/* Mobile: Chart Button (Right) */}
+        <Button variant="outline" size="icon" className="md:hidden h-8 w-8" asChild>
+          <Link href={ROUTES.PRICES_HISTORY}>
+            <LineChart className="w-4 h-4" />
+          </Link>
+        </Button>
+
+        {/* Desktop: Last Updated (Right) */}
+        <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground text-right">
+          <div className="w-2 h-2 rounded-full bg-(--positive) animate-pulse" />
+          <span>{t('dashboard.lastUpdated')}: {viewModel.lastUpdated}</span>
         </div>
       </div>
 

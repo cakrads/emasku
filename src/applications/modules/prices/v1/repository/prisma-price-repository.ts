@@ -130,10 +130,16 @@ export class PrismaPriceRepository implements IPriceRepository {
           buybackPrice: null,
           sellDelta: null,
           buybackDelta: null,
+          lastUpdated: price.priceAt,
         })
       }
 
       const group = grouped.get(key)!
+      // Keep the latest timestamp found for this group
+      if (price.priceAt > group.lastUpdated) {
+        group.lastUpdated = price.priceAt
+      }
+
       const priceVal = Number(price.price)
 
       if (price.priceType === PriceType.SELL) {

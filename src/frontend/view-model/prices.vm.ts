@@ -92,7 +92,8 @@ function formatIDR(value: number | null, locale: string = 'id-ID'): string {
 function formatDate(dateString: string, locale: string = 'en-US'): string {
   const date = new Date(dateString)
   return new Intl.DateTimeFormat(locale, {
-    dateStyle: 'full',
+    dateStyle: 'medium',
+    timeStyle: 'short'
   }).format(date)
 }
 

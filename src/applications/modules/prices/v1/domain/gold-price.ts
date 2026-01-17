@@ -28,6 +28,7 @@ export interface TodayPriceGroup {
   buybackPrice: number | null
   sellDelta: number | null     // NEW: Gain/loss vs previous record
   buybackDelta: number | null  // NEW: Gain/loss vs previous record
+  lastUpdated: Date            // NEW: Timestamp of the price
 }
 
 export interface CreatePriceInput {

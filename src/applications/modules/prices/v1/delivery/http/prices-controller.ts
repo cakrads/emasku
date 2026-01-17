@@ -162,8 +162,18 @@ export class PricesController {
         })
       }
 
+      // Calculate latest update time from the data
+      let latestUpdate = new Date(0)
+      for (const p of prices) {
+        if (p.lastUpdated && p.lastUpdated > latestUpdate) {
+          latestUpdate = p.lastUpdated
+        }
+      }
+      // If no valid date found (e.g. empty prices), fallback to current time
+      const responseDate = latestUpdate.getTime() > 0 ? latestUpdate : new Date()
+
       const dto = {
-        date: new Date().toISOString(),
+        date: responseDate.toISOString(),
         currency: 'IDR',
         brands: Array.from(brandGroups.entries()).map(([brand, prices]) => ({
           brand,
