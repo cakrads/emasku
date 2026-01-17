@@ -5,21 +5,17 @@ import { PageWrapper, Container, Stack, Section } from '@/frontend/components/ui
 import PortfolioHero from './components/portfolio-hero'
 import PriceFreshness from './components/price-freshness'
 import BrandBreakdown from './components/brand-breakdown'
-import PortfolioChart from './components/portfolio-chart'
+import HoldingsPreview from './components/holdings-preview'
 import AddHoldingButton from './components/add-holding-button'
 import PortfolioHeroEmpty from './components/portfolio-hero-empty'
 import BrandBreakdownEmpty from './components/brand-breakdown-empty'
 import { PricesTodayCards } from './components/prices-today-cards'
-import { fetchPortfolioSummary, fetchPortfolioHistory } from '@/frontend/services/portfolio/portfolio.api'
-import { transformPortfolioSummary, transformPortfolioHistory } from '@/frontend/view-model/portfolio.vm'
+import { fetchPortfolioSummary } from '@/frontend/services/portfolio/portfolio.api'
+import { transformPortfolioSummary } from '@/frontend/view-model/portfolio.vm'
 import { PortfolioSummarySkeleton } from './components/portfolio-summary-skeleton'
 import { BrandBreakdownSkeleton } from './components/brand-breakdown-skeleton'
-import { PortfolioChartSkeleton } from './components/portfolio-chart-skeleton'
 import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
 import { useLanguage } from '@/frontend/hooks/use-language'
-
-// Re-using dummy chart data for now as it's not yet in the summary API
-// DUMMY_CHART_DATA removed
 
 function DashboardContent() {
   const { t, language } = useLanguage()
@@ -28,26 +24,7 @@ function DashboardContent() {
     queryFn: () => fetchPortfolioSummary(),
   })
 
-  // We should also fetch holdings to populate BrandBreakdown
-  // BUT for now let's focus on Summary API integration as requested.
-  // BrandBreakdown expects BrandData[]. 
-  // Let's hide BrandBreakdown for now or keep using dummy data?
-  // User asked to "update frontend". Ideally should be fully integrated.
-  // But doing everything in one step is risky.
-  // Let's keep BrandBreakdown using dummy/local data for this step, 
-  // and focus on replacing the Hero section with API data.
-
-  // Actually, let's just comment out BrandBreakdown or use empty array for now
-  // to show we are moving away from dummy data.
-  // Or better, let's update it in next step.
-
-  const { data: historyData, isLoading: isHistoryLoading } = useQuery({
-    queryKey: ['portfolio', 'history'],
-    queryFn: fetchPortfolioHistory,
-  })
-
   const viewModel = data ? transformPortfolioSummary(data, t, language === 'id' ? 'id-ID' : 'en-US') : null
-  const historyViewModel = historyData ? transformPortfolioHistory(historyData) : []
   const lastUpdated = viewModel?.lastUpdated
 
   // Empty state detection
@@ -105,20 +82,16 @@ function DashboardContent() {
           )}
         </ErrorBoundary>
 
-        {/* Portfolio performance snapshot - Granular Loading */}
+        {/* Holdings Preview - Recent 5 holdings */}
         <ErrorBoundary>
-          {isHistoryLoading ? (
-            <PortfolioChartSkeleton />
-          ) : (
-            <PortfolioChart data={historyViewModel} />
-          )}
+          <HoldingsPreview />
         </ErrorBoundary>
 
         {/* Primary action FAB */}
         <AddHoldingButton onClick={() => console.log('Add button clicked')} />
 
         {/* Bottom spacing for mobile */}
-        <Section className="h-24 md:h-12" />
+        <Section className="md:h-12" />
       </Stack>
     </div>
   )

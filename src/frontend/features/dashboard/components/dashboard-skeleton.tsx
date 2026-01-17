@@ -42,7 +42,7 @@ export function DashboardSkeleton() {
       <PortfolioChartSkeleton />
 
       {/* Bottom Spacer */}
-      <Section className="h-24 md:h-12" />
+      <Section className="h-24 md:h-6" />
     </Stack>
   )
 }

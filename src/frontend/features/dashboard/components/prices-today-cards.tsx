@@ -51,7 +51,7 @@ function PricesTodayContent() {
 
       <div className="overflow-y-auto flex-1 min-h-0 pr-1 custom-scrollbar">
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-1 gap-3 pb-3">
-          {previewBrands.map((brand) => {
+          {previewBrands.map((brand, index) => {
             // Find 1g price (usually standard reference)
             const price1g = brand.prices.find(p => p.denominationGram === 1)
 
@@ -68,7 +68,7 @@ function PricesTodayContent() {
             return (
               <div
                 key={brand.brandName}
-                className="group flex flex-col justify-between p-3 rounded-xl border border-border bg-card hover:border-accent-gold/50 hover:bg-accent-gold/5 hover:shadow-sm transition-all h-[100px] shrink-0"
+                className={`group flex flex-col justify-between p-3 rounded-xl border border-border bg-card hover:border-accent-gold/50 hover:bg-accent-gold/5 hover:shadow-sm transition-all h-[100px] shrink-0 ${index >= 3 ? 'hidden md:flex' : 'flex'}`}
               >
                 {/* Header: Brand + Weight */}
                 <div className="flex justify-between items-start">
