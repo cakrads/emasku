@@ -112,8 +112,8 @@ export default function BrandCard({
           </Typography>
         </Stack>
 
-        {/* Daily Change - Only show if valued */}
-        {!isUnvalued && (
+        {/* Daily Change - Only show if valued AND non-zero */}
+        {!isUnvalued && deltaValue !== 0 && (
           <Stack
             direction="horizontal"
             gap="sm"
@@ -124,12 +124,7 @@ export default function BrandCard({
           >
             <TrendingUp className={cn("w-3 h-3", !isPositive && "rotate-180 text-(--negative)", isPositive && "text-(--positive)")} />
             <Stack direction="horizontal" gap="xs" className="items-center">
-              <Typography
-                variant="caption"
-                className={cn("font-medium", isPositive ? "text-(--positive)" : "text-(--negative)")}
-              >
-                {t('dashboard.brandCard.todayChange')}:
-              </Typography>
+
               <Typography
                 variant="caption"
                 className={cn("font-semibold", isPositive ? "text-(--positive)" : "text-(--negative)")}

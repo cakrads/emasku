@@ -18,7 +18,7 @@ export const ROUTES = {
   // Deep Links / Future Placeholders
   HOLDING_DETAIL: (id: string) => `/holdings/${id}`,
   EDIT_HOLDING: (id: string) => `/holdings/${id}/edit`,
-  BRAND_DETAIL: (id: string) => `/holdings/brands/${id}`,
+  BRAND_DETAIL: (code: string) => `/holdings?brand=${code}`,
   ADD_HOLDING: '/holdings/create',
   PROFILE: '/profile',
 } as const

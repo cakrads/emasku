@@ -17,12 +17,12 @@ import Link from 'next/link'
 import { ROUTES } from '@/frontend/config/routes'
 import { fetchBrands } from '@/frontend/services/brands/brands.api'
 import { useLanguage } from '@/frontend/hooks/use-language'
+import { useUrlFilters } from '@/frontend/hooks/use-url-filters'
 
 // New components
 import PortfolioSummarySection from './components/portfolio-summary-section'
 import FilterModal from './components/filter-modal'
 import BrandSummaryModal from './components/brand-summary-modal'
-
 
 export default function HoldingsListView() {
   const { t } = useLanguage()
@@ -53,17 +53,25 @@ export default function HoldingsListView() {
 function HoldingsListContent() {
   const { language, t } = useLanguage()
 
-  // Filter state
-  const [brandFilter, setBrandFilter] = useState<string | null>(null)
-  const [sortBy, setSortBy] = useState<'date' | 'value'>('date')
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
-  const [statusFilter, setStatusFilter] = useState<'active' | 'sold' | 'all'>('active')
-
-  // Pagination state (TanStack Table is 0-indexed)
-  const [pagination, setPagination] = useState({
+  // URL-synced filter state
+  const {
+    filters,
+    setPagination,
+    updateUrl
+  } = useUrlFilters({
     pageIndex: 0,
-    pageSize: 10,
+    pageSize: 10
   })
+
+  // Destructure for easy access
+  const {
+    brand: brandFilter,
+    status: statusFilter,
+    sortBy,
+    sortOrder,
+    pageIndex,
+    pageSize
+  } = filters
 
   // Modal state
   const [isFilterOpen, setIsFilterOpen] = useState(false)
@@ -77,10 +85,10 @@ function HoldingsListContent() {
 
   // Fetch holdings (filtered)
   const { data: filteredData, isLoading: isLoadingFiltered, error } = useQuery({
-    queryKey: ['portfolio', 'list', statusFilter, brandFilter, sortBy, sortOrder, pagination.pageIndex, pagination.pageSize],
+    queryKey: ['portfolio', 'list', statusFilter, brandFilter, sortBy, sortOrder, pageIndex, pageSize],
     queryFn: () => fetchPortfolioList(apiFilter, {
-      page: pagination.pageIndex + 1, // API is 1-indexed
-      pageSize: pagination.pageSize
+      page: pageIndex + 1, // API is 1-indexed
+      pageSize: pageSize
     }),
   })
 
@@ -138,19 +146,16 @@ function HoldingsListContent() {
   const isFiltered = brandFilter !== null || statusFilter !== 'active' || sortBy !== 'date' || sortOrder !== 'desc'
 
   // Handle filter apply
-  const handleFilterApply = (filters: {
+  const handleFilterApply = (newFilters: {
     brand: string | null
     status: 'active' | 'sold' | 'all'
     sortBy: 'date' | 'value'
     sortOrder: 'asc' | 'desc'
   }) => {
-    setBrandFilter(filters.brand)
-    setStatusFilter(filters.status)
-    setSortBy(filters.sortBy)
-    setSortOrder(filters.sortOrder)
-
-    // Reset to first page on filter change
-    setPagination(prev => ({ ...prev, pageIndex: 0 }))
+    updateUrl({
+      ...newFilters,
+      pageIndex: 0 // Reset to first page on filter change
+    })
   }
 
   // Global empty state: User has absolutely no data (and no filters active to cause it)
@@ -221,8 +226,8 @@ function HoldingsListContent() {
             holdings={viewModels}
             pageCount={pageCount}
             totalItems={totalFilteredItems}
-            pagination={pagination}
-            onPaginationChange={setPagination}
+            pagination={{ pageIndex, pageSize }}
+            onPaginationChange={(p) => setPagination(p.pageIndex, p.pageSize)}
             isLoading={isLoadingFiltered}
           />
         ) : (

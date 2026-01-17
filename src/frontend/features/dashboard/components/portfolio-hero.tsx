@@ -74,7 +74,7 @@ export default function PortfolioHero({
               {gainLossPercentage}
             </Typography>
 
-            {todayChangePercentage !== '—' && (
+            {todayChangePercentage !== '—' && !todayChangePercentage.includes('0.00%') && (
               <>
                 <Typography variant="body-sm" className="text-(--text-muted)">•</Typography>
                 <Typography variant="body-sm" className="text-(--text-muted)">
