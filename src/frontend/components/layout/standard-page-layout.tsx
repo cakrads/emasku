@@ -5,7 +5,7 @@ import { PageHeader } from '@/frontend/components/ui/page-header'
 import { PageWrapper, Container } from '@/frontend/components/ui/layout'
 
 interface StandardPageLayoutProps {
-  title: string
+  title?: string
   description?: string
   breadcrumbs: {
     label: string

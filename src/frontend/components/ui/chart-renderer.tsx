@@ -12,7 +12,7 @@
 
 'use client'
 
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
 
 export interface ChartConfig {
   /** Color for the line */
@@ -25,6 +25,12 @@ export interface ChartConfig {
   showTooltip?: boolean
   /** Height in pixels */
   height?: number
+  /** Optional reference line configuration */
+  referenceLine?: {
+    x?: string | number
+    label?: string
+    stroke?: string
+  }
 }
 
 export interface ChartRendererProps {
@@ -44,6 +50,8 @@ export interface ChartRendererProps {
   xAxisFormatter?: (value: unknown) => string
   /** Optional custom Y-axis formatter */
   yAxisFormatter?: (value: unknown) => string
+  /** Optional custom X-axis ticks */
+  xAxisTicks?: any[]
 }
 
 const DEFAULT_CONFIG: ChartConfig = {
@@ -93,6 +101,7 @@ export function ChartRenderer({
   labelFormatter,
   xAxisFormatter,
   yAxisFormatter,
+  xAxisTicks,
 }: ChartRendererProps) {
   const finalConfig = { ...DEFAULT_CONFIG, ...config }
 
@@ -110,6 +119,8 @@ export function ChartRenderer({
           tickFormatter={xAxisFormatter}
           tickLine={false}
           axisLine={false}
+          ticks={xAxisTicks}
+          interval={0} // Force show all passed ticks
         />
 
         <YAxis
@@ -124,6 +135,20 @@ export function ChartRenderer({
           <Tooltip
             content={<CustomTooltip labelFormatter={labelFormatter} formatter={tooltipFormatter} />}
             cursor={{ stroke: 'hsl(var(--muted-foreground))', strokeWidth: 1, strokeDasharray: '4 4' }}
+          />
+        )}
+
+        {finalConfig.referenceLine && (
+          <ReferenceLine
+            x={finalConfig.referenceLine.x}
+            stroke={finalConfig.referenceLine.stroke || "hsl(var(--primary))"}
+            label={{
+              value: finalConfig.referenceLine.label,
+              position: 'insideTopRight',
+              fill: "hsl(var(--muted-foreground))",
+              fontSize: 12
+            }}
+            strokeDasharray="3 3"
           />
         )}
 

@@ -12,7 +12,7 @@ import { Typography } from '@/frontend/components/ui/typography'
 import { ReactNode, Fragment } from 'react'
 
 interface PageHeaderProps {
-  title: string
+  title?: string
   description?: string
   breadcrumbs: {
     label: string
@@ -44,19 +44,24 @@ export function PageHeader({ title, description, breadcrumbs, action }: PageHead
         </BreadcrumbList>
       </Breadcrumb>
 
-      <div className="flex items-center justify-between">
-        <div className="flex flex-col gap-1">
-          <Typography variant="h2" className="text-3xl font-bold tracking-tight">
-            {title}
-          </Typography>
-          {description && (
-            <Typography variant="body" className="text-muted-foreground">
-              {description}
-            </Typography>
-          )}
+      {(title || action) && (
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col gap-1">
+            {title && (
+              <Typography variant="h2" className="text-3xl font-bold tracking-tight">
+                {title}
+              </Typography>
+            )}
+            {description && (
+              <Typography variant="body" className="text-muted-foreground">
+                {description}
+              </Typography>
+            )}
+          </div>
+          {action && <div>{action}</div>}
         </div>
-        {action && <div>{action}</div>}
-      </div>
+      )}
     </div>
   )
 }
+

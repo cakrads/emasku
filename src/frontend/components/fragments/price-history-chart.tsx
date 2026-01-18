@@ -18,6 +18,12 @@ export interface PriceHistoryChartProps {
   height?: number
   /** Locale for date formatting */
   locale?: string
+  /** Optional reference line configuration */
+  referenceLine?: {
+    x?: string | number
+    label?: string
+    stroke?: string
+  }
 }
 
 /**
@@ -52,7 +58,19 @@ function formatDate(value: unknown, locale: string = 'en-US'): string {
  * 
  * Displays a line chart of historical gold prices with proper formatting.
  */
-export function PriceHistoryChart({ data, height = 300, locale = 'en-US' }: PriceHistoryChartProps) {
+export function PriceHistoryChart({ data, height = 300, locale = 'en-US', referenceLine }: PriceHistoryChartProps) {
+  // Calculate specific ticks to limit X-axis labels (User req: ~7 labels)
+  const ticks = (() => {
+    if (data.length <= 7) return data.map(d => d.timestamp)
+
+    const tickIndices = [0, 1, 2, 3, 4, 5, 6].map(i =>
+      Math.floor(i * (data.length - 1) / 6)
+    )
+    // Remove duplicates if data is small but > 7
+    const uniqueIndices = Array.from(new Set(tickIndices))
+    return uniqueIndices.map(i => data[i].timestamp)
+  })()
+
   return (
     <ChartRenderer
       data={data}
@@ -62,6 +80,7 @@ export function PriceHistoryChart({ data, height = 300, locale = 'en-US' }: Pric
         height,
         lineColor: '#D4AF37', // Gold accent
         strokeWidth: 2,
+        referenceLine,
       }}
       xAxisFormatter={(value) => formatDate(value, locale)}
       yAxisFormatter={(value) => formatIDR(value).replace('Rp', '').trim()}
@@ -74,6 +93,7 @@ export function PriceHistoryChart({ data, height = 300, locale = 'en-US' }: Pric
         }).format(date)
       }}
       tooltipFormatter={(value) => formatIDR(value)}
+      xAxisTicks={ticks}
     />
   )
 }
