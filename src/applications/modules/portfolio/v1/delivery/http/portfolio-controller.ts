@@ -19,6 +19,7 @@ import { PrismaUserRepository } from '@/applications/shared/persistence/reposito
 import { CreateHoldingUsecase } from '../../usecases/create-holding.usecase'
 import { UpdateHoldingUsecase } from '../../usecases/update-holding.usecase'
 import { DeleteHoldingUsecase } from '../../usecases/delete-holding.usecase'
+import { SellHoldingUsecase } from '../../usecases/sell-holding.usecase'
 import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
 import { getBrandName } from '@/applications/modules/brands/v1/domain/brands.const'
 import { verifyUser } from '@/applications/shared/auth/auth.utils'
@@ -229,6 +230,27 @@ export class PortfolioController {
     const validated = UpdateHoldingResponseSchema.parse(response)
 
     return successResponse(validated, 'Holding updated successfully')
+  }
+
+  /**
+   * POST /api/v1/portfolio/{id}/sell
+   */
+  async sellHolding(req: NextRequest, id: string): Promise<NextResponse> {
+    const userId = await verifyUser(req)
+
+    const portfolioRepo = new PrismaPortfolioRepository()
+    const usecase = new SellHoldingUsecase(portfolioRepo)
+    await usecase.execute(userId, id)
+
+    return NextResponse.json(
+      {
+        code: 200,
+        success: true,
+        message: 'Holding marked as sold successfully',
+        data: null,
+      },
+      { status: 200 }
+    )
   }
 
   /**

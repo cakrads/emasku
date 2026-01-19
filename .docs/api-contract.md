@@ -9,14 +9,14 @@
 
 | Domain | Method | Endpoint | Description |
 | :--- | :--- | :--- | :--- |
-| **Market** | `GET` | `/market/overview` | Homepage gold snapshot & trends. |
-| **Market** | `GET` | `/price/spot` | Historical spot price series (charts). |
-| **Market** | `GET` | `/price/today` | Current sell & buyback prices grouped by brand. |
+| **Market** | `GET` | `/prices/spot` | Historical spot price series (charts). |
+| **Market** | `GET` | `/prices/today` | Current sell & buyback prices grouped by brand. |
 | **Master** | `GET` | `/brands` | List supported brands (ANTAM, UBS, etc). |
 | **Portfolio** | `GET` | `/portfolio/summary` | Portfolio aggregate metrics (PNL, Total Grams). |
 | **Portfolio** | `GET` | `/portfolio` | List holdings with current real-time valuation. |
 | **Portfolio** | `POST` | `/portfolio` | Add new gold holding. |
 | **Portfolio** | `POST` | `/portfolio/{id}/sell` | Mark a holding as SOLD (Soft Close). |
+| **System** | `POST` | `/scraper/run` | Trigger on-demand price scraping (Auth required). |
 
 ---
 
@@ -48,43 +48,40 @@ All endpoints MUST return responses in the following standard structure:
 
 ---
 
+### 1.2 Security & Limits
+
+To ensure service quality, Public Market APIs are protected by the following mechanisms:
+
+**Rate Limiting**
+
+- **Spot Prices** (`/prices/spot`): 20 requests/minute
+- **Today Prices** (`/prices/today`): 60 requests/minute
+- Limits are applied per `IP + API Key` combination.
+- Exceeding limits returns `429 Too Many Requests`.
+
+**Caching**
+
+- Responses include `Cache-Control` headers (CDN aware).
+- Historical data is cached for **15 minutes**.
+- Live price data is cached for **60 seconds**.
+
+**Public API Key**
+
+- Header: `x-public-key`
+- Required in Production environments.
+- Format: `emasku_pub_v1_<client>_<id>`
+
+---
+
 # 2. Market APIs (Public)
 
 These endpoints expose **market truth**, agnostic of specific user ownership.
 
-## 2.1 Market Overview (Homepage Snapshot)
-
-**Purpose**: Provide a single, aggregated "state of the market" for the app landing page.
-
-**Endpoint**: `GET /market/overview`
-
-**Response Example**
-
-```json
-{
-  "code": 200,
-  "success": true,
-  "message": "Market overview retrieved",
-  "data": {
-    "referenceBrand": "ANTAM",
-    "spotPrice": 1050000,
-    "delta24h": 15000,
-    "deltaPercentage": 1.45,
-    "lastUpdated": "2025-01-01T08:00:00Z"
-  },
-  "details": {
-    "source": "Galeri 24 Scraper"
-  }
-}
-```
-
----
-
-## 2.2 Spot Price Time Series (Chart)
+## 2.1 Spot Price Time Series (Chart)
 
 **Purpose**: Fetch historical price data for charting (e.g., 7d, 30d, 1y).
 
-**Endpoint**: `GET /price/spot`
+**Endpoint**: `GET /prices/spot`
 
 **Query Parameters**
 
@@ -122,11 +119,11 @@ These endpoints expose **market truth**, agnostic of specific user ownership.
 
 ---
 
-## 2.3 Today Prices (Sell & Buyback)
+## 2.2 Today Prices (Sell & Buyback)
 
 **Purpose**: Get current detailed pricing tables for all brands.
 
-**Endpoint**: `GET /price/today`
+**Endpoint**: `GET /prices/today`
 
 **Query Parameters**
 

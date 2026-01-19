@@ -38,32 +38,49 @@ export class PricesController {
 
   /**
    * GET /api/v1/prices/spot
+   * 
+   * Uses predefined ranges instead of arbitrary dates (anti-scraping measure)
+   * Allowed ranges: 7d, 30d, 90d, 1y, 5y
    */
   async getSpotSeries(req: NextRequest): Promise<NextResponse> {
     // Parse and validate query parameters
     const { searchParams } = new URL(req.url)
 
+    // Predefined ranges for anti-scraping
+    const ALLOWED_RANGES = ['7d', '30d', '90d', '1y', '5y'] as const
+    type AllowedRange = typeof ALLOWED_RANGES[number]
+
     const schema = z.object({
       brand: z.string().min(1, 'brand is required'),
-      from: z.string().refine(v => !isNaN(Date.parse(v)), 'from must be a valid date'),
-      to: z.string().refine(v => !isNaN(Date.parse(v)), 'to must be a valid date'),
+      range: z.enum(ALLOWED_RANGES).optional().default('30d'),
       denomination: z.coerce.number().positive().optional().default(1),
     })
 
     const parsed = schema.safeParse({
       brand: searchParams.get('brand'),
-      from: searchParams.get('from'),
-      to: searchParams.get('to'),
+      range: searchParams.get('range') || undefined,
       denomination: searchParams.get('denomination') || undefined,
     })
 
     if (!parsed.success) {
       throw new ValidationError('Invalid query parameters', {
         errors: parsed.error.format(),
+        allowedRanges: ALLOWED_RANGES,
       })
     }
 
-    const { brand: brandCode, from: fromStr, to: toStr, denomination: denom } = parsed.data
+    const { brand: brandCode, range, denomination: denom } = parsed.data
+
+    // Calculate dates from range
+    const to = new Date()
+    const from = new Date()
+    switch (range) {
+      case '7d': from.setDate(from.getDate() - 7); break
+      case '30d': from.setDate(from.getDate() - 30); break
+      case '90d': from.setDate(from.getDate() - 90); break
+      case '1y': from.setFullYear(from.getFullYear() - 1); break
+      case '5y': from.setFullYear(from.getFullYear() - 5); break
+    }
 
     // Setup Prisma
     const pool = new pg.Pool({ connectionString: DATABASE_URL })
@@ -76,8 +93,8 @@ export class PricesController {
 
       const series = await usecase.execute({
         brandCode,
-        from: new Date(fromStr),
-        to: new Date(toStr),
+        from,
+        to,
         denominationGram: denom,
       })
 
@@ -87,15 +104,24 @@ export class PricesController {
         priceType: 'SPOT',
         denominationGram: denom,
         currency: 'IDR',
+        range,
         series: series.map((p) => ({
           priceAt: p.priceAt.toISOString(),
           price: p.price,
         })),
       }
 
-      return successResponse(dto, 'Spot price series retrieved', {
+      // Create response with cache headers
+      const response = successResponse(dto, 'Spot price series retrieved', {
         totalPoints: series.length,
+        fromDate: from.toISOString(),
+        toDate: to.toISOString(),
       })
+
+      // Add cache headers (15 minutes for historical data)
+      response.headers.set('Cache-Control', 'public, s-maxage=900, stale-while-revalidate=60')
+
+      return response
     } finally {
       await prisma.$disconnect()
       await pool.end()
@@ -181,10 +207,16 @@ export class PricesController {
         })),
       }
 
-      return successResponse(dto, 'Current prices retrieved', {
+      // Create response with cache headers
+      const response = successResponse(dto, 'Current prices retrieved', {
         source: 'Galeri 24 Scraper',
         fetchedAt: new Date().toISOString(),
       })
+
+      // Add cache headers (60 seconds for live prices)
+      response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=30')
+
+      return response
     } finally {
       await prisma.$disconnect()
       await pool.end()

@@ -9,5 +9,10 @@ import { BrandsController } from '@/applications/modules/brands/v1/delivery/http
 
 export const GET = wrapController(async () => {
   const controller = new BrandsController()
-  return controller.getBrands()
+  const response = await controller.getBrands()
+
+  // Cache for 24 hours (Master Data rarely changes)
+  response.headers.set('Cache-Control', 'public, s-maxage=86400, stale-while-revalidate=3600')
+
+  return response
 })

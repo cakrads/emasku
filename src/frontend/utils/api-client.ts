@@ -30,8 +30,10 @@ export class ApiError extends Error {
  * Fetch JSON with standardized error handling
  */
 export async function fetchJson<T>(url: string, options?: RequestInit): Promise<T> {
-  const headers = {
+  const headers: HeadersInit = {
     'Content-Type': 'application/json',
+    // Inject Public API Key for rate limiting/security
+    ...(process.env.NEXT_PUBLIC_API_KEY_WEB ? { 'x-public-key': process.env.NEXT_PUBLIC_API_KEY_WEB } : {}),
     ...options?.headers,
   }
 

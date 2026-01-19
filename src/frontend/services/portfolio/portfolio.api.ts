@@ -123,6 +123,15 @@ export async function updateHolding(id: string, request: UpdateHoldingRequest): 
 }
 
 /**
+ * Mark a holding as sold (optimistic locking enabled)
+ */
+export async function sellHolding(id: string): Promise<void> {
+  await fetchJson<unknown>(`/api/v1/portfolio/${id}/sell`, {
+    method: 'POST',
+  })
+}
+
+/**
  * Delete a holding (mark as sold or permanent delete)
  */
 export async function deleteHolding(id: string, options?: { hard?: boolean }): Promise<void> {

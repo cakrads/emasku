@@ -13,7 +13,7 @@ import { buttonVariants } from '@/frontend/components/ui/button'
 import { ROUTES } from '@/frontend/config/routes'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
 import Link from 'next/link'
-import { fetchHoldingDetail, deleteHolding } from '@/frontend/services/portfolio/portfolio.api'
+import { fetchHoldingDetail, deleteHolding, sellHolding } from '@/frontend/services/portfolio/portfolio.api'
 import { transformHoldingDetail } from '@/frontend/view-model/portfolio.vm'
 import { HoldingDetailSkeleton } from './components/holding-detail-skeleton'
 import { ErrorBoundary } from '@/frontend/components/fragments/error-boundary'
@@ -48,9 +48,9 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
     queryFn: () => fetchHoldingDetail(holdingId),
   })
 
-  // Delete mutation (Soft Delete / Mark as Sold)
-  const deleteMutation = useMutation({
-    mutationFn: () => deleteHolding(holdingId),
+  // Sell mutation (Soft Close)
+  const sellMutation = useMutation({
+    mutationFn: () => sellHolding(holdingId),
     onSuccess: () => {
       toast.success(t('holdingDetail.messages.soldSuccess'), {
         description: t('holdingDetail.messages.soldDetail')
@@ -89,7 +89,7 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
   })
 
   const handleSold = () => {
-    deleteMutation.mutate()
+    sellMutation.mutate()
     setShowDeleteDialog(false)
   }
 
@@ -299,7 +299,7 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
           <AlertDialogFooter>
             <AlertDialogCancel>{t('holdingDetail.dialog.markAsSold.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleSold} className={buttonVariants({ variant: 'default', color: 'error' })}>
-              {deleteMutation.isPending ? t('holdingDetail.dialog.markAsSold.confirming') : t('holdingDetail.dialog.markAsSold.confirm')}
+              {sellMutation.isPending ? t('holdingDetail.dialog.markAsSold.confirming') : t('holdingDetail.dialog.markAsSold.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

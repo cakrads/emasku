@@ -23,21 +23,16 @@ import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/fron
 function PricesHistoryContent() {
   const { t, language } = useLanguage()
   const locale = language === 'id' ? 'id-ID' : 'en-US'
-  // Calculate date range (last 5 years)
-  const endDate = new Date()
-  const startDate = new Date()
-  startDate.setFullYear(startDate.getFullYear() - 5)
 
-  const to = endDate.toISOString().split('T')[0]
-  const from = startDate.toISOString().split('T')[0]
+  // Use predefined range instead of arbitrary dates (anti-scraping)
+  const range = '5y' as const
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['market', 'spot-prices', 'ANTAM', '1g', from, to],
+    queryKey: ['market', 'spot-prices', 'ANTAM', '1g', range],
     queryFn: () => fetchSpotPriceSeries({
       brand: 'ANTAM',
+      range,
       denomination: 1,
-      from,
-      to,
     }),
   })
 
@@ -140,7 +135,10 @@ function PricesHistoryContent() {
       {/* Footer Note */}
       <div className="text-center">
         <Typography variant="body-sm" className="text-muted-foreground">
-          {t('priceHistory.referenceNote').replace('{date}', new Date(from).toLocaleDateString(locale, { dateStyle: 'long' }))}
+          {t('priceHistory.referenceNote').replace('{date}', chartData[0]?.timestamp
+            ? new Date(chartData[0].timestamp).toLocaleDateString(locale, { dateStyle: 'long' })
+            : '-'
+          )}
         </Typography>
       </div>
     </div>

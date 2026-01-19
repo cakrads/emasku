@@ -22,18 +22,21 @@ export async function fetchTodayPrices(): Promise<PricesTodayResponse> {
 }
 
 /**
+ * Allowed spot price ranges (anti-scraping)
+ */
+export type SpotPriceRange = '7d' | '30d' | '90d' | '1y' | '5y'
+
+/**
  * Fetch spot price series
  */
 export async function fetchSpotPriceSeries(params: {
   brand: string
-  from: string
-  to: string
+  range?: SpotPriceRange
   denomination?: number
 }): Promise<SpotPriceSeries> {
   const searchParams = new URLSearchParams({
     brand: params.brand,
-    from: params.from,
-    to: params.to,
+    range: params.range || '30d',
     ...(params.denomination && { denomination: params.denomination.toString() }),
   })
 

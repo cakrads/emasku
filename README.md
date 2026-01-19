@@ -39,37 +39,37 @@ These rules are enforced by structure and convention:
 
 ```text
 /emasku
-├── .spec/                         # Functional & Technical Truths
-│   ├── spec.md                    # Functional requirements
-│   └── tech-spec.md               # Technical manual
+├── .docs/                         # Project Documentation
+│   ├── api-contract.md            # API Specification
+│   ├── frontend-guidelines.md     # UI & Component Rules
+│   └── ...
 ├── prisma/
 │   ├── data                       # Initial Data (JSON)
 │   ├── migrations/                # DB Migrations
 │   ├── seed.ts                    # Seeding logic
 │   └── schema.prisma              # DB Source of Truth
 ├── src/
-│   ├── app/                       # Pillar 1: Routing ONLY (Thin)
-│   │   ├── api/v1/                # Versioned API controllers
-│   │   └── (dashboard)/           # UI Route Groups
-│   ├── frontend/                  # Pillar 2: Frontend Boundary
-│   │   ├── components/            # Atomic UI Components (ui/, fragments/)
-│   │   ├── features/              # Stateful Feature Modules (flat structure, e.g., holdings-list)
-│   │   ├── providers/             # ReactQuery, Theme, Auth, etc.
-│   │   ├── services/              # API Clients
-│   │   ├── types/                 # DTOs & Interfaces
-│   │   ├── data/                  # Static/Dummy data
-│   │   └── utils/                 # Frontend helpers & repositories
-│   └── applications/              # Pillar 3: Backend Boundary (Core)
-│       ├── modules/               # Domain-driven modules (Portfolio, Market, etc)
-│       │   └── [module]/v1/
-│       │       ├── domain/        # Pure Entities & Interfaces
-│       │       ├── usecase/       # Business logic orchestration
-│       │       ├── http/          # HTTP adapters (optional)
-│       │       └── delivery/      # Delivery layer (optional)
-│       └── shared/                # Common Infrastructure
-│           ├── persistence/       # Prisma & Shared Repositories
-│           ├── scrapers/          # Scraper implementations
-│           └── lib/               # Shared logic & wrappers
+│   ├── app/                       # Pillar 1: Routing ONLY (Next.js App Router)
+│   │   ├── api/v1/                # Versioned API Routes (prices, portfolio, auth)
+│   │   └── (dashboard)/           # UI Page Routes
+│   ├── frontend/                  # Pillar 2: Frontend Implementation
+│   │   ├── components/            # React Components
+│   │   │   ├── ui/                # Shadcn UI Fundamentals
+│   │   │   ├── fragments/         # Business-aware Fragments
+│   │   │   └── layout/            # Page Layouts
+│   │   ├── features/              # Feature Modules (dashboard, prices-history, etc)
+│   │   ├── hooks/                 # Custom React Hooks (useUrlFilters, etc)
+│   │   ├── items/                 # Theme & Visual Styles
+│   │   ├── lib/                   # Frontend Utilities
+│   │   ├── services/              # API Client Layers
+│   │   └── view-model/            # Presentation Logic
+│   ├── applications/              # Pillar 3: Backend Core Modules
+│   │   ├── modules/               # Domain Modules (prices, portfolio, auth)
+│   │   └── shared/                # Backend Shared Logic
+│   ├── i18n/                      # Localization (ID/EN)
+│   ├── lib/                       # Global Shared Libs
+│   ├── middleware.ts              # Route Protection & Localization
+│   └── shared/                    # Shared Infrastructure (DB, Logger)
 ├── public/
 ├── .env.example
 ├── README.md
@@ -77,6 +77,21 @@ These rules are enforced by structure and convention:
 └── tsconfig.json
 
 ```
+
+---
+
+## 🛠 Tech Stack
+
+- **Framework**: Next.js 15+ (App Router)
+- **Database**: PostgreSQL (Supabase) + Prisma ORM
+- **Rate Limiting**: Upstash Redis (Serverless)
+- **State Management**: TanStack Query (React Query) + Zustand
+- **UI System**: Tailwind CSS v4 + Shadcn UI
+- **Charting**: Recharts
+- **Validation**: Zod
+- **Icons**: Lucide React
+- **Internationalization**: Custom i18n Dictionary
+- **Math**: decimal.js (Financial precision)
 
 ---
 
