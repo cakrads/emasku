@@ -21,7 +21,7 @@ It is not a tutorial project — it is a **serious engineering portfolio**.
 
 The system follows a **Module-Based Clean Architecture** inside a Next.js monolith. The codebase is divided into **three strict pillars**:
 
-**Routing (Next.js) → Frontend (React) → Backend Core (Application Modules)**
+### Routing (Next.js) → Frontend (React) → Backend Core (Application Modules)
 
 ### 🔒 Architecture Rules (Non-Negotiable)
 
@@ -50,15 +50,21 @@ These rules are enforced by structure and convention:
 │   └── schema.prisma              # DB Source of Truth
 ├── src/
 │   ├── app/                       # Pillar 1: Routing ONLY (Next.js App Router)
-│   │   ├── api/v1/                # Versioned API Routes (prices, portfolio, auth)
-│   │   └── (dashboard)/           # UI Page Routes
+│   │   ├── api/v1/                # Versioned API Routes
+│   │   ├── (admin)/               # Admin Routes (Dashboard, Holdings)
+│   │   ├── (public)/              # Public Routes (Prices, Privacy)
+│   │   └── (auth)/                # Auth Routes (Login)
 │   ├── frontend/                  # Pillar 2: Frontend Implementation
 │   │   ├── components/            # React Components
-│   │   │   ├── ui/                # Shadcn UI Fundamentals
-│   │   │   ├── fragments/         # Business-aware Fragments
+│   │   │   ├── ui/                # Pure UI Primitives
+│   │   │   ├── fragments/         # Business Fragments
+│   │   │   │   ├── admin/         # Admin Fragments (Navbar, etc)
+│   │   │   │   └── public/        # Public Fragments (SimpleNav)
 │   │   │   └── layout/            # Page Layouts
-│   │   ├── features/              # Feature Modules (dashboard, prices-history, etc)
-│   │   ├── hooks/                 # Custom React Hooks (useUrlFilters, etc)
+│   │   ├── features/              # Feature Modules
+│   │   │   ├── admin/             # Admin Features (e.g. dashboard, holdings)
+│   │   │   └── public/            # Public Features (e.g. login, prices)
+│   │   ├── hooks/                 # Custom React Hooks
 │   │   ├── items/                 # Theme & Visual Styles
 │   │   ├── lib/                   # Frontend Utilities
 │   │   ├── services/              # API Client Layers
@@ -100,10 +106,10 @@ These rules are enforced by structure and convention:
 Inside `src/applications/modules/`, each feature follows a strict Clean Architecture pattern:
 
 | Layer      | Responsibility                                          |
-| ---------- | ------------------------------------------------------- |
+| :--------- | :------------------------------------------------------ |
 | **domain** | Pure business rules, entities, and interface contracts. |
 | **usecase**| Executes a specific business action (Orchestration).    |
-| **http**   | Translates HTTP/Requests into Use Case inputs.         |
+| **http**   | Translates HTTP/Requests into Use Case inputs.          |
 
 ---
 
