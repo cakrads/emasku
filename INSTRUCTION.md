@@ -1,174 +1,36 @@
-# PROMPT — Dashboard Holdings Preview Section (FINAL)
+You are working on the Emasku public landing page.
 
-## Role & Goal
+Your task is NOT to write marketing content.
+Your task is to implement a calm, minimalist, Stripe-inspired landing page
+that strictly follows the provided Landing Page Specification (FINAL).
 
-You are a senior frontend engineer implementing a **Holdings Preview section** on the dashboard.
+Rules:
 
-The goal of this section is to:
+Prioritize typography, spacing, and layout before animation
 
-- Fill unused vertical space on desktop
-- Add a sense of depth and completeness to the dashboard
-- Provide quick orientation, NOT detailed analysis
+Treat animation as narrative, not decoration
 
-This section must feel intentional, lightweight, and read-only.
+Maintain Core Web Vitals targets as non-negotiable constraints
 
-This is a UX layout enhancement, not a feature expansion.
+Do not invent content or copy
 
----
+Do not introduce unnecessary libraries
 
-## Product Context
+Do not deviate from the spec
 
-The dashboard already contains:
+Work in phases:
 
-1. Portfolio summary (estimated sell value)
-2. Market Today
-3. Brand summary
+Confirm understanding and list constraints
 
-Holdings Preview is a **supporting section**, not a primary one.
+Produce section skeletons only
 
----
+Define typography and spacing system
 
-## UX Decision (FINAL)
+Define motion rules (no code yet)
 
-Display a **preview list of recent holdings**, limited in scope and detail.
+Define performance guardrails
 
-Do NOT introduce:
+Implement incrementally
 
-- New calculations
-- New KPIs
-- Charts
-- Inline editing
-- Sorting or filtering
-
----
-
-## Section Placement
-
-- Desktop: Below the main dashboard sections
-- Mobile: At the very bottom, collapsed by default if needed
-
-Section title:
-Holdings Terbaru
-
-yaml
-Salin kode
-
----
-
-## Data Rules
-
-- Show the latest 3–5 holdings (most recently created)
-- Read-only
-- Use existing holding data only
-
-Each item represents **one holding record**.
-
----
-
-## Item Layout (Required)
-
-Each holding item must display:
-
-- Brand name
-- Denomination (gram)
-- Purchase date
-- Buy price (total, not per gram)
-
-Example layout:
-
-Antam · 1 gram
-Dibeli 12 Jan 2026 · Rp 2.450.000
-
-yaml
-Salin kode
-
-Optional:
-
-- Small brand icon or initials
-- Subtle divider between items
-
----
-
-## Interaction Rules
-
-- Items are NOT clickable
-- No hover state required
-- No inline actions (edit, delete, sell)
-
-Only one CTA is allowed at section bottom:
-
-Lihat semua holdings →
-
-yaml
-Salin kode
-
-This CTA navigates to the full holdings page.
-
----
-
-## Empty State
-
-If the user has no holdings:
-
-Title remains:
-Holdings Terbaru
-
-css
-Salin kode
-
-Body text:
-Belum ada emas yang ditambahkan.
-Tambahkan emas pertama Anda untuk mulai memantau portofolio.
-
-makefile
-Salin kode
-
-CTA:
-Tambah emas →
-
-yaml
-Salin kode
-
----
-
-## Visual Style Guidelines
-
-- Section should feel secondary
-- Smaller typography than portfolio summary
-- Neutral colors
-- No green/red emphasis
-- Avoid drawing attention away from main KPIs
-
----
-
-## Non-Goals (Explicit)
-
-Do NOT:
-
-- Add valuation or PnL indicators here
-- Duplicate portfolio or brand summary data
-- Add charts or progress bars
-- Add instructional or educational text
-
----
-
-## Success Criteria
-
-Implementation is correct if:
-
-- Dashboard feels visually complete on desktop
-- Section adds orientation without cognitive load
-- User understands this is a preview, not analysis
-- No new business logic is introduced
-
----
-
-## Design Principle
-
-Dashboard previews should answer:
-"What do I own?"
-not
-"What should I do?"
-
-Deliver a clean, production-ready implementation.
-Do not over-engineer.
+Any visually attractive solution that violates performance, clarity,
+or calmness is considered incorrect.

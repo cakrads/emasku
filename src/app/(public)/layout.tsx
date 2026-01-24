@@ -1,4 +1,5 @@
 import { SimpleNavbar } from '@/frontend/components/fragments/public/simple-navbar'
+import { SimpleFooter } from '@/frontend/components/fragments/public/simple-footer'
 
 export default function PublicLayout({
   children,
@@ -11,6 +12,7 @@ export default function PublicLayout({
       <main className="min-h-screen bg-background">
         {children}
       </main>
+      <SimpleFooter />
     </>
   );
 }

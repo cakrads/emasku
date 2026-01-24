@@ -17,12 +17,13 @@ export default function AddHoldingButton({ onClick }: AddHoldingButtonProps) {
         <Button
           onClick={onClick}
           size="icon"
+          variant="solid"
           color="primary"
           rounded="full"
-          className="h-16 w-16"
+          className="h-16 w-16 shadow-gold hover:shadow-glow"
           aria-label={t('dashboard.addGoldHolding')}
         >
-          <Plus className="h-8 w-8 text-white" strokeWidth={2.5} />
+          <Plus className="h-8 w-8 text-primary-foreground" strokeWidth={2.5} />
         </Button>
       </Link>
     </Stack>

@@ -8,22 +8,22 @@
   --foreground: oklch(0.141 0.005 285.823);
   --text-secondary: #6B7280;
   --text-muted: #9CA3AF;
-  
+
   /* Muted gold accent */
   --accent-gold: #D4AF37;
   --accent-gold-light: #F3E5AB;
-  
+
   /* Subtle status colors */
   --positive: #10B981;
   --positive-bg: #ECFDF5;
   --negative: #EF4444;
   --negative-bg: #FEF2F2;
-  
+
   /* Borders and surfaces */
   --border: oklch(0.92 0.004 286.32);
   --surface: #F9FAFB;
   --surface-elevated: #FFFFFF;
-  
+
   /* Shadows - minimal and subtle */
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05);
@@ -76,10 +76,16 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.552 0.016 285.938);
-  
+
   /* Missing surface variables overrides for dark mode */
-  --surface: oklch(0.141 0.005 285.823); /* Same as background */
-  --surface-elevated: oklch(0.21 0.006 285.885); /* Same as card */
+  --surface: oklch(0.141 0.005 285.823);
+  /* Same as background */
+  --surface-elevated: oklch(0.21 0.006 285.885);
+  /* Same as card */
+
+  /* Gold accent overrides for dark mode */
+  --accent-gold: #F5C518;
+  --accent-gold-light: #FDE047;
 }
 
 @theme inline {
@@ -101,7 +107,7 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  
+
   --color-accent-gold: var(--accent-gold);
   --color-accent-gold-light: var(--accent-gold-light);
   --color-surface: var(--surface);
@@ -110,7 +116,80 @@
   --color-negative: var(--negative);
   --color-positive-bg: var(--positive-bg);
   --color-negative-bg: var(--negative-bg);
-  
+
+  /* Custom Button Colors & Shadows */
+  --color-gold: var(--accent-gold);
+  --color-gold-deep: var(--accent-gold-light);
+
+  /* Shadows & Glows */
+  --shadow-soft: 0 4px 24px -4px hsl(0 0% 0% / 0.3);
+  --shadow-card: 0 8px 40px -8px hsl(0 0% 0% / 0.5);
+  --shadow-glow: 0 0 60px -12px hsl(43 100% 50% / 0.3);
+  --shadow-gold: 0 4px 20px -4px hsl(43 100% 50% / 0.4);
+
+  /* Animations */
+  --animate-glow-pulse: glow-pulse 3s ease-in-out infinite;
+  --animate-fade-up: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  --animate-fade-in: fade-in 0.6s ease-out forwards;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-shimmer: shimmer 2s linear infinite;
+
+  @keyframes glow-pulse {
+
+    0%,
+    100% {
+      box-shadow: 0 0 20px -4px hsl(43 100% 50% / 0.4);
+    }
+
+    50% {
+      box-shadow: 0 0 40px -4px hsl(43 100% 50% / 0.6);
+    }
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -133,21 +212,25 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+
 /* Financial data typography */
 .financial-value {
   font-variant-numeric: tabular-nums;
   letter-spacing: -0.02em;
 }
+
 /* Smooth scrolling for horizontal containers */
 .scroll-smooth-x {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
 }
+
 /* Hide scrollbar but keep functionality */
 .hide-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -159,39 +242,93 @@ body {
     transform: translate3d(var(--tw-enter-translate-x, 0), var(--tw-enter-translate-y, 0), 0) scale3d(var(--tw-enter-scale, 1), var(--tw-enter-scale, 1), 1) rotate(var(--tw-enter-rotate, 0));
   }
 }
+
 @keyframes exit {
   to {
     opacity: var(--tw-exit-opacity, 1);
     transform: translate3d(var(--tw-exit-translate-x, 0), var(--tw-exit-translate-y, 0), 0) scale3d(var(--tw-exit-scale, 1), var(--tw-exit-scale, 1), 1) rotate(var(--tw-exit-rotate, 0));
   }
 }
-.animate-in { animation-name: enter; animation-duration: 0.3s; }
-.animate-out { animation-name: exit; animation-duration: 0.3s; }
 
-.fade-in-0 { --tw-enter-opacity: 0; }
-.fade-out-0 { --tw-exit-opacity: 0; }
+.animate-in {
+  animation-name: enter;
+  animation-duration: 0.3s;
+}
 
-.slide-in-from-top-2 { --tw-enter-translate-y: -0.5rem; }
-.slide-in-from-bottom { --tw-enter-translate-y: 100%; }
-.slide-in-from-bottom-2 { --tw-enter-translate-y: 0.5rem; }
-.slide-in-from-left-2 { --tw-enter-translate-x: -0.5rem; }
-.slide-in-from-right-2 { --tw-enter-translate-x: 0.5rem; }
+.animate-out {
+  animation-name: exit;
+  animation-duration: 0.3s;
+}
 
-.slide-out-to-top-2 { --tw-exit-translate-y: -0.5rem; }
-.slide-out-to-bottom { --tw-exit-translate-y: 100%; }
+.fade-in-0 {
+  --tw-enter-opacity: 0;
+}
+
+.fade-out-0 {
+  --tw-exit-opacity: 0;
+}
+
+.slide-in-from-top-2 {
+  --tw-enter-translate-y: -0.5rem;
+}
+
+.slide-in-from-bottom {
+  --tw-enter-translate-y: 100%;
+}
+
+.slide-in-from-bottom-2 {
+  --tw-enter-translate-y: 0.5rem;
+}
+
+.slide-in-from-left-2 {
+  --tw-enter-translate-x: -0.5rem;
+}
+
+.slide-in-from-right-2 {
+  --tw-enter-translate-x: 0.5rem;
+}
+
+.slide-out-to-top-2 {
+  --tw-exit-translate-y: -0.5rem;
+}
+
+.slide-out-to-bottom {
+  --tw-exit-translate-y: 100%;
+}
 
 
 /* Variants for sheet.tsx usage */
-.data-\[state\=open\]\:animate-in[data-state="open"] { animation-name: enter; animation-duration: 0.3s; }
-.data-\[state\=closed\]\:animate-out[data-state="closed"] { animation-name: exit; animation-duration: 0.3s; }
+.data-\[state\=open\]\:animate-in[data-state="open"] {
+  animation-name: enter;
+  animation-duration: 0.3s;
+}
 
-.data-\[state\=open\]\:fade-in-0[data-state="open"] { --tw-enter-opacity: 0; }
-.data-\[state\=closed\]\:fade-out-0[data-state="closed"] { --tw-exit-opacity: 0; }
+.data-\[state\=closed\]\:animate-out[data-state="closed"] {
+  animation-name: exit;
+  animation-duration: 0.3s;
+}
 
-.data-\[state\=open\]\:slide-in-from-bottom[data-state="open"] { --tw-enter-translate-y: 100%; }
-.data-\[state\=closed\]\:slide-out-to-bottom[data-state="closed"] { --tw-exit-translate-y: 100%; }
+.data-\[state\=open\]\:fade-in-0[data-state="open"] {
+  --tw-enter-opacity: 0;
+}
+
+.data-\[state\=closed\]\:fade-out-0[data-state="closed"] {
+  --tw-exit-opacity: 0;
+}
+
+.data-\[state\=open\]\:slide-in-from-bottom[data-state="open"] {
+  --tw-enter-translate-y: 100%;
+}
+
+.data-\[state\=closed\]\:slide-out-to-bottom[data-state="closed"] {
+  --tw-exit-translate-y: 100%;
+}
 
 /* Support other directions just in case */
-.data-\[state\=open\]\:slide-in-from-right[data-state="open"] { --tw-enter-translate-x: 100%; }
-.data-\[state\=closed\]\:slide-out-to-right[data-state="closed"] { --tw-exit-translate-x: 100%; }
+.data-\[state\=open\]\:slide-in-from-right[data-state="open"] {
+  --tw-enter-translate-x: 100%;
+}
 
+.data-\[state\=closed\]\:slide-out-to-right[data-state="closed"] {
+  --tw-exit-translate-x: 100%;
+}

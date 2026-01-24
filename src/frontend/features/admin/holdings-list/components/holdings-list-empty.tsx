@@ -29,7 +29,7 @@ export default function HoldingsListEmpty() {
       </Stack>
 
       <Stack gap="sm" className="items-center">
-        <Button asChild color="primary" size="lg">
+        <Button asChild size="lg">
           <Link href={ROUTES.ADD_HOLDING}>{t('holdings.emptyState.action')}</Link>
         </Button>
         <Link

@@ -21,6 +21,7 @@ export const ROUTES = {
   BRAND_DETAIL: (code: string) => `/holdings?brand=${code}`,
   ADD_HOLDING: '/holdings/create',
   PROFILE: '/profile',
+  PRIVACY_POLICY: '/privacy',
 } as const
 
 export type AppRoute = typeof ROUTES[keyof typeof ROUTES]

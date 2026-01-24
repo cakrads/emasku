@@ -74,6 +74,7 @@ export default function PortfolioHero({
               {gainLossPercentage}
             </Typography>
 
+            {/* Daily PnL Hidden for Simplicity (User Feedback)
             {todayChangePercentage !== '—' && !todayChangePercentage.includes('0.00%') && (
               <>
                 <Typography variant="body-sm" className="text-(--text-muted)">•</Typography>
@@ -82,12 +83,13 @@ export default function PortfolioHero({
                 </Typography>
                 <Typography
                   variant="body-sm"
-                  className={isTodayPositive ? 'text-(--positive) font-medium' : isTodayNeutral ? 'font-medium' : 'text-(--negative) font-medium'}
+                  className={isTodayPositive ? 'text-positive font-medium' : isTodayNeutral ? 'font-medium' : 'text-negative font-medium'}
                 >
                   {todayChangePercentage}
                 </Typography>
               </>
             )}
+            */}
           </Stack>
         )}
 

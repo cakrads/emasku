@@ -122,16 +122,16 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
           </Typography>
           <Stack direction="horizontal" gap="xs" className="justify-center items-center mt-2">
             {holding.pnlColor === 'positive' && (
-              <TrendingUp className="w-4 h-4 text-(--positive)" />
+              <TrendingUp className="w-4 h-4 text-positive" />
             )}
             {holding.pnlColor === 'negative' && (
-              <TrendingDown className="w-4 h-4 text-(--negative)" />
+              <TrendingDown className="w-4 h-4 text-negative" />
             )}
             <Typography
               variant="body"
               className={cn(
                 'font-semibold',
-                holding.pnlColor === 'positive' ? 'text-(--positive)' : holding.pnlColor === 'negative' ? 'text-(--negative)' : ''
+                holding.pnlColor === 'positive' ? 'text-positive' : holding.pnlColor === 'negative' ? 'text-negative' : ''
               )}
             >
               {holding.pnl} ({holding.pnlPercentage})
@@ -142,7 +142,7 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
 
       {/* Purchase Details Card */}
       <Section className="px-0">
-        <Card className="bg-(--surface-elevated) border-(--border) shadow-(--shadow-sm)">
+        <Card className="bg-surface-elevated border-border shadow-sm">
           <CardContent className="p-5">
             <Stack gap="md">
               <Typography variant="h3" className="text-sm">{t('holdingDetail.purchaseDetails.title')}</Typography>
@@ -174,7 +174,7 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
                   </Stack>
                 )}
 
-                <div className="h-px bg-(--border) w-full" />
+                <div className="h-px bg-border w-full" />
 
                 {/* NOTE: We might want 'totalBuyValue' in VM formatted as string if we used it here.
                     Check HoldingItemVM. Yes it doesn't explicitly have 'totalBuyValue' formatted?
@@ -190,7 +190,7 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
               </Stack>
 
               {holding.notes && (
-                <Stack gap="xs" className="mt-2 pt-3 border-t border-(--border)">
+                <Stack gap="xs" className="mt-2 pt-3 border-t border-border">
                   <Typography variant="caption">{t('holdingDetail.purchaseDetails.notes')}</Typography>
                   <Typography variant="body-sm">
                     {holding.notes}
@@ -204,7 +204,7 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
 
       {/* Current Valuation Card */}
       <Section className="px-0 mt-6">
-        <Card className="bg-(--surface-elevated) border-(--border) shadow-(--shadow-sm)">
+        <Card className="bg-surface-elevated border-border shadow-sm">
           <CardContent className="p-5">
             <Stack gap="md">
               <Typography variant="h3" className="text-sm">{t('holdingDetail.valuation.title')}</Typography>
@@ -229,7 +229,7 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
                   <Typography variant="body" className="font-medium">{holding.weight}</Typography>
                 </Stack>
 
-                <div className="h-px bg-(--border) w-full" />
+                <div className="h-px bg-border w-full" />
 
                 <Stack direction="horizontal" className="justify-between items-center">
                   <Typography variant="h3" className="text-sm">{t('holdingDetail.valuation.totalCurrentValue')}</Typography>
@@ -242,7 +242,7 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
                     variant="body"
                     className={cn(
                       'font-semibold',
-                      holding.pnlColor === 'positive' ? 'text-(--positive)' : holding.pnlColor === 'negative' ? 'text-(--negative)' : ''
+                      holding.pnlColor === 'positive' ? 'text-positive' : holding.pnlColor === 'negative' ? 'text-negative' : ''
                     )}
                   >
                     {holding.pnl} ({holding.pnlPercentage})
@@ -261,10 +261,9 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
           {!holding.isSold && (
             <Button
               variant="outline"
-              color="warning"
-              size="xl"
-              rounded="xl"
-              fullWidth
+              color="primary"
+              size="lg"
+              className="w-full rounded-xl h-14"
               onClick={() => setShowDeleteDialog(true)}
             >
               <CheckCircle className="w-5 h-5 mr-2" />
@@ -274,11 +273,10 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
 
           {/* Hard Delete Button (Dev/Management) */}
           <Button
-            variant="ghost"
-            className="text-destructive hover:text-destructive hover:bg-destructive/10"
-            size="xl"
-            rounded="xl"
-            fullWidth
+            variant="outline"
+            color="destructive"
+            size="lg"
+            className="w-full rounded-xl h-14"
             onClick={() => setShowHardDeleteDialog(true)}
           >
             <Trash2 className="w-5 h-5 mr-2" />
@@ -298,7 +296,7 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t('holdingDetail.dialog.markAsSold.cancel')}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleSold} className={buttonVariants({ variant: 'default', color: 'error' })}>
+            <AlertDialogAction onClick={handleSold} className={buttonVariants({ variant: 'solid', color: 'destructive' })}>
               {sellMutation.isPending ? t('holdingDetail.dialog.markAsSold.confirming') : t('holdingDetail.dialog.markAsSold.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -316,7 +314,7 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>{t('holdingDetail.dialog.hardDelete.cancel')}</AlertDialogCancel>
-            <AlertDialogAction onClick={handleHardDelete} className={buttonVariants({ variant: 'default', color: 'error' })}>
+            <AlertDialogAction onClick={handleHardDelete} className={buttonVariants({ variant: 'solid', color: 'destructive' })}>
               {hardDeleteMutation.isPending ? t('holdingDetail.dialog.hardDelete.confirming') : t('holdingDetail.dialog.hardDelete.confirm')}
             </AlertDialogAction>
           </AlertDialogFooter>

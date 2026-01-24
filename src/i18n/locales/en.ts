@@ -432,6 +432,90 @@ export default {
       validationError: 'Validation Failed',
       error: 'Error Updating Gold',
       missingWeight: 'Please fill in weight.',
-    }
-  }
+    },
+  },
+  landing: {
+    hero: {
+      tagline: 'Gold Portfolio Tracker',
+      headline: 'Track your gold.\nWatch it grow.',
+      subheadline: 'A calm, focused tool for recording and monitoring your physical gold holdings.',
+      cta: 'Start Tracking',
+      secondary: 'View Prices',
+    },
+    price: {
+      title: "Today's Gold Price",
+      lastUpdate: 'Last Updated',
+      spotOpen: 'Spot Market Open',
+      disclaimer: 'Market reference price, may vary by store.',
+    },
+    proof: {
+      users: 'Users',
+      holdings: 'Holdings Tracked',
+      tracked: 'Value Tracked',
+    },
+    howItWorks: {
+      title: 'How It Works',
+      subtitle: 'Three simple steps to clarity.',
+      steps: {
+        record: {
+          title: 'Record Your Gold',
+          description: 'Add each gold piece with brand, weight, and purchase details.',
+        },
+        track: {
+          title: 'Track Market Value',
+          description: 'See real-time valuations based on official buyback prices.',
+        },
+        grow: {
+          title: 'Watch It Grow',
+          description: 'Monitor profit/loss and portfolio performance over time.',
+        },
+      },
+    },
+    why: {
+      title: 'Why Emasku Exists',
+      subtitle: 'Built for clarity, not complexity.',
+      reasons: {
+        trust: {
+          title: 'Trustworthy Data',
+          description: 'Official prices from verified sources. No manipulation.',
+        },
+        clarity: {
+          title: 'Clear Insights',
+          description: 'Simple metrics that matter. No overwhelming dashboards.',
+        },
+        privacy: {
+          title: 'Privacy First',
+          description: 'Your data stays yours. UU PDP compliant.',
+        },
+      },
+    },
+    audience: {
+      title: 'Who It\'s For',
+      subtitle: 'Designed for anyone who owns physical gold.',
+      types: {
+        collector: {
+          title: 'Gold Collectors',
+          description: 'Track jewelry, bars, and coins in one place.',
+        },
+        investor: {
+          title: 'Investors',
+          description: 'Monitor performance and make informed decisions.',
+        },
+        family: {
+          title: 'Families',
+          description: 'Keep records of inherited or gifted gold.',
+        },
+      },
+    },
+    cta: {
+      headline: 'Start with one piece of gold.',
+      subheadline: 'The rest will follow.',
+      button: 'Get Started',
+    },
+    footer: {
+      copyright: '© {year} Emasku. Made with calm.',
+      privacy: 'Privacy Policy',
+      prices: 'Gold Prices',
+    },
+  },
 } as const;

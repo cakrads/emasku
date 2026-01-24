@@ -36,7 +36,7 @@ export default function HoldingsListView() {
       ]}
       action={
         <Link href={ROUTES.ADD_HOLDING}>
-          <Button color="primary" className="hidden md:flex items-center gap-2">
+          <Button variant="solid" color="primary" className="hidden md:flex items-center gap-2">
             <Plus className="h-4 w-4" />
             <span>{t('holdings.addHolding')}</span>
           </Button>

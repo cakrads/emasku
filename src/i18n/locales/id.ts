@@ -165,7 +165,7 @@ export default {
     unableToCalculate: 'Belum bisa hitung total',
     allTime: 'Keuntungan total',
     today: 'Hari ini',
-    excludedHoldings: 'holding tidak disertakan dalam estimasi',
+    excludedHoldings: 'emas tidak disertakan dalam estimasi',
     excludedHoldingsTooltip: 'Beberapa emas tidak dihitung karena menggunakan brand custom (misal: perhiasan) atau harga pasarnya belum tersedia di sistem.',
     marketToday: 'Pasar Hari Ini',
     marketTodaySubtitle: 'Harga referensi pasar',
@@ -176,8 +176,8 @@ export default {
     performance: 'Performa',
     last7Days: '7 hari terakhir',
     chartEmpty: 'Grafik pergerakan nilai akan muncul setelah kamu menambahkan emas',
-    recentHoldings: 'Holdings Terbaru',
-    viewAllHoldings: 'Lihat semua holdings',
+    recentHoldings: 'Portofolio Terbaru',
+    viewAllHoldings: 'Lihat semua portofolio',
     noHoldingsYet: 'Belum ada emas yang ditambahkan.',
     addFirstHoldingPrompt: 'Tambahkan emas pertama Anda untuk mulai memantau portofolio.',
     addFirstHolding: 'Tambah emas',
@@ -227,7 +227,7 @@ export default {
     referenceNote: 'Harga hanya sebagai referensi pasar. Tidak dipersonalisasi. Data dimulai sejak {date}',
   },
   holdings: {
-    title: 'Emas Saya',
+    title: 'Portofolio Saya',
     description: 'Detail lengkap investasi emas Anda',
     addHolding: 'Tambah Emas Baru',
     totalBuyValue: 'Total Beli',
@@ -281,7 +281,7 @@ export default {
     },
     emptyState: {
       title: 'Kamu belum memiliki emas',
-      description: 'Mulai lacak investasi emasmu dengan menambahkan holding pertama. Kamu bisa melacak nilai, pergerakan, dan performa portofolio secara real-time.',
+      description: 'Mulai lacak investasi emasmu dengan menambahkan portofolio pertama. Kamu bisa melacak nilai, pergerakan, dan performa portofolio secara real-time.',
       action: 'Tambah Emas Pertama',
       secondaryAction: 'Atau lihat harga emas hari ini',
     }
@@ -433,6 +433,90 @@ export default {
       validationError: 'Validasi Gagal',
       error: 'Gagal memperbarui data emas',
       missingWeight: 'Mohon isi berat emas.',
-    }
-  }
+    },
+  },
+  landing: {
+    hero: {
+      tagline: 'Pencatat Portofolio Emas',
+      headline: 'Catat emasmu.\nLihat berkembang.',
+      subheadline: 'Alat yang tenang dan fokus untuk mencatat dan memantau kepemilikan emas fisik Anda.',
+      cta: 'Mulai Mencatat',
+      secondary: 'Lihat Harga',
+    },
+    price: {
+      title: 'Harga Emas Hari Ini',
+      lastUpdate: 'Update Terakhir',
+      spotOpen: 'Pasar Spot Buka',
+      disclaimer: 'Harga referensi pasar, bisa berbeda di tiap gerai.',
+    },
+    proof: {
+      users: 'Pengguna',
+      holdings: 'Emas Tercatat',
+      tracked: 'Nilai Terpantau',
+    },
+    howItWorks: {
+      title: 'Cara Kerja',
+      subtitle: 'Tiga langkah sederhana menuju kejelasan.',
+      steps: {
+        record: {
+          title: 'Catat Emasmu',
+          description: 'Tambahkan setiap emas dengan brand, berat, dan detail pembelian.',
+        },
+        track: {
+          title: 'Pantau Nilai Pasar',
+          description: 'Lihat valuasi real-time berdasarkan harga buyback resmi.',
+        },
+        grow: {
+          title: 'Lihat Berkembang',
+          description: 'Monitor untung/rugi dan performa portofolio dari waktu ke waktu.',
+        },
+      },
+    },
+    why: {
+      title: 'Mengapa Emasku',
+      subtitle: 'Dibangun untuk kejelasan, bukan kerumitan.',
+      reasons: {
+        trust: {
+          title: 'Data Terpercaya',
+          description: 'Harga resmi dari sumber terverifikasi. Tanpa manipulasi.',
+        },
+        clarity: {
+          title: 'Wawasan Jelas',
+          description: 'Metrik sederhana yang penting. Tanpa dashboard yang membingungkan.',
+        },
+        privacy: {
+          title: 'Privasi Utama',
+          description: 'Data Anda tetap milik Anda. Sesuai UU PDP.',
+        },
+      },
+    },
+    audience: {
+      title: 'Untuk Siapa',
+      subtitle: 'Dirancang untuk siapa saja yang memiliki emas fisik.',
+      types: {
+        collector: {
+          title: 'Kolektor Emas',
+          description: 'Lacak perhiasan, batangan, dan koin dalam satu tempat.',
+        },
+        investor: {
+          title: 'Investor',
+          description: 'Pantau performa dan buat keputusan yang tepat.',
+        },
+        family: {
+          title: 'Keluarga',
+          description: 'Simpan catatan emas warisan atau hadiah.',
+        },
+      },
+    },
+    cta: {
+      headline: 'Mulai dengan satu emas.',
+      subheadline: 'Sisanya akan mengikuti.',
+      button: 'Mulai Sekarang',
+    },
+    footer: {
+      copyright: '© {year} Emasku. Dibuat dengan tenang.',
+      privacy: 'Kebijakan Privasi',
+      prices: 'Harga Emas',
+    },
+  },
 } as const;

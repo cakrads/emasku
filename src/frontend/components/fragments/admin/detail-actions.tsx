@@ -25,13 +25,10 @@ export function DetailActions({ actions, className }: DetailActionsProps) {
             <Button
               key={idx}
               variant={action.variant}
-              color={action.color}
               onClick={action.onClick}
               disabled={action.disabled}
-              fullWidth
               size="lg"
-              rounded="xl"
-              className="h-12 text-sm font-semibold"
+              className="w-full h-12 text-sm font-semibold"
             >
               {action.label}
             </Button>

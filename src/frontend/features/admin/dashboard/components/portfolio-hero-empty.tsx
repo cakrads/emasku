@@ -31,7 +31,7 @@ export default function PortfolioHeroEmpty() {
       </Stack>
 
       <Stack direction="horizontal" gap="md" className="items-center flex-wrap">
-        <Button asChild color="primary" size="sm">
+        <Button asChild variant="solid" color="primary" size="sm">
           <Link href={ROUTES.ADD_HOLDING}>{t('dashboard.addGoldHolding')}</Link>
         </Button>
         <Link
