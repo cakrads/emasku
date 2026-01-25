@@ -45,14 +45,11 @@ export const logger = winston.createLogger({
   defaultMeta: { service: 'emasku-api' },
   transports: [
     new winston.transports.Console(),
-    
-    // In production, also write to files for persistence
-    ...(IS_PRODUCTION
-      ? [
-          new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
-          new winston.transports.File({ filename: 'logs/combined.log' }),
-        ]
-      : []),
+
+    // In serverless environments (Vercel), we must rely on stdout/stderr
+    // File system is read-only, so writing to 'logs/' would crash the app.
+    // Vercel/AWS automatically capture console logs.
+
   ],
 })
 

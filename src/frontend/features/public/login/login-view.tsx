@@ -7,8 +7,8 @@
  * Follows UI architecture rules - uses primitives from components/ui.
  */
 
-import React, { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import React, { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { User, Chrome, AlertCircle, Shield } from 'lucide-react'
 import { Button } from '@/frontend/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/frontend/components/ui/card'
@@ -21,9 +21,11 @@ import { Checkbox } from '@/frontend/components/ui/checkbox'
 import { Label } from '@/frontend/components/ui/label'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { cn } from '@/frontend/utils/cn'
+import { toast } from 'sonner'
 
 export function LoginView() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const setSession = useAuthStore((state) => state.setSession)
 
   const { t, language, setLanguage } = useLanguage()
@@ -31,6 +33,24 @@ export function LoginView() {
   const [isLoadingGoogle, setIsLoadingGoogle] = useState(false)
   const [hasConsented, setHasConsented] = useState(false)
   const [error, setError] = useState<{ userMessage: string; recoveryAction?: string } | null>(null)
+
+  // Handle errors from redirect (e.g. Server 500 caught by try-catch)
+  useEffect(() => {
+    const errorParam = searchParams.get('error')
+    if (errorParam === 'auth_callback_error') {
+      toast.error(t('login.error.serverConfig'), {
+        description: "Configuration Error on Vercel. Please unset 'logs' writing or check environment variables.",
+        duration: 8000,
+        action: {
+          label: 'Retry',
+          onClick: () => window.location.reload()
+        }
+      })
+      setError({
+        userMessage: "Server configuration error. Contact administrator."
+      })
+    }
+  }, [searchParams, t])
 
   const handleGuestLogin = async () => {
     if (!hasConsented) {
