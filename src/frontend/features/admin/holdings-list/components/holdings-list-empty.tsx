@@ -10,6 +10,7 @@ import { useLanguage } from '@/frontend/hooks/use-language'
 
 export default function HoldingsListEmpty() {
   const { t } = useLanguage()
+
   return (
     <Stack
       gap="lg"

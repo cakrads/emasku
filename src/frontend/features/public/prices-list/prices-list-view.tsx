@@ -9,6 +9,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { Typography } from '@/frontend/components/ui/typography'
+import { Skeleton } from '@/frontend/components/ui/skeleton'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
 import { ROUTES } from '@/frontend/config/routes'
 import { fetchTodayPrices } from '@/frontend/services/prices/prices.api'
@@ -105,6 +106,27 @@ function PricesListViewContent() {
   if (isLoading) {
     return (
       <div className="flex flex-col gap-8">
+        {/* Responsive Header Actions Skeleton */}
+        <div className="flex justify-between items-center -mb-4">
+          {/* Desktop: View History Button (Left) */}
+          <Skeleton className="hidden md:flex h-9 w-36 rounded-md" />
+
+          {/* Mobile: Last Updated (Left) */}
+          <div className="flex md:hidden items-center gap-2">
+            <Skeleton className="w-2 h-2 rounded-full" />
+            <Skeleton className="h-4 w-40" />
+          </div>
+
+          {/* Mobile: Chart Button (Right) */}
+          <Skeleton className="md:hidden h-8 w-8 rounded-md" />
+
+          {/* Desktop: Last Updated (Right) */}
+          <div className="hidden md:flex items-center gap-2">
+            <Skeleton className="w-2 h-2 rounded-full" />
+            <Skeleton className="h-4 w-48" />
+          </div>
+        </div>
+
         {/* Skeleton for 4 brand sections */}
         {[1, 2, 3, 4].map((index) => (
           <BrandPriceSkeletonSection key={index} />
@@ -153,7 +175,7 @@ function PricesListViewContent() {
 
         {/* Mobile: Last Updated (Left) */}
         <div className="flex md:hidden items-center gap-2 text-muted-foreground/60">
-          <div className="w-2 h-2 rounded-full bg-(--positive) animate-pulse" />
+          <div className="w-2 h-2 rounded-full bg-positive animate-pulse" />
           <Typography variant="caption" className="text-xs">
             {t('dashboard.lastUpdated')}: {viewModel.lastUpdated}
           </Typography>
@@ -168,7 +190,7 @@ function PricesListViewContent() {
 
         {/* Desktop: Last Updated (Right) */}
         <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground text-right">
-          <div className="w-2 h-2 rounded-full bg-(--positive) animate-pulse" />
+          <div className="w-2 h-2 rounded-full bg-positive animate-pulse" />
           <span>{t('dashboard.lastUpdated')}: {viewModel.lastUpdated}</span>
         </div>
       </div>

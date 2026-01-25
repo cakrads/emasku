@@ -29,6 +29,9 @@ export function BrandPriceSkeletonSection() {
               <th className="px-6 py-3 text-right">
                 <Skeleton className="h-4 w-24 ml-auto" />
               </th>
+              <th className="px-6 py-3 text-right">
+                <Skeleton className="h-4 w-20 ml-auto" />
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -46,6 +49,9 @@ export function BrandPriceSkeletonSection() {
                 </td>
                 <td className="px-6 py-3 text-right">
                   <Skeleton className="h-5 w-28 ml-auto" />
+                </td>
+                <td className="px-6 py-3 text-right">
+                  <Skeleton className="h-5 w-24 ml-auto" />
                 </td>
               </tr>
             ))}

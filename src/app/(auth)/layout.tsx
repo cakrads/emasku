@@ -1,16 +1,16 @@
 import { SharedNavbar } from '@/frontend/components/layout/shared-navbar'
 
-export default function DashboardLayout({
+export default function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-background pb-16 md:pb-0 md:pt-16">
+    <>
       <SharedNavbar />
-      <main className="flex-1">
+      <main className="min-h-screen bg-background pt-16">
         {children}
       </main>
-    </div>
+    </>
   );
 }

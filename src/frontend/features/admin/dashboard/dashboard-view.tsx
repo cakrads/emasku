@@ -40,7 +40,7 @@ function DashboardContent() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 min-h-auto md:min-h-[190px]">
+            <div className="lg:col-span-2 min-h-[160px] md:min-h-[190px]">
               <ErrorBoundary>
                 {isLoading ? (
                   <PortfolioSummarySkeleton />
@@ -61,7 +61,7 @@ function DashboardContent() {
               </ErrorBoundary>
             </div>
 
-            <div className="lg:col-span-1 lg:relative min-w-0">
+            <div className="lg:col-span-1 lg:relative min-w-0 min-h-[280px] lg:min-h-0">
               <div className="flex flex-col h-full lg:absolute lg:inset-0 w-full">
                 <div className="flex-1 overflow-hidden min-h-0">
                   <PricesTodayCards />

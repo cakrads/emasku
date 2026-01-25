@@ -180,40 +180,6 @@ export function PrivacyView() {
 
       </div>
 
-      {/* Language Switcher */}
-      <div className="fixed top-4 right-4 flex items-center bg-card/80 backdrop-blur-sm p-1 rounded-full border shadow-sm z-50">
-        <div className="relative flex items-center">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setLanguage('id')}
-            className={cn(
-              "h-8 w-11 p-0 rounded-full text-xs font-bold transition-all relative z-10",
-              language === 'id' ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-transparent"
-            )}
-          >
-            ID
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setLanguage('en')}
-            className={cn(
-              "h-8 w-11 p-0 rounded-full text-xs font-bold transition-all relative z-10",
-              language === 'en' ? "text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-transparent"
-            )}
-          >
-            EN
-          </Button>
-          {/* Animated Background Slide */}
-          <div
-            className={cn(
-              "absolute h-8 w-11 bg-primary rounded-full transition-all duration-200 ease-in-out shadow-sm",
-              language === 'id' ? "translate-x-0" : "translate-x-full"
-            )}
-          />
-        </div>
-      </div>
     </div>
   )
 }

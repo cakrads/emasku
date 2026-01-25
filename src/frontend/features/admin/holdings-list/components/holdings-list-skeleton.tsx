@@ -4,8 +4,36 @@
 
 import { Stack } from '@/frontend/components/ui/layout'
 import { Skeleton } from '@/frontend/components/ui/skeleton'
+import { Typography } from '@/frontend/components/ui/typography'
+import { useLanguage } from '@/frontend/hooks/use-language'
+
+export function HoldingCardSkeleton() {
+  const { t } = useLanguage()
+
+  return (
+    <div className="rounded-xl border border-border bg-card p-4 md:p-6 min-h-[200px] md:min-h-[132px]">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        {[
+          t('holdings.summary.totalWeight'),
+          t('holdings.summary.purchaseValue'),
+          t('holdings.summary.estimatedValue'),
+          t('holdings.summary.profitLoss')
+        ].map((label, i) => (
+          <div key={i} className="space-y-1.5">
+            <Typography variant="caption" className="text-muted-foreground opacity-60">
+              {label}
+            </Typography>
+            <Skeleton className="h-7 w-32 md:h-8 md:w-36 rounded-lg" />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
 
 export function HoldingsListSkeleton() {
+  const { t } = useLanguage()
+
   return (
     <Stack gap="sm">
       {/* 1. Action Bar Skeleton */}
@@ -13,76 +41,95 @@ export function HoldingsListSkeleton() {
         <Skeleton className="h-9 w-24 rounded-md" />
         <Skeleton className="h-9 w-32 rounded-md" />
       </div>
+
       {/* 2. Portfolio Summary Skeleton (Single Wide Card) */}
-      <div>
-        <div className="rounded-xl border border-border bg-card p-4 md:p-6 h-[129px]">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="space-y-2">
-                <Skeleton className="h-3 w-24" />
-                <Skeleton className="h-8 w-32 rounded-lg" />
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+      <HoldingCardSkeleton />
+
       {/* 3. Table Skeleton (Holdings List) */}
-      <div className="py-6">
+      <div className="py-2 md:py-4">
         <div className="space-y-4">
           <div className="overflow-x-auto">
-            <div className="w-full">
-              {/* Header */}
-              <div className="flex items-center border-b border-border py-3 px-4 gap-4 bg-transparent">
-                <Skeleton className="h-4 w-24" /> {/* Date */}
-                <Skeleton className="h-4 w-20" /> {/* Weight */}
-                <Skeleton className="h-4 w-24 ml-auto" /> {/* Buy Price */}
-                <Skeleton className="h-4 w-24 ml-auto" /> {/* Current Value */}
-                <Skeleton className="h-4 w-20 ml-auto" /> {/* PnL */}
-              </div>
-
-              {/* Rows */}
-              <div className="divide-y divide-border">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="border-b border-border">
+                  <th className="py-3 px-4 text-left whitespace-nowrap">
+                    <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
+                      {t('holdings.table.date')}
+                    </Typography>
+                  </th>
+                  <th className="py-3 px-4 text-left whitespace-nowrap">
+                    <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
+                      {t('holdings.table.weight')}
+                    </Typography>
+                  </th>
+                  <th className="py-3 px-4 text-right whitespace-nowrap">
+                    <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
+                      {t('holdings.table.buyPrice')}
+                    </Typography>
+                  </th>
+                  <th className="py-3 px-4 text-right whitespace-nowrap">
+                    <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
+                      {t('holdings.table.currentValue')}
+                    </Typography>
+                  </th>
+                  <th className="py-3 px-4 text-right whitespace-nowrap">
+                    <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
+                      {t('holdings.table.pnl')}
+                    </Typography>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
                 {[1, 2, 3, 4, 5].map((i) => (
-                  <div key={i} className="flex border-b border-border py-4 px-4 gap-4 items-center">
-                    {/* Date + Duration */}
-                    <div className="w-1/5 flex flex-col gap-1.5">
-                      <Skeleton className="h-4 w-24" />
-                      <Skeleton className="h-3 w-16" />
-                    </div>
+                  <tr key={i} className="border-b border-border">
+                    {/* Date Column */}
+                    <td className="py-4 px-4 whitespace-nowrap">
+                      <div className="flex flex-col gap-1.5 text-left">
+                        <Skeleton className="h-4 w-28" />
+                        <Skeleton className="h-3 w-16 opacity-60" />
+                      </div>
+                    </td>
 
-                    {/* Weight + Brand */}
-                    <div className="w-1/5 flex flex-col gap-1.5">
-                      <Skeleton className="h-4 w-12" />
-                      <Skeleton className="h-3 w-20" />
-                    </div>
+                    {/* Weight + Brand Column */}
+                    <td className="py-4 px-4 whitespace-nowrap">
+                      <div className="flex flex-col gap-1.5 text-left">
+                        <Skeleton className="h-4 w-12" />
+                        <Skeleton className="h-3 w-24 opacity-60" />
+                      </div>
+                    </td>
 
-                    {/* Buy Price */}
-                    <div className="w-1/5 ml-auto flex justify-end">
-                      <Skeleton className="h-4 w-28" />
-                    </div>
+                    {/* Buy Price Column */}
+                    <td className="py-4 px-4 text-right whitespace-nowrap">
+                      <Skeleton className="h-5 w-28 ml-auto" />
+                    </td>
 
-                    {/* Current Value */}
-                    <div className="w-1/5 ml-auto flex justify-end">
-                      <Skeleton className="h-4 w-28 font-medium" />
-                    </div>
+                    {/* Current Value Column */}
+                    <td className="py-4 px-4 text-right whitespace-nowrap">
+                      <Skeleton className="h-5 w-32 ml-auto" />
+                    </td>
 
-                    {/* PnL + % */}
-                    <div className="w-1/5 ml-auto flex flex-col items-end gap-1">
-                      <Skeleton className="h-4 w-24" />
-                      <Skeleton className="h-3 w-12" />
-                    </div>
-                  </div>
+                    {/* PnL Column */}
+                    <td className="py-4 px-4 text-right whitespace-nowrap">
+                      <div className="flex flex-col items-end gap-1.5">
+                        <div className="flex items-center gap-1.5">
+                          <Skeleton className="w-3 h-3 rounded-full" />
+                          <Skeleton className="h-5 w-20" />
+                        </div>
+                        <Skeleton className="h-3 w-12 opacity-60" />
+                      </div>
+                    </td>
+                  </tr>
                 ))}
-              </div>
-            </div>
+              </tbody>
+            </table>
           </div>
 
           {/* Pagination Skeleton */}
-          <div className="flex items-center justify-between px-2">
-            <Skeleton className="h-4 w-40" />
+          <div className="flex items-center justify-between px-2 pt-2">
+            <Skeleton className="h-4 w-44" />
             <div className="flex items-center space-x-2">
-              <Skeleton className="h-8 w-8 rounded-md" />
-              <Skeleton className="h-8 w-8 rounded-md" />
+              <Skeleton className="h-9 w-9 rounded-md" />
+              <Skeleton className="h-9 w-9 rounded-md" />
             </div>
           </div>
         </div>

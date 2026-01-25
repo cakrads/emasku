@@ -241,12 +241,15 @@ export default function HoldingsTable({
   return (
     <div className="space-y-4">
       <div className="overflow-x-auto">
-        <table className="w-full">
+        <table className="w-full border-collapse">
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id} className="border-b border-(--border)">
                 {headerGroup.headers.map((header) => (
-                  <th key={header.id} className="text-left py-3 px-4">
+                  <th key={header.id} className={cn(
+                    "py-3 px-4 text-left whitespace-nowrap font-medium",
+                    header.column.id === 'avgBuyPrice' || header.column.id === 'totalValue' || header.column.id === 'pnl' ? "text-right" : "text-left"
+                  )}>
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -268,10 +271,13 @@ export default function HoldingsTable({
                   const target = ROUTES.HOLDING_DETAIL(holdingId) + (backUrl ? `?backUrl=${encodeURIComponent(backUrl)}` : '')
                   router.push(target)
                 }}
-                className="border-b border-(--border) hover:bg-muted/50 cursor-pointer transition-colors"
+                className="border-b border-(--border) hover:bg-muted/50 cursor-pointer transition-colors group"
               >
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="py-4 px-4">
+                  <td key={cell.id} className={cn(
+                    "py-4 px-4 whitespace-nowrap",
+                    cell.column.id === 'avgBuyPrice' || cell.column.id === 'totalValue' || cell.column.id === 'pnl' ? "text-right" : "text-left"
+                  )}>
                     {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </td>
                 ))}

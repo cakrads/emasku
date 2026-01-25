@@ -7,30 +7,33 @@
 import { Skeleton } from '@/frontend/components/ui/skeleton'
 import { Stack, Divider } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
+import { useLanguage } from '@/frontend/hooks/use-language'
 
 export function PortfolioSummarySkeleton() {
+  const { t } = useLanguage()
+
   return (
     <Stack gap="md" className="min-h-auto md:min-h-[190px]">
       <Stack gap="xs">
-        <Typography variant="h4" className='mb-2'>Portfolio Value</Typography>
-        {/* Main Value */}
-        <Skeleton className="h-10 md:h-12 w-48 md:w-64 mb-1" />
+        <Typography variant="h4" className='mb-2'>{t('dashboard.portfolioValue')}</Typography>
+        {/* Main Value - Matches text-5xl md:text-5xl (48px height) */}
+        <Skeleton className="h-12 w-48 md:w-80 mb-2" />
+
+        {/* Context Note placeholder */}
+        <Typography variant="caption" className="text-(--text-muted) opacity-60">
+          {t('dashboard.estimationContext')}
+        </Typography>
       </Stack>
 
-      {/* Stats Row */}
-      <Stack direction="horizontal" gap="md" className="items-center flex-wrap">
-        <Stack direction="horizontal" gap="sm" className="items-center">
-          <Skeleton className="h-4 w-16" />
-          <Typography variant="caption" className="text-(--text-muted)">all time</Typography>
-        </Stack>
-
-        <Divider direction="vertical" className="h-4" />
-
-        <Stack direction="horizontal" gap="sm" className="items-center">
-          <Skeleton className="h-4 w-16" />
-          <Typography variant="caption" className="text-(--text-muted)">today</Typography>
-        </Stack>
-      </Stack>
+      {/* Stats Row - Only All Time (Today is hidden per user feedback) */}
+      <div className="flex items-center flex-wrap gap-4">
+        <div className="flex items-baseline gap-2">
+          <Typography variant="body-sm" className="text-(--text-muted)">
+            {t('dashboard.allTime')}:
+          </Typography>
+          <Skeleton className="h-3 w-16" />
+        </div>
+      </div>
     </Stack>
   )
 }

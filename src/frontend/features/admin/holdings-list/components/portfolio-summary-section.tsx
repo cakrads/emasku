@@ -10,6 +10,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/frontend/components/u
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/frontend/components/ui/tooltip'
 import { useIsMobile } from '@/frontend/hooks/use-mobile'
 import { ResponsiveInfoTip } from '@/frontend/components/ui/responsive-info-tip'
+import { HoldingCardSkeleton } from './holdings-list-skeleton'
 
 interface PortfolioSummarySectionProps {
   totalWeightGram: number
@@ -57,13 +58,31 @@ export default function PortfolioSummarySection({
   const showValuation = statusFilter !== 'sold'
 
   if (isLoading) {
+    const skeletonItems = [
+      { icon: Scale, label: t('holdings.summary.totalWeight') },
+      { icon: Wallet, label: t('holdings.summary.purchaseValue') },
+      { icon: Coins, label: t('holdings.summary.estimatedValue') },
+      { icon: TrendingUp, label: t('holdings.summary.profitLoss') },
+    ]
+
     return (
-      <Section className="bg-(--surface-elevated) border border-(--border) rounded-xl p-4 md:p-6">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="space-y-2">
-              <Skeleton className="h-4 w-20" />
-              <Skeleton className="h-6 w-28" />
+      <Section className="bg-(--surface-elevated) border border-(--border) rounded-xl p-4 md:p-6 min-h-[200px] md:min-h-[132px]">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          {skeletonItems.map((item, i) => (
+            <div key={i} className="space-y-1 min-w-0">
+              <Stack direction="horizontal" gap="xs" className="items-center opacity-60">
+                <item.icon className="w-4 h-4 text-muted-foreground shrink-0" />
+                <Typography variant="caption" className="text-muted-foreground text-xs whitespace-nowrap">
+                  {item.label}
+                </Typography>
+              </Stack>
+              {/* Mirroring: flex flex-col xl:flex-row xl:items-baseline gap-x-2 */}
+              <div className="flex flex-col xl:flex-row xl:items-baseline gap-x-2 mt-1">
+                <Skeleton className="h-7 w-32 md:h-8 md:w-40 rounded-md" />
+                {item.label === t('holdings.summary.profitLoss') && (
+                  <Skeleton className="h-4 w-12 rounded-md mt-1 xl:mt-0" />
+                )}
+              </div>
             </div>
           ))}
         </div>
@@ -72,8 +91,7 @@ export default function PortfolioSummarySection({
   }
 
   return (
-    <Section className="bg-(--surface-elevated) border border-(--border) rounded-xl p-4 md:p-6">
-
+    <Section className="bg-(--surface-elevated) border border-(--border) rounded-xl p-4 md:p-6 min-h-[200px] md:min-h-[132px]">
       <div className={cn('grid gap-4 md:gap-6', showValuation ? 'grid-cols-2 lg:grid-cols-4' : 'grid-cols-2')}>
         {/* Total Weight */}
         <div className="space-y-1 min-w-0">
@@ -160,7 +178,6 @@ export default function PortfolioSummarySection({
         )}
       </div>
 
-      {/* Footer with disclosure and filter status */}
       {/* Footer with disclosure and filter status */}
       {(showValuation || isFiltered) && (
         <div className="mt-4 -mx-4 md:-mx-6 -mb-4 md:-mb-6 px-4 md:px-6 py-2.5 bg-muted/40 rounded-b-xl border-t border-border/30 flex flex-wrap items-start justify-start gap-x-3 gap-y-1">
