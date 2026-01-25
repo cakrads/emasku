@@ -148,8 +148,8 @@ export function ProfileView() {
                 <span className="font-medium">{t('common.language')}</span>
               </div>
               <div className="flex items-center gap-2">
-                <Button variant={language === 'id' ? 'default' : 'outline'} size="sm" onClick={() => setLanguage('id')} className="h-7 px-2 text-xs">ID</Button>
-                <Button variant={language === 'en' ? 'default' : 'outline'} size="sm" onClick={() => setLanguage('en')} className="h-7 px-2 text-xs">EN</Button>
+                <Button variant={language === 'id' ? 'solid' : 'outline'} size="sm" onClick={() => setLanguage('id')} className="h-7 px-2 text-xs">ID</Button>
+                <Button variant={language === 'en' ? 'solid' : 'outline'} size="sm" onClick={() => setLanguage('en')} className="h-7 px-2 text-xs">EN</Button>
               </div>
             </div>
           </CardContent>
@@ -207,7 +207,8 @@ export function ProfileView() {
                   </div>
                 </div>
                 <Button
-                  variant="destructive"
+                  variant="solid"
+                  color="destructive"
                   size="sm"
                   onClick={() => setShowDeleteDialog(true)}
                   disabled={isDeleting}
@@ -224,7 +225,8 @@ export function ProfileView() {
         <h3 className="text-sm font-medium text-muted-foreground ml-1">{t('common.account')}</h3>
 
         <Button
-          variant="secondary"
+          variant="solid"
+          color="subtle"
           className="w-full justify-start gap-2"
           onClick={() => setShowLogoutDialog(true)}
         >
@@ -251,7 +253,7 @@ export function ProfileView() {
             <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteAccount}
-              className={buttonVariants({ variant: 'default', color: 'error' })}
+              className={buttonVariants({ variant: 'solid', color: 'destructive' })}
             >
               {t('profile.deleteConfirm')}
             </AlertDialogAction>

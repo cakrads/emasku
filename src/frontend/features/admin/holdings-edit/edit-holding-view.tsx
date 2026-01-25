@@ -223,7 +223,7 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
           },
           {
             label: updateMutation.isPending ? t('editHolding.actions.saving') : t('editHolding.actions.save'),
-            variant: 'default',
+            variant: 'solid',
             onClick: handleSave,
             disabled: updateMutation.isPending
           },

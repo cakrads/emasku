@@ -34,7 +34,7 @@ export function LogoutDialog({ open, onOpenChange, onConfirm }: LogoutDialogProp
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>{t('logout.cancel')}</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm} className={buttonVariants({ variant: 'default', color: 'error' })}>
+          <AlertDialogAction onClick={onConfirm} className={buttonVariants({ variant: 'solid', color: 'destructive' })}>
             {t('logout.confirm')}
           </AlertDialogAction>
         </AlertDialogFooter>

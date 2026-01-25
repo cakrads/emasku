@@ -94,7 +94,7 @@ export default function FilterModal({
             {(['active', 'sold', 'all'] as const).map((status) => (
               <Button
                 key={status}
-                variant={localStatus === status ? 'default' : 'outline'}
+                variant={localStatus === status ? 'solid' : 'outline'}
                 size="sm"
                 onClick={() => setLocalStatus(status)}
               >
@@ -130,14 +130,14 @@ export default function FilterModal({
           </Typography>
           <div className="flex flex-wrap gap-2">
             <Button
-              variant={localSortBy === 'date' ? 'default' : 'outline'}
+              variant={localSortBy === 'date' ? 'solid' : 'outline'}
               size="sm"
               onClick={() => setLocalSortBy('date')}
             >
               {t('holdings.filters.options.date')}
             </Button>
             <Button
-              variant={localSortBy === 'value' ? 'default' : 'outline'}
+              variant={localSortBy === 'value' ? 'solid' : 'outline'}
               size="sm"
               onClick={() => setLocalSortBy('value')}
             >
@@ -153,14 +153,14 @@ export default function FilterModal({
           </Typography>
           <div className="flex flex-wrap gap-2">
             <Button
-              variant={localSortOrder === 'desc' ? 'default' : 'outline'}
+              variant={localSortOrder === 'desc' ? 'solid' : 'outline'}
               size="sm"
               onClick={() => setLocalSortOrder('desc')}
             >
               {t('holdings.filters.options.newest')}
             </Button>
             <Button
-              variant={localSortOrder === 'asc' ? 'default' : 'outline'}
+              variant={localSortOrder === 'asc' ? 'solid' : 'outline'}
               size="sm"
               onClick={() => setLocalSortOrder('asc')}
             >

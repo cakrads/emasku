@@ -105,7 +105,7 @@ export default function FilterBar({
         {/* Sort Order */}
         <Stack direction="horizontal" gap="xs">
           <Button
-            variant={sortOrder === 'desc' ? 'default' : 'outline'}
+            variant={sortOrder === 'desc' ? 'solid' : 'outline'}
             size="sm"
             onClick={() => onSortOrderChange('desc')}
             className="h-7"
@@ -113,7 +113,7 @@ export default function FilterBar({
             {t('holdings.filters.options.newest')}
           </Button>
           <Button
-            variant={sortOrder === 'asc' ? 'default' : 'outline'}
+            variant={sortOrder === 'asc' ? 'solid' : 'outline'}
             size="sm"
             onClick={() => onSortOrderChange('asc')}
             className="h-7"

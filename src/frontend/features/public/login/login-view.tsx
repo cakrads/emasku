@@ -144,7 +144,7 @@ export function LoginView() {
             </div>
 
             <Button
-              variant="default"
+              variant="solid"
               size="lg"
               className="w-full"
               onClick={handleGoogleLogin}
