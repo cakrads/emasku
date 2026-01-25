@@ -12,7 +12,7 @@ import { validatePublicApiKey, isBlockedUserAgent, isPublicApiKeyRequired } from
  */
 
 // Routes that don't require authentication
-const PUBLIC_ROUTES = ['/login', '/auth/callback', '/privacy', '/prices']
+const PUBLIC_ROUTES = ['/', '/login', '/auth/callback', '/privacy', '/prices']
 
 // Routes that should skip middleware entirely
 const SKIP_ROUTES = ['/_next/', '/favicon.ico']
