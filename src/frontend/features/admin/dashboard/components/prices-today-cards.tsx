@@ -75,14 +75,16 @@ function PricesTodayContent() {
                   <Typography variant="caption" className="font-semibold text-muted-foreground group-hover:text-accent-gold transition-colors">
                     {brand.brandName}
                   </Typography>
-                  <span className="text-[10px] text-muted-foreground/60">1g</span>
                 </div>
 
                 {/* Price + Delta grouped together */}
                 <div className="flex flex-col gap-1.5 mb-1">
-                  <Typography variant="body" className="font-bold -tracking-wide">
-                    {price1g?.sellPriceFormatted || '—'}
-                  </Typography>
+                  <div className="flex items-baseline gap-1">
+                    <Typography variant="body" className="font-bold -tracking-wide">
+                      {price1g?.sellPriceFormatted || '—'}
+                    </Typography>
+                    <span className="text-xs text-muted-foreground font-medium">/gram</span>
+                  </div>
 
                   {price1g?.sellDelta !== null && price1g?.sellDelta !== undefined && (
                     <>
@@ -91,7 +93,7 @@ function PricesTodayContent() {
                         <TooltipProvider delayDuration={200}>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <div><DeltaIndicator delta={price1g.sellDelta} deltaPercentage={price1g.sellDeltaPercentage} /></div>
+                              <div className="w-fit"><DeltaIndicator delta={price1g.sellDelta} deltaPercentage={price1g.sellDeltaPercentage} /></div>
                             </TooltipTrigger>
                             <TooltipContent>
                               <p className="text-xs">{t('dashboard.marketPriceTooltip')}</p>

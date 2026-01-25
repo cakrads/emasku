@@ -54,6 +54,11 @@ function BrandPriceSection({ brandName, prices }: BrandPriceGroupVM) {
                   {t('prices.table.buyback')}
                 </Typography>
               </th>
+              <th className="px-6 py-3 text-right">
+                <Typography variant="body-sm" className="font-medium">
+                  Spread
+                </Typography>
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -70,6 +75,9 @@ function BrandPriceSection({ brandName, prices }: BrandPriceGroupVM) {
                 </td>
                 <td className="px-6 py-3 text-right">
                   <Typography variant="body">{price.buybackPriceFormatted}</Typography>
+                </td>
+                <td className="px-6 py-3 text-right text-muted-foreground">
+                  <Typography variant="body">{price.spreadFormatted}</Typography>
                 </td>
               </tr>
             ))}

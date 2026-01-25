@@ -55,6 +55,8 @@ export interface PriceEntryVM {
   sellDeltaPercentage: number | null
   buybackDeltaPercentage: number | null
   weightLabel: string
+  spread: number | null
+  spreadFormatted: string
 }
 
 /**
@@ -106,18 +108,26 @@ export function transformTodayPrices(apiData: PricesTodayResponse, locale: strin
     brands: apiData.brands.map((brandGroup) => ({
       brandName: brandGroup.brand,
       prices: brandGroup.prices
-        .map((price) => ({
-          denominationGram: price.denominationGram,
-          sellPrice: price.sellPrice,
-          buybackPrice: price.buybackPrice,
-          sellDelta: price.sellDelta,
-          buybackDelta: price.buybackDelta,
-          sellDeltaPercentage: (price.sellDelta !== null && price.sellPrice !== null) ? (price.sellDelta / (price.sellPrice - price.sellDelta)) * 100 : null,
-          buybackDeltaPercentage: (price.buybackDelta !== null && price.buybackPrice !== null) ? (price.buybackDelta / (price.buybackPrice - price.buybackDelta)) * 100 : null,
-          sellPriceFormatted: formatIDR(price.sellPrice, locale),
-          buybackPriceFormatted: formatIDR(price.buybackPrice, locale),
-          weightLabel: `${price.denominationGram} g`,
-        }))
+        .map((price) => {
+          const spread = (price.sellPrice !== null && price.buybackPrice !== null)
+            ? price.sellPrice - price.buybackPrice
+            : null
+
+          return {
+            denominationGram: price.denominationGram,
+            sellPrice: price.sellPrice,
+            buybackPrice: price.buybackPrice,
+            spread,
+            sellDelta: price.sellDelta,
+            buybackDelta: price.buybackDelta,
+            sellDeltaPercentage: (price.sellDelta !== null && price.sellPrice !== null) ? (price.sellDelta / (price.sellPrice - price.sellDelta)) * 100 : null,
+            buybackDeltaPercentage: (price.buybackDelta !== null && price.buybackPrice !== null) ? (price.buybackDelta / (price.buybackPrice - price.buybackDelta)) * 100 : null,
+            sellPriceFormatted: formatIDR(price.sellPrice, locale),
+            buybackPriceFormatted: formatIDR(price.buybackPrice, locale),
+            spreadFormatted: formatIDR(spread, locale),
+            weightLabel: `${price.denominationGram} g`,
+          }
+        })
         // Sort by weight ascending
         .sort((a, b) => a.denominationGram - b.denominationGram),
     })),

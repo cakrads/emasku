@@ -167,7 +167,7 @@ export default function PortfolioSummarySection({
           {showValuation && (
             <div className="flex items-start gap-1.5 max-w-full">
               <Info className="w-3 h-3 mt-0.5 text-muted-foreground/60 shrink-0" />
-              <Typography variant="caption" className="text-muted-foreground text-[11px] leading-tight text-left">
+              <Typography variant="caption" className="text-muted-foreground text-[11px] text-left">
                 {t('holdings.summary.disclosure')}
               </Typography>
             </div>
@@ -176,7 +176,7 @@ export default function PortfolioSummarySection({
             <span className="text-muted-foreground/40 text-[10px] mt-0.5">•</span>
           )}
           {isFiltered && (
-            <Typography variant="caption" className="text-amber-600 dark:text-amber-400 text-[11px] leading-tight mt-0.5">
+            <Typography variant="caption" className="text-amber-600 dark:text-amber-400 text-[11px] mt-0.5">
               {t('holdings.filteredData')}
             </Typography>
           )}

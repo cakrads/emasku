@@ -20,17 +20,17 @@ export function HeroBackground() {
         style={{ transform: `translateY(${scrollY * 0.05}px)` }}
       />
 
-      {/* Main Background Glow - Premium Gold (Center) - Restored from previous iteration */}
+      {/* Main Background Glow - Premium Gold (Center) - Tuned Down */}
       <div
-        className="absolute top-1/2 left-1/2 w-[800px] h-[600px] bg-accent-gold/18 dark:bg-accent-gold/22 blur-[150px] rounded-full pointer-events-none will-change-transform"
+        className="absolute top-1/2 left-1/2 w-[800px] h-[600px] bg-accent-gold/8 dark:bg-accent-gold/10 blur-[150px] rounded-full pointer-events-none will-change-transform"
         style={{
           transform: `translate(-50%, calc(-50% + ${scrollY * 0.1}px))`,
         }}
       />
 
-      {/* Secondary Accent Glow - Premium Gold (Top Middle) - Restored from previous iteration */}
+      {/* Secondary Accent Glow - Premium Gold (Top Middle) - Tuned Down */}
       <div
-        className="absolute top-[10%] left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-accent-gold/14 dark:bg-accent-gold/18 blur-[120px] rounded-full pointer-events-none will-change-transform"
+        className="absolute top-[10%] left-1/2 -translate-x-1/2 w-[500px] h-[300px] bg-accent-gold/5 dark:bg-accent-gold/8 blur-[120px] rounded-full pointer-events-none will-change-transform"
         style={{
           transform: `translate(-50%, ${scrollY * 0.07}px)`,
         }}
