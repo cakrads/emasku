@@ -132,7 +132,6 @@
   --animate-fade-up: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   --animate-fade-in: fade-in 0.6s ease-out forwards;
   --animate-float: float 6s ease-in-out infinite;
-  --animate-shimmer: shimmer 2s linear infinite;
 
   @keyframes glow-pulse {
 
@@ -180,15 +179,8 @@
     }
   }
 
-  @keyframes shimmer {
-    0% {
-      background-position: -200% 0;
-    }
-
-    100% {
-      background-position: 200% 0;
-    }
-  }
+  /* Scroll-reveal animations */
+  /* slide-up removed as unused */
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -197,6 +189,19 @@
   --radius-2xl: calc(var(--radius) + 8px);
   --radius-3xl: calc(var(--radius) + 12px);
   --radius-4xl: calc(var(--radius) + 16px);
+}
+
+/* Accessibility: Respect prefers-reduced-motion */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 @layer base {
@@ -236,6 +241,28 @@ body {
 }
 
 /* Animations for Sheet (manual shim for missing tailwindcss-animate) */
+@utility bg-grid {
+  background-size: 40px 40px;
+  background-image: linear-gradient(to right, hsl(var(--border) / 0.3) 1px, transparent 1px),
+    linear-gradient(to bottom, hsl(var(--border) / 0.3) 1px, transparent 1px);
+}
+
+@utility bg-radial-gradient {
+  background: radial-gradient(circle at 50% 0%, hsl(var(--accent-gold) / 0.15) 0%, transparent 60%);
+}
+
+@utility bg-radial-gradient-bottom {
+  background: radial-gradient(circle at 50% 100%, hsl(var(--accent-gold) / 0.1) 0%, transparent 50%);
+}
+
+@utility bg-noise {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+}
+
+@utility bg-vignette {
+  background: radial-gradient(circle at center, transparent 0%, hsl(var(--background)) 100%);
+}
+
 @keyframes enter {
   from {
     opacity: var(--tw-enter-opacity, 1);

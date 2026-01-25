@@ -34,7 +34,7 @@ export function HowItWorksSection() {
   }, [])
 
   return (
-    <section id="cara-kerja" className="py-24 bg-white dark:bg-zinc-950">
+    <section id="cara-kerja" className="py-24 bg-gray-50 dark:bg-black">
       <div className="max-w-6xl mx-auto px-6">
         <div className="text-center mb-20">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
