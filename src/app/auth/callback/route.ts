@@ -13,33 +13,39 @@ export async function GET(request: Request) {
   const next = searchParams.get('next') ?? '/dashboard'
 
   if (code) {
-    const supabase = await createServerSupabaseClient()
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    try {
+      const supabase = await createServerSupabaseClient()
+      const { error } = await supabase.auth.exchangeCodeForSession(code)
 
-    if (!error) {
-      const { data: { user } } = await supabase.auth.getUser()
+      if (!error) {
+        const { data: { user } } = await supabase.auth.getUser()
 
-      if (user) {
-        // UU PDP: Sync user and record initial mandatory consents
-        const { userService } = await import('@/applications/shared/auth/user.service')
-        const { consentService } = await import('@/applications/shared/privacy/consent.service')
+        if (user) {
+          // UU PDP: Sync user and record initial mandatory consents
+          const { userService } = await import('@/applications/shared/auth/user.service')
+          const { consentService } = await import('@/applications/shared/privacy/consent.service')
 
-        await userService.syncUser({
-          id: user.id,
-          email: user.email!,
-          name: user.user_metadata?.full_name || user.user_metadata?.name
-        })
+          await userService.syncUser({
+            id: user.id,
+            email: user.email!,
+            name: user.user_metadata?.full_name || user.user_metadata?.name
+          })
 
-        // Record initial consents
-        await consentService.recordInitialConsents(user.id, {
-          version: 'v1.0',
-          ip: request.headers.get('x-forwarded-for') || undefined,
-          userAgent: request.headers.get('user-agent') || undefined
-        })
+          // Record initial consents
+          await consentService.recordInitialConsents(user.id, {
+            version: 'v1.0',
+            ip: request.headers.get('x-forwarded-for') || undefined,
+            userAgent: request.headers.get('user-agent') || undefined
+          })
+        }
+
+        // Successful authentication - redirect to dashboard
+        return NextResponse.redirect(`${origin}${next}`)
       }
-
-      // Successful authentication - redirect to dashboard
-      return NextResponse.redirect(`${origin}${next}`)
+    } catch (err) {
+      console.error('Auth callback error:', err)
+      // Redirect to login with specific error code if something blows up (e.g. DB connection)
+      return NextResponse.redirect(`${origin}/login?error=auth_callback_error`)
     }
   }
 
