@@ -31,6 +31,24 @@ export function HoldingCardSkeleton() {
   )
 }
 
+export function HoldingCardSkeleton() {
+  return (
+    <div className="rounded-xl border border-border bg-card p-4 md:p-6 min-h-[200px] md:min-h-[132px]">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="space-y-2.5">
+            <div className="flex items-center gap-2">
+              <Skeleton className="w-4 h-4 rounded-full" />
+              <Skeleton className="h-3 w-20" />
+            </div>
+            <Skeleton className="h-7 w-32 rounded-lg" />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export function HoldingsListSkeleton() {
   const { t } = useLanguage()
 
@@ -44,7 +62,6 @@ export function HoldingsListSkeleton() {
 
       {/* 2. Portfolio Summary Skeleton (Single Wide Card) */}
       <HoldingCardSkeleton />
-
       {/* 3. Table Skeleton (Holdings List) */}
       <div className="py-2 md:py-4">
         <div className="space-y-4">
