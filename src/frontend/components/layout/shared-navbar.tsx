@@ -129,7 +129,7 @@ export function SharedNavbar() {
 
           {/* Logo */}
           <div className={cn("flex items-center gap-2 shrink-0 md:mr-8", showMobileBottomBar && "hidden md:flex")}>
-            <Link href={isAuthenticated ? ROUTES.DASHBOARD : '/'} className="flex items-center gap-2">
+            <Link href={ROUTES.HOME} className="flex items-center gap-2">
               <div className="w-8 h-8 bg-accent-gold rounded-full" />
               <span className="font-bold text-lg tracking-tight">Emasku</span>
             </Link>
