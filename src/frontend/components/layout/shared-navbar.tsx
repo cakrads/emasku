@@ -110,10 +110,13 @@ export function SharedNavbar() {
     setShowLogoutDialog(false)
   }
 
+  const isFormPage = pathname === ROUTES.ADD_HOLDING || pathname.endsWith('/edit')
+
   return (
     <>
       <nav className={cn(
         "fixed z-50 transition-all duration-300",
+        isFormPage && "hidden md:block",
         // Desktop: Always top
         "md:top-0 md:left-0 md:right-0 md:bottom-auto",
         "md:bg-background/80 md:backdrop-blur-md md:border-b md:border-border",
