@@ -54,7 +54,7 @@ function AddHoldingContent() {
   const [state, setState] = useState<HoldingState>({
     brand: null,
     weight: '',
-    purchaseDate: new Date(),
+    purchaseDate: undefined,
     purchasePrice: '', // This is Total Price
     quantity: '1',
     notes: ''
@@ -101,18 +101,20 @@ function AddHoldingContent() {
     switch (step) {
       case 1: return !!state.brand && (!state.brand.isCustom || !!state.brand.name)
       case 2: return !!state.weight && parseFloat(state.weight) > 0
-      case 3: return !!state.purchasePrice && !!state.purchaseDate
+      case 3: return !!state.purchasePrice
       case 4: return true
       default: return false
     }
   }
 
   const handleSave = () => {
-    if (!state.brand || !state.weight || !state.purchasePrice || !state.purchaseDate) return
+    if (!state.brand || !state.weight || !state.purchasePrice) return
 
     let isoDate: string | undefined
-    const d = state.purchaseDate
-    isoDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}T00:00:00.000Z`
+    if (state.purchaseDate) {
+      const d = state.purchaseDate
+      isoDate = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}T00:00:00.000Z`
+    }
 
     // IMPORTANT: API expects TOTAL PRICE per Unit. User inputs TOTAL PRICE.
     const totalPrice = parseFloat(state.purchasePrice)
@@ -255,8 +257,10 @@ function ReviewStep({ state, pricesData }: { state: HoldingState, pricesData?: a
               </div>
               <div className="text-right">
                 <dt className="text-text-secondary uppercase tracking-wider font-medium text-xs mb-1 block">{t('addHolding.details.purchaseDate')}</dt>
-                <dd className="font-medium text-foreground">
-                  {state.purchaseDate ? format(state.purchaseDate, 'PPP', { locale: language === 'id' ? id : enUS }) : '—'}
+                <dd className="font-medium text-foreground tabular-nums">
+                  {state.purchaseDate
+                    ? format(state.purchaseDate, 'PPP', { locale: language === 'id' ? id : enUS })
+                    : '—'}
                 </dd>
               </div>
             </div>

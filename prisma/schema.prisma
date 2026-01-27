@@ -183,7 +183,7 @@ model PortfolioHolding {
   /**
    * Purchase date
    */
-  boughtAt DateTime
+  boughtAt DateTime?
 
   /**
    * Sold date (if null, holding is ACTIVE)

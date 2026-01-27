@@ -70,7 +70,7 @@ export class PrismaPortfolioRepository {
 
     const holdings = await prisma.portfolioHolding.findMany({
       where,
-      orderBy: { boughtAt: 'desc' },
+      orderBy: { createdAt: 'desc' },
       skip,
       take,
     })
@@ -117,13 +117,13 @@ export class PrismaPortfolioRepository {
 
     const holding = await this.prisma.portfolioHolding.create({
       data: {
-        userId,
+        user: { connect: { id: userId } },
         brandCode: data.brandCode,
         brandName,
         denominationGram: data.denominationGram,
         quantity: data.quantity,
         buyPrice: BigInt(data.buyPrice),
-        boughtAt: data.buyDate ? data.buyDate : new Date(),
+        boughtAt: data.buyDate,
         notes: data.notes || null,
       }
     })
@@ -234,6 +234,7 @@ export class PrismaPortfolioRepository {
       buyPrice: Number(prismaHolding.buyPrice),
       boughtAt: prismaHolding.boughtAt,
       soldAt: prismaHolding.soldAt,
+      createdAt: prismaHolding.createdAt,
       notes: prismaHolding.notes || undefined,
     }
   }

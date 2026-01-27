@@ -173,7 +173,7 @@ export class PortfolioController {
       denominationGram: holding.denominationGram,
       quantity: holding.quantity,
       buyPrice: holding.buyPrice,
-      buyDate: holding.boughtAt.toISOString().split('T')[0],
+      buyDate: holding.boughtAt ? holding.boughtAt.toISOString().split('T')[0] : null,
       notes: holding.notes,
       createdAt: new Date().toISOString(),
     }
@@ -222,7 +222,7 @@ export class PortfolioController {
       denominationGram: holding.denominationGram,
       quantity: holding.quantity,
       buyPrice: holding.buyPrice,
-      buyDate: holding.boughtAt.toISOString().split('T')[0],
+      buyDate: holding.boughtAt ? holding.boughtAt.toISOString().split('T')[0] : null,
       notes: holding.notes,
       updatedAt: new Date().toISOString(),
     }

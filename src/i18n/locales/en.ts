@@ -20,6 +20,7 @@ export default {
     saving: 'Saving...',
     home: 'Home',
     useToday: 'Today',
+    default: 'Default',
     duration: {
       year: 'yr',
       years: 'yrs',

@@ -61,6 +61,13 @@ export default function HoldingsTable({
         ),
         cell: ({ getValue }) => {
           const dateStr = getValue() as string
+          if (dateStr === '—') {
+            return (
+              <div className="flex flex-col">
+                <Typography variant="body-sm">{dateStr}</Typography>
+              </div>
+            )
+          }
           const buyDate = new Date(dateStr)
           const now = new Date()
 
@@ -84,16 +91,16 @@ export default function HoldingsTable({
           } else if (months && months > 0) {
             const mUnit = months === 1 ? t('common.duration.month') : t('common.duration.months')
             durationLabel = `${months} ${mUnit}`
-          } else {
-            durationLabel = t('common.duration.lessThanMonth')
           }
 
           return (
             <div className="flex flex-col">
               <Typography variant="body-sm">{dateStr}</Typography>
-              <Typography variant="caption" className="text-muted-foreground text-xs">
-                {durationLabel}
-              </Typography>
+              {durationLabel && (
+                <Typography variant="caption" className="text-muted-foreground text-xs">
+                  {durationLabel}
+                </Typography>
+              )}
             </div>
           )
         },

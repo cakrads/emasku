@@ -50,7 +50,7 @@ export const HoldingItemSchema = z.object({
   brandName: z.string(),
   denominationGram: z.number().positive(),
   quantity: z.number().int().positive(),
-  buyDate: z.string(), // ISO date
+  buyDate: z.string().nullable(), // ISO date
   avgBuyPrice: z.number().int().nonnegative(),
   currentBuybackPrice: z.number().int().nonnegative().nullable(),
   totalBuyValue: z.number().int().nonnegative(),
@@ -59,6 +59,7 @@ export const HoldingItemSchema = z.object({
   pnlPercentage: z.number().nullable(),
   valuationSource: z.enum(['BUYBACK', 'SPOT', 'USER', 'NONE', 'MIXED']),
   priceAsOf: z.string().nullable(), // ISO datetime
+  createdAt: z.string(), // ISO datetime
   soldAt: z.string().nullable().optional(),
   notes: z.string().nullable().optional(),
 })
@@ -98,7 +99,7 @@ export type HoldingDetail = z.infer<typeof HoldingDetailSchema>
  * Portfolio History Item
  */
 export const HistoryItemSchema = z.object({
-  date: z.string(),
+  date: z.string().nullable(),
   brandCode: z.string(),
   brandName: z.string(),
   denominationGram: z.number().positive(),

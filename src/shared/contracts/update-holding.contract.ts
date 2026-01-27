@@ -19,7 +19,7 @@ export const UpdateHoldingRequestSchema = z.object({
   buyDate: z.string().datetime('Invalid date format').refine(
     (date) => new Date(date) <= new Date(),
     'Buy date cannot be in the future'
-  ).optional(),
+  ).nullable().optional(),
   notes: z.string().max(500, 'Notes cannot exceed 500 characters').optional(),
 }).refine(
   (data) => Object.keys(data).length > 0,
@@ -38,7 +38,7 @@ export const UpdateHoldingResponseSchema = z.object({
   denominationGram: z.number().positive(),
   quantity: z.number().int().positive(),
   buyPrice: z.number().int().nonnegative(),
-  buyDate: z.string(),
+  buyDate: z.string().nullable(),
   notes: z.string().nullable().optional(),
   updatedAt: z.string(),
 })

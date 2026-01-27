@@ -52,7 +52,7 @@ export class PortfolioMapper {
       brandName: domain.brandName,
       denominationGram: domain.denominationGram,
       quantity: domain.quantity,
-      buyDate: domain.boughtAt.toISOString().split('T')[0], // YYYY-MM-DD
+      buyDate: domain.boughtAt ? domain.boughtAt.toISOString().split('T')[0] : null, // YYYY-MM-DD
       avgBuyPrice: Math.round(domain.buyPrice),
       currentBuybackPrice: domain.currentPrice ? Math.round(domain.currentPrice) : null,
       // Total Value = Price * Quantity (since Price is now per-unit)
@@ -62,6 +62,7 @@ export class PortfolioMapper {
       pnlPercentage: domain.pnlPercentage ? Number(domain.pnlPercentage.toFixed(2)) : null,
       valuationSource: domain.valuationSource,
       priceAsOf: domain.priceAsOf ? domain.priceAsOf.toISOString() : null,
+      createdAt: domain.createdAt.toISOString(),
       soldAt: domain.soldAt ? domain.soldAt.toISOString() : null,
       notes: domain.notes,
     }
@@ -85,7 +86,7 @@ export class PortfolioMapper {
   static toPortfolioHistoryResponse(domain: PortfolioHistoryDomain) {
     return {
       timeline: domain.timeline.map(entry => ({
-        date: entry.date.toISOString().split('T')[0],
+        date: entry.date ? entry.date.toISOString().split('T')[0] : null,
         brandCode: entry.brandCode,
         brandName: entry.brandName,
         denominationGram: entry.denominationGram,

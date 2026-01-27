@@ -54,7 +54,7 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setWeight(holding.denominationGram.toString())
       setBuyPrice(holding.avgBuyPrice.toString())
-      setBuyDate(new Date(holding.buyDate))
+      setBuyDate(holding.buyDate ? new Date(holding.buyDate) : undefined)
       setNotes(holding.notes || '')
     }
   }, [holding])
@@ -224,6 +224,7 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
           {
             label: updateMutation.isPending ? t('editHolding.actions.saving') : t('editHolding.actions.save'),
             variant: 'solid',
+            color: 'primary',
             onClick: handleSave,
             disabled: updateMutation.isPending
           },

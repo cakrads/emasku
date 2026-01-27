@@ -131,7 +131,9 @@ function HoldingsListContent() {
   let sortedHoldings = [...allHoldings].sort((a, b) => {
     let output = 0
     if (sortBy === 'date') {
-      output = new Date(a.buyDate).getTime() - new Date(b.buyDate).getTime()
+      const timeA = new Date(a.createdAt).getTime()
+      const timeB = new Date(b.createdAt).getTime()
+      output = timeA - timeB
     } else {
       output = (a.currentValue || 0) - (b.currentValue || 0)
     }

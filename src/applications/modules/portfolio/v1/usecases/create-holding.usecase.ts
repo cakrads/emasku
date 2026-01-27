@@ -48,7 +48,7 @@ export class CreateHoldingUsecase {
       denominationGram: request.denominationGram,
       quantity: request.quantity,
       buyPrice: request.buyPrice || 0,
-      buyDate: request.buyDate ? new Date(request.buyDate) : new Date(),
+      buyDate: request.buyDate ? new Date(request.buyDate) : undefined,
       notes: request.notes,
     })
 

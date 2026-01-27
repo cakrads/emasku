@@ -20,6 +20,7 @@ export default {
     saving: 'Menyimpan...',
     home: 'Beranda',
     useToday: 'Hari Ini',
+    default: 'Otomatis',
     duration: {
       year: 'thn',
       years: 'thn',
@@ -322,7 +323,7 @@ export default {
       purchaseHistory: 'Riwayat Pembelian',
       purchasePrice: 'Harga Beli Total',
       priceHelp: 'Total harga yang Anda bayar untuk emas ini.',
-      purchaseDate: 'Tanggal Beli / Estimasi',
+      purchaseDate: 'Estimasi Tanggal Beli',
       notes: 'Catatan',
       notesPlaceholder: 'Catatan opsional...',
       steps: {
@@ -363,7 +364,7 @@ export default {
     },
     purchaseDetails: {
       title: 'Detail Pembelian',
-      purchaseDate: 'Tanggal Beli',
+      purchaseDate: 'Estimasi Tanggal Beli',
       weight: 'Berat',
       buyPricePerGram: 'Harga Beli (Total)',
       totalBuyValue: 'Total Nilai Beli',
@@ -420,7 +421,7 @@ export default {
     form: {
       weight: 'Berat (g)',
       buyPrice: 'Harga Beli / Estimasi',
-      purchaseDate: 'Tanggal Beli',
+      purchaseDate: 'Estimasi Tanggal Beli',
       notes: 'Catatan',
       notesPlaceholder: 'Catatan tambahan...',
     },

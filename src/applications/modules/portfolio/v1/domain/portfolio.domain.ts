@@ -17,8 +17,9 @@ export interface PortfolioHoldingDomain {
   denominationGram: number
   quantity: number
   buyPrice: number
-  boughtAt: Date
+  boughtAt: Date | null
   soldAt?: Date | null
+  createdAt: Date
   notes?: string
 }
 
@@ -75,7 +76,7 @@ export interface PortfolioSummaryDomain {
  * NOT market price history - represents individual purchases.
  */
 export interface HistoryEntryDomain {
-  date: Date
+  date: Date | null
   brandCode: string
   brandName: string
   denominationGram: number

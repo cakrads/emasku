@@ -75,7 +75,7 @@ export function PurchaseForm({ brand, weight, pricesData, purchaseDate, purchase
           {/* Purchase Date */}
           <Stack gap="sm">
             <Label className="uppercase text-text-secondary font-medium tracking-wider">
-              {t('addHolding.details.purchaseDate')} <span className="text-red-500">*</span>
+              {t('addHolding.details.purchaseDate')} <span className="text-xs normal-case font-normal">(Optional)</span>
             </Label>
             <DatePicker
               value={purchaseDate}

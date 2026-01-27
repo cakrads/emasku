@@ -56,6 +56,7 @@ export interface HoldingItemVM {
   pnlColor: 'positive' | 'negative' | 'neutral'
   isSold: boolean
   soldAt?: string
+  createdAt: string // Raw ISO string for sorting
   notes?: string
 }
 
@@ -82,7 +83,8 @@ function formatPercentage(value: number): string {
 /**
  * Format date
  */
-function formatDate(dateString: string, locale: string = 'id-ID'): string {
+function formatDate(dateString?: string | null, locale: string = 'id-ID'): string {
+  if (!dateString) return '—'
   const date = new Date(dateString)
   return new Intl.DateTimeFormat(locale, {
     year: 'numeric',
@@ -158,6 +160,7 @@ export function transformHoldingItem(api: HoldingItem, locale: string = 'id-ID')
     pnlColor: api.unrealizedPnL ? getPnLColor(api.unrealizedPnL) : 'neutral',
     isSold: !!api.soldAt,
     soldAt: api.soldAt ? formatDate(api.soldAt, locale) : undefined,
+    createdAt: api.createdAt,
     notes: api.notes || undefined,
   }
 }
@@ -207,7 +210,7 @@ export function transformPortfolioHistory(api: PortfolioHistory): PortfolioHisto
     // Find all items bought on or before this date
     // Note: Assuming element.date is YYYY-MM-DD
     const cumulativeValue = items
-      .filter(item => item.date <= date && item.brandCode !== 'OTHER')
+      .filter(item => item.date && item.date <= date && item.brandCode !== 'OTHER')
       .reduce((sum, item) => sum + item.buyValue, 0)
 
     return {
