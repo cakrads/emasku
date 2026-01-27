@@ -84,6 +84,8 @@ export default {
     tagline: 'Emasku - Your Gold Investment Tracker',
     error: {
       consentRequired: 'You must agree to the Privacy Policy to proceed.',
+      oauthFailed: 'Failed to sign in with Google. Please try again.',
+      serverConfig: 'Server Configuration Error',
     },
   },
   privacy: {

@@ -84,6 +84,8 @@ export default {
     tagline: 'Emasku - Pencatat Investasi Emas Anda',
     error: {
       consentRequired: 'Anda harus menyetujui Kebijakan Privasi untuk melanjutkan.',
+      oauthFailed: 'Gagal masuk dengan Google. Silakan coba lagi.',
+      serverConfig: 'Kesalahan Konfigurasi Server',
     },
   },
   privacy: {

@@ -37,7 +37,15 @@ export function LoginView() {
   // Handle errors from redirect (e.g. Server 500 caught by try-catch)
   useEffect(() => {
     const errorParam = searchParams.get('error')
-    if (errorParam === 'auth_callback_error') {
+
+    if (errorParam === 'oauth_failed') {
+      toast.error(t('login.error.oauthFailed'), {
+        duration: 5000,
+      })
+      setError({
+        userMessage: t('login.error.oauthFailed')
+      })
+    } else if (errorParam === 'auth_callback_error') {
       toast.error(t('login.error.serverConfig'), {
         description: "Configuration Error on Vercel. Please unset 'logs' writing or check environment variables.",
         duration: 8000,
