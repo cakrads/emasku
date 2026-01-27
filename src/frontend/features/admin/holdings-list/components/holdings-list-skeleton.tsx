@@ -8,30 +8,6 @@ import { Typography } from '@/frontend/components/ui/typography'
 import { useLanguage } from '@/frontend/hooks/use-language'
 
 export function HoldingCardSkeleton() {
-  const { t } = useLanguage()
-
-  return (
-    <div className="rounded-xl border border-border bg-card p-4 md:p-6 min-h-[200px] md:min-h-[132px]">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        {[
-          t('holdings.summary.totalWeight'),
-          t('holdings.summary.purchaseValue'),
-          t('holdings.summary.estimatedValue'),
-          t('holdings.summary.profitLoss')
-        ].map((label, i) => (
-          <div key={i} className="space-y-1.5">
-            <Typography variant="caption" className="text-muted-foreground opacity-60">
-              {label}
-            </Typography>
-            <Skeleton className="h-7 w-32 md:h-8 md:w-36 rounded-lg" />
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-export function HoldingCardSkeleton() {
   return (
     <div className="rounded-xl border border-border bg-card p-4 md:p-6 min-h-[200px] md:min-h-[132px]">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
@@ -63,7 +39,7 @@ export function HoldingsListSkeleton() {
       {/* 2. Portfolio Summary Skeleton (Single Wide Card) */}
       <HoldingCardSkeleton />
       {/* 3. Table Skeleton (Holdings List) */}
-      <div className="py-2 md:py-4">
+      <div className="py-6">
         <div className="space-y-4">
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">

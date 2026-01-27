@@ -10,7 +10,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/frontend/components/u
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/frontend/components/ui/tooltip'
 import { useIsMobile } from '@/frontend/hooks/use-mobile'
 import { ResponsiveInfoTip } from '@/frontend/components/ui/responsive-info-tip'
-import { HoldingCardSkeleton } from './holdings-list-skeleton'
 
 interface PortfolioSummarySectionProps {
   totalWeightGram: number
