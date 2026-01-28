@@ -34,20 +34,30 @@ export class ScraperLogger {
   private entries: ScraperLogEntry[] = []
 
   constructor() {
-    // Create .scrap/logs directory if it doesn't exist
+    const isVercel = process.env.VERCEL === '1' || !!process.env.VERCEL
+
+    // Create .scrap/logs directory if it doesn't exist (skip on Vercel)
     this.logDir = path.join(process.cwd(), '.scrap', 'logs')
 
-    if (!fs.existsSync(this.logDir)) {
-      fs.mkdirSync(this.logDir, { recursive: true })
+    if (!isVercel) {
+      if (!fs.existsSync(this.logDir)) {
+        fs.mkdirSync(this.logDir, { recursive: true })
+      }
+
+      // Create timestamped log file
+      const timestamp = new Date().toISOString().replace(/:/g, '-').split('.')[0]
+      this.logFile = path.join(this.logDir, `scraper-${timestamp}.log`)
+    } else {
+      console.log('[Logger] Running on Vercel, skipping file logging')
+      this.logFile = '' // Mark as no file
     }
 
-    // Create timestamped log file
-    const timestamp = new Date().toISOString().replace(/:/g, '-').split('.')[0]
-    this.logFile = path.join(this.logDir, `scraper-${timestamp}.log`)
     this.startTime = Date.now()
 
-    // Perform cleanup of old logs (keep last 30 days)
-    this.cleanOldLogs(30)
+    // Perform cleanup of old logs (only if not on Vercel)
+    if (!isVercel) {
+      this.cleanOldLogs(30)
+    }
 
     this.log('started', {})
   }
@@ -105,7 +115,16 @@ export class ScraperLogger {
    */
   private writeToFile(entry: ScraperLogEntry) {
     const logLine = JSON.stringify(entry, null, 2) + '\n---\n'
-    fs.appendFileSync(this.logFile, logLine)
+    if (this.logFile) {
+      try {
+        fs.appendFileSync(this.logFile, logLine)
+      } catch (error) {
+        console.error('[Logger] Failed to write to log file:', error)
+      }
+    } else {
+      // In Vercel or environments without file access, still log to console
+      console.log(`[Scraper Log] ${entry.status.toUpperCase()}:`, JSON.stringify(entry))
+    }
   }
 
   /**

@@ -2,7 +2,7 @@
  * Scraper API Route
  * 
  * Allows the scraper to be triggered via HTTP request.
- * Supports POST (manual) and GET (Vercel Cron).
+ * Supports POST and GET (secured by SCRAPER_SECRET).
  */
 
 import { NextRequest, NextResponse } from 'next/server'
@@ -30,18 +30,11 @@ async function runScraper() {
 }
 
 function isAuthorized(request: Request) {
-  // 1. Check for standard Scraper Secret
+  // Check for standard Scraper Secret
   const authHeader = request.headers.get('authorization')
 
   // SUPPORT Standard Scraper Secret
   if (SCRAPER_SECRET && authHeader === `Bearer ${SCRAPER_SECRET}`) {
-    return true
-  }
-
-  // SUPPORT Vercel Cron Secret (automatically provided by Vercel)
-  // https://vercel.com/docs/cron-jobs/manage-cron-jobs#securing-cron-jobs
-  const cronSecret = process.env.CRON_SECRET
-  if (cronSecret && authHeader === `Bearer ${cronSecret}`) {
     return true
   }
 
@@ -81,7 +74,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Vercel Cron uses GET by default
+// GET trigger (secured by SCRAPER_SECRET)
 export async function GET(request: NextRequest) {
   if (!isAuthorized(request)) {
     return NextResponse.json({
@@ -96,11 +89,11 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       code: 200,
       status: 'OK',
-      message: 'Cron job executed successfully',
+      message: 'Scraper executed successfully',
       data: { status: 'Completed', logs }
     })
   } catch (error) {
-    console.error('[Scraper Cron] Error:', error)
+    console.error('[Scraper API] Error:', error)
     return NextResponse.json({
       code: 500,
       success: false,
