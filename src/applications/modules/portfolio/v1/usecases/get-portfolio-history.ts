@@ -36,7 +36,11 @@ export class GetPortfolioHistoryUsecase {
     })
 
     // Sort by date ascending (purchase timeline)
-    timeline.sort((a, b) => a.date.getTime() - b.date.getTime())
+    timeline.sort((a, b) => {
+      const dateA = a.date?.getTime() ?? 0
+      const dateB = b.date?.getTime() ?? 0
+      return dateA - dateB
+    })
 
     logger.info('Portfolio history fetched', { entries: timeline.length })
 
