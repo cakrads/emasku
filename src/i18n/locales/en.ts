@@ -440,21 +440,27 @@ export default {
   landing: {
     hero: {
       tagline: 'Gold Portfolio Tracker',
-      headline: 'Track your gold.\nWatch it grow.',
+      headline: 'Track your gold.\nMarket-synced value.\nZero hassle.',
       subheadline: 'A calm, focused tool for recording and monitoring your physical gold holdings.',
       cta: 'Start Tracking',
       secondary: 'View Prices',
     },
     price: {
       title: "Today's Gold Price",
-      lastUpdate: 'Last Updated',
+      subtitle: 'Public data, no login required',
+      lastUpdate: 'Update: {time}',
       spotOpen: 'Spot Market Open',
-      disclaimer: 'Market reference price, may vary by store.',
+      error: 'Failed to load prices. Please try again.',
+      viewAll: 'View all prices & denominations',
+      disclaimer: 'Prices can change anytime following market conditions',
     },
     proof: {
       users: 'Users',
+      usersValue: '1,200+',
       holdings: 'Holdings Tracked',
+      holdingsValue: '8K+',
       tracked: 'Value Tracked',
+      trackedValue: 'IDR 99.9M+',
     },
     howItWorks: {
       title: 'How It Works',
@@ -513,7 +519,9 @@ export default {
     cta: {
       headline: 'Start with one piece of gold.',
       subheadline: 'The rest will follow.',
+      description: 'Start with one gold record.\nThe rest will follow.',
       button: 'Get Started',
+      buttonAlt: 'Start Recording',
     },
     footer: {
       copyright: '© {year} Emasku. Made with calm.',

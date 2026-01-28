@@ -213,7 +213,7 @@ export function PricesListView() {
     <StandardPageLayout
       title={t('prices.title')}
       description={t('prices.description')}
-      breadcrumbs={[{ label: t('navbar.dashboard'), href: ROUTES.DASHBOARD }, { label: t('navbar.prices') }]}
+      breadcrumbs={[{ label: t('common.home'), href: ROUTES.HOME }, { label: t('navbar.prices') }]}
     >
       <ErrorBoundary>
         <PricesListViewContent />

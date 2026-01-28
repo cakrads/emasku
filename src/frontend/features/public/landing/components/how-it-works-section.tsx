@@ -1,8 +1,8 @@
 'use client'
 
+import React, { useEffect, useRef, useState, useCallback } from 'react'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { cn } from '@/frontend/utils/cn'
-import { useEffect, useRef, useState, useCallback } from 'react'
 import { FileText, TrendingUp, ShieldCheck } from 'lucide-react'
 import { PhoneMock } from './phone-mock'
 import { useIsMobile } from '@/frontend/hooks/use-mobile'
@@ -128,12 +128,16 @@ export function HowItWorksSection() {
           {/* Exit CTA */}
           <div className="text-center mt-12 pt-8 border-t border-border/30">
             <p className="text-muted-foreground mb-4">
-              Mulai dengan satu catatan emas.<br />
-              Sisanya akan mengikuti.
+              {t('landing.cta.description').split('\n').map((line: string, i: number) => (
+                <React.Fragment key={i}>
+                  {line}
+                  {i < t('landing.cta.description').split('\n').length - 1 && <br />}
+                </React.Fragment>
+              ))}
             </p>
             <Button size="lg" asChild className="bg-gradient-to-r from-accent-gold to-amber-600 hover:from-amber-600 hover:to-accent-gold text-white shadow-lg shadow-accent-gold/30">
               <Link href={ROUTES.LOGIN}>
-                {t('landing.howItWorks.cta.button') || 'Mulai Mencatat'}
+                {t('landing.cta.buttonAlt')}
               </Link>
             </Button>
           </div>
@@ -213,12 +217,16 @@ export function HowItWorksSection() {
                 activeStep === 2 ? "opacity-100" : "opacity-0 pointer-events-none"
               )}>
                 <p className="text-muted-foreground mb-4">
-                  Mulai dengan satu catatan emas.<br />
-                  Sisanya akan mengikuti.
+                  {t('landing.cta.description').split('\n').map((line: string, i: number) => (
+                    <React.Fragment key={i}>
+                      {line}
+                      {i < t('landing.cta.description').split('\n').length - 1 && <br />}
+                    </React.Fragment>
+                  ))}
                 </p>
                 <Button size="lg" asChild className="bg-gradient-to-r from-accent-gold to-amber-600 hover:from-amber-600 hover:to-accent-gold text-white shadow-lg shadow-accent-gold/30">
                   <Link href={ROUTES.LOGIN}>
-                    {t('landing.howItWorks.cta.button') || 'Mulai Mencatat'}
+                    {t('landing.cta.buttonAlt')}
                   </Link>
                 </Button>
               </div>

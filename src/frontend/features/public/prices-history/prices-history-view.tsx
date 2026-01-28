@@ -151,7 +151,7 @@ export function PricesHistoryView() {
   return (
     <StandardPageLayout
       breadcrumbs={[
-        { label: 'Home', href: ROUTES.DASHBOARD },
+        { label: t('common.home'), href: ROUTES.HOME },
         { label: t('navbar.prices'), href: ROUTES.PRICES },
         { label: t('priceHistory.breadcrumbs.history') }
       ]}

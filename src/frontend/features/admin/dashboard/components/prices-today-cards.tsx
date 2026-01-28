@@ -68,7 +68,7 @@ function PricesTodayContent() {
             return (
               <div
                 key={brand.brandName}
-                className={`group flex flex-col justify-between p-3 rounded-xl border border-border bg-card hover:border-accent-gold/50 hover:bg-accent-gold/5 hover:shadow-sm transition-all h-[100px] shrink-0 ${index >= 3 ? 'hidden md:flex' : 'flex'}`}
+                className={`group flex flex-col text-left justify-between p-3 rounded-xl border border-border bg-card hover:border-accent-gold/50 hover:bg-accent-gold/5 hover:shadow-sm transition-all h-[100px] shrink-0 ${index >= 3 ? 'hidden md:flex' : 'flex'}`}
               >
                 {/* Header: Brand + Weight */}
                 <div className="flex justify-between items-start">

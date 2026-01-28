@@ -31,8 +31,8 @@ export default function HoldingsListView() {
       title={t('holdings.title')}
       description={t('holdings.description')}
       breadcrumbs={[
-        { label: 'Home', href: ROUTES.DASHBOARD },
-        { label: 'Holdings' }
+        { label: t('navbar.dashboard'), href: ROUTES.DASHBOARD },
+        { label: t('navbar.holdings') }
       ]}
       action={
         <Link href={ROUTES.ADD_HOLDING}>

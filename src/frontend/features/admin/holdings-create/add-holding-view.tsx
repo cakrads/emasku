@@ -297,7 +297,7 @@ export default function AddHoldingView() {
     <StandardPageLayout
       title={t('addHolding.title')}
       breadcrumbs={[
-        { label: t('common.home'), href: ROUTES.DASHBOARD },
+        { label: t('navbar.dashboard'), href: ROUTES.DASHBOARD },
         { label: t('navbar.holdings'), href: ROUTES.HOLDINGS_LIST },
         { label: t('addHolding.breadcrumbs.add') }
       ]}

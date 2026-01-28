@@ -331,8 +331,8 @@ export default function HoldingDetailView(props: HoldingDetailViewProps) {
       title={t('holdingDetail.title')}
       description={t('holdingDetail.subtitle')}
       breadcrumbs={[
-        { label: 'Home', href: ROUTES.DASHBOARD },
-        { label: 'Holdings', href: ROUTES.HOLDINGS_LIST },
+        { label: t('navbar.dashboard'), href: ROUTES.DASHBOARD },
+        { label: t('navbar.holdings'), href: ROUTES.HOLDINGS_LIST },
         { label: t('holdingDetail.breadcrumbs.detail') }
       ]}
       action={

@@ -1,5 +1,7 @@
 'use client'
 
+import React from 'react'
+
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { Button } from '@/frontend/components/ui/button'
 import Link from 'next/link'
@@ -60,9 +62,16 @@ export function HeroSection() {
             headline.isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
           )}
         >
-          Catat emasmu.<br />
-          <span className="text-accent-gold">Nilainya mengikuti market.</span><br />
-          Tanpa ribet.
+          {t('landing.hero.headline').split('\n').map((line: string, i: number) => (
+            <React.Fragment key={i}>
+              {line.includes('market') || line.includes('Market-synced') ? (
+                <span className="text-accent-gold">{line}</span>
+              ) : (
+                line
+              )}
+              {i < t('landing.hero.headline').split('\n').length - 1 && <br />}
+            </React.Fragment>
+          ))}
         </h1>
 
         {/* Subheadline */}

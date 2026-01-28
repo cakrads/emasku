@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { LayoutDashboard, Coins, Wallet, LogOut, User, Sun, Moon, Plus } from 'lucide-react'
+import { LayoutDashboard, Coins, Wallet, LogOut, User, Sun, Moon, Plus, Menu } from 'lucide-react'
 import { cn } from '@/frontend/utils/cn'
 import { ROUTES } from '@/frontend/config/routes'
 import { useTheme } from "next-themes"
@@ -18,6 +18,13 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/frontend/components/ui/dropdown-menu"
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/frontend/components/ui/sheet"
 import { Avatar, AvatarFallback, AvatarImage } from "@/frontend/components/ui/avatar"
 import { LogoutDialog } from '@/frontend/components/fragments/admin/logout-dialog'
 
@@ -28,6 +35,7 @@ export function SharedNavbar() {
   const { t, language, setLanguage } = useLanguage()
   const [mounted, setMounted] = useState(false)
   const [showLogoutDialog, setShowLogoutDialog] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   useEffect(() => {
     setMounted(true)
@@ -102,8 +110,10 @@ export function SharedNavbar() {
   // Mobile links (sorted for bottom grid)
   const mobileItems = [...visibleItems].sort((a, b) => (a.mobileOrder || 99) - (b.mobileOrder || 99))
 
-  // Layout logic: Authenticated users get bottom bar (unless on login)
-  const showMobileBottomBar = isAuthenticated && !isLoginPage
+  // Layout logic: Authenticated users get bottom bar (unless on login or home/privacy page)
+  const isHomePage = pathname === ROUTES.HOME
+  const isPrivacyPage = pathname === ROUTES.PRIVACY_POLICY
+  const showMobileBottomBar = isAuthenticated && !isLoginPage && !isHomePage && !isPrivacyPage
 
   const handleLogout = async () => {
     await logout()
@@ -113,7 +123,7 @@ export function SharedNavbar() {
   const isFormPage = pathname === ROUTES.ADD_HOLDING || pathname.endsWith('/edit')
 
   return (
-    <>
+    <div className={cn(!showMobileBottomBar && "mb-16")}>
       <nav className={cn(
         "fixed z-50 transition-all duration-300",
         isFormPage && "hidden md:block",
@@ -131,7 +141,7 @@ export function SharedNavbar() {
         )}>
 
           {/* Logo */}
-          <div className={cn("flex items-center gap-2 shrink-0 md:mr-8", showMobileBottomBar && "hidden md:flex")}>
+          <div className={cn("flex items-center gap-2 shrink-0 md:mr-8", (showMobileBottomBar && !isHomePage && !isPrivacyPage) && "hidden md:flex")}>
             <Link href={ROUTES.HOME} className="flex items-center gap-2">
               <div className="w-8 h-8 bg-accent-gold rounded-full" />
               <span className="font-bold text-lg tracking-tight">Emasku</span>
@@ -192,9 +202,84 @@ export function SharedNavbar() {
               {language.toUpperCase()}
             </Button>
 
-            {/* Guest Login */}
+            {/* Mobile Hamburger Menu (Home/Privacy/Guest/Auth) */}
+            {!showMobileBottomBar && !isLoginPage && (
+              <div className="md:hidden">
+                <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
+                  <SheetTrigger asChild>
+                    <Button variant="ghost" size="sm" className="w-9 h-9 p-0">
+                      <Menu className="h-5 w-5" />
+                      <span className="sr-only">Toggle menu</span>
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side="right" className="w-[300px] sm:w-[350px] p-0">
+                    <SheetHeader className="p-6 text-left border-b border-border/50">
+                      <SheetTitle className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-accent-gold rounded-full" />
+                        <span className="font-bold text-lg tracking-tight">Emasku</span>
+                      </SheetTitle>
+                    </SheetHeader>
+                    <div className="flex flex-col py-4">
+                      {mobileItems.filter(item => !item.isAddButton).map((item) => {
+                        const Icon = item.icon
+                        const isActive = item.href === ROUTES.DASHBOARD
+                          ? pathname === ROUTES.DASHBOARD
+                          : (pathname === item.href || pathname.startsWith(`${item.href}/`))
+
+                        return (
+                          <Link
+                            key={item.id}
+                            href={item.href}
+                            onClick={() => setIsMenuOpen(false)}
+                            className={cn(
+                              "flex items-center gap-4 px-6 py-4 transition-colors",
+                              isActive
+                                ? "text-accent-gold bg-accent-gold/5 font-semibold"
+                                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                            )}
+                          >
+                            <Icon className="h-5 w-5" />
+                            <span>{item.label}</span>
+                          </Link>
+                        )
+                      })}
+
+                      {/* Guest Login in Menu */}
+                      {!isAuthenticated && (
+                        <Link
+                          href={ROUTES.LOGIN}
+                          onClick={() => setIsMenuOpen(false)}
+                          className="flex items-center gap-4 px-6 py-4 text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                        >
+                          <User className="h-5 w-5" />
+                          <span>{t('common.login')}</span>
+                        </Link>
+                      )}
+
+                      {/* Auth Logout in Menu */}
+                      {isAuthenticated && (
+                        <div className="mt-4 pt-4 border-t border-border/50 px-6">
+                          <Button
+                            variant="ghost"
+                            className="w-full justify-start gap-4 px-0 text-red-600 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+                            onClick={() => {
+                              setShowLogoutDialog(true)
+                            }}
+                          >
+                            <LogOut className="h-5 w-5" />
+                            <span>{t('common.logout')}</span>
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </SheetContent>
+                </Sheet>
+              </div>
+            )}
+
+            {/* Guest Login (Desktop) */}
             {!isAuthenticated && !isLoading && !isLoginPage && (
-              <Button asChild color="primary" size="sm" className="ml-2">
+              <Button asChild color="primary" size="sm" className={cn("ml-2", !showMobileBottomBar && "hidden md:inline-flex")}>
                 <Link href={ROUTES.LOGIN}>{t('common.login')}</Link>
               </Button>
             )}
@@ -298,6 +383,6 @@ export function SharedNavbar() {
         onOpenChange={setShowLogoutDialog}
         onConfirm={handleLogout}
       />
-    </>
+    </div>
   )
 }

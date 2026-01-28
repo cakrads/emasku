@@ -9,7 +9,7 @@ export default function PublicLayout({
   return (
     <>
       <SharedNavbar />
-      <main className="min-h-screen bg-background pt-16">
+      <main className="min-h-screen bg-background">
         {children}
       </main>
       <SimpleFooter />

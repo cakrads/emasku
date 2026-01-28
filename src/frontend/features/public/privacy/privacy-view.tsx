@@ -9,34 +9,27 @@ import { Typography } from '@/frontend/components/ui/typography'
 import { Alert, AlertTitle, AlertDescription } from '@/frontend/components/ui/alert'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { cn } from '@/frontend/utils/cn'
+import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
+import { ROUTES } from '@/frontend/config/routes'
 
 export function PrivacyView() {
   const { t, language, setLanguage } = useLanguage()
   const localizedLastUpdated = new Date('2026-01-11').toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', { dateStyle: 'long' })
 
   return (
-    <div className="min-h-screen bg-background pb-24">
-      {/* Header */}
-      <div className="bg-muted/30 border-b">
-        <div className="container max-w-4xl mx-auto py-12 px-6 md:py-16">
-          <Button variant="ghost" asChild className="mb-6 -ml-2 text-muted-foreground hover:bg-muted/50">
-            <Link href="/login">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              {t('privacy.back')}
-            </Link>
-          </Button>
-          <h1 className="text-4xl font-bold tracking-tight mb-4">{t('privacy.title')}</h1>
-          <p className="text-lg text-muted-foreground max-w-2xl">
-            {t('privacy.subtitle')}
-          </p>
-          <div className="mt-6 flex items-center gap-2 text-sm text-muted-foreground">
-            <Calendar className="h-4 w-4" />
-            <span>{t('privacy.lastUpdated').replace('{date}', localizedLastUpdated)}</span>
-          </div>
+    <StandardPageLayout
+      title={t('privacy.title')}
+      description={t('privacy.subtitle')}
+      breadcrumbs={[
+        { label: t('common.home'), href: ROUTES.HOME },
+        { label: t('privacy.title') }
+      ]}
+    >
+      <div className="space-y-16 py-8">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground -mt-12 mb-8">
+          <Calendar className="h-4 w-4" />
+          <span>{t('privacy.lastUpdated').replace('{date}', localizedLastUpdated)}</span>
         </div>
-      </div>
-
-      <div className="container max-w-4xl mx-auto py-12 px-6 space-y-16">
 
         {/* Education Disclaimer */}
         <Alert variant="destructive" className="bg-destructive/5 border-destructive/20 text-destructive dark:text-red-400">
@@ -177,12 +170,11 @@ export function PrivacyView() {
             </div>
           </div>
         </section>
-
       </div>
-
-    </div>
+    </StandardPageLayout>
   )
 }
+
 
 function RightCard({ icon: Icon, title, desc }: { icon: React.ElementType, title: string, desc: string }) {
   return (

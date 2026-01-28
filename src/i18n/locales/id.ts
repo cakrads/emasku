@@ -441,21 +441,27 @@ export default {
   landing: {
     hero: {
       tagline: 'Pencatat Portofolio Emas',
-      headline: 'Catat emasmu.\nLihat berkembang.',
+      headline: 'Catat emasmu.\nNilainya mengikuti market.\nTanpa ribet.',
       subheadline: 'Alat yang tenang dan fokus untuk mencatat dan memantau kepemilikan emas fisik Anda.',
       cta: 'Mulai Mencatat',
       secondary: 'Lihat Harga',
     },
     price: {
       title: 'Harga Emas Hari Ini',
-      lastUpdate: 'Update Terakhir',
+      subtitle: 'Data publik, tanpa perlu login',
+      lastUpdate: 'Update: {time}',
       spotOpen: 'Pasar Spot Buka',
-      disclaimer: 'Harga referensi pasar, bisa berbeda di tiap gerai.',
+      error: 'Gagal memuat harga. Silakan coba lagi.',
+      viewAll: 'Lihat semua harga & denominasi',
+      disclaimer: 'Harga dapat berubah sewaktu-waktu mengikuti kondisi pasar',
     },
     proof: {
       users: 'Pengguna',
+      usersValue: '1.200+',
       holdings: 'Emas Tercatat',
+      holdingsValue: '8rb+',
       tracked: 'Nilai Terpantau',
+      trackedValue: 'Rp 99,9M+',
     },
     howItWorks: {
       title: 'Cara Kerja',
@@ -514,7 +520,9 @@ export default {
     cta: {
       headline: 'Mulai dengan satu emas.',
       subheadline: 'Sisanya akan mengikuti.',
+      description: 'Mulai dengan satu catatan emas.\nSisanya akan mengikuti.',
       button: 'Mulai Sekarang',
+      buttonAlt: 'Mulai Mencatat',
     },
     footer: {
       copyright: '© {year} Emasku. Dibuat dengan tenang.',

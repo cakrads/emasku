@@ -241,8 +241,8 @@ export default function EditHoldingView({ holdingId }: EditHoldingViewProps) {
     <StandardPageLayout
       title={t('editHolding.title')}
       breadcrumbs={[
-        { label: 'Home', href: ROUTES.DASHBOARD },
-        { label: 'Holdings', href: ROUTES.HOLDINGS_LIST },
+        { label: t('navbar.dashboard'), href: ROUTES.DASHBOARD },
+        { label: t('navbar.holdings'), href: ROUTES.HOLDINGS_LIST },
         { label: t('editHolding.breadcrumbs.edit') }
       ]}
     >

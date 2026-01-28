@@ -56,16 +56,16 @@ export function PriceSection() {
               <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
                 <div>
                   <h2 className="text-3xl font-bold text-foreground mb-2">
-                    {t('landing.price.title') || 'Harga Emas Hari Ini'}
+                    {t('landing.price.title')}
                   </h2>
                   <p className="text-muted-foreground text-sm">
-                    Data publik, tanpa perlu login
+                    {t('landing.price.subtitle')}
                   </p>
                 </div>
 
                 <div className="flex items-center gap-2 text-sm text-muted-foreground bg-secondary/80 px-4 py-2 rounded-full border border-border/50">
                   <Clock className="w-4 h-4 text-accent-gold" />
-                  <span>Update: {updateTime}</span>
+                  <span>{t('landing.price.lastUpdate').replace('{time}', updateTime)}</span>
                 </div>
               </div>
             </ScrollReveal>
@@ -88,7 +88,7 @@ export function PriceSection() {
                 ))
               ) : error ? (
                 <div className="text-center py-8 text-muted-foreground">
-                  Gagal memuat harga. Silakan coba lagi.
+                  {t('landing.price.error')}
                 </div>
               ) : (
                 prices.map((item, index) => (
@@ -136,11 +136,11 @@ export function PriceSection() {
                   href={ROUTES.PRICES}
                   className="inline-flex items-center gap-2 text-accent-gold hover:text-accent-gold/80 font-medium transition-colors group"
                 >
-                  <span>{t('landing.price.viewAll') || 'Lihat semua harga & denominasi'}</span>
+                  <span>{t('landing.price.viewAll')}</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
                 <p className="text-sm text-muted-foreground">
-                  {t('landing.price.disclaimer') || 'Harga dapat berubah sewaktu-waktu mengikuti kondisi pasar'}
+                  {t('landing.price.disclaimer')}
                 </p>
               </div>
             </ScrollReveal>
