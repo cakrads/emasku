@@ -338,10 +338,12 @@ export default {
       valuationNote: 'Berdasarkan harga buyback resmi hari ini. Nilai ini berfluktuasi mengikuti pasar.',
       customNote: 'Valuasi pasar tidak tersedia untuk brand kustom.',
       customBrandLabel: '(Brand Kustom)',
+      purchaseDate: 'Est. Tgl. Beli',
     },
     actions: {
       continue: 'Lanjut',
       save: 'Simpan',
+      saving: 'Sedang menyimpan...',
       back: 'Kembali',
     },
     messages: {

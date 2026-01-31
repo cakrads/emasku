@@ -38,7 +38,7 @@ export class GetHoldingDetailUsecase {
 
     const buyValue = new Decimal(holding.buyPrice)
       .times(holding.quantity)
-      .times(holding.denominationGram)
+    // .times(holding.denominationGram) // REMOVED: buyPrice is per-piece
 
     if (!priceResult) {
       return {
@@ -54,16 +54,19 @@ export class GetHoldingDetailUsecase {
 
     const currentValue = new Decimal(priceResult.price)
       .times(holding.quantity)
-      .times(holding.denominationGram)
+    // .times(holding.denominationGram) // REMOVED: price is per-piece
 
     const unrealizedPnL = currentValue.minus(buyValue)
     const pnlPercentage = buyValue.greaterThan(0)
       ? unrealizedPnL.dividedBy(buyValue).times(100)
       : new Decimal(0)
 
+    // Normalize price to per-gram for consistency with UI labels
+    const currentPricePerGram = new Decimal(priceResult.price).dividedBy(holding.denominationGram)
+
     return {
       ...holding,
-      currentPrice: priceResult.price,
+      currentPrice: currentPricePerGram.toNumber(),
       currentValue: currentValue.toNumber(),
       unrealizedPnL: unrealizedPnL.toNumber(),
       pnlPercentage: pnlPercentage.toNumber(),

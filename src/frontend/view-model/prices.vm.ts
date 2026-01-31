@@ -128,6 +128,8 @@ export function transformTodayPrices(apiData: PricesTodayResponse, locale: strin
             weightLabel: `${price.denominationGram} g`,
           }
         })
+        // Filter out items with no SELL price (incomplete data)
+        .filter((price) => price.sellPrice)
         // Sort by weight ascending
         .sort((a, b) => a.denominationGram - b.denominationGram),
     })),

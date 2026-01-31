@@ -29,22 +29,24 @@ export class ScrapeAndPersistPrices {
         const commonTimestamp = raw.timestamp || new Date()
 
         // 1. Create SELL price (Market Truth)
-        pricesToSave.push({
-          brandCode: raw.brand,
-          brandName: raw.brand, // For standard brands, code equals name
-          priceType: PriceType.SELL,
-          denominationGram: raw.denominationGram,
-          price: raw.sellPrice,
-          priceAt: commonTimestamp,
-          source: 'Galeri24 Scraper',
-          rawPayload: raw
-        })
+        if (raw.sellPrice) {
+          pricesToSave.push({
+            brandCode: raw.brand,
+            brandName: raw.brand, // For standard brands, code equals name
+            priceType: PriceType.SELL,
+            denominationGram: raw.denominationGram,
+            price: raw.sellPrice,
+            priceAt: commonTimestamp,
+            source: 'Galeri24 Scraper',
+            rawPayload: raw
+          })
+        }
 
         // 2. Create Derived SPOT price (Reference Truth)
         // Per instructions: Derived SPOT must be inserted.
         // We use SELL price as the base for SPOT in this context.
         // User Requirement: Only ANTAM 1g generates a SPOT record.
-        if (raw.brand === 'ANTAM' && raw.denominationGram === 1) {
+        if (raw.brand === 'ANTAM' && raw.denominationGram === 1 && raw.sellPrice) {
           pricesToSave.push({
             brandCode: raw.brand,
             brandName: raw.brand,
@@ -58,16 +60,18 @@ export class ScrapeAndPersistPrices {
         }
 
         // 3. Create BUYBACK price
-        pricesToSave.push({
-          brandCode: raw.brand,
-          brandName: raw.brand,
-          priceType: PriceType.BUYBACK,
-          denominationGram: raw.denominationGram,
-          price: raw.buybackPrice,
-          priceAt: commonTimestamp,
-          source: 'Galeri24 Scraper',
-          rawPayload: raw
-        })
+        if (raw.buybackPrice) {
+          pricesToSave.push({
+            brandCode: raw.brand,
+            brandName: raw.brand,
+            priceType: PriceType.BUYBACK,
+            denominationGram: raw.denominationGram,
+            price: raw.buybackPrice,
+            priceAt: commonTimestamp,
+            source: 'Galeri24 Scraper',
+            rawPayload: raw
+          })
+        }
       }
 
       // 3. Persist

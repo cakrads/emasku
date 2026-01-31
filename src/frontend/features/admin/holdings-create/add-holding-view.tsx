@@ -197,7 +197,7 @@ function AddHoldingContent() {
 
       <WizardFooter
         onNext={step === 4 ? handleSave : nextStep}
-        nextLabel={step === 4 ? t('addHolding.actions.save') : t('addHolding.actions.continue')}
+        nextLabel={step === 4 ? (createMutation.isPending ? t('addHolding.actions.saving') : t('addHolding.actions.save')) : t('addHolding.actions.continue')}
         disabled={!canProceed() || createMutation.isPending}
       />
     </div>
@@ -256,7 +256,7 @@ function ReviewStep({ state, pricesData }: { state: HoldingState, pricesData?: a
                 </dd>
               </div>
               <div className="text-right">
-                <dt className="text-text-secondary uppercase tracking-wider font-medium text-xs mb-1 block">{t('addHolding.details.purchaseDate')}</dt>
+                <dt className="text-text-secondary uppercase tracking-wider font-medium text-xs mb-1 block">{t('addHolding.review.purchaseDate')}</dt>
                 <dd className="font-medium text-foreground tabular-nums">
                   {state.purchaseDate
                     ? format(state.purchaseDate, 'PPP', { locale: language === 'id' ? id : enUS })

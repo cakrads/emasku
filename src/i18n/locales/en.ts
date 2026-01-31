@@ -337,10 +337,12 @@ export default {
       valuationNote: "Based on today's official buyback prices. This value fluctuates with the market.",
       customNote: 'Market valuation is not available for custom brands.',
       customBrandLabel: '(Custom Brand)',
+      purchaseDate: 'Est. Purchase Date',
     },
     actions: {
       continue: 'Continue',
       save: 'Save Gold',
+      saving: 'Saving...',
       back: 'Back',
     },
     messages: {

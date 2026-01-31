@@ -123,7 +123,7 @@ export function SharedNavbar() {
   const isFormPage = pathname === ROUTES.ADD_HOLDING || pathname.endsWith('/edit')
 
   return (
-    <div className={cn(!showMobileBottomBar && "mb-16")}>
+    <div className={cn(!showMobileBottomBar && !isHomePage && "mb-16")}>
       <nav className={cn(
         "fixed z-50 transition-all duration-300",
         isFormPage && "hidden md:block",

@@ -94,33 +94,74 @@ export function PriceSection() {
                 prices.map((item, index) => (
                   <ScrollReveal key={item.provider} delay={200 + index * 100} direction="left">
                     <div
-                      className="flex items-center justify-between p-6 bg-secondary/30 rounded-[1.5rem] border border-border/50 hover:border-accent-gold/30 transition-all duration-300 group hover:bg-secondary/50"
+                      className="p-6 bg-secondary/30 rounded-[1.5rem] border border-border/50 hover:border-accent-gold/30 transition-all duration-300 group hover:bg-secondary/50"
                     >
-                      {/* Brand Info */}
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-2xl bg-accent-gold/10 flex items-center justify-center shadow-inner group-hover:bg-accent-gold/20 transition-colors">
+                      {/* Mobile Layout: Logo Top Center, then Title & Price Row */}
+                      {/* Mobile Layout: Logo Left, Title & Price Right Column */}
+                      <div className="md:hidden flex items-center gap-4 relative">
+                        {/* Logo Left */}
+                        <div className="w-12 h-12 rounded-2xl bg-accent-gold/10 flex items-center justify-center shadow-inner group-hover:bg-accent-gold/20 transition-colors shrink-0">
                           <span className="font-bold text-accent-gold text-lg">{item.provider[0]}</span>
                         </div>
-                        <span className="text-xl font-medium text-foreground">{item.provider}</span>
+
+                        {/* Content Column */}
+                        <div className="flex flex-col flex-1 gap-0.5 justify-center">
+                          {/* Title + PnL Row */}
+                          <div className="flex items-center justify-between w-full">
+                            <span className="text-xl font-medium text-foreground translate-y-[2px]">{item.provider}</span>
+
+                            {/* PnL Badge Top Right */}
+                            <div className={`flex items-center justify-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${item.trend === 'up' ? 'bg-emerald-500/10 text-emerald-500 dark:text-emerald-400' :
+                              item.trend === 'down' ? 'bg-red-500/10 text-red-500 dark:text-red-400' :
+                                'bg-slate-500/10 text-slate-400'
+                              }`}>
+                              {item.trend === 'up' ? <TrendingUp className="w-3 h-3" /> :
+                                item.trend === 'down' ? <TrendingDown className="w-3 h-3" /> :
+                                  <Minus className="w-3 h-3" />}
+                              {item.changePercent}
+                            </div>
+                          </div>
+
+                          {/* Price Row */}
+                          <div className="flex items-center gap-3">
+                            <div className="flex items-baseline gap-1">
+                              <span className="text-lg font-bold text-foreground tracking-tight">
+                                {item.priceFormatted}
+                              </span>
+                              <span className="text-xs text-muted-foreground font-normal">/gram</span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
 
-                      {/* Price Info */}
-                      <div className="text-right flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
-                        <div className="flex items-baseline justify-end gap-1.5">
-                          <span className="text-2xl font-bold text-foreground tracking-tight">
-                            {item.priceFormatted}
-                          </span>
-                          <span className="text-sm text-muted-foreground font-normal">/gram</span>
+                      {/* Desktop Layout: Standard Row */}
+                      <div className="hidden md:flex items-center justify-between">
+                        {/* Brand Info */}
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-2xl bg-accent-gold/10 flex items-center justify-center shadow-inner group-hover:bg-accent-gold/20 transition-colors">
+                            <span className="font-bold text-accent-gold text-lg">{item.provider[0]}</span>
+                          </div>
+                          <span className="text-xl font-medium text-foreground">{item.provider}</span>
                         </div>
 
-                        <div className={`flex items-center justify-end gap-1 px-2.5 py-1 rounded-full text-sm font-medium w-fit ml-auto md:ml-0 ${item.trend === 'up' ? 'bg-emerald-500/10 text-emerald-500 dark:text-emerald-400' :
-                          item.trend === 'down' ? 'bg-red-500/10 text-red-500 dark:text-red-400' :
-                            'bg-slate-500/10 text-slate-400'
-                          }`}>
-                          {item.trend === 'up' ? <TrendingUp className="w-3.5 h-3.5" /> :
-                            item.trend === 'down' ? <TrendingDown className="w-3.5 h-3.5" /> :
-                              <Minus className="w-3.5 h-3.5" />}
-                          {item.changePercent}
+                        {/* Price Info */}
+                        <div className="text-right flex items-center gap-6">
+                          <div className="flex items-baseline justify-end gap-1.5">
+                            <span className="text-2xl font-bold text-foreground tracking-tight">
+                              {item.priceFormatted}
+                            </span>
+                            <span className="text-sm text-muted-foreground font-normal">/gram</span>
+                          </div>
+
+                          <div className={`flex items-center justify-end gap-1 px-2.5 py-1 rounded-full text-sm font-medium w-fit ${item.trend === 'up' ? 'bg-emerald-500/10 text-emerald-500 dark:text-emerald-400' :
+                            item.trend === 'down' ? 'bg-red-500/10 text-red-500 dark:text-red-400' :
+                              'bg-slate-500/10 text-slate-400'
+                            }`}>
+                            {item.trend === 'up' ? <TrendingUp className="w-3.5 h-3.5" /> :
+                              item.trend === 'down' ? <TrendingDown className="w-3.5 h-3.5" /> :
+                                <Minus className="w-3.5 h-3.5" />}
+                            {item.changePercent}
+                          </div>
                         </div>
                       </div>
                     </div>
