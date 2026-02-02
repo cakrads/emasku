@@ -33,6 +33,16 @@ export function LoginView() {
   const [hasConsented, setHasConsented] = useState(false)
   const [error, setError] = useState<{ userMessage: string; recoveryAction?: string } | null>(null)
 
+  // Use session from auth store
+  const session = useAuthStore((state) => state.session)
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (session?.user) {
+      router.replace(ROUTES.DASHBOARD)
+    }
+  }, [session, router])
+
   // Handle errors from redirect (e.g. Server 500 caught by try-catch)
   useEffect(() => {
     const errorParam = searchParams.get('error')
