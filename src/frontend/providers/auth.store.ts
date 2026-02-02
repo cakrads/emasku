@@ -62,9 +62,6 @@ export const selectIsAuthenticated = (state: AuthStore) =>
 export const selectIsLoading = (state: AuthStore) =>
   state.status === 'loading'
 
-export const selectIsGuest = (state: AuthStore) =>
-  state.user?.isGuest ?? false
-
 export const selectUser = (state: AuthStore) =>
   state.user
 

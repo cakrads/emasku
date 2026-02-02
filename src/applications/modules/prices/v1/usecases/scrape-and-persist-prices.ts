@@ -3,11 +3,15 @@ import { IPriceRepository } from '../repository/price-repository.interface'
 import { Galeri24Scraper, RawPriceData } from '@/applications/shared/scrapers/galeri24.scraper'
 import { CreatePriceInput } from '../domain/gold-price'
 import { ScraperLogger } from '@/applications/shared/scrapers/scraper-logger'
+import { ComputeDailyCloseUsecase } from './compute-daily-close.usecase'
 
 export class ScrapeAndPersistPrices {
-  constructor(private priceRepository: IPriceRepository) { }
+  constructor(
+    private priceRepository: IPriceRepository,
+    private computeDailyClose: ComputeDailyCloseUsecase
+  ) { }
 
-  async execute(): Promise<{ success: boolean, inserted: number, skipped: number }> {
+  async execute(): Promise<{ success: boolean, inserted: number, skipped: number, dailyCloseProcessed?: number }> {
     const logger = new ScraperLogger()
     const scraper = new Galeri24Scraper()
 
@@ -42,22 +46,6 @@ export class ScrapeAndPersistPrices {
           })
         }
 
-        // 2. Create Derived SPOT price (Reference Truth)
-        // Per instructions: Derived SPOT must be inserted.
-        // We use SELL price as the base for SPOT in this context.
-        // User Requirement: Only ANTAM 1g generates a SPOT record.
-        if (raw.brand === 'ANTAM' && raw.denominationGram === 1 && raw.sellPrice) {
-          pricesToSave.push({
-            brandCode: raw.brand,
-            brandName: raw.brand,
-            priceType: PriceType.SPOT,
-            denominationGram: raw.denominationGram,
-            price: raw.sellPrice, // SPOT derived from SELL (Identity for now)
-            priceAt: commonTimestamp,
-            source: 'Galeri24 Scraper',
-            rawPayload: raw
-          })
-        }
 
         // 3. Create BUYBACK price
         if (raw.buybackPrice) {
@@ -74,22 +62,48 @@ export class ScrapeAndPersistPrices {
         }
       }
 
-      // 3. Persist
+      // 3. Persist Intraday Prices
       console.log(`[ScrapeAndPersistPrices] Persisting ${pricesToSave.length} records...`)
       const result = await this.priceRepository.saveBatch(pricesToSave)
 
-      // 4. Log Result
+      // 4. Update Daily Close (Real-time PnL Update)
+      // This ensures that Dashboard shows the latest move relative to yesterday
+      let dailyCloseProcessed = 0
+      try {
+        const now = new Date()
+        const wibOffset = 7 * 60 * 60 * 1000
+        const wibNow = new Date(now.getTime() + wibOffset)
+
+        const todayStr = wibNow.toISOString().split('T')[0]
+
+        const yesterday = new Date(wibNow)
+        yesterday.setDate(yesterday.getDate() - 1)
+        const yesterdayStr = yesterday.toISOString().split('T')[0]
+
+        console.log(`[ScrapeAndPersistPrices] Updating daily close for Today(${todayStr}) and Yesterday(${yesterdayStr})`)
+
+        const todayResult = await this.computeDailyClose.execute(todayStr)
+        const yesterdayResult = await this.computeDailyClose.execute(yesterdayStr)
+
+        dailyCloseProcessed = todayResult.processed + yesterdayResult.processed
+      } catch (closeError) {
+        console.error('[ScrapeAndPersistPrices] Failed to update daily close:', closeError)
+      }
+
+      // 5. Log Result
       logger.log('success', {
         itemsExtracted: rawPrices.length,
         recordsInserted: result.inserted,
         recordsSkipped: result.skipped,
+        dailyCloseProcessed
       })
 
-      console.log(`[ScrapeAndPersistPrices] Success: Inserted ${result.inserted}, Skipped ${result.skipped}`)
+      console.log(`[ScrapeAndPersistPrices] Success: Inserted ${result.inserted}, Skipped ${result.skipped}, DailyClose: ${dailyCloseProcessed}`)
       return {
         success: true,
         inserted: result.inserted,
-        skipped: result.skipped
+        skipped: result.skipped,
+        dailyCloseProcessed
       }
 
     } catch (error) {

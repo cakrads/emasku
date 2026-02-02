@@ -2,7 +2,7 @@
  * Get Holding Detail Usecase
  * 
  * Business logic to fetch single holding with valuation.
- * Implements BUYBACK → SPOT → NULL fallback logic.
+ * Implements BUYBACK → NULL fallback logic.
  */
 
 import Decimal from 'decimal.js'
@@ -21,19 +21,15 @@ export class GetHoldingDetailUsecase {
     const holding = await this.portfolioRepo.findById(id)
     if (!holding) return null
 
-    // Try BUYBACK first, fallback to SPOT
+    // Try BUYBACK first
     let priceResult = await this.priceRepo.getLatestBuybackPrice(
       holding.brandCode,
       holding.denominationGram
     )
-    let source: 'BUYBACK' | 'SPOT' | 'NONE' = 'BUYBACK'
+    let source: 'BUYBACK' | 'NONE' = 'BUYBACK'
 
     if (!priceResult) {
-      priceResult = await this.priceRepo.getLatestSpotPrice(
-        holding.brandCode,
-        holding.denominationGram
-      )
-      source = priceResult ? 'SPOT' : 'NONE'
+      source = 'NONE'
     }
 
     const buyValue = new Decimal(holding.buyPrice)

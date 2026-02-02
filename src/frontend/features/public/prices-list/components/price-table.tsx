@@ -10,7 +10,7 @@ import { Typography } from '@/frontend/components/ui/typography'
 export interface PriceRow {
   brand: string
   denominationGram: number
-  priceType: 'SELL' | 'BUYBACK' | 'SPOT'
+  priceType: 'SELL' | 'BUYBACK'
   price: number
 }
 

@@ -31,7 +31,7 @@
 - **Kebab-case Files**: All source files must use lowercase with dashes (e.g., `add-holding.ts`, `react-query-provider.tsx`).
 - **Spec-driven development**: Always reference `spec.md` and `tech-spec.md`.
 - **Immutable financial records**: Price records are never modified.
-- **Single source of truth**: All valuation must use the latest price record.
+- **Single source of truth**: Real-time valuation uses the latest `GoldPrice` (BUYBACK), while periodic PnL (Daily, Weekly, Monthly) uses the authoritative `GoldDailyClose` table.
 - **Readability over cleverness**: Keep code maintainable and clear.
 
 ## 3. Financial Precision Rules
@@ -105,11 +105,15 @@ export const prisma = new PrismaClient({ adapter })
 - **Method**: Extract `__NUXT_DATA__` script tag from the HTML.
 - **Frequency**: Scheduled cron job.
 
-### 5.2 Historical Initial Seeding
+### 5.2 Historical & Daily Close Aggregation
 
-- **Target**: `5-years-gold-price.json`
-- **Method**: Seeding script reads JSON and inserts into `GoldPrice`.
-- **Format**: `[[timestamp, price], ...]` where timestamp is in milliseconds.
+- **GoldDailyClose**: A system-managed table that stores the "final truth" for each market day.
+- **Rules**:
+  - One record per Brand + PriceType + Gram + Date.
+  - Derived from the latest `GoldPrice` intraday record for that day (WIB).
+  - **Carry-Forward**: If no prices are recorded on a specific day (e.g., Sunday), the system carries forward the last known close.
+- **Purpose**: Powering the "Today", "Weekly", and "Monthly" PnL metrics without scanning millions of intraday points.
+- **Valuation Strategy**: All historical charts and periodic differences use `PriceType.SELL` from this table as the canonical spot price proxy.
 
 ## 6. UI/UX Rules
 

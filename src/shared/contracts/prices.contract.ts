@@ -64,7 +64,7 @@ export type PricePoint = z.infer<typeof PricePointSchema>
  */
 export const SpotPriceSeriesSchema = z.object({
   brand: z.string(),
-  priceType: z.literal('SPOT'),
+  priceType: z.literal('SELL'),
   denominationGram: z.number().positive(),
   currency: z.literal('IDR'),
   series: z.array(PricePointSchema),

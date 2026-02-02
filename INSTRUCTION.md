@@ -1,183 +1,208 @@
-# Agent Instruction — Landing Page Enhancement (Hero + Motion)
+# FINAL SPEC — Gold Daily Close & PnL Computation
 
-## Context
+## Objective
 
-The landing page structure, typography system, and spacing system are already finalized and approved.
+Establish a **stable, deterministic, and explainable** mechanism to compute:
 
-Your task is to ENHANCE the landing page visually and experientially
-without breaking calmness, performance, or professionalism.
+- Daily / Weekly / Monthly PnL
+- Market up/down indicator (red/green)
+- Portfolio valuation consistency
 
-This is a financial / web3-adjacent product.
-The target quality bar is Stripe / Linear-level cleanliness.
-
----
-
-## Scope of Work (ALLOWED)
-
-You may ONLY work on:
-
-1. Hero section parallax
-2. Subtle ornamental visuals
-3. Scroll-based fade-in / fade-out animation
-4. Visual polish that improves perceived quality
-
-You may NOT:
-
-- Change layout structure
-- Change typography choices
-- Change spacing scale
-- Add marketing copy
-- Add new sections
-- Add heavy visual effects
+This system MUST NOT depend on intraday volatility or scraping timing differences.
 
 ---
 
-## 1. Hero Section — Parallax Enhancement
+## Core Principles
 
-Goal:
-
-- Create depth and calm sophistication
-- Establish premium, professional tone
-
-Rules:
-
-- Parallax must be VERY subtle
-- Only background or decorative layers may move
-- Main text content must remain stable and readable
-
-Allowed:
-
-- Slow vertical background movement
-- Slight opacity shift based on scroll
-- Layered background gradients or shapes
-
-Forbidden:
-
-- Fast parallax
-- Large movement distances
-- Text parallax
-- Looping animations
-
-Hero parallax must:
-
-- Respond only to scroll
-- Never autoplay
-- Respect prefers-reduced-motion
+1. **Gold does not have an official market close**
+2. **Daily Close is a SYSTEM DECISION**, not a market fact
+3. **Analytics must be based on stable daily snapshots**
+4. **Intraday prices are for latest valuation only**
+5. **PnL comparisons are always CLOSE vs CLOSE**
 
 ---
 
-## 2. Ornaments & Decorative Elements
+## Definitions (Authoritative)
 
-Purpose:
+### GoldPrice
 
-- Add visual interest
-- Avoid flat or boring appearance
-- Support the financial / web3 tone
+- Raw, immutable, intraday market observations
+- Can be multiple per day
+- NOT used directly for PnL comparison
 
-Examples of acceptable ornaments:
+### GoldDailyClose
 
-- Soft gradients
-- Abstract geometric shapes
-- Subtle grid lines
-- Light noise / grain (very subtle)
-- Stripe-like background layers
-
-Rules:
-
-- Ornaments must NEVER distract from text
-- Low contrast
-- Minimal color usage
-- No strong glow effects
-
-If unsure:
-
-- Reduce opacity
-- Reduce size
-- Reduce count
-
-Less is always better.
+- ONE authoritative price per brand + denomination + priceType per calendar day
+- Represents:  
+  **“Last known market price before day rollover”**
+- Used for:
+  - Daily change
+  - Weekly change
+  - Monthly change
+  - Charts
+  - Red / green indicators
 
 ---
 
-## 3. Scroll-Based Animations (Fade / Reveal)
+## Daily Close Rule (FINAL)
 
-Goal:
+For each `(brandCode, denominationGram, priceType)`:
 
-- Guide attention
-- Improve narrative flow
-- Maintain calmness
+1. Identify the **latest GoldPrice** with:
+   - `priceAt < next_day_00:00`
+2. If at least one exists:
+   - That price becomes **Daily Close**
+3. If NO GoldPrice exists for that calendar day:
+   - **Carry forward previous Daily Close**
+4. Persist result into `GoldDailyClose`
 
-Allowed animations:
+This rule applies to:
 
-- Fade in
-- Fade out
-- Translate Y: 8–16px
-- Slight scale: 0.98 → 1
-
-Forbidden animations:
-
-- Bounce
-- Elastic
-- Spring overshoot
-- Horizontal sliding
-- Rotations
-
-Animation timing:
-
-- Delayed
-- Predictable
-- One animation per element only
-
-All animations must:
-
-- Be triggered by scroll
-- Use intersection observers or equivalent
-- Respect prefers-reduced-motion
+- Weekends
+- Holidays
+- Days without scraping activity
 
 ---
 
-## 4. Professional Feel Checklist
+## Data Model (Required)
 
-Before finalizing, validate:
+### GoldDailyClose
 
-- Nothing feels playful
-- Nothing feels noisy
-- Nothing feels rushed
-- Motion feels intentional
-- Page still looks good with animation disabled
-- Page still feels premium on low-end devices
+- brandCode
+- brandName
+- priceType (BUYBACK / SELL / SPOT)
+- denominationGram
+- price
+- currency
+- closeDate (DATE ONLY, no time)
+- source = "SYSTEM_DAILY_CLOSE"
+- derivedFromPriceAt (nullable)
+- createdAt
 
-If any element draws attention to itself more than the content,
-it must be removed or simplified.
+Constraints:
 
----
-
-## 5. Performance Constraints (NON-NEGOTIABLE)
-
-All enhancements must respect Core Web Vitals:
-
-- No layout shift (CLS must remain < 0.1)
-- No heavy JS in hero
-- No blocking animations
-- Prefer CSS transforms over JS
-- No unnecessary animation libraries
-
-If an effect harms performance, remove it.
+- UNIQUE `(brandCode, priceType, denominationGram, closeDate)`
 
 ---
 
-## Final Instruction
+## Cron Job Responsibilities
 
-Enhance the landing page ONLY within these constraints.
+### Schedule
 
-The result must feel:
+- Runs once per day (recommended: 00:05 local time)
 
-- Calm
-- Clean
-- Premium
-- Trustworthy
+### Steps
 
-A visually impressive solution that violates calmness,
-clarity, or performance is considered incorrect.
+1. For each active market combination:
+   - Query latest GoldPrice `< today 00:00`
+2. Apply Daily Close Rule
+3. Insert or upsert GoldDailyClose
+4. Log carry-forward events explicitly
 
-Do not exceed this scope.
+---
+
+## Portfolio Valuation Rules
+
+### Cost Basis (All-Time)
+
+cost_basis =
+buyPrice * quantity
+
+### Market Value (At Date D)
+
+market_value =
+daily_close_price(D) * total_grams
+
+### All-Time PnL
+
+PnL_all_time =
+market_value(today_close) - cost_basis
+
+---
+
+## Periodic PnL Computation
+
+### Daily PnL
+
+daily_change =
+today_close - yesterday_close
+
+### Weekly PnL
+
+weekly_change =
+today_close - close_7_days_ago
+
+### Monthly PnL
+
+monthly_change =
+today_close - close_30_days_ago
+
+Notes:
+
+- If missing date → use nearest previous available close
+- Never use GoldPrice directly for comparisons
+
+---
+
+## UI Indicator Rules (RED / GREEN)
+
+### Daily Indicator
+
+- Compare:
+today_close vs yesterday_close
+
+- Green → market up
+- Red → market down
+- Neutral → no change
+
+### All-Time Indicator
+
+- Compare:
+market_value vs cost_basis
+
+- Independent from daily indicator
+
+⚠️ A holding CAN be:
+
+- Green all-time
+- Red today
+
+This is EXPECTED and CORRECT.
+
+---
+
+## Charting Rules
+
+- Charts MUST use `GoldDailyClose`
+- NO intraday GoldPrice in charts
+- Weekends appear as flat lines (carry-forward)
+- Charts represent **decision history**, not scraping noise
+
+---
+
+## Anti-Patterns (Explicitly Forbidden)
+
+- ❌ Comparing GoldPrice directly across days
+- ❌ Inferring close price dynamically on read
+- ❌ Using “latest price” as daily change reference
+- ❌ Leaving gaps on weekends
+- ❌ Mixing cost basis with intraday movements
+
+---
+
+## System Guarantee
+
+This architecture guarantees:
+
+- Deterministic analytics
+- Explainable numbers
+- Stable charts
+- Trustworthy red/green signals
+- No user confusion from scraping time variance
+
+---
+
+## Status
+
+This spec is **FINAL**.
+Any deviation requires explicit architectural review.

@@ -36,7 +36,7 @@ All endpoints MUST return responses in the following standard structure:
 }
 ```
 
-**Field Semantics**
+### Field Semantics
 
 | Field | Description |
 | :--- | :--- |
@@ -52,20 +52,20 @@ All endpoints MUST return responses in the following standard structure:
 
 To ensure service quality, Public Market APIs are protected by the following mechanisms:
 
-**Rate Limiting**
+### Rate Limiting
 
 - **Spot Prices** (`/prices/spot`): 20 requests/minute
 - **Today Prices** (`/prices/today`): 60 requests/minute
 - Limits are applied per `IP + API Key` combination.
 - Exceeding limits returns `429 Too Many Requests`.
 
-**Caching**
+### Caching
 
 - Responses include `Cache-Control` headers (CDN aware).
 - Historical data is cached for **15 minutes**.
 - Live price data is cached for **60 seconds**.
 
-**Public API Key**
+### Public API Key
 
 - Header: `x-public-key`
 - Required in Production environments.
@@ -73,17 +73,17 @@ To ensure service quality, Public Market APIs are protected by the following mec
 
 ---
 
-# 2. Market APIs (Public)
+## 2. Market APIs (Public)
 
 These endpoints expose **market truth**, agnostic of specific user ownership.
 
 ## 2.1 Spot Price Time Series (Chart)
 
-**Purpose**: Fetch historical price data for charting (e.g., 7d, 30d, 1y).
+**Purpose**: Fetch historical price data for charting (e.g., 7d, 30d, 1y). This endpoint sources data from the `GoldDailyClose` table (Daily Close at 23:59 WIB).
 
 **Endpoint**: `GET /prices/spot`
 
-**Query Parameters**
+### Query Parameters
 
 | Name | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
@@ -92,7 +92,7 @@ These endpoints expose **market truth**, agnostic of specific user ownership.
 | to | ISO date | yes | End date (UTC). |
 | denomination | number | no | Weight in gram (default: 1). |
 
-**Response Example**
+### Response Example
 
 ```json
 {
@@ -101,7 +101,7 @@ These endpoints expose **market truth**, agnostic of specific user ownership.
   "message": "Spot price series retrieved",
   "data": {
     "brand": "ANTAM",
-    "priceType": "SPOT",
+    "priceType": "SELL",
     "denominationGram": 1,
     "currency": "IDR",
     "series": [
@@ -125,14 +125,14 @@ These endpoints expose **market truth**, agnostic of specific user ownership.
 
 **Endpoint**: `GET /prices/today`
 
-**Query Parameters**
+### Query Parameters
 
 | Name | Type | Required | Description |
 | :--- | :--- | :--- | :--- |
 | brand | string | no | Filter by brand. |
 | denomination | number | no | Filter by gram. |
 
-**Response Example**
+### Response Example
 
 ```json
 {
@@ -169,7 +169,7 @@ These endpoints expose **market truth**, agnostic of specific user ownership.
 
 ---
 
-# 3. Portfolio APIs (Authenticated)
+## 3. Portfolio APIs (Authenticated)
 
 These endpoints expose **user-owned holdings** and their **derived valuations**.
 
@@ -179,7 +179,7 @@ These endpoints expose **user-owned holdings** and their **derived valuations**.
 
 **Endpoint**: `GET /portfolio/summary`
 
-**Response Example**
+### Response Example
 
 ```json
 {
@@ -208,7 +208,7 @@ These endpoints expose **user-owned holdings** and their **derived valuations**.
 
 **Endpoint**: `GET /portfolio`
 
-**Response Example**
+### Response Example
 
 ```json
 {
@@ -244,7 +244,7 @@ These endpoints expose **user-owned holdings** and their **derived valuations**.
 
 **Endpoint**: `POST /portfolio`
 
-**Request Body**
+### Request Body
 
 ```json
 {
@@ -256,7 +256,7 @@ These endpoints expose **user-owned holdings** and their **derived valuations**.
 }
 ```
 
-**Response Example**
+### Response Example
 
 ```json
 {
@@ -282,7 +282,7 @@ These endpoints expose **user-owned holdings** and their **derived valuations**.
 
 **Endpoint**: `POST /portfolio/{id}/sell`
 
-**Request Body**
+### Request Body
 
 ```json
 {
@@ -291,7 +291,7 @@ These endpoints expose **user-owned holdings** and their **derived valuations**.
 }
 ```
 
-**Response Example**
+### Response Example
 
 ```json
 {
@@ -311,13 +311,13 @@ These endpoints expose **user-owned holdings** and their **derived valuations**.
 
 ---
 
-# 4. Master Data APIs
+## 4. Master Data APIs
 
 ## 4.1 List Brands
 
 **Endpoint**: `GET /brands`
 
-**Response Example**
+### Response Example
 
 ```json
 {
@@ -346,11 +346,11 @@ These endpoints expose **user-owned holdings** and their **derived valuations**.
 
 ---
 
-# 5. Error Response Standard
+## 5. Error Response Standard
 
 In case of a failure, the `details` field provides deep diagnostic info.
 
-**Response Example**
+### Response Example
 
 ```json
 {
@@ -374,7 +374,7 @@ In case of a failure, the `details` field provides deep diagnostic info.
 
 ---
 
-# 6. Technical Decisions (Rationale)
+## 6. Technical Decisions (Rationale)
 
 - **Backend-Driven Valuation**: All money and PNL calculations happen in the Application Layer.
 - **Fixed Currency**: IDR is the system invariant. No multi-currency in v1.
@@ -383,7 +383,7 @@ In case of a failure, the `details` field provides deep diagnostic info.
 
 ---
 
-# 7. Versioning Policy
+## 7. Versioning Policy
 
 - Breaking changes → `/api/v2`
 - Backward-compatible additions stay in v1.

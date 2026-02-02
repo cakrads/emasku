@@ -6,7 +6,6 @@
  */
 
 import {
-  loginAsGuest as serviceLoginAsGuest,
   loginWithGoogle as serviceLoginWithGoogle,
   signOut as serviceSignOut,
   getSession as serviceGetSession,
@@ -14,13 +13,6 @@ import {
   type AuthSession,
   type AuthResult,
 } from '@/applications/shared/auth'
-
-/**
- * Login as guest user
- */
-export async function loginAsGuest(): Promise<AuthResult<AuthSession>> {
-  return serviceLoginAsGuest()
-}
 
 /**
  * Login with Google OAuth

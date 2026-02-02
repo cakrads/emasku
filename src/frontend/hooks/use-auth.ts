@@ -9,7 +9,7 @@
 
 import { useCallback } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuthStore, selectIsAuthenticated, selectIsLoading, selectIsGuest, selectUser, selectError } from '@/frontend/providers/auth.store'
+import { useAuthStore, selectIsAuthenticated, selectIsLoading, selectUser, selectError } from '@/frontend/providers/auth.store'
 import { signOut as apiSignOut } from '@/frontend/services/auth/auth.api'
 import { ROUTES } from '@/frontend/config/routes'
 
@@ -18,7 +18,6 @@ export function useAuth() {
 
   const isAuthenticated = useAuthStore(selectIsAuthenticated)
   const isLoading = useAuthStore(selectIsLoading)
-  const isGuest = useAuthStore(selectIsGuest)
   const user = useAuthStore(selectUser)
   const error = useAuthStore(selectError)
   const setSession = useAuthStore((state) => state.setSession)
@@ -28,7 +27,7 @@ export function useAuth() {
 
     if (result.success) {
       setSession(null)
-      router.push(ROUTES.LOGIN)
+      router.push(ROUTES.HOME)
     }
 
     return result
@@ -38,7 +37,6 @@ export function useAuth() {
     // State
     isAuthenticated,
     isLoading,
-    isGuest,
     user,
     error,
 

@@ -1,7 +1,7 @@
 /**
  * PricesHistoryView - Price History Chart Page
  * 
- * Displays historical gold price movement for ANTAM SPOT 1g.
+ * Displays historical gold price movement for ANTAM SELL 1g.
  * This is a reference benchmark, not personalized to user portfolio.
  */
 
@@ -28,7 +28,7 @@ function PricesHistoryContent() {
   const range = '5y' as const
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['market', 'spot-prices', 'ANTAM', '1g', range],
+    queryKey: ['market', 'market-prices', 'ANTAM', '1g', range],
     queryFn: () => fetchSpotPriceSeries({
       brand: 'ANTAM',
       range,

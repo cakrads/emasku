@@ -30,7 +30,7 @@ import { LogoutDialog } from '@/frontend/components/fragments/admin/logout-dialo
 
 export function SharedNavbar() {
   const pathname = usePathname()
-  const { isAuthenticated, isGuest, user, logout, isLoading } = useAuth()
+  const { isAuthenticated, user, logout, isLoading } = useAuth()
   const { theme, setTheme } = useTheme()
   const { t, language, setLanguage } = useLanguage()
   const [mounted, setMounted] = useState(false)
@@ -293,11 +293,11 @@ export function SharedNavbar() {
                       <Avatar className="h-8 w-8">
                         <AvatarImage src={user?.avatarUrl || ''} />
                         <AvatarFallback className="bg-accent-gold/20 text-accent-gold">
-                          {isGuest ? 'G' : user?.displayName?.charAt(0).toUpperCase() || 'U'}
+                          {user?.displayName?.charAt(0).toUpperCase() || 'U'}
                         </AvatarFallback>
                       </Avatar>
                       <span className="text-sm font-medium max-w-[120px] truncate">
-                        {isGuest ? t('common.guest') : user?.displayName || 'User'}
+                        {user?.displayName || 'User'}
                       </span>
                     </Button>
                   </DropdownMenuTrigger>

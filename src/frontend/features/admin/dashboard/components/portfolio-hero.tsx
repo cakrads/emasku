@@ -7,31 +7,70 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/frontend/components/u
 import { Info } from 'lucide-react'
 import { useLanguage } from '@/frontend/hooks/use-language'
 
+interface PnLPeriod {
+  label: string
+  value: string | null
+  percentage: string | null
+  color: 'positive' | 'negative' | 'neutral'
+}
+
 interface PortfolioHeroProps {
   totalValue: string
-  gainLossPercentage: string
-  todayChange: string
-  todayChangePercentage: string
+  totalPnL: string               // All time IDR
+  gainLossPercentage: string      // All time %
+  todayChange?: string | null
+  todayChangePercentage?: string | null
+  weeklyChange?: string | null
+  weeklyChangePercentage?: string | null
+  monthlyChange?: string | null
+  monthlyChangePercentage?: string | null
+  yearlyChange?: string | null
+  yearlyChangePercentage?: string | null
   disclaimer?: string
   excludedCount?: number
   pnlColor?: 'positive' | 'negative' | 'neutral'
   todayColor?: 'positive' | 'negative' | 'neutral'
+  weeklyColor?: 'positive' | 'negative' | 'neutral'
+  monthlyColor?: 'positive' | 'negative' | 'neutral'
+  yearlyColor?: 'positive' | 'negative' | 'neutral'
 }
 
 export default function PortfolioHero({
   totalValue,
+  totalPnL,
   gainLossPercentage,
+  todayChange,
   todayChangePercentage,
+  weeklyChange,
+  weeklyChangePercentage,
+  monthlyChange,
+  monthlyChangePercentage,
+  yearlyChange,
+  yearlyChangePercentage,
   excludedCount,
   pnlColor = 'neutral',
   todayColor = 'neutral',
+  weeklyColor = 'neutral',
+  monthlyColor = 'neutral',
+  yearlyColor = 'neutral',
 }: PortfolioHeroProps) {
   const { t } = useLanguage()
   const isGainPositive = pnlColor === 'positive'
   const isGainNeutral = pnlColor === 'neutral'
 
-  const isTodayPositive = todayColor === 'positive'
-  const isTodayNeutral = todayColor === 'neutral'
+  // Build array of available periods
+  const periods: PnLPeriod[] = [
+    { label: t('dashboard.today'), value: todayChange ?? null, percentage: todayChangePercentage ?? null, color: todayColor },
+    { label: t('dashboard.weekly'), value: weeklyChange ?? null, percentage: weeklyChangePercentage ?? null, color: weeklyColor },
+    { label: t('dashboard.monthly'), value: monthlyChange ?? null, percentage: monthlyChangePercentage ?? null, color: monthlyColor },
+    { label: t('dashboard.yearly'), value: yearlyChange ?? null, percentage: yearlyChangePercentage ?? null, color: yearlyColor },
+  ].filter(p => p.value !== null)
+
+  const getColorClass = (color: 'positive' | 'negative' | 'neutral') => {
+    if (color === 'positive') return 'text-positive font-medium'
+    if (color === 'negative') return 'text-negative font-medium'
+    return 'font-medium'
+  }
 
   // Shared trigger content
   const ExcludedInfoTrigger = (
@@ -63,33 +102,36 @@ export default function PortfolioHero({
 
       <Stack gap="sm">
         {totalValue && (
-          <Stack direction="horizontal" gap="sm" className="items-center flex-wrap">
-            <Typography variant="body-sm" className="text-(--text-muted)">
-              {t('dashboard.allTime')}:
-            </Typography>
-            <Typography
-              variant="body-sm"
-              className={isGainPositive ? 'text-(--positive) font-medium' : isGainNeutral ? 'font-medium' : 'text-(--negative) font-medium'}
-            >
-              {gainLossPercentage}
-            </Typography>
+          <Stack gap="xs">
+            {/* All Time Section */}
+            <Stack direction="horizontal" gap="sm" className="items-center flex-wrap">
+              <Typography variant="body-sm" className="text-(--text-muted)">
+                {t('dashboard.allTime')}:
+              </Typography>
+              <Typography
+                variant="body-sm"
+                className={isGainPositive ? 'text-positive font-medium' : isGainNeutral ? 'font-medium' : 'text-negative font-medium'}
+              >
+                {totalPnL} ({gainLossPercentage})
+              </Typography>
+            </Stack>
 
-            {/* Daily PnL Hidden for Simplicity (User Feedback)
-            {todayChangePercentage !== '—' && !todayChangePercentage.includes('0.00%') && (
-              <>
-                <Typography variant="body-sm" className="text-(--text-muted)">•</Typography>
-                <Typography variant="body-sm" className="text-(--text-muted)">
-                  {t('dashboard.today')}:
-                </Typography>
-                <Typography
-                  variant="body-sm"
-                  className={isTodayPositive ? 'text-positive font-medium' : isTodayNeutral ? 'font-medium' : 'text-negative font-medium'}
-                >
-                  {todayChangePercentage}
-                </Typography>
-              </>
+            {/* Periodic PnL Section (Next Line) */}
+            {periods.length > 0 && (
+              <Stack direction="horizontal" gap="sm" className="items-center flex-wrap">
+                {periods.map((period, index) => (
+                  <span key={period.label} className="flex items-center gap-1">
+                    {index > 0 && <Typography variant="body-sm" className="text-(--text-muted) mr-2">•</Typography>}
+                    <Typography variant="body-sm" className="text-(--text-muted)">
+                      {period.label}:
+                    </Typography>
+                    <Typography variant="body-sm" className={getColorClass(period.color)}>
+                      {period.value} {period.percentage && period.percentage !== '-' ? `(${period.percentage})` : ''}
+                    </Typography>
+                  </span>
+                ))}
+              </Stack>
             )}
-            */}
           </Stack>
         )}
 
@@ -129,3 +171,4 @@ export default function PortfolioHero({
     </Stack>
   )
 }
+

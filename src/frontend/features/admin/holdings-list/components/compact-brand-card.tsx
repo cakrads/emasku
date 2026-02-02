@@ -21,7 +21,7 @@ interface CompactBrandCardProps {
   currentValue: number
   deltaValue: number
   deltaPercentage: number
-  valuationSource: 'BUYBACK' | 'SPOT' | 'USER' | 'NONE' | 'MIXED'
+  valuationSource: 'BUYBACK' | 'USER' | 'NONE' | 'MIXED'
 }
 
 export default function CompactBrandCard({
@@ -53,8 +53,6 @@ export default function CompactBrandCard({
     switch (valuationSource) {
       case 'BUYBACK':
         return language === 'id' ? 'harga buyback' : 'buyback price'
-      case 'SPOT':
-        return language === 'id' ? 'harga spot' : 'spot price'
       case 'USER':
         return language === 'id' ? 'harga manual' : 'manual price'
       case 'MIXED':
@@ -78,7 +76,7 @@ export default function CompactBrandCard({
             className="block outline-none group shrink-0"
           >
             {/* Fixed height card for consistency */}
-            <div className="w-[230px] h-[110px] bg-(--surface-elevated) border border-(--border) rounded-xl px-4 py-3 relative overflow-hidden hover:border-accent-gold/50 transition-all flex flex-col">
+            <div className="w-[230px] h-[110px] bg-surface-elevated border border-border rounded-xl px-4 py-3 relative overflow-hidden hover:border-accent-gold/50 transition-all flex flex-col">
               <div className="absolute inset-0 bg-accent-gold/0 group-hover:bg-accent-gold/5 transition-colors duration-300" />
 
               <div className="relative z-10 flex flex-col flex-1">
@@ -107,7 +105,7 @@ export default function CompactBrandCard({
                   className={cn(
                     "flex items-center gap-1 text-xs mt-1",
                     isUnvalued ? "invisible" : "",
-                    deltaValue > 0 ? "text-(--positive)" : deltaValue < 0 ? "text-(--negative)" : "text-muted-foreground"
+                    deltaValue > 0 ? "text-positive" : deltaValue < 0 ? "text-negative" : "text-muted-foreground"
                   )}
                 >
                   <TrendingUp className={cn("w-3 h-3 shrink-0", deltaValue < 0 && "rotate-180", deltaValue === 0 && "hidden")} />

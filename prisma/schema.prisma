@@ -13,10 +13,6 @@ datasource db {
 /// Explicit semantic meaning of a gold price.
 /// These are NOT interchangeable.
 enum PriceType {
-  /// Market / reference price (charts, historical series)
-  /// Example: Logam Mulia historical data
-  SPOT
-
   /// Official listed retail price
   RETAIL
 
@@ -205,4 +201,36 @@ model PortfolioHolding {
 
   @@index([userId])
   @@index([brandCode])
+}
+
+/// System-authoritative daily close price.
+/// ONE record per day per brand/type/gram.
+/// Used for PnL and Charts.
+model GoldDailyClose {
+  id String @id @default(cuid())
+
+  brandCode        String
+  priceType        PriceType
+  denominationGram Decimal   @db.Decimal(10, 3)
+
+  price    BigInt
+  currency String @default("IDR")
+
+  /// The DATE this close represents (Asia/Jakarta).
+  /// Time component should be ignored or set to 00:00:00.
+  closeDate DateTime @db.Date
+
+  /// Source of truth: "SYSTEM_DAILY_CLOSE"
+  source String
+
+  /// The exact timestamp of the GoldPrice used as close.
+  /// If carry-forward, this is the original priceAt from previous days.
+  derivedFromPriceAt DateTime
+
+  createdAt DateTime @default(now())
+
+  // Constraint: One close per day per unique market item
+  @@unique([brandCode, priceType, denominationGram, closeDate])
+  // Efficient lookup for "Give me close price for Brand X on Date Y"
+  @@index([brandCode, priceType, denominationGram, closeDate(sort: Desc)])
 }

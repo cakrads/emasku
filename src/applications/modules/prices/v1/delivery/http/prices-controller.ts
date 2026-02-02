@@ -101,7 +101,7 @@ export class PricesController {
       // Map to DTO
       const dto = {
         brand: brandCode,
-        priceType: 'SPOT',
+        priceType: 'SELL',
         denominationGram: denom,
         currency: 'IDR',
         range,

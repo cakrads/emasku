@@ -12,6 +12,7 @@ import pg from 'pg'
 import { DATABASE_URL, SCRAPER_SECRET } from '@/applications/shared/lib/env'
 import { PrismaPriceRepository } from '@/applications/modules/prices/v1/repository/prisma-price-repository'
 import { ScrapeAndPersistPrices } from '@/applications/modules/prices/v1/usecases/scrape-and-persist-prices'
+import { ComputeDailyCloseUsecase } from '@/applications/modules/prices/v1/usecases/compute-daily-close.usecase'
 
 async function runScraper() {
   const pool = new pg.Pool({ connectionString: DATABASE_URL })
@@ -20,7 +21,8 @@ async function runScraper() {
 
   try {
     const priceRepository = new PrismaPriceRepository(prisma)
-    const usecase = new ScrapeAndPersistPrices(priceRepository)
+    const computeDailyClose = new ComputeDailyCloseUsecase()
+    const usecase = new ScrapeAndPersistPrices(priceRepository, computeDailyClose)
     const logs = await usecase.execute()
     return logs
   } finally {

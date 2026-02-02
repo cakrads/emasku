@@ -26,16 +26,6 @@ export class PrismaPriceRepository {
     return this.getLatestPrice(brandCode, denominationGram, PriceType.BUYBACK)
   }
 
-  /**
-   * Get latest SPOT price for brand/denomination.
-   * Returns null if no SPOT price exists.
-   */
-  async getLatestSpotPrice(
-    brandCode: string,
-    denominationGram: number
-  ): Promise<PriceResult | null> {
-    return this.getLatestPrice(brandCode, denominationGram, PriceType.SPOT)
-  }
 
   /**
    * Generic price fetcher with fallback to null.

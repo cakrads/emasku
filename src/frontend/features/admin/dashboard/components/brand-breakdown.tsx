@@ -12,7 +12,7 @@ interface BrandData {
   currentValue: number
   deltaValue: number
   deltaPercentage: number
-  valuationSource: 'BUYBACK' | 'SPOT' | 'USER' | 'NONE' | 'MIXED'
+  valuationSource: 'BUYBACK' | 'USER' | 'NONE' | 'MIXED'
 }
 
 interface BrandBreakdownProps {

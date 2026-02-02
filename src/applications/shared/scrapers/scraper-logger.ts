@@ -14,6 +14,7 @@ export interface ScraperLogEntry {
   brandCombinations?: number
   recordsInserted?: number
   recordsSkipped?: number
+  dailyCloseProcessed?: number
   brandsSkipped?: string[]
   insertedRecords?: Array<{
     brand: string

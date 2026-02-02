@@ -14,6 +14,7 @@ The database is configured with Supabase PostgreSQL and populated with initial d
 - ✅ GoldPrice model (with `BigInt` for large prices)
 - ✅ User model
 - ✅ PortfolioHolding model
+- ✅ GoldDailyClose model (for historical performance & charts)
 - ✅ Proper indexes and unique constraints
 
 ### 2. Seed Data

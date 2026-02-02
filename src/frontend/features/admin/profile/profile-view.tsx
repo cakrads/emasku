@@ -29,7 +29,7 @@ import {
 } from "@/frontend/components/ui/alert-dialog"
 
 export function ProfileView() {
-  const { user, isGuest, logout } = useAuth()
+  const { user, logout } = useAuth()
   const router = useRouter()
   const { theme, setTheme } = useTheme()
   const { t, language, setLanguage } = useLanguage()
@@ -46,7 +46,6 @@ export function ProfileView() {
 
   const handleLogout = async () => {
     await logout()
-    router.push(ROUTES.LOGIN)
   }
 
   const handleExportData = async () => {
@@ -59,7 +58,7 @@ export function ProfileView() {
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `emasku-data-${user?.id || 'guest'}.json`
+      a.download = `emasku-data-${user?.id || 'user'}.json`
       document.body.appendChild(a)
       a.click()
       window.URL.revokeObjectURL(url)
@@ -89,7 +88,7 @@ export function ProfileView() {
     }
   }
 
-  if (!user && !isGuest) {
+  if (!user) {
     return null // Or loading skeleton
   }
 
@@ -107,21 +106,21 @@ export function ProfileView() {
             <Avatar className="h-16 w-16">
               <AvatarImage src={user?.avatarUrl || ''} alt={user?.displayName || 'User'} />
               <AvatarFallback className="bg-accent-gold/20 text-accent-gold text-xl font-bold">
-                {isGuest ? 'G' : user?.displayName?.charAt(0).toUpperCase() || 'U'}
+                {user?.displayName?.charAt(0).toUpperCase() || 'U'}
               </AvatarFallback>
             </Avatar>
             <div className="flex flex-col">
               <CardTitle className="text-xl">
-                {isGuest ? t('common.guest') : user?.displayName}
+                {user?.displayName}
               </CardTitle>
               <CardDescription>
-                {isGuest ? t('profile.temporaryAccount') : user?.email}
+                {user?.email}
               </CardDescription>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid gap-2">
-              {!isGuest && user?.email && (
+              {user?.email && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground p-2 rounded-md bg-muted/50">
                   <Mail className="h-4 w-4" />
                   <span>{user.email}</span>

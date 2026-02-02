@@ -134,6 +134,15 @@ Inside `src/applications/modules/`, each feature follows a strict Clean Architec
 
 ---
 
+## 📈 Periodic Performance & Daily Closes
+
+To ensure accurate PnL ("Today", "Weekly", "Monthly") without the overhead of scanning millions of intraday price points, the system implements a **Daily Close** architecture:
+
+- **GoldDailyClose**: The system-authoritative "final truth" for each market day (Asia/Jakarta).
+- **Rule of One**: Exactly one record per Brand + PriceType + Denomination per Day.
+- **Carry-Forward**: If no market data is recorded on a specific day (e.g., Sunday), the system automatically carries forward the last known close.
+- **Spot Canonical**: The `SELL` price type in the `GoldDailyClose` table serves as the canonical source for historical spot price visualization.
+
 ## 📄 Documentation
 
 - [Functional Spec](.spec/spec.md)
@@ -142,3 +151,4 @@ Inside `src/applications/modules/`, each feature follows a strict Clean Architec
 - [UI Architecture manifest](.docs/ui-structure-manifest.md)
 - [Scraper Implementation Guide](.docs/scraper-guide.md)
 - [Database Setup](.docs/database-setup.md)
+- [Production API Specification](.docs/.backend/production-api-spec.md)

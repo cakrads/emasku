@@ -35,6 +35,7 @@ Production-grade scraper with three-phase architecture:
 1. **Fetch**: `fetchSourceData()` - Retrieves HTML and extracts `__NUXT_DATA__`
 2. **Parse**: `parsePrices()` - Deserializes and maps vendors to brands
 3. **Persist**: `persistPrices()` - Saves to database with `skipDuplicates`
+4. **Compute**: `ComputeDailyCloseUsecase` - Post-process to update `GoldDailyClose` for today and yesterday.
 
 **Features:**
 

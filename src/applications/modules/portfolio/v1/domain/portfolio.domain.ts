@@ -26,14 +26,14 @@ export interface PortfolioHoldingDomain {
 /**
  * Holding enriched with current market valuation.
  * Projection for display purposes.
- * Includes fallback valuation logic (BUYBACK → SPOT → NONE).
+ * Includes fallback valuation logic (BUYBACK → NONE).
  */
 export interface ValuatedHoldingDomain extends PortfolioHoldingDomain {
   currentPrice: number | null
   currentValue: number | null
   unrealizedPnL: number | null
   pnlPercentage: number | null
-  valuationSource: 'BUYBACK' | 'SPOT' | 'NONE'
+  valuationSource: 'BUYBACK' | 'NONE'
   priceAsOf: Date | null
 }
 
@@ -46,7 +46,7 @@ export interface BrandAllocationDomain {
   totalGrams: number
   totalBuyValue: number
   currentValue: number
-  valuationSource: 'BUYBACK' | 'SPOT' | 'MIXED' | 'NONE'
+  valuationSource: 'BUYBACK' | 'MIXED' | 'NONE'
   deltaValue: number
   deltaPercentage: number
 }
@@ -60,8 +60,14 @@ export interface PortfolioSummaryDomain {
   totalCurrentValue: number
   totalPnL: number
   pnlPercentage: number
-  totalDailyPnL: number          // NEW: Change vs previous scrap
-  totalDailyPnLPercentage: number // NEW: % move vs previous scrap
+  totalDailyPnL: number | null          // Change vs yesterday close
+  totalDailyPnLPercentage: number | null
+  totalWeeklyPnL: number | null         // Change vs 7 days ago close
+  totalWeeklyPnLPercentage: number | null
+  totalMonthlyPnL: number | null        // Change vs 30 days ago close
+  totalMonthlyPnLPercentage: number | null
+  totalYearlyPnL: number | null         // Change vs 365 days ago close
+  totalYearlyPnLPercentage: number | null
   totalWeightGram: number
   holdingCount: number
   lastUpdated: Date

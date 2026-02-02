@@ -14,7 +14,7 @@ import { Button } from '@/frontend/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/frontend/components/ui/card'
 import { Typography } from '@/frontend/components/ui/typography'
 import { Stack } from '@/frontend/components/ui/layout'
-import { loginAsGuest, loginWithGoogle, recordConsent } from '@/frontend/services/auth/auth.api'
+import { loginWithGoogle, recordConsent } from '@/frontend/services/auth/auth.api'
 import { useAuthStore } from '@/frontend/providers/auth.store'
 import { ROUTES } from '@/frontend/config/routes'
 import { Checkbox } from '@/frontend/components/ui/checkbox'
@@ -29,7 +29,6 @@ export function LoginView() {
   const setSession = useAuthStore((state) => state.setSession)
 
   const { t, language, setLanguage } = useLanguage()
-  const [isLoadingGuest, setIsLoadingGuest] = useState(false)
   const [isLoadingGoogle, setIsLoadingGoogle] = useState(false)
   const [hasConsented, setHasConsented] = useState(false)
   const [error, setError] = useState<{ userMessage: string; recoveryAction?: string } | null>(null)
@@ -60,33 +59,6 @@ export function LoginView() {
     }
   }, [searchParams, t])
 
-  const handleGuestLogin = async () => {
-    if (!hasConsented) {
-      setError({ userMessage: t('login.error.consentRequired') })
-      return
-    }
-
-    setIsLoadingGuest(true)
-    setError(null)
-
-    const result = await loginAsGuest()
-
-    if (result.success) {
-      setSession(result.data)
-
-      // UU PDP: Record initial mandatory consents for guest
-      await recordConsent({
-        purposes: ['ACCOUNT_CREATION', 'PORTFOLIO_ANALYTICS'],
-        version: 'v1.0'
-      })
-
-      router.push(ROUTES.DASHBOARD)
-    } else {
-      setError(result.error)
-    }
-
-    setIsLoadingGuest(false)
-  }
 
   const handleGoogleLogin = async () => {
     if (!hasConsented) {
@@ -110,7 +82,7 @@ export function LoginView() {
     }
   }
 
-  const isLoading = isLoadingGuest || isLoadingGoogle
+  const isLoading = isLoadingGoogle
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-background via-background to-accent-gold/5">
@@ -184,30 +156,6 @@ export function LoginView() {
                 <Chrome className="h-5 w-5 mr-2" />
               )}
               {t('login.googleLogin')}
-            </Button>
-
-            <div className="relative my-2">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-card px-2 text-muted-foreground">{t('login.or')}</span>
-              </div>
-            </div>
-
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full"
-              onClick={handleGuestLogin}
-              disabled={isLoading}
-            >
-              {isLoadingGuest ? (
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
-              ) : (
-                <User className="h-5 w-5 mr-2" />
-              )}
-              {t('login.guestLogin')}
             </Button>
 
             <div className="mt-4 p-4 rounded-xl bg-accent-gold/10 border border-accent-gold/20 flex gap-3 text-sm text-yellow-800 dark:text-yellow-200">

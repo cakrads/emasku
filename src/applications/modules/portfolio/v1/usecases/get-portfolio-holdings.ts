@@ -2,7 +2,7 @@
  * Get Portfolio Holdings Usecase
  * 
  * Business logic to fetch holdings with valuations and pagination.
- * Implements BUYBACK → SPOT → NULL fallback logic.
+ * Implements BUYBACK → NULL fallback logic.
  */
 
 import Decimal from 'decimal.js'
@@ -48,19 +48,15 @@ export class GetPortfolioHoldingsUsecase {
 
     const valuatedHoldings = await Promise.all(
       holdings.map(async (holding) => {
-        // Try BUYBACK first, fallback to SPOT
+        // Try BUYBACK first
         let priceResult = await this.priceRepo.getLatestBuybackPrice(
           holding.brandCode,
           holding.denominationGram
         )
-        let source: 'BUYBACK' | 'SPOT' | 'NONE' = 'BUYBACK'
+        let source: 'BUYBACK' | 'NONE' = 'BUYBACK'
 
         if (!priceResult) {
-          priceResult = await this.priceRepo.getLatestSpotPrice(
-            holding.brandCode,
-            holding.denominationGram
-          )
-          source = priceResult ? 'SPOT' : 'NONE'
+          source = 'NONE'
         }
 
         const buyValue = new Decimal(holding.buyPrice)

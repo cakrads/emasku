@@ -10,13 +10,6 @@ import { Decimal } from 'decimal.js'
 import { GoldPriceRecord, TodayPriceGroup, CreatePriceInput } from '../domain/gold-price'
 
 export interface IPriceRepository {
-  /**
-   * Get the most recent spot price for a brand/denomination
-   */
-  getLatestSpotPrice(
-    brandCode: string,
-    denominationGram: Decimal
-  ): Promise<GoldPriceRecord | null>
 
   /**
    * Get a price at or before a specific timestamp

@@ -17,28 +17,6 @@ import { logQuery } from '@/applications/shared/lib/logger'
 export class PrismaPriceRepository implements IPriceRepository {
   constructor(private prisma: PrismaClient) { }
 
-  async getLatestSpotPrice(
-    brandCode: string,
-    denominationGram: Decimal
-  ): Promise<GoldPriceRecord | null> {
-    const startTime = Date.now()
-
-    const price = await this.prisma.goldPrice.findFirst({
-      where: {
-        brandCode,
-        priceType: PriceType.SPOT,
-        denominationGram,
-      },
-      orderBy: { priceAt: 'desc' },
-    })
-
-    logQuery('getLatestSpotPrice', Date.now() - startTime, { brandCode, denominationGram: denominationGram.toNumber() })
-
-    if (!price) return null
-
-    return this.toDomainModel(price)
-  }
-
   async getPriceAt(
     brandCode: string,
     denominationGram: Decimal,
@@ -49,7 +27,7 @@ export class PrismaPriceRepository implements IPriceRepository {
     const price = await this.prisma.goldPrice.findFirst({
       where: {
         brandCode,
-        priceType: PriceType.SPOT,
+        priceType: PriceType.SELL, // Use SELL as reference if SPOT is gone
         denominationGram,
         priceAt: { lte: timestamp },
       },
@@ -71,17 +49,17 @@ export class PrismaPriceRepository implements IPriceRepository {
   ): Promise<GoldPriceRecord[]> {
     const startTime = Date.now()
 
-    const prices = await this.prisma.goldPrice.findMany({
+    const prices = await this.prisma.goldDailyClose.findMany({
       where: {
         brandCode,
-        priceType: PriceType.SPOT,
+        priceType: PriceType.SELL, // Canonical SPOT in GoldDailyClose
         denominationGram,
-        priceAt: {
+        closeDate: {
           gte: from,
           lte: to,
         },
       },
-      orderBy: { priceAt: 'asc' },
+      orderBy: { closeDate: 'asc' },
     })
 
     logQuery('getSpotPriceSeries', Date.now() - startTime, {
@@ -91,7 +69,15 @@ export class PrismaPriceRepository implements IPriceRepository {
       count: prices.length
     })
 
-    return prices.map((p) => this.toDomainModel(p))
+    return prices.map((p) => ({
+      id: p.id,
+      brandCode: p.brandCode,
+      priceType: p.priceType,
+      denominationGram: p.denominationGram,
+      price: Number(p.price),
+      priceAt: p.closeDate, // Map closeDate to priceAt for interface compatibility
+      source: p.source,
+    }))
   }
 
   async getTodayPrices(

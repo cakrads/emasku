@@ -3,14 +3,6 @@
     "brandCode": "ANTAM",
     "brandName": "Antam",
     "denominationGram": 1,
-    "priceType": "SPOT",
-    "price": "1528000",
-    "source": "Manual Seed"
-  },
-  {
-    "brandCode": "ANTAM",
-    "brandName": "Antam",
-    "denominationGram": 1,
     "priceType": "SELL",
     "price": "1580000",
     "source": "Manual Seed"
@@ -37,14 +29,6 @@
     "denominationGram": 25,
     "priceType": "BUYBACK",
     "price": "1180000",
-    "source": "Manual Seed"
-  },
-  {
-    "brandCode": "UBS",
-    "brandName": "UBS Gold",
-    "denominationGram": 10,
-    "priceType": "SPOT",
-    "price": "1530000",
     "source": "Manual Seed"
   },
   {

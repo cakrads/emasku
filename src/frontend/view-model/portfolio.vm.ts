@@ -14,11 +14,20 @@ export interface PortfolioSummaryVM {
   totalCurrentValue: string // Formatted IDR
   totalPnL: string // Formatted IDR
   pnlPercentage: string // Formatted percentage
-  todayPnL: string // Formatted IDR
-  todayPnLPercentage: string // Formatted percentage
+  todayPnL: string | null // Formatted IDR, null if not available
+  todayPnLPercentage: string | null // Formatted percentage
+  weeklyPnL: string | null // 7 days PnL
+  weeklyPnLPercentage: string | null
+  monthlyPnL: string | null // 30 days PnL
+  monthlyPnLPercentage: string | null
+  yearlyPnL: string | null // 365 days PnL
+  yearlyPnLPercentage: string | null
   totalWeightGram: string // Formatted weight
   pnlColor: 'positive' | 'negative' | 'neutral'
   todayPnLColor: 'positive' | 'negative' | 'neutral'
+  weeklyPnLColor: 'positive' | 'negative' | 'neutral'
+  monthlyPnLColor: 'positive' | 'negative' | 'neutral'
+  yearlyPnLColor: 'positive' | 'negative' | 'neutral'
   pnlSign: '+' | '-' | ''
   brandAllocation: BrandData[]
   disclaimer?: string
@@ -34,7 +43,7 @@ export interface BrandData {
   currentValue: number
   deltaValue: number
   deltaPercentage: number
-  valuationSource: 'BUYBACK' | 'SPOT' | 'USER' | 'NONE' | 'MIXED'
+  valuationSource: 'BUYBACK' | 'USER' | 'NONE' | 'MIXED'
 }
 
 /**
@@ -96,7 +105,8 @@ function formatDate(dateString?: string | null, locale: string = 'id-ID'): strin
 /**
  * Get PnL color
  */
-function getPnLColor(value: number): 'positive' | 'negative' | 'neutral' {
+function getPnLColor(value: number | null): 'positive' | 'negative' | 'neutral' {
+  if (value === null) return 'neutral'
   if (value > 0) return 'positive'
   if (value < 0) return 'negative'
   return 'neutral'
@@ -113,16 +123,25 @@ export function transformPortfolioSummary(api: PortfolioSummary, t: (key: string
       ? t('dashboard.noHoldingsDisclaimer')
       : api.disclaimer
 
-  return {
+  const vm: PortfolioSummaryVM = {
     totalBuyValue: formatIDR(api.totalBuyValue, locale),
     totalCurrentValue: formatIDR(api.totalCurrentValue, locale),
     totalPnL: formatIDR(Math.abs(api.totalPnL), locale),
     pnlPercentage: formatPercentage(api.pnlPercentage),
-    todayPnL: formatIDR(Math.abs(api.totalDailyPnL), locale),
-    todayPnLPercentage: formatPercentage(api.totalDailyPnLPercentage),
+    todayPnL: api.totalDailyPnL !== null ? formatIDR(api.totalDailyPnL, locale) : null,
+    todayPnLPercentage: api.totalDailyPnLPercentage !== null ? formatPercentage(api.totalDailyPnLPercentage) : null,
+    weeklyPnL: api.totalWeeklyPnL !== null ? formatIDR(api.totalWeeklyPnL, locale) : null,
+    weeklyPnLPercentage: api.totalWeeklyPnLPercentage !== null ? formatPercentage(api.totalWeeklyPnLPercentage) : null,
+    monthlyPnL: api.totalMonthlyPnL !== null ? formatIDR(api.totalMonthlyPnL, locale) : null,
+    monthlyPnLPercentage: api.totalMonthlyPnLPercentage !== null ? formatPercentage(api.totalMonthlyPnLPercentage) : null,
+    yearlyPnL: api.totalYearlyPnL !== null ? formatIDR(api.totalYearlyPnL, locale) : null,
+    yearlyPnLPercentage: api.totalYearlyPnLPercentage !== null ? formatPercentage(api.totalYearlyPnLPercentage) : null,
     totalWeightGram: `${api.totalWeightGram.toFixed(2)} g`,
     pnlColor: getPnLColor(api.totalPnL),
     todayPnLColor: getPnLColor(api.totalDailyPnL),
+    weeklyPnLColor: getPnLColor(api.totalWeeklyPnL),
+    monthlyPnLColor: getPnLColor(api.totalMonthlyPnL),
+    yearlyPnLColor: getPnLColor(api.totalYearlyPnL),
     pnlSign: api.totalPnL > 0 ? '+' : api.totalPnL < 0 ? '-' : '',
     brandAllocation: api.brandAllocation.map((b: BrandAllocation) => ({
       brandCode: b.brandCode,
@@ -138,6 +157,28 @@ export function transformPortfolioSummary(api: PortfolioSummary, t: (key: string
     excludedCount: api.excludedCount,
     lastUpdated: api.lastUpdated ? new Date(api.lastUpdated) : undefined,
   }
+
+  logTracing(api, vm)
+  return vm
+}
+
+/**
+ * Log portfolio summary for debugging
+ */
+function logTracing(api: PortfolioSummary, vm: PortfolioSummaryVM) {
+  console.debug('[PnL Trace] Frontend Transformation:', {
+    raw: {
+      daily: api.totalDailyPnL,
+      dailyPct: api.totalDailyPnLPercentage,
+      weekly: api.totalWeeklyPnL,
+      weeklyPct: api.totalWeeklyPnLPercentage
+    },
+    formatted: {
+      today: vm.todayPnL,
+      todayPct: vm.todayPnLPercentage,
+      weekly: vm.weeklyPnL
+    }
+  })
 }
 
 /**
