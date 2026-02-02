@@ -24,7 +24,7 @@ export async function fetchTodayPrices(): Promise<PricesTodayResponse> {
 /**
  * Allowed spot price ranges (anti-scraping)
  */
-export type SpotPriceRange = '7d' | '30d' | '90d' | '1y' | '5y'
+export type SpotPriceRange = '3d' | '1w' | '7d' | '1m' | '30d' | '90d' | '1y' | '5y' | 'all'
 
 /**
  * Fetch spot price series

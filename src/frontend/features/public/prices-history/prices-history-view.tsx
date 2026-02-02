@@ -7,6 +7,7 @@
 
 'use client'
 
+import { useState, useMemo, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Typography } from '@/frontend/components/ui/typography'
 import { PriceHistoryChart } from '@/frontend/features/public/prices-history/components/price-history-chart'
@@ -16,51 +17,113 @@ import { fetchSpotPriceSeries } from '@/frontend/services/prices/prices.api'
 import { PricesHistorySkeleton } from './components/prices-history-skeleton'
 import { ErrorBoundary } from '@/frontend/components/fragments/admin/error-boundary'
 import { useLanguage } from '@/frontend/hooks/use-language'
+import { cn } from '@/frontend/utils/cn'
 
 import { Info } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/frontend/components/ui/tooltip'
+
+type TimeRange = '3d' | '1w' | '1m' | '1y' | 'all'
+
+function RangeSelector({ current, onChange, language }: { current: TimeRange, onChange: (r: TimeRange) => void, language: string }) {
+  const ranges: { label: string, value: TimeRange }[] = [
+    { label: '3D', value: '3d' },
+    { label: '1W', value: '1w' },
+    { label: '1M', value: '1m' },
+    { label: '1Y', value: '1y' },
+    { label: language === 'id' ? 'SEMUA' : 'ALL', value: 'all' },
+  ]
+
+  return (
+    <div className="flex p-1 bg-muted/50 rounded-lg items-center gap-1 w-fit mb-6 overflow-x-auto no-scrollbar">
+      {ranges.map((r) => (
+        <button
+          key={r.value}
+          onClick={() => onChange(r.value)}
+          className={cn(
+            "px-4 py-1.5 text-xs font-bold rounded-md transition-all duration-200 cursor-pointer",
+            current === r.value
+              ? "bg-background text-foreground shadow-sm ring-1 ring-border"
+              : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+          )}
+        >
+          {r.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 
 function PricesHistoryContent() {
   const { t, language } = useLanguage()
   const locale = language === 'id' ? 'id-ID' : 'en-US'
 
-  // Use predefined range instead of arbitrary dates (anti-scraping)
-  const range = '5y' as const
+  const [range, setRange] = useState<TimeRange>('1m')
+  const [isTransitioning, setIsTransitioning] = useState(false)
 
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['market', 'market-prices', 'ANTAM', '1g', range],
+  // Trigger artificial loading on range change
+  useEffect(() => {
+    setIsTransitioning(true)
+    const timer = setTimeout(() => setIsTransitioning(false), 400)
+    return () => clearTimeout(timer)
+  }, [range])
+
+  const { data: allData, isLoading, error } = useQuery({
+    queryKey: ['market', 'market-prices', 'ANTAM', '1g', '5y'],
     queryFn: () => fetchSpotPriceSeries({
       brand: 'ANTAM',
-      range,
+      range: '5y',
       denomination: 1,
     }),
   })
 
-  if (isLoading) {
+  // Filter data for the chart client-side
+  const chartData = useMemo(() => {
+    if (!allData) return []
+    const series = allData.series.map((point) => ({
+      timestamp: point.priceAt, // ISO string
+      price: point.price,
+    }))
+
+    if (range === 'all') return series
+
+    const now = new Date()
+    const cutoff = new Date()
+    if (range === '3d') cutoff.setDate(now.getDate() - 3)
+    else if (range === '1w') cutoff.setDate(now.getDate() - 7)
+    else if (range === '1m') cutoff.setMonth(now.getMonth() - 1)
+    else if (range === '1y') cutoff.setFullYear(now.getFullYear() - 1)
+
+    return series.filter(point => new Date(point.timestamp) >= cutoff)
+  }, [allData, range])
+
+  if (isLoading || isTransitioning) {
     return (
-      <PricesHistorySkeleton />
+      <div className="flex flex-col">
+        <PricesHistorySkeleton />
+      </div>
     )
   }
 
-  if (error || !data) {
+  if (error || !allData) {
     throw error || new Error('Failed to load price history')
   }
-
-  // Transform data for the chart
-  const chartData = data.series.map((point) => ({
-    timestamp: point.priceAt, // ISO string
-    price: point.price,
-  }))
 
   // Get latest price point
   const lastPoint = chartData[chartData.length - 1]
   const currentPrice = lastPoint ? new Intl.NumberFormat(locale, { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(lastPoint.price) : '-'
   const lastUpdated = lastPoint ? new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(lastPoint.timestamp)) : '-'
 
-  // Calculate Context (30-day average)
-  // Assuming 1 point per day, take last 30 points
-  const last30Points = chartData.slice(-30)
-  const avg30Day = last30Points.reduce((acc, curr) => acc + curr.price, 0) / last30Points.length
+  // Calculate Context (30-day average) - Use full data if possible for better accuracy
+  const last30Days = allData.series
+    .map(p => ({ timestamp: p.priceAt, price: p.price }))
+    .filter(p => {
+      const cutoff = new Date()
+      cutoff.setDate(cutoff.getDate() - 30)
+      return new Date(p.timestamp) >= cutoff
+    })
+
+  const avg30Day = last30Days.reduce((acc, curr) => acc + curr.price, 0) / (last30Days.length || 1)
 
   let priceContext = ""
   if (lastPoint && avg30Day) {
@@ -77,7 +140,7 @@ function PricesHistoryContent() {
       <div className="mb-8">
         <div className="flex flex-col gap-1">
           <Typography variant="caption" className="text-muted-foreground font-medium uppercase tracking-wider">
-            Antam Logam Mulia · 1 g
+            {t('priceHistory.description')}
           </Typography>
 
           <div className="flex items-baseline gap-2">
@@ -118,13 +181,17 @@ function PricesHistoryContent() {
         </div>
       </div>
 
+      {/* Range Selector */}
+      <RangeSelector current={range} onChange={setRange} language={language} />
+
       {/* Chart Section */}
-      <div className="bg-card rounded-lg border border-border p-6 mb-6">
+      <div className="bg-card/50 backdrop-blur-sm rounded-2xl border border-border p-2 md:p-6 mb-8 overflow-hidden">
         <PriceHistoryChart
           data={chartData}
+          range={range}
           height={400}
           locale={locale}
-          referenceLine={lastPoint ? {
+          referenceLine={lastPoint && range !== '3d' ? {
             x: lastPoint.timestamp,
             label: language === 'id' ? 'Hari ini' : 'Today',
             stroke: '#D4AF37'
@@ -133,12 +200,9 @@ function PricesHistoryContent() {
       </div>
 
       {/* Footer Note */}
-      <div className="text-center">
-        <Typography variant="body-sm" className="text-muted-foreground">
-          {t('priceHistory.referenceNote').replace('{date}', chartData[0]?.timestamp
-            ? new Date(chartData[0].timestamp).toLocaleDateString(locale, { dateStyle: 'long' })
-            : '-'
-          )}
+      <div className="text-center px-4">
+        <Typography variant="body-sm" className="text-muted-foreground leading-relaxed">
+          {t('priceHistory.referenceNote')}
         </Typography>
       </div>
     </div>

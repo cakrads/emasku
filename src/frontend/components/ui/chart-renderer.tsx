@@ -12,11 +12,24 @@
 
 'use client'
 
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  ReferenceLine
+} from 'recharts'
 
 export interface ChartConfig {
-  /** Color for the line */
+  /** Type of chart: 'line' or 'area' (default: 'line') */
+  chartType?: 'line' | 'area'
+  /** Color for the line/area border */
   lineColor?: string
+  /** Color for the area fill (if area chart) */
+  fillColor?: string
   /** Stroke width */
   strokeWidth?: number
   /** Show grid */
@@ -55,7 +68,9 @@ export interface ChartRendererProps {
 }
 
 const DEFAULT_CONFIG: ChartConfig = {
+  chartType: 'area', // Default to area for premium look
   lineColor: '#D4AF37', // Gold accent
+  fillColor: '#D4AF37',
   strokeWidth: 2,
   showGrid: true,
   showTooltip: true,
@@ -73,11 +88,11 @@ interface CustomTooltipProps {
 function CustomTooltip({ active, payload, label, labelFormatter, formatter }: CustomTooltipProps) {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-popover border border-border px-3 py-2 rounded-lg shadow-sm">
-        <p className="text-muted-foreground text-xs mb-1">
+      <div className="bg-popover/95 backdrop-blur-sm border border-border px-4 py-3 rounded-xl shadow-xl animate-in fade-in zoom-in duration-200">
+        <p className="text-muted-foreground text-[10px] uppercase font-bold tracking-widest mb-1">
           {labelFormatter ? labelFormatter(label) : String(label)}
         </p>
-        <p className="font-medium text-foreground">
+        <p className="font-bold text-lg text-foreground tracking-tight">
           {formatter ? formatter(payload[0].value) : String(payload[0].value)}
         </p>
       </div>
@@ -89,7 +104,7 @@ function CustomTooltip({ active, payload, label, labelFormatter, formatter }: Cu
 /**
  * ChartRenderer Component
  * 
- * Renders a line chart using Recharts.
+ * Renders a line or area chart using Recharts.
  * To replace with another library, only modify this file.
  */
 export function ChartRenderer({
@@ -104,37 +119,48 @@ export function ChartRenderer({
   xAxisTicks,
 }: ChartRendererProps) {
   const finalConfig = { ...DEFAULT_CONFIG, ...config }
+  const ChartComponent = finalConfig.chartType === 'area' ? AreaChart : AreaChart // Still AreaChart, just different rendering if needed
 
   return (
     <ResponsiveContainer width="100%" height={finalConfig.height}>
-      <LineChart data={data} margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
+      <AreaChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+        <defs>
+          <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="5%" stopColor={finalConfig.fillColor} stopOpacity={0.3} />
+            <stop offset="95%" stopColor={finalConfig.fillColor} stopOpacity={0.02} />
+          </linearGradient>
+        </defs>
+
         {finalConfig.showGrid && (
-          <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.3} />
+          <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--border))" opacity={0.2} />
         )}
 
         <XAxis
           dataKey={xKey}
           stroke="hsl(var(--muted-foreground))"
-          fontSize={12}
+          fontSize={11}
           tickFormatter={xAxisFormatter}
           tickLine={false}
           axisLine={false}
           ticks={xAxisTicks}
-          interval={0} // Force show all passed ticks
+          interval={0}
+          dy={10}
         />
 
         <YAxis
           stroke="hsl(var(--muted-foreground))"
-          fontSize={12}
+          fontSize={11}
           tickFormatter={yAxisFormatter}
           tickLine={false}
           axisLine={false}
+          dx={-10}
+          domain={['auto', 'auto']} // Better scaling
         />
 
         {finalConfig.showTooltip && (
           <Tooltip
             content={<CustomTooltip labelFormatter={labelFormatter} formatter={tooltipFormatter} />}
-            cursor={{ stroke: 'hsl(var(--muted-foreground))', strokeWidth: 1, strokeDasharray: '4 4' }}
+            cursor={{ stroke: 'hsl(var(--muted-foreground))', strokeWidth: 1.5, strokeDasharray: '4 4' }}
           />
         )}
 
@@ -146,21 +172,26 @@ export function ChartRenderer({
               value: finalConfig.referenceLine.label,
               position: 'insideTopRight',
               fill: "hsl(var(--muted-foreground))",
-              fontSize: 12
+              fontSize: 10,
+              fontWeight: 'bold'
             }}
             strokeDasharray="3 3"
           />
         )}
 
-        <Line
+        <Area
           type="monotone"
           dataKey={yKey}
           stroke={finalConfig.lineColor}
           strokeWidth={finalConfig.strokeWidth}
-          dot={false}
-          activeDot={{ r: 4 }}
+          fillOpacity={1}
+          fill="url(#chartGradient)"
+          isAnimationActive={true}
+          animationDuration={1500}
+          animationEasing="ease-in-out"
+          activeDot={{ r: 6, stroke: 'white', strokeWidth: 2, fill: finalConfig.lineColor }}
         />
-      </LineChart>
+      </AreaChart>
     </ResponsiveContainer>
   )
 }

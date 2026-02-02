@@ -47,7 +47,7 @@ export class PricesController {
     const { searchParams } = new URL(req.url)
 
     // Predefined ranges for anti-scraping
-    const ALLOWED_RANGES = ['7d', '30d', '90d', '1y', '5y'] as const
+    const ALLOWED_RANGES = ['3d', '1w', '7d', '1m', '30d', '90d', '1y', '5y', 'all'] as const
     type AllowedRange = typeof ALLOWED_RANGES[number]
 
     const schema = z.object({
@@ -75,11 +75,15 @@ export class PricesController {
     const to = new Date()
     const from = new Date()
     switch (range) {
+      case '3d': from.setDate(from.getDate() - 3); break
+      case '1w':
       case '7d': from.setDate(from.getDate() - 7); break
+      case '1m':
       case '30d': from.setDate(from.getDate() - 30); break
       case '90d': from.setDate(from.getDate() - 90); break
       case '1y': from.setFullYear(from.getFullYear() - 1); break
       case '5y': from.setFullYear(from.getFullYear() - 5); break
+      case 'all': from.setFullYear(2020, 0, 1); break // Start of records
     }
 
     // Setup Prisma

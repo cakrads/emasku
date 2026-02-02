@@ -225,11 +225,11 @@ export default {
   },
   priceHistory: {
     title: 'ANTAM Price History',
-    description: '1 gram · IDR',
+    description: 'based on antam 1 gr sell price',
     breadcrumbs: {
       history: 'History',
     },
-    referenceNote: 'Market reference price only. Not personalized. Data starts from {date}',
+    referenceNote: 'Market reference price only. Not personalized. Based on Antam 1g buy price.',
   },
   holdings: {
     title: 'My Gold',

@@ -226,11 +226,11 @@ export default {
   },
   priceHistory: {
     title: 'Riwayat Harga ANTAM',
-    description: '1 gram · IDR',
+    description: 'berdasarkan harga jual antam 1 gr',
     breadcrumbs: {
       history: 'Riwayat',
     },
-    referenceNote: 'Harga hanya sebagai referensi pasar. Tidak dipersonalisasi. Data dimulai sejak {date}',
+    referenceNote: 'Harga hanya sebagai referensi pasar. Tidak dipersonalisasi. berdasarkan Harga beli Antam 1gr',
   },
   holdings: {
     title: 'Portofolio Saya',

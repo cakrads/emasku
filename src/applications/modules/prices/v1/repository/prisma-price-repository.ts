@@ -52,12 +52,9 @@ export class PrismaPriceRepository implements IPriceRepository {
     const prices = await this.prisma.goldDailyClose.findMany({
       where: {
         brandCode,
-        priceType: PriceType.SELL, // Canonical SPOT in GoldDailyClose
+        priceType: PriceType.SELL,
         denominationGram,
-        closeDate: {
-          gte: from,
-          lte: to,
-        },
+        closeDate: { gte: from, lte: to },
       },
       orderBy: { closeDate: 'asc' },
     })
@@ -75,7 +72,7 @@ export class PrismaPriceRepository implements IPriceRepository {
       priceType: p.priceType,
       denominationGram: p.denominationGram,
       price: Number(p.price),
-      priceAt: p.closeDate, // Map closeDate to priceAt for interface compatibility
+      priceAt: p.closeDate,
       source: p.source,
     }))
   }

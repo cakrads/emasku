@@ -14,6 +14,8 @@ import { ChartRenderer } from '@/frontend/components/ui/chart-renderer'
 export interface PriceHistoryChartProps {
   /** Array of price data points */
   data: Array<{ timestamp: string; price: number }>
+  /** Current time range */
+  range?: string
   /** Optional chart height */
   height?: number
   /** Locale for date formatting */
@@ -47,6 +49,7 @@ function formatIDR(value: unknown): string {
 function formatDate(value: unknown, locale: string = 'en-US'): string {
   const dateString = String(value)
   const date = new Date(dateString)
+
   return new Intl.DateTimeFormat(locale, {
     month: 'short',
     day: 'numeric',
@@ -58,15 +61,18 @@ function formatDate(value: unknown, locale: string = 'en-US'): string {
  * 
  * Displays a line chart of historical gold prices with proper formatting.
  */
-export function PriceHistoryChart({ data, height = 300, locale = 'en-US', referenceLine }: PriceHistoryChartProps) {
-  // Calculate specific ticks to limit X-axis labels (User req: ~7 labels)
+export function PriceHistoryChart({ data, range = '30d', height = 300, locale = 'en-US', referenceLine }: PriceHistoryChartProps) {
+  // Calculate specific ticks to limit X-axis labels
   const ticks = (() => {
-    if (data.length <= 7) return data.map(d => d.timestamp)
+    if (data.length <= 1) return data.map(d => d.timestamp)
 
-    const tickIndices = [0, 1, 2, 3, 4, 5, 6].map(i =>
-      Math.floor(i * (data.length - 1) / 6)
+    // For 3 days, show maybe 3 ticks as requested
+    const targetTicks = range === '3d' ? (data.length < 3 ? data.length : 3) : 7
+    if (data.length <= targetTicks) return data.map(d => d.timestamp)
+
+    const tickIndices = Array.from({ length: targetTicks }, (_, i) =>
+      Math.floor(i * (data.length - 1) / (targetTicks - 1))
     )
-    // Remove duplicates if data is small but > 7
     const uniqueIndices = Array.from(new Set(tickIndices))
     return uniqueIndices.map(i => data[i].timestamp)
   })()
@@ -79,6 +85,7 @@ export function PriceHistoryChart({ data, height = 300, locale = 'en-US', refere
       config={{
         height,
         lineColor: '#D4AF37', // Gold accent
+        fillColor: '#D4AF37',
         strokeWidth: 2,
         referenceLine,
       }}
