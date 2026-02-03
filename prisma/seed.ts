@@ -44,7 +44,7 @@ async function main() {
       const data = chunk.map(([timestamp, price]) => ({
         brandCode: 'ANTAM',
         brandName: 'ANTAM',
-        priceType: PriceType.SPOT,
+        priceType: PriceType.SELL,
         denominationGram: new Decimal(1),
         price: BigInt(price),
         priceAt: new Date(timestamp),

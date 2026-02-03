@@ -1,4 +1,4 @@
-
+import { Suspense } from 'react'
 import BuybackSimulationView from '@/frontend/features/admin/buyback-simulation/buyback-simulation-view'
 
 export const metadata = {
@@ -7,5 +7,13 @@ export const metadata = {
 }
 
 export default function BuybackSimulationPage() {
-  return <BuybackSimulationView />
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center p-8 min-h-[50vh]">
+        <div className="text-muted-foreground animate-pulse">Loading simulation...</div>
+      </div>
+    }>
+      <BuybackSimulationView />
+    </Suspense>
+  )
 }
