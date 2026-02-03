@@ -1,208 +1,208 @@
-# FINAL SPEC — Gold Daily Close & PnL Computation
+# Feature Specification — Buyback Simulation
 
-## Objective
+## Overview
 
-Establish a **stable, deterministic, and explainable** mechanism to compute:
+Buyback Simulation adalah fitur untuk mensimulasikan nilai jual kembali (buyback) emas yang dimiliki user **tanpa memodifikasi data holding asli**.
 
-- Daily / Weekly / Monthly PnL
-- Market up/down indicator (red/green)
-- Portfolio valuation consistency
+Fitur ini bersifat **read-only & ephemeral**:
 
-This system MUST NOT depend on intraday volatility or scraping timing differences.
-
----
-
-## Core Principles
-
-1. **Gold does not have an official market close**
-2. **Daily Close is a SYSTEM DECISION**, not a market fact
-3. **Analytics must be based on stable daily snapshots**
-4. **Intraday prices are for latest valuation only**
-5. **PnL comparisons are always CLOSE vs CLOSE**
+- Tidak menyimpan transaksi
+- Tidak mengubah portfolio
+- Digunakan untuk analisis dan perencanaan
 
 ---
 
-## Definitions (Authoritative)
+## Goals
 
-### GoldPrice
-
-- Raw, immutable, intraday market observations
-- Can be multiple per day
-- NOT used directly for PnL comparison
-
-### GoldDailyClose
-
-- ONE authoritative price per brand + denomination + priceType per calendar day
-- Represents:  
-  **“Last known market price before day rollover”**
-- Used for:
-  - Daily change
-  - Weekly change
-  - Monthly change
-  - Charts
-  - Red / green indicators
+- Memberikan estimasi nilai buyback real-time berdasarkan harga **GoldDailyClose (BUYBACK)**
+- Menghitung PnL total dan per-item
+- Mendukung simulasi parsial (jual sebagian gram)
 
 ---
 
-## Daily Close Rule (FINAL)
+## Non-Goals
 
-For each `(brandCode, denominationGram, priceType)`:
-
-1. Identify the **latest GoldPrice** with:
-   - `priceAt < next_day_00:00`
-2. If at least one exists:
-   - That price becomes **Daily Close**
-3. If NO GoldPrice exists for that calendar day:
-   - **Carry forward previous Daily Close**
-4. Persist result into `GoldDailyClose`
-
-This rule applies to:
-
-- Weekends
-- Holidays
-- Days without scraping activity
+- Eksekusi transaksi jual
+- Penyimpanan hasil simulasi
+- Integrasi payment / settlement
 
 ---
 
-## Data Model (Required)
+## Entry Point
 
-### GoldDailyClose
-
-- brandCode
-- brandName
-- priceType (BUYBACK / SELL / SPOT)
-- denominationGram
-- price
-- currency
-- closeDate (DATE ONLY, no time)
-- source = "SYSTEM_DAILY_CLOSE"
-- derivedFromPriceAt (nullable)
-- createdAt
-
-Constraints:
-
-- UNIQUE `(brandCode, priceType, denominationGram, closeDate)`
+- CTA dari Holdings Page:
+  - Button: **"Simulate Buyback"**
+  - Redirect ke `/buyback-simulation`
+  - Default behavior: semua holding aktif otomatis ter-select
 
 ---
 
-## Cron Job Responsibilities
+## Page Structure
 
-### Schedule
+### 1. Header Summary (Sticky)
 
-- Runs once per day (recommended: 00:05 local time)
+Menampilkan agregasi dari seluruh item yang dipilih.
 
-### Steps
+Fields:
 
-1. For each active market combination:
-   - Query latest GoldPrice `< today 00:00`
-2. Apply Daily Close Rule
-3. Insert or upsert GoldDailyClose
-4. Log carry-forward events explicitly
+- Selected Holdings Count
+- Total Estimated Buyback Value
+- Total Cost Basis
+- Total PnL (absolute & percentage)
 
----
+Actions:
 
-## Portfolio Valuation Rules
-
-### Cost Basis (All-Time)
-
-cost_basis =
-buyPrice * quantity
-
-### Market Value (At Date D)
-
-market_value =
-daily_close_price(D) * total_grams
-
-### All-Time PnL
-
-PnL_all_time =
-market_value(today_close) - cost_basis
+- Reset Selection
+- Export (optional, future)
 
 ---
 
-## Periodic PnL Computation
+### 2. Holdings Selector (Paginated)
 
-### Daily PnL
+Daftar holdings user (sama seperti holdings page) dengan kemampuan seleksi.
 
-daily_change =
-today_close - yesterday_close
+Per Row:
 
-### Weekly PnL
+- Checkbox (select / deselect)
+- Brand Name
+- Denomination (gram)
+- Quantity owned
+- Buy Price (cost basis)
+- Current Buyback Price (from GoldDailyClose)
+- Quantity to sell (editable, default = full quantity)
 
-weekly_change =
-today_close - close_7_days_ago
+Rules:
 
-### Monthly PnL
-
-monthly_change =
-today_close - close_30_days_ago
-
-Notes:
-
-- If missing date → use nearest previous available close
-- Never use GoldPrice directly for comparisons
-
----
-
-## UI Indicator Rules (RED / GREEN)
-
-### Daily Indicator
-
-- Compare:
-today_close vs yesterday_close
-
-- Green → market up
-- Red → market down
-- Neutral → no change
-
-### All-Time Indicator
-
-- Compare:
-market_value vs cost_basis
-
-- Independent from daily indicator
-
-⚠️ A holding CAN be:
-
-- Green all-time
-- Red today
-
-This is EXPECTED and CORRECT.
+- Pagination does NOT reset selection
+- Quantity to sell must be:
+  - > 0
+  - <= quantity owned
+- Deselected item tidak dihitung di summary
 
 ---
 
-## Charting Rules
+### 3. Simulation Breakdown Panel
 
-- Charts MUST use `GoldDailyClose`
-- NO intraday GoldPrice in charts
-- Weekends appear as flat lines (carry-forward)
-- Charts represent **decision history**, not scraping noise
+Menampilkan detail per holding yang disimulasikan.
 
----
+Per Item:
 
-## Anti-Patterns (Explicitly Forbidden)
+- Brand
+- Gram sold
+- Buyback Price
+- Total Buyback Value
+- Cost Basis
+- PnL (value & %)
 
-- ❌ Comparing GoldPrice directly across days
-- ❌ Inferring close price dynamically on read
-- ❌ Using “latest price” as daily change reference
-- ❌ Leaving gaps on weekends
-- ❌ Mixing cost basis with intraday movements
+Optional:
 
----
-
-## System Guarantee
-
-This architecture guarantees:
-
-- Deterministic analytics
-- Explainable numbers
-- Stable charts
-- Trustworthy red/green signals
-- No user confusion from scraping time variance
+- Group by brand
+- Collapsible sections
 
 ---
 
-## Status
+## Data Source & Pricing Rules
 
-This spec is **FINAL**.
-Any deviation requires explicit architectural review.
+### Price Source
+
+- Buyback price diambil dari:
+  - `GoldDailyClose`
+  - `priceType = BUYBACK`
+  - `closeDate = today (or latest available <= today)`
+
+### No Price Case
+
+Jika tidak ada daily close hari ini:
+
+- Gunakan latest available close sebelumnya
+- Tidak melakukan extrapolation
+
+---
+
+## Calculation Rules
+
+### Cost Basis
+
+cost = buyPrice * quantity_to_sell
+
+### Buyback Value
+
+buyback_value = buyback_daily_close_price * quantity_to_sell
+
+### PnL
+
+PnL = buyback_value - cost
+PnL% = (PnL / cost) * 100
+
+### Total Aggregation
+
+- Semua kalkulasi dilakukan **setelah pagination**
+- Berdasarkan seluruh item ter-select
+
+---
+
+## State Management
+
+### Read-only Source
+
+- PortfolioHolding (immutable)
+
+### Simulation State (Ephemeral)
+
+BuybackSimulationState {
+selectedHoldingIds: string[]
+quantityOverrideByHoldingId: Record<string, number>
+computedSummary: {
+totalCost
+totalBuyback
+totalPnL
+}
+}
+
+Rules:
+
+- Tidak ada mutation ke database
+- State reset ketika user keluar page
+
+---
+
+## UX Rules
+
+- Tidak ada auto-save
+- Semua perubahan bersifat lokal
+- Perubahan quantity langsung update summary
+- Negative PnL ditampilkan dengan visual merah
+
+---
+
+## Error Handling
+
+- Quantity invalid → inline validation
+- Missing price → tampilkan warning badge
+- Empty selection → summary = 0, empty state message
+
+---
+
+## Performance Considerations
+
+- Fetch GoldDailyClose in batch (by brand + denomination)
+- Hindari per-row API call
+- Cache daily close per session
+
+---
+
+## Future Extensions (Out of Scope)
+
+- Export PDF / CSV
+- Compare SELL vs BUYBACK spread
+- Historical buyback simulation
+- Real transaction execution
+
+---
+
+## Acceptance Criteria
+
+- Simulasi tidak mengubah data holdings
+- Pagination tidak mempengaruhi hasil agregasi
+- Harga selalu berasal dari GoldDailyClose
+- PnL sesuai perhitungan spesifikasi

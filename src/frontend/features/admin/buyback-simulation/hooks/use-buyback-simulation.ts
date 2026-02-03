@@ -1,0 +1,165 @@
+import { useState, useMemo, useCallback } from 'react'
+import { HoldingItemVM } from '@/frontend/view-model/portfolio.vm'
+import { useQuery } from '@tanstack/react-query'
+import { fetchBuybackPrices } from '@/frontend/services/prices/prices.api'
+
+export interface SimulationSummary {
+  selectedCount: number
+  totalBuybackValue: number
+  totalCostBasis: number
+  totalPnL: number
+  pnlPercentage: number
+}
+
+export function useBuybackSimulation() {
+  // Selection state
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [selectedItems, setSelectedItems] = useState<Map<string, HoldingItemVM>>(new Map())
+
+  // Simulation overrides
+  const [quantityOverrides, setQuantityOverrides] = useState<Record<string, number>>({})
+
+  const toggleSelection = useCallback((item: HoldingItemVM) => {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      if (next.has(item.id)) {
+        next.delete(item.id)
+      } else {
+        next.add(item.id)
+      }
+      return next
+    })
+
+    setSelectedItems(prev => {
+      const next = new Map(prev)
+      if (next.has(item.id)) {
+        next.delete(item.id)
+      } else {
+        next.set(item.id, item) // Store item wrapper
+      }
+      return next
+    })
+  }, [])
+
+  // Batch selection (e.g. select all on page)
+  const selectItems = useCallback((items: HoldingItemVM[], select: boolean) => {
+    if (select) {
+      setSelectedIds(prev => {
+        const next = new Set(prev)
+        items.forEach(i => next.add(i.id))
+        return next
+      })
+      setSelectedItems(prev => {
+        const next = new Map(prev)
+        items.forEach(i => next.set(i.id, i))
+        return next
+      })
+    } else {
+      setSelectedIds(prev => {
+        const next = new Set(prev)
+        items.forEach(i => next.delete(i.id))
+        return next
+      })
+      setSelectedItems(prev => {
+        const next = new Map(prev)
+        items.forEach(i => next.delete(i.id))
+        return next
+      })
+    }
+  }, [])
+
+  const resetSelection = useCallback(() => {
+    setSelectedIds(new Set())
+    setSelectedItems(new Map())
+    setQuantityOverrides({})
+  }, [])
+
+  const updateQuantity = useCallback((id: string, qty: number) => {
+    setQuantityOverrides(prev => ({
+      ...prev,
+      [id]: qty
+    }))
+  }, [])
+
+  // Price Fetching
+  const uniqueItems = useMemo(() => {
+    const items: { brandCode: string; denominationGram: number }[] = []
+    const seen = new Set<string>()
+
+    selectedItems.forEach(item => {
+      const key = `${item.brand}:${item.rawWeight}`
+      if (!seen.has(key)) {
+        seen.add(key)
+        items.push({
+          brandCode: item.brand,
+          denominationGram: item.rawWeight
+        })
+      }
+    })
+    return items
+  }, [selectedItems])
+
+  const { data: pricesData, isLoading: isLoadingPrices } = useQuery({
+    queryKey: ['buyback-prices', uniqueItems], // uniqueItems is distinct array dep
+    queryFn: () => fetchBuybackPrices(uniqueItems),
+    enabled: uniqueItems.length > 0,
+    staleTime: 60 * 1000 // Cache 1 min
+  })
+
+  // Create lookup map for prices
+  const priceMap = useMemo(() => {
+    const map = new Map<string, number>()
+    if (pricesData?.prices) {
+      pricesData.prices.forEach(p => {
+        map.set(`${p.brandCode}:${p.denominationGram}`, p.price)
+      })
+    }
+    return map
+  }, [pricesData])
+
+  // Computed Summary
+  const summary = useMemo<SimulationSummary>(() => {
+    let totalBuybackValue = 0
+    let totalCostBasis = 0
+
+    selectedItems.forEach(item => {
+      const qtyToSell = quantityOverrides[item.id] ?? item.quantity
+      if (qtyToSell <= 0) return
+
+      // Cost Basis (Unit Price * Qty)
+      totalCostBasis += (item.rawAvgBuyPrice * qtyToSell)
+
+      // Buyback Value
+      const priceKey = `${item.brand}:${item.rawWeight}`
+      const price = priceMap.get(priceKey)
+
+      if (price) {
+        totalBuybackValue += (price * qtyToSell)
+      }
+    })
+
+    const totalPnL = totalBuybackValue - totalCostBasis
+    const pnlPercentage = totalCostBasis > 0 ? (totalPnL / totalCostBasis) * 100 : 0
+
+    return {
+      selectedCount: selectedIds.size,
+      totalBuybackValue,
+      totalCostBasis,
+      totalPnL,
+      pnlPercentage
+    }
+  }, [selectedItems, quantityOverrides, priceMap])
+
+  return {
+    selectedIds,
+    selectedItems,
+    quantityOverrides,
+    toggleSelection,
+    selectItems,
+    resetSelection,
+    updateQuantity,
+    summary,
+    priceMap, // Exposed for table rows
+    isLoadingPrices
+  }
+}

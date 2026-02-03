@@ -22,7 +22,7 @@ function getNestedValue(obj: any, path: string): string {
 interface LanguageContextType {
   language: Language
   setLanguage: (lang: Language) => void
-  t: (key: string) => string
+  t: (key: string, params?: Record<string, string | number>) => string
   mounted: boolean
 }
 
@@ -45,9 +45,16 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(LOCALE_KEY, lang)
   }, [])
 
-  const t = useCallback((key: string) => {
+  const t = useCallback((key: string, params?: Record<string, string | number>) => {
     const currentTranslations = translations[language]
-    return getNestedValue(currentTranslations, key)
+    let text = getNestedValue(currentTranslations, key)
+
+    if (params && text) {
+      Object.entries(params).forEach(([k, v]) => {
+        text = text.replace(`{${k}}`, String(v))
+      })
+    }
+    return text
   }, [language])
 
   return (
