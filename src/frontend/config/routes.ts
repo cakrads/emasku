@@ -16,6 +16,7 @@ export const ROUTES = {
   PRICES: '/prices',
   PRICES_HISTORY: '/prices/history',
   HOLDINGS_LIST: '/holdings',
+  BUYBACK_SIMULATION: '/buyback-simulation',
 
   // Deep Links / Future Placeholders
   HOLDING_DETAIL: (id: string) => `/holdings/${id}`,

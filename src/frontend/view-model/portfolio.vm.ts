@@ -67,6 +67,9 @@ export interface HoldingItemVM {
   soldAt?: string
   createdAt: string // Raw ISO string for sorting
   notes?: string
+  // Raw values for calculation
+  rawWeight: number
+  rawAvgBuyPrice: number
 }
 
 /**
@@ -203,6 +206,8 @@ export function transformHoldingItem(api: HoldingItem, locale: string = 'id-ID')
     soldAt: api.soldAt ? formatDate(api.soldAt, locale) : undefined,
     createdAt: api.createdAt,
     notes: api.notes || undefined,
+    rawWeight: api.denominationGram,
+    rawAvgBuyPrice: api.avgBuyPrice,
   }
 }
 

@@ -12,7 +12,7 @@ import HoldingsListEmpty from './components/holdings-list-empty'
 import { ErrorBoundary } from '@/frontend/components/fragments/admin/error-boundary'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
 import { Button } from '@/frontend/components/ui/button'
-import { Plus, Filter, LayoutGrid } from 'lucide-react'
+import { Plus, Filter, LayoutGrid, Calculator } from 'lucide-react'
 import Link from 'next/link'
 import { ROUTES } from '@/frontend/config/routes'
 import { fetchBrands } from '@/frontend/services/brands/brands.api'
@@ -193,6 +193,18 @@ function HoldingsListContent() {
               </span>
             )}
           </Button>
+
+          {/* Simulate Buyback Button */}
+          <Link href={ROUTES.BUYBACK_SIMULATION}>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+            >
+              <Calculator className="w-4 h-4" />
+              <span>{t('buybackSimulation.cta')}</span>
+            </Button>
+          </Link>
 
           {/* Brand Summary Button */}
           {summaryViewModel?.brandAllocation && summaryViewModel.brandAllocation.length > 0 && (

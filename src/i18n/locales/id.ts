@@ -291,7 +291,37 @@ export default {
       description: 'Mulai lacak investasi emasmu dengan menambahkan portofolio pertama. Kamu bisa melacak nilai, pergerakan, dan performa portofolio secara real-time.',
       action: 'Tambah Emas Pertama',
       secondaryAction: 'Atau lihat harga emas hari ini',
-    }
+    },
+  },
+  buybackSimulation: {
+    title: 'Simulasi Buyback',
+    description: 'Estimasi nilai jual kembali emas Anda',
+    headerSummary: {
+      selectedCount: '{count} item dipilih',
+      totalBuyback: 'Est. Nilai Jual',
+      totalCost: 'Modal',
+      totalPnL: 'Untung/Rugi',
+      resetSelection: 'Reset Pilihan',
+    },
+    table: {
+      select: 'Pilih',
+      brand: 'Brand',
+      gram: 'Gram',
+      quantity: 'Qty',
+      buyPrice: 'Harga Beli',
+      buybackPrice: 'Harga Buyback',
+      qtyToSell: 'Qty Jual',
+    },
+    breakdown: {
+      title: 'Rincian Simulasi',
+      noSelection: 'Pilih item untuk melihat simulasi',
+      gramSold: 'gram dijual',
+      buybackValue: 'Nilai Jual',
+      costBasis: 'Modal',
+      pnl: 'PnL',
+    },
+    cta: 'Simulasi Buyback',
+    noPriceWarning: 'Harga buyback tidak tersedia',
   },
   addHolding: {
     title: 'Tambah Emas',

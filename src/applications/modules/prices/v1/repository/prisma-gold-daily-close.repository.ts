@@ -100,4 +100,34 @@ export class PrismaGoldDailyCloseRepository {
       }
     })
   }
+  /**
+   * Get latest BUYBACK prices for a list of items.
+   * Uses distinct on brand+denomination to get the most recent record for each.
+   */
+  async getLatestBuybackPrices(
+    items: { brandCode: string; denominationGram: number }[]
+  ): Promise<GoldDailyClose[]> {
+    if (items.length === 0) return []
+
+    // Build OR clause for items
+    const orConditions = items.map(item => ({
+      brandCode: item.brandCode,
+      denominationGram: new Decimal(item.denominationGram)
+    }))
+
+    return prisma.goldDailyClose.findMany({
+      where: {
+        priceType: 'BUYBACK',
+        OR: orConditions,
+        // Optional: limit to recent history to optimize (e.g. last 30 days) if needed
+        // but for now, trusting the index.
+      },
+      distinct: ['brandCode', 'denominationGram'],
+      orderBy: [
+        { brandCode: 'asc' },
+        { denominationGram: 'asc' },
+        { closeDate: 'desc' }
+      ]
+    })
+  }
 }

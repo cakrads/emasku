@@ -290,7 +290,37 @@ export default {
       description: 'Start tracking your gold investments by adding your first holding. You can track value, movement, and portfolio performance in real-time.',
       action: 'Add Gold',
       secondaryAction: 'Or check gold prices today',
-    }
+    },
+  },
+  buybackSimulation: {
+    title: 'Buyback Simulation',
+    description: 'Estimated buyback value of your gold',
+    headerSummary: {
+      selectedCount: '{count} items selected',
+      totalBuyback: 'Est. Sell Value',
+      totalCost: 'Cost Basis',
+      totalPnL: 'Profit/Loss',
+      resetSelection: 'Reset Selection',
+    },
+    table: {
+      select: 'Select',
+      brand: 'Brand',
+      gram: 'Gram',
+      quantity: 'Qty',
+      buyPrice: 'Buy Price',
+      buybackPrice: 'Buyback Price',
+      qtyToSell: 'Qty To Sell',
+    },
+    breakdown: {
+      title: 'Simulation Breakdown',
+      noSelection: 'Select items to see simulation',
+      gramSold: 'grams sold',
+      buybackValue: 'Sell Value',
+      costBasis: 'Cost',
+      pnl: 'PnL',
+    },
+    cta: 'Simulate Buyback',
+    noPriceWarning: 'Buyback price unavailable',
   },
   addHolding: {
     title: 'Add Gold',
