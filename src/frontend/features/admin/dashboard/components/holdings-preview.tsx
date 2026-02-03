@@ -79,7 +79,7 @@ export default function HoldingsPreview() {
     <Stack gap="sm">
       <Typography variant="h3">{t('dashboard.recentHoldings')}</Typography>
 
-      <Card className="p-4 bg-(--surface-elevated) border-(--border)">
+      <Card className="bg-linear-to-r from-teal-50/80 via-white to-white dark:from-teal-950/20 dark:via-background dark:to-background rounded-2xl p-6 md:p-8 border border-teal-100 dark:border-teal-900/50">
         <Stack gap="none">
           {groupedHoldings.map((holding, index) => (
             <HoldingPreviewItem
@@ -185,7 +185,7 @@ function HoldingsPreviewEmpty() {
     <Stack gap="sm">
       <Typography variant="h3">{t('dashboard.recentHoldings')}</Typography>
 
-      <Card className="p-6 bg-(--surface-elevated) border-(--border)">
+      <Card className="bg-linear-to-r from-teal-50/80 via-white to-white dark:from-teal-950/20 dark:via-background dark:to-background rounded-2xl p-6 md:p-8 border border-teal-100 dark:border-teal-900/50">
         <div className="flex flex-col items-center justify-center text-center gap-4 py-4">
           <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center">
             <Coins className="w-6 h-6 text-muted-foreground" />
@@ -219,7 +219,7 @@ function HoldingsPreviewSkeleton() {
   return (
     <Stack gap="sm">
       <Skeleton className="h-7 w-40" />
-      <Card className="p-4 bg-(--surface-elevated) border-(--border)">
+      <Card className="bg-linear-to-r from-teal-50/80 via-white to-white dark:from-teal-950/20 dark:via-background dark:to-background rounded-2xl p-6 md:p-8 border border-teal-100 dark:border-teal-900/50">
         <Stack gap="none">
           {[1, 2, 3].map((i) => (
             <div key={i} className={`py-3 ${i < 3 ? 'border-b border-(--border)/50' : ''}`}>

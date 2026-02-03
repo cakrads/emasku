@@ -163,6 +163,7 @@ export default {
     },
   },
   dashboard: {
+    portfolio: 'Portfolio',
     portfolioValue: 'Estimated Portfolio Sell Value',
     estimationContext: 'Estimated based on buyback prices from respective brands',
     unableToCalculate: 'Unable to calculate total',

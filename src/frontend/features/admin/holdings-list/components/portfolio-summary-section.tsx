@@ -65,7 +65,7 @@ export default function PortfolioSummarySection({
     ]
 
     return (
-      <Section className="bg-(--surface-elevated) border border-(--border) rounded-xl p-4 md:p-6 min-h-[200px] md:min-h-[132px]">
+      <Section className="bg-linear-to-r from-teal-50/80 via-white to-white dark:from-teal-950/20 dark:via-background dark:to-background rounded-2xl p-6 md:p-8 border border-teal-100 dark:border-teal-900/50 min-h-[220px] md:min-h-[145px]">
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           {skeletonItems.map((item, i) => (
             <div key={i} className="space-y-1 min-w-0">
@@ -90,7 +90,7 @@ export default function PortfolioSummarySection({
   }
 
   return (
-    <Section className="bg-(--surface-elevated) border border-(--border) rounded-xl p-4 md:p-6 min-h-[200px] md:min-h-[132px]">
+    <Section className="bg-linear-to-r from-teal-50/80 via-white to-white dark:from-teal-950/20 dark:via-background dark:to-background rounded-2xl p-6 md:p-8 border border-teal-100 dark:border-teal-900/50 min-h-[220px] md:min-h-[145px]">
       <div className={cn('grid gap-4 md:gap-6', showValuation ? 'grid-cols-2 lg:grid-cols-4' : 'grid-cols-2')}>
         {/* Total Weight */}
         <div className="space-y-1 min-w-0">
@@ -179,7 +179,7 @@ export default function PortfolioSummarySection({
 
       {/* Footer with disclosure and filter status */}
       {(showValuation || isFiltered) && (
-        <div className="mt-4 -mx-4 md:-mx-6 -mb-4 md:-mb-6 px-4 md:px-6 py-2.5 bg-muted/40 rounded-b-xl border-t border-border/30 flex flex-wrap items-start justify-start gap-x-3 gap-y-1">
+        <div className="mt-6 md:mt-4 -mx-6 md:-mx-8 -mb-6 md:-mb-8 px-6 md:px-8 py-3 bg-muted/30 dark:bg-muted/10 rounded-b-xl border-t border-border/30 flex flex-wrap items-start justify-start gap-x-3 gap-y-1">
           {showValuation && (
             <div className="flex items-start gap-1.5 max-w-full">
               <Info className="w-3 h-3 mt-0.5 text-muted-foreground/60 shrink-0" />

@@ -35,51 +35,50 @@ function DashboardContent() {
       <Stack gap="xl">
         {/* Top Section: Date + Hero + Market Today */}
         <Stack gap="md">
-          <div className="flex justify-end mb-4 lg:mb-0">
-            <PriceFreshness lastUpdated={lastUpdated} isLoading={isLoading} />
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 min-h-[160px] md:min-h-[190px]">
-              <ErrorBoundary>
-                {isLoading ? (
-                  <PortfolioSummarySkeleton />
-                ) : hasHoldings && viewModel ? (
-                  <PortfolioHero
-                    totalValue={viewModel.totalCurrentValue}
-                    totalPnL={viewModel.totalPnL}
-                    gainLossPercentage={viewModel.pnlPercentage}
-                    todayChange={viewModel.todayPnL}
-                    todayChangePercentage={viewModel.todayPnLPercentage}
-                    weeklyChange={viewModel.weeklyPnL}
-                    weeklyChangePercentage={viewModel.weeklyPnLPercentage}
-                    monthlyChange={viewModel.monthlyPnL}
-                    monthlyChangePercentage={viewModel.monthlyPnLPercentage}
-                    yearlyChange={viewModel.yearlyPnL}
-                    yearlyChangePercentage={viewModel.yearlyPnLPercentage}
-                    pnlColor={viewModel.pnlColor}
-                    todayColor={viewModel.todayPnLColor}
-                    weeklyColor={viewModel.weeklyPnLColor}
-                    monthlyColor={viewModel.monthlyPnLColor}
-                    yearlyColor={viewModel.yearlyPnLColor}
-                    disclaimer={viewModel.disclaimer}
-                    excludedCount={viewModel.excludedCount}
-                  />
-                ) : (
-                  <PortfolioHeroEmpty />
-                )}
-              </ErrorBoundary>
-            </div>
-
-            <div className="lg:col-span-1 lg:relative min-w-0 min-h-[280px] lg:min-h-0">
-              <div className="flex flex-col h-full lg:absolute lg:inset-0 w-full">
-                <div className="flex-1 overflow-hidden min-h-0">
-                  <PricesTodayCards />
-                </div>
-              </div>
+          {/* Portfolio Header */}
+          <div className="flex flex-col gap-1">
+            <h1 className="text-xl font-semibold text-foreground">{t('dashboard.portfolio')}</h1>
+            <div className="flex items-center gap-2">
+              <PriceFreshness lastUpdated={lastUpdated} isLoading={isLoading} />
             </div>
           </div>
+
+          {/* Portfolio Summary - Full Width Row */}
+          <ErrorBoundary>
+            {isLoading ? (
+              <PortfolioSummarySkeleton />
+            ) : hasHoldings && viewModel ? (
+              <PortfolioHero
+                totalValue={viewModel.totalCurrentValue}
+                totalPnL={viewModel.totalPnL}
+                gainLossPercentage={viewModel.pnlPercentage}
+                todayChange={viewModel.todayPnL}
+                todayChangePercentage={viewModel.todayPnLPercentage}
+                weeklyChange={viewModel.weeklyPnL}
+                weeklyChangePercentage={viewModel.weeklyPnLPercentage}
+                monthlyChange={viewModel.monthlyPnL}
+                monthlyChangePercentage={viewModel.monthlyPnLPercentage}
+                yearlyChange={viewModel.yearlyPnL}
+                yearlyChangePercentage={viewModel.yearlyPnLPercentage}
+                pnlColor={viewModel.pnlColor}
+                todayColor={viewModel.todayPnLColor}
+                weeklyColor={viewModel.weeklyPnLColor}
+                monthlyColor={viewModel.monthlyPnLColor}
+                yearlyColor={viewModel.yearlyPnLColor}
+                disclaimer={viewModel.disclaimer}
+                excludedCount={viewModel.excludedCount}
+              />
+            ) : (
+              <PortfolioHeroEmpty />
+            )}
+          </ErrorBoundary>
+
         </Stack>
+
+        {/* Market Today - Full Width Row */}
+        <ErrorBoundary>
+          <PricesTodayCards />
+        </ErrorBoundary>
 
         {/* Brand Breakdown - Granular Loading */}
         <ErrorBoundary>

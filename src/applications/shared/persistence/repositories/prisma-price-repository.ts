@@ -26,6 +26,16 @@ export class PrismaPriceRepository {
     return this.getLatestPrice(brandCode, denominationGram, PriceType.BUYBACK)
   }
 
+  /**
+   * Get latest SELL price for brand/denomination.
+   */
+  async getLatestSellPrice(
+    brandCode: string,
+    denominationGram: number
+  ): Promise<PriceResult | null> {
+    return this.getLatestPrice(brandCode, denominationGram, PriceType.SELL)
+  }
+
 
   /**
    * Generic price fetcher with fallback to null.

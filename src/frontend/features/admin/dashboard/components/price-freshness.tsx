@@ -27,7 +27,7 @@ export default function PriceFreshness({ lastUpdated, isLoading }: PriceFreshnes
     <TooltipProvider delayDuration={200}>
       <Tooltip>
         <TooltipTrigger asChild>
-          <div className="flex items-center gap-2 text-muted-foreground/60 cursor-help">
+          <div className="flex items-center gap-2 text-muted-foreground cursor-help">
             <div className="w-2 h-2 rounded-full bg-(--positive) animate-pulse" />
             <Typography variant="caption">
               {t('dashboard.lastUpdated')}: {lastUpdated.toLocaleString(language === 'id' ? 'id-ID' : 'en-US', {

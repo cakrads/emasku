@@ -1,6 +1,6 @@
 'use client'
 import Link from 'next/link'
-import { Stack } from '@/frontend/components/ui/layout'
+
 import { Typography } from '@/frontend/components/ui/typography'
 import { TrendingUp, Info } from 'lucide-react'
 import { cn } from '@/frontend/utils/cn'
@@ -69,15 +69,12 @@ export default function BrandCard({
       href={ROUTES.BRAND_DETAIL(brandCode)}
       className="block outline-none group"
     >
-      <Stack
-        gap="md"
-        className="shrink-0 w-[280px] bg-surface-elevated border border-border rounded-xl p-4 shadow-sm transition-all group-hover:shadow-md group-hover:border-accent-gold/50 cursor-pointer relative overflow-hidden"
-      >
+      <div className="shrink-0 w-[280px] bg-surface-elevated border border-border rounded-xl p-4 shadow-sm transition-all group-hover:shadow-md group-hover:border-accent-gold/50 cursor-pointer relative overflow-hidden flex flex-col justify-between">
         {/* Subtle background glow on hover */}
         <div className="absolute inset-0 bg-accent-gold/0 group-hover:bg-accent-gold/5 transition-colors duration-300" />
 
         {/* Header: Brand Name + Weight */}
-        <Stack gap="xs" className="relative z-10">
+        <div className="flex justify-between items-start relative z-10 mb-2">
           <div className="flex items-center gap-1.5">
             <Typography as="h3" variant="h3" className="group-hover:text-accent-gold transition-colors">
               {brandName}
@@ -95,57 +92,57 @@ export default function BrandCard({
               </TooltipProvider>
             )}
           </div>
-          <Typography variant="caption" className="text-(--text-muted)">
+          <Typography variant="caption" className="text-muted-foreground font-medium text-xs">
             {formatWeight(totalGrams)}
           </Typography>
-        </Stack>
+        </div>
 
-        {/* Main Value Section */}
-        <Stack gap="xs" className="relative z-10">
-          <Typography variant="caption" className="text-(--text-muted)">
-            {t('dashboard.brandCard.estimatedSellValue')}
-          </Typography>
-          <Typography variant="h2" className="financial-value">
-            {isUnvalued ? t('dashboard.brandCard.priceNotAvailable') : formatCurrency(currentValue)}
-          </Typography>
-        </Stack>
+        {/* Bottom Section: Value & Chip */}
+        <div className="relative z-10 flex flex-col gap-1">
+          {/* Main Value */}
+          <div>
+            <Typography variant="caption" className="text-muted-foreground mb-0.5 block text-[10px] uppercase tracking-wider">
+              {t('dashboard.brandCard.estimatedSellValue')}
+            </Typography>
+            <Typography variant="h2" className="financial-value text-xl">
+              {isUnvalued ? t('dashboard.brandCard.priceNotAvailable') : formatCurrency(currentValue)}
+            </Typography>
+          </div>
 
-        {/* Daily Change - Only show if valued AND non-zero */}
-        {!isUnvalued && deltaValue !== 0 && (
-          <Stack
-            direction="horizontal"
-            gap="sm"
-            className={cn(
-              "items-center w-fit px-2 py-1 rounded-md",
-              isPositive ? "bg-positive-bg" : "bg-negative-bg"
-            )}
-          >
-            <TrendingUp className={cn("w-3 h-3", !isPositive && "rotate-180 text-negative", isPositive && "text-positive")} />
-            <Stack direction="horizontal" gap="xs" className="items-center">
+          {/* Daily Change - Compact Chip */}
+          {!isUnvalued && deltaValue !== 0 && (
+            <div
+              className={cn(
+                "flex items-center gap-1.5 w-fit px-2 py-1 rounded-md",
+                isPositive ? "bg-emerald-500/10" : "bg-red-500/10"
+              )}
+            >
+              <TrendingUp className={cn("w-3.5 h-3.5", !isPositive && "rotate-180 text-red-600", isPositive && "text-emerald-600")} />
+              <div className="flex items-baseline gap-1">
+                <Typography
+                  variant="caption"
+                  className={cn("font-semibold text-xs", isPositive ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400")}
+                >
+                  {isPositive ? '+' : ''}{formatCurrency(deltaValue)}
+                </Typography>
+                <Typography
+                  variant="caption"
+                  className={cn("font-medium text-[10px]", isPositive ? "text-emerald-600/80 dark:text-emerald-400/80" : "text-red-600/80 dark:text-red-400/80")}
+                >
+                  ({deltaPercentage >= 0 ? '+' : ''}{deltaPercentage.toFixed(2)}%)
+                </Typography>
+              </div>
+            </div>
+          )}
 
-              <Typography
-                variant="caption"
-                className={cn("font-semibold", isPositive ? "text-positive" : "text-negative")}
-              >
-                {isPositive ? '+' : ''}{formatCurrency(deltaValue)}
-              </Typography>
-              <Typography
-                variant="caption"
-                className={cn("font-medium", isPositive ? "text-positive" : "text-negative")}
-              >
-                ({deltaPercentage >= 0 ? '+' : ''}{deltaPercentage.toFixed(2)}%)
-              </Typography>
-            </Stack>
-          </Stack>
-        )}
-
-        {/* Empty state for unvalued */}
-        {isUnvalued && (
-          <Typography variant="caption" className="text-text-muted italic">
-            {t('dashboard.valuationTooltip.none')}
-          </Typography>
-        )}
-      </Stack>
+          {/* Empty state for unvalued */}
+          {isUnvalued && (
+            <Typography variant="caption" className="text-muted-foreground italic text-xs">
+              {t('dashboard.valuationTooltip.none')}
+            </Typography>
+          )}
+        </div>
+      </div>
     </Link>
   )
 }

@@ -9,7 +9,7 @@ import { useLanguage } from '@/frontend/hooks/use-language'
 
 export function HoldingCardSkeleton() {
   return (
-    <div className="rounded-xl border border-border bg-card p-4 md:p-6 min-h-[200px] md:min-h-[132px]">
+    <div className="bg-linear-to-r from-teal-50/80 via-white to-white dark:from-teal-950/20 dark:via-background dark:to-background rounded-2xl p-6 md:p-8 border border-teal-100 dark:border-teal-900/50 min-h-[220px] md:min-h-[145px]">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {[1, 2, 3, 4].map((i) => (
           <div key={i} className="space-y-2.5">

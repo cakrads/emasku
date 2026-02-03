@@ -163,6 +163,7 @@ export default {
     },
   },
   dashboard: {
+    portfolio: 'Portfolio',
     portfolioValue: 'Estimasi Nilai Jual Portofolio',
     estimationContext: 'Estimasi berdasarkan harga buyback brand terkait',
     unableToCalculate: 'Belum bisa hitung total',
