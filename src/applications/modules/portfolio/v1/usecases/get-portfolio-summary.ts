@@ -172,9 +172,24 @@ export class GetPortfolioSummaryUsecase {
     const gram = new Decimal(holding.denominationGram)
     const qty = new Decimal(holding.quantity)
 
-    // Fetch all closes in parallel for this holding
-    const [pToday, pYesterday, pWeek, pMonth, pYear] = await Promise.all([
-      this.getClosePrice(holding.brandCode, gram, dates.today.str, dates.today.date, state.dailyCloseCache),
+    // 1. Fetch current live price for comparison (use SELL price for valuation delta)
+    let pTodayResult = await this.priceRepo.getLatestSellPrice(holding.brandCode, holding.denominationGram)
+
+    // Fallback for live price: if specific weight not found, scale from 1g
+    if (!pTodayResult && !gram.equals(1)) {
+      const p1g = await this.priceRepo.getLatestSellPrice(holding.brandCode, 1)
+      if (p1g) {
+        pTodayResult = {
+          price: new Decimal(p1g.price).times(gram).toNumber(),
+          priceAt: p1g.priceAt
+        }
+      }
+    }
+
+    const pToday = pTodayResult ? pTodayResult.price : null
+
+    // 2. Fetch all historical closes in parallel
+    const [pYesterday, pWeek, pMonth, pYear] = await Promise.all([
       this.getClosePrice(holding.brandCode, gram, dates.yesterday.str, dates.yesterday.date, state.dailyCloseCache),
       this.getClosePrice(holding.brandCode, gram, dates.weekAgo.str, dates.weekAgo.date, state.dailyCloseCache),
       this.getClosePrice(holding.brandCode, gram, dates.monthAgo.str, dates.monthAgo.date, state.dailyCloseCache),

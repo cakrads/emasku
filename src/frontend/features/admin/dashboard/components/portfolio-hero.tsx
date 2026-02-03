@@ -68,14 +68,9 @@ export default function PortfolioHero({
     { key: 'yearly', label: t('dashboard.yearly'), value: yearlyChange ?? null, percentage: yearlyChangePercentage ?? null, color: yearlyColor },
   ]
 
-  // Filter periods: Always show "Today", hide others if value is 0 or "Rp 0"
-  const visiblePeriods = allPeriods.filter(p => {
-    if (p.alwaysShow) return true
-    if (!p.value) return false
-    // Check if value is zero (e.g., "Rp 0", "+Rp 0", "Rp0", etc.)
-    const isZero = /^[+-]?Rp\s?0(\.00)?$/.test(p.value.trim()) || p.value === '0' || p.value === '+0' || p.value === '-0'
-    return !isZero
-  })
+  // Filter periods: Always show "Today", "Weekly", "Monthly", "Yearly"
+  // We only filter out periods that are actually null/missing
+  const visiblePeriods = allPeriods.filter(p => p.alwaysShow || p.value !== null)
 
   const getColorClass = (color: 'positive' | 'negative' | 'neutral') => {
     if (color === 'positive') return 'text-positive'

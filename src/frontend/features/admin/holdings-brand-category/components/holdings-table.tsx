@@ -176,17 +176,17 @@ export default function HoldingsTable({
           return (
             <Stack direction="horizontal" gap="xs" className="justify-end items-center">
               {holding.pnlColor === 'positive' && (
-                <TrendingUp className="w-3 h-3 text-(--positive)" />
+                <TrendingUp className="w-3 h-3 text-positive" />
               )}
               {holding.pnlColor === 'negative' && (
-                <TrendingDown className="w-3 h-3 text-(--negative)" />
+                <TrendingDown className="w-3 h-3 text-negative" />
               )}
               <Stack gap="none" className="items-end">
                 <Typography
                   variant="body-sm"
                   className={cn(
                     'font-semibold',
-                    holding.pnlColor === 'positive' ? 'text-(--positive)' : holding.pnlColor === 'negative' ? 'text-(--negative)' : ''
+                    holding.pnlColor === 'positive' ? 'text-positive' : holding.pnlColor === 'negative' ? 'text-negative' : ''
                   )}
                 >
                   {holding.pnl}
@@ -194,7 +194,7 @@ export default function HoldingsTable({
                 <Typography
                   variant="caption"
                   className={cn(
-                    holding.pnlColor === 'positive' ? 'text-(--positive)' : holding.pnlColor === 'negative' ? 'text-(--negative)' : ''
+                    holding.pnlColor === 'positive' ? 'text-positive' : holding.pnlColor === 'negative' ? 'text-negative' : ''
                   )}
                 >
                   {holding.pnlPercentage}
@@ -232,7 +232,7 @@ export default function HoldingsTable({
 
   if (holdings.length === 0 && !isLoading) {
     return (
-      <div className="text-center py-12 text-(--foreground-muted)">
+      <div className="text-center py-12 text-foreground-muted">
         <Typography variant="body">{t('holdings.table.empty')}</Typography>
       </div>
     )
@@ -251,7 +251,7 @@ export default function HoldingsTable({
         <table className="w-full border-collapse">
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id} className="border-b border-(--border)">
+              <tr key={headerGroup.id} className="border-b border-border">
                 {headerGroup.headers.map((header) => (
                   <th key={header.id} className={cn(
                     "py-3 px-4 text-left whitespace-nowrap font-medium",
@@ -278,7 +278,7 @@ export default function HoldingsTable({
                   const target = ROUTES.HOLDING_DETAIL(holdingId) + (backUrl ? `?backUrl=${encodeURIComponent(backUrl)}` : '')
                   router.push(target)
                 }}
-                className="border-b border-(--border) hover:bg-muted/50 cursor-pointer transition-colors group"
+                className="border-b border-border hover:bg-muted/50 cursor-pointer transition-colors group"
               >
                 {row.getVisibleCells().map((cell) => (
                   <td key={cell.id} className={cn(
