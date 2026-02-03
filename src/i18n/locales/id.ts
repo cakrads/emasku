@@ -211,6 +211,8 @@ export default {
       estimatedSellValue: 'Estimasi nilai jual',
       todayChange: 'Hari ini',
       priceNotAvailable: 'Belum dapat dihitung',
+      buyPrice: 'Harga Beli',
+      sellPrice: 'Harga Jual',
     },
     valuationDisclaimer: 'Valuasi berdasarkan harga pasar terbaru yang tersedia',
     noHoldingsDisclaimer: 'Belum ada emas di portofolio',

@@ -45,7 +45,7 @@ function PricesTodayContent() {
   )
 
   return (
-    <div className="min-h-[180px] md:min-h-[170px]">
+    <div className="min-h-[240px] md:min-h-[220px]">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex flex-col">
@@ -60,8 +60,8 @@ function PricesTodayContent() {
         </Link>
       </div>
 
-      {/* Horizontal Grid of Brand Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+      {/* Horizontal Scroll on Mobile, Grid on Desktop */}
+      <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 -mx-4 px-4 md:mx-0 md:px-0 md:pb-0 md:grid md:grid-cols-2 lg:grid-cols-4 hide-scrollbar">
         {previewBrands.map((brand) => {
           // Find 1g price (usually standard reference)
           const price1g = brand.prices.find(p => p.denominationGram === 1)
@@ -69,53 +69,97 @@ function PricesTodayContent() {
           return (
             <div
               key={brand.brandName}
-              className="group flex flex-col text-left justify-between p-4 rounded-xl border border-border bg-background hover:border-accent-gold/50 hover:bg-accent-gold/5 hover:shadow-sm transition-all h-[110px]"
+              className="shrink-0 w-[85%] max-w-[280px] snap-center md:w-auto md:max-w-none md:snap-none group flex flex-col text-left justify-between p-4 rounded-xl border border-border bg-background hover:border-accent-gold/50 hover:bg-accent-gold/5 hover:shadow-sm transition-all min-h-[180px]"
             >
               {/* Header: Brand */}
-              <Typography variant="caption" className="text-xs font-medium text-muted-foreground group-hover:text-accent-gold transition-colors truncate">
+              <Typography variant="caption" className="text-xs font-medium text-muted-foreground group-hover:text-accent-gold transition-colors truncate mb-3">
                 {brand.brandName}
               </Typography>
 
-              {/* Price + Delta */}
-              <div className="flex flex-col gap-0.5">
-                <div className="flex items-baseline gap-1">
-                  <span className="text-xl font-bold tracking-tight">
-                    {price1g?.sellPriceFormatted || '—'}
-                  </span>
-                  <span className="text-xs text-muted-foreground">/gram</span>
+              <div className="flex flex-col gap-4">
+                {/* Harga Beli Section */}
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{t('dashboard.brandCard.buyPrice')}</span>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-lg font-bold tracking-tight">
+                      {price1g?.sellPriceFormatted || '—'}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">/gram</span>
+                  </div>
+
+                  {price1g?.sellDelta !== null && price1g?.sellDelta !== undefined && (
+                    <div className="mt-0.5">
+                      {/* Tooltip logic for desktop */}
+                      <div className="hidden md:block">
+                        <TooltipProvider delayDuration={200}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="w-fit"><DeltaIndicator delta={price1g.sellDelta} deltaPercentage={price1g.sellDeltaPercentage} /></div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="text-xs">{t('dashboard.marketPriceTooltip')}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      {/* Popover logic for mobile */}
+                      <div className="block md:hidden">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <button className="outline-none">
+                              <DeltaIndicator delta={price1g.sellDelta} deltaPercentage={price1g.sellDeltaPercentage} />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-60 mx-4" sideOffset={8} collisionPadding={16}>
+                            <p className="text-sm text-muted-foreground">{t('dashboard.marketPriceTooltip')}</p>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {price1g?.sellDelta !== null && price1g?.sellDelta !== undefined && (
-                  <>
-                    {/* Desktop: Tooltip (hover) */}
-                    <div className="hidden md:block">
-                      <TooltipProvider delayDuration={200}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <div className="w-fit"><DeltaIndicator delta={price1g.sellDelta} deltaPercentage={price1g.sellDeltaPercentage} /></div>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p className="text-xs">{t('dashboard.marketPriceTooltip')}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </div>
+                {/* Harga Jual Section */}
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{t('dashboard.brandCard.sellPrice')}</span>
+                  <div className="flex items-baseline gap-1">
+                    <span className="text-lg font-bold tracking-tight">
+                      {price1g?.buybackPriceFormatted || '—'}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">/gram</span>
+                  </div>
 
-                    {/* Mobile: Popover (click) */}
-                    <div className="block md:hidden">
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <button className="outline-none">
-                            <DeltaIndicator delta={price1g.sellDelta} deltaPercentage={price1g.sellDeltaPercentage} />
-                          </button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-60 mx-4" sideOffset={8} collisionPadding={16}>
-                          <p className="text-sm text-muted-foreground">{t('dashboard.marketPriceTooltip')}</p>
-                        </PopoverContent>
-                      </Popover>
+                  {price1g?.buybackDelta !== null && price1g?.buybackDelta !== undefined && (
+                    <div className="mt-0.5">
+                      {/* Tooltip logic for desktop */}
+                      <div className="hidden md:block">
+                        <TooltipProvider delayDuration={200}>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="w-fit"><DeltaIndicator delta={price1g.buybackDelta} deltaPercentage={price1g.buybackDeltaPercentage} /></div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="text-xs">{t('dashboard.marketPriceTooltip')}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
+                      {/* Popover logic for mobile */}
+                      <div className="block md:hidden">
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <button className="outline-none">
+                              <DeltaIndicator delta={price1g.buybackDelta} deltaPercentage={price1g.buybackDeltaPercentage} />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-60 mx-4" sideOffset={8} collisionPadding={16}>
+                            <p className="text-sm text-muted-foreground">{t('dashboard.marketPriceTooltip')}</p>
+                          </PopoverContent>
+                        </Popover>
+                      </div>
                     </div>
-                  </>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           )

@@ -210,6 +210,8 @@ export default {
       estimatedSellValue: 'Estimated sell value',
       todayChange: 'Today',
       priceNotAvailable: 'Cannot be calculated',
+      buyPrice: 'Buy Price',
+      sellPrice: 'Sell Price',
     },
     valuationDisclaimer: 'Valuations based on latest available market prices',
     noHoldingsDisclaimer: 'No holdings in portfolio',
