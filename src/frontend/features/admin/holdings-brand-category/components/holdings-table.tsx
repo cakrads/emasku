@@ -19,6 +19,7 @@ import { useRouter } from 'next/navigation'
 import { ROUTES } from '@/frontend/config/routes'
 import { HoldingItemVM } from '@/frontend/view-model/portfolio.vm'
 import { useLanguage } from '@/frontend/hooks/use-language'
+import { usePortfolioPrivacy } from '@/frontend/hooks/use-portfolio-privacy'
 
 interface HoldingsTableProps {
   holdings: HoldingItemVM[]
@@ -42,6 +43,7 @@ export default function HoldingsTable({
 }: HoldingsTableProps) {
   const router = useRouter()
   const { t } = useLanguage()
+  const { isVisible } = usePortfolioPrivacy()
 
   // Determine if we are in server-side pagination mode
   const isServerPagination =
@@ -140,7 +142,7 @@ export default function HoldingsTable({
         cell: ({ getValue }) => (
           <div className="text-right">
             <Typography variant="body-sm" className="financial-value">
-              {getValue() as string}
+              {isVisible ? (getValue() as string) : '••••••••'}
             </Typography>
           </div>
         ),
@@ -157,7 +159,7 @@ export default function HoldingsTable({
         cell: ({ getValue }) => (
           <div className="text-right">
             <Typography variant="body-sm" className="financial-value font-medium">
-              {getValue() as string}
+              {isVisible ? (getValue() as string) : '••••••••'}
             </Typography>
           </div>
         ),
@@ -189,7 +191,7 @@ export default function HoldingsTable({
                     holding.pnlColor === 'positive' ? 'text-positive' : holding.pnlColor === 'negative' ? 'text-negative' : ''
                   )}
                 >
-                  {holding.pnl}
+                  {isVisible ? holding.pnl : '••••••••'}
                 </Typography>
                 <Typography
                   variant="caption"
@@ -197,7 +199,7 @@ export default function HoldingsTable({
                     holding.pnlColor === 'positive' ? 'text-positive' : holding.pnlColor === 'negative' ? 'text-negative' : ''
                   )}
                 >
-                  {holding.pnlPercentage}
+                  {isVisible ? holding.pnlPercentage : '•••%'}
                 </Typography>
               </Stack>
             </Stack>
@@ -205,7 +207,7 @@ export default function HoldingsTable({
         },
       },
     ],
-    [t]
+    [t, isVisible]
   )
 
   const table = useReactTable({

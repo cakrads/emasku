@@ -31,7 +31,7 @@ export function HeaderSummary({ summary, onReset }: HeaderSummaryProps) {
       : 'text-muted-foreground'
 
   return (
-    <Card className="sticky top-16 z-30 mb-6 p-3 md:p-4 border-2 border-primary/10 shadow-lg bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <Card className="sticky top-2 md:top-16 z-30 mb-6 p-3 md:p-4 border-2 border-primary/10 shadow-lg bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
 
         {/* Selection Count */}
@@ -53,37 +53,39 @@ export function HeaderSummary({ summary, onReset }: HeaderSummaryProps) {
         </div>
 
         {/* Metrics Grid */}
-        <div className="grid grid-cols-2 gap-3 w-full md:w-auto md:flex md:gap-12">
+        <div className="grid grid-cols-2 gap-3 w-full md:w-auto md:flex md:gap-10 md:items-end">
 
           {/* Est. Buyback Value */}
-          <div className="text-left md:text-right">
+          <div className="text-left md:text-right md:order-3">
             <div className="text-[10px] md:text-xs text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
               {t('buybackSimulation.headerSummary.totalBuyback')}
             </div>
-            <div className="text-lg md:text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
+            <div className="text-2xl md:text-4xl font-extrabold text-amber-500 dark:text-amber-400 leading-none md:leading-tight">
               {formatIDR(summary.totalBuybackValue)}
             </div>
           </div>
 
           {/* Cost Basis */}
-          <div className="text-right">
+          <div className="text-right md:order-1">
             <div className="text-[10px] md:text-xs text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
               {t('buybackSimulation.headerSummary.totalCost')}
             </div>
-            <div className="text-base md:text-lg font-semibold text-foreground">
+            <div className="text-base md:text-lg font-semibold text-foreground leading-snug">
               {formatIDR(summary.totalCostBasis)}
             </div>
           </div>
 
           {/* PnL */}
-          <div className="text-left md:text-right col-span-2 md:col-span-1 pt-2 md:pt-0 border-t md:border-t-0 border-border/50 md:border-none flex flex-row md:block items-center justify-between">
+          <div className="text-left md:text-right col-span-2 md:col-span-1 pt-2 md:pt-0 border-t md:border-t-0 border-border/50 md:border-none flex flex-row md:block items-center justify-between md:order-2">
             <div className="text-[10px] md:text-xs text-muted-foreground font-medium uppercase tracking-wider mb-0.5 md:mb-0.5">
               {t('buybackSimulation.headerSummary.totalPnL')}
             </div>
-            <div className={`text-lg font-bold flex items-center justify-end gap-1.5 ${pnlColor}`}>
-              <span>{pnlSign}{formatIDR(summary.totalPnL)}</span>
-              <span className="text-xs md:text-sm font-medium bg-secondary/50 px-1.5 py-0.5 rounded">
-                {pnlSign}{summary.pnlPercentage.toFixed(2)}%
+            <div className="flex items-center justify-end gap-2">
+              <span className={`text-base md:text-lg font-semibold leading-snug ${pnlColor}`}>
+                {pnlSign}{formatIDR(summary.totalPnL)}
+              </span>
+              <span className={`text-xs md:text-sm font-medium opacity-80 ${pnlColor}`}>
+                ({pnlSign}{summary.pnlPercentage.toFixed(2)}%)
               </span>
             </div>
           </div>

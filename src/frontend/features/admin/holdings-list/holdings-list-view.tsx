@@ -18,6 +18,7 @@ import { ROUTES } from '@/frontend/config/routes'
 import { fetchBrands } from '@/frontend/services/brands/brands.api'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { useUrlFilters } from '@/frontend/hooks/use-url-filters'
+import { PrivacyToggle } from '@/frontend/components/ui/privacy-toggle'
 
 // New components
 import PortfolioSummarySection from './components/portfolio-summary-section'
@@ -178,6 +179,9 @@ function HoldingsListContent() {
       {/* Action Bar - Filter button + Brand Summary */}
       <div className="flex flex-wrap items-center gap-2">
         <Stack direction="horizontal" gap="sm">
+          {/* Privacy Toggle */}
+          <PrivacyToggle className="border border-border/50" />
+
           {/* Filter Button */}
           <Button
             variant="outline"

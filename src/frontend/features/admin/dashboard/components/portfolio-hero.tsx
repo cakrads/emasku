@@ -7,6 +7,8 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/frontend/components/u
 import { Info, TrendingUp } from 'lucide-react'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { cn } from '@/frontend/utils/cn'
+import { usePortfolioPrivacy } from '@/frontend/hooks/use-portfolio-privacy'
+import { PrivacyToggle } from '@/frontend/components/ui/privacy-toggle'
 
 interface PnLPeriod {
   key: string
@@ -58,6 +60,7 @@ export default function PortfolioHero({
   yearlyColor = 'neutral',
 }: PortfolioHeroProps) {
   const { t } = useLanguage()
+  const { isVisible } = usePortfolioPrivacy()
   const isGainPositive = pnlColor === 'positive'
 
   // Build array of all periods
@@ -93,12 +96,15 @@ export default function PortfolioHero({
       {/* Header */}
       <div className="mb-6">
         <div className="flex flex-col gap-1 mb-2">
-          <Typography variant="caption" className="text-muted-foreground uppercase tracking-wider font-semibold">
-            {t('dashboard.portfolioValue')}
-          </Typography>
+          <div className="flex items-center gap-2">
+            <Typography variant="caption" className="text-muted-foreground uppercase tracking-wider font-semibold">
+              {t('dashboard.portfolioValue')}
+            </Typography>
+            <PrivacyToggle className="h-4 w-4 text-muted-foreground/70" iconClassName="h-3 w-3" />
+          </div>
 
           <Typography className="text-4xl md:text-5xl font-bold text-foreground financial-value tracking-tight">
-            {totalValue || '—'}
+            {isVisible ? (totalValue || '—') : '••••••••'}
           </Typography>
         </div>
 
@@ -107,11 +113,17 @@ export default function PortfolioHero({
           <div className="flex items-center gap-3 mb-1">
             <div className={cn("flex items-center gap-1 font-semibold", isGainPositive ? "text-positive" : "text-negative")}>
               <TrendingUp className="w-4 h-4" />
-              <span>{gainLossPercentage}</span>
+              <span>{isVisible ? gainLossPercentage : '•••%'}</span>
             </div>
             <div className="h-4 w-px bg-border" />
             <Typography variant="body" className="text-muted-foreground font-medium">
-              {isGainPositive ? 'Profit' : 'Loss'} {totalPnL}
+              {isVisible ? (
+                <>
+                  {isGainPositive ? 'Profit' : 'Loss'} {totalPnL}
+                </>
+              ) : (
+                '••••••••'
+              )}
             </Typography>
           </div>
         )}
@@ -137,11 +149,11 @@ export default function PortfolioHero({
                   variant="body-sm"
                   className={cn("font-bold whitespace-nowrap", getColorClass(period.color))}
                 >
-                  {period.value ?? '—'}
+                  {isVisible ? (period.value ?? '—') : '••••••'}
                 </Typography>
                 {period.percentage && period.percentage !== '-' && (
                   <Typography variant="caption" className={cn("text-xs", getColorClass(period.color))}>
-                    ({period.percentage})
+                    {isVisible ? `(${period.percentage})` : '(•••%)'}
                   </Typography>
                 )}
               </div>

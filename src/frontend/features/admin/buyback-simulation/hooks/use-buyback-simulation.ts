@@ -11,7 +11,7 @@ export interface SimulationSummary {
   pnlPercentage: number
 }
 
-export function useBuybackSimulation() {
+export function useBuybackSimulation(availableItems: HoldingItemVM[] = []) {
   // Selection state
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [selectedItems, setSelectedItems] = useState<Map<string, HoldingItemVM>>(new Map())
@@ -86,7 +86,8 @@ export function useBuybackSimulation() {
     const items: { brandCode: string; denominationGram: number }[] = []
     const seen = new Set<string>()
 
-    selectedItems.forEach(item => {
+    // Helper to add unique items
+    const addItem = (item: HoldingItemVM) => {
       const key = `${item.brand}:${item.rawWeight}`
       if (!seen.has(key)) {
         seen.add(key)
@@ -95,15 +96,23 @@ export function useBuybackSimulation() {
           denominationGram: item.rawWeight
         })
       }
-    })
+    }
+
+    // Include selected items (for summary)
+    selectedItems.forEach(addItem)
+
+    // Include available items (for table display)
+    availableItems.forEach(addItem)
+
     return items
-  }, [selectedItems])
+  }, [selectedItems, availableItems])
 
   const { data: pricesData, isLoading: isLoadingPrices } = useQuery({
     queryKey: ['buyback-prices', uniqueItems], // uniqueItems is distinct array dep
     queryFn: () => fetchBuybackPrices(uniqueItems),
     enabled: uniqueItems.length > 0,
-    staleTime: 60 * 1000 // Cache 1 min
+    staleTime: 60 * 1000, // Cache 1 min
+    placeholderData: (previousData) => previousData,
   })
 
   // Create lookup map for prices
@@ -121,6 +130,7 @@ export function useBuybackSimulation() {
   const summary = useMemo<SimulationSummary>(() => {
     let totalBuybackValue = 0
     let totalCostBasis = 0
+    let totalPnL = 0
 
     selectedItems.forEach(item => {
       const qtyToSell = quantityOverrides[item.id] ?? item.quantity
@@ -138,7 +148,7 @@ export function useBuybackSimulation() {
       }
     })
 
-    const totalPnL = totalBuybackValue - totalCostBasis
+    totalPnL = totalBuybackValue - totalCostBasis
     const pnlPercentage = totalCostBasis > 0 ? (totalPnL / totalCostBasis) * 100 : 0
 
     return {

@@ -13,6 +13,7 @@ import { transformHoldingItem, HoldingItemVM } from '@/frontend/view-model/portf
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { ROUTES } from '@/frontend/config/routes'
 import { cn } from '@/frontend/utils/cn'
+import { usePortfolioPrivacy } from '@/frontend/hooks/use-portfolio-privacy'
 
 /**
  * Grouped Holding Item for Display
@@ -91,7 +92,7 @@ export default function HoldingsPreview() {
         </Stack>
 
         {/* CTA to view all */}
-        <div className="mt-4 pt-3 border-t border-(--border)">
+        <div className="mt-4 pt-3 border-t border-border">
           <Link href={ROUTES.HOLDINGS_LIST}>
             <Button variant="ghost" size="sm" className="w-full justify-center gap-2 text-muted-foreground hover:text-foreground">
               <span>{t('dashboard.viewAllHoldings')}</span>
@@ -116,12 +117,13 @@ function HoldingPreviewItem({
   isLast: boolean
 }) {
   const { t } = useLanguage()
+  const { isVisible } = usePortfolioPrivacy()
   const hasValuation = holding.totalValue !== '-'
   const isPositive = holding.pnlColor === 'positive'
   const isNegative = holding.pnlColor === 'negative'
 
   return (
-    <div className={`py-3 ${!isLast ? 'border-b border-(--border)/50' : ''}`}>
+    <div className={`py-3 ${!isLast ? 'border-b border-border/50' : ''}`}>
       <div className="flex flex-col gap-1">
 
         {/* Row 1: Brand · Weight (xN) */}
@@ -136,7 +138,7 @@ function HoldingPreviewItem({
 
         {/* Row 2: Date · Price */}
         <Typography variant="caption" className="text-muted-foreground block">
-          {t('dashboard.purchasedOn')} {holding.buyDate} · {holding.totalBuyValue}
+          {t('dashboard.purchasedOn')} {holding.buyDate} · {isVisible ? holding.totalBuyValue : '••••••'}
         </Typography>
 
         {/* Row 3: Estimated Sell & PnL */}
@@ -147,21 +149,21 @@ function HoldingPreviewItem({
                 {t('dashboard.estimatedSell')}:
               </span>
               <span className="font-medium text-foreground">
-                {holding.totalValue}
+                {isVisible ? holding.totalValue : '••••••'}
               </span>
 
               {/* PnL Indicator */}
               <div className={cn(
                 "flex items-center gap-0.5 ml-1 font-medium",
-                isPositive && "text-(--positive)",
-                isNegative && "text-(--negative)",
+                isPositive && "text-positive",
+                isNegative && "text-negative",
                 !isPositive && !isNegative && "text-muted-foreground"
               )}>
                 <TrendingUp className={cn(
                   "w-3 h-3",
                   isNegative && "rotate-180" // Down arrow for loss
                 )} />
-                <span>{holding.pnl} ({holding.pnlPercentage})</span>
+                <span>{isVisible ? `${holding.pnl} (${holding.pnlPercentage})` : '••••••'}</span>
               </div>
             </>
           ) : (

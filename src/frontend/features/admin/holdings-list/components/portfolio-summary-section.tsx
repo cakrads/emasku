@@ -9,6 +9,7 @@ import { Skeleton } from '@/frontend/components/ui/skeleton'
 import { Popover, PopoverContent, PopoverTrigger } from '@/frontend/components/ui/popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/frontend/components/ui/tooltip'
 import { useIsMobile } from '@/frontend/hooks/use-mobile'
+import { usePortfolioPrivacy } from '@/frontend/hooks/use-portfolio-privacy'
 import { ResponsiveInfoTip } from '@/frontend/components/ui/responsive-info-tip'
 
 interface PortfolioSummarySectionProps {
@@ -33,6 +34,7 @@ export default function PortfolioSummarySection({
   statusFilter = 'active',
 }: PortfolioSummarySectionProps) {
   const { t, language } = useLanguage()
+  const { isVisible } = usePortfolioPrivacy()
   const locale = language === 'id' ? 'id-ID' : 'en-US'
 
   const formatCurrency = (value: number) => {
@@ -51,7 +53,7 @@ export default function PortfolioSummarySection({
     }).format(grams)} g`
   }
 
-  const pnlColor = totalPnL > 0 ? 'text-(--positive)' : totalPnL < 0 ? 'text-(--negative)' : 'text-muted-foreground'
+  const pnlColor = totalPnL > 0 ? 'text-positive' : totalPnL < 0 ? 'text-negative' : 'text-muted-foreground'
 
   // For sold items, don't show estimated value and P/L (already realized)
   const showValuation = statusFilter !== 'sold'
@@ -102,7 +104,7 @@ export default function PortfolioSummarySection({
           </Stack>
           <ResponsiveInfoTip content={<p className="font-mono">{formatWeight(totalWeightGram)}</p>}>
             <Typography as="div" className="text-lg md:text-2xl font-bold truncate cursor-help">
-              {formatWeight(totalWeightGram)}
+              {isVisible ? formatWeight(totalWeightGram) : '••••••'}
             </Typography>
           </ResponsiveInfoTip>
         </div>
@@ -117,7 +119,7 @@ export default function PortfolioSummarySection({
           </Stack>
           <ResponsiveInfoTip content={<p className="font-mono">{formatCurrency(totalBuyValue)}</p>}>
             <Typography as="div" className="text-lg md:text-2xl font-bold financial-value truncate cursor-help">
-              {formatCurrency(totalBuyValue)}
+              {isVisible ? formatCurrency(totalBuyValue) : '••••••••'}
             </Typography>
           </ResponsiveInfoTip>
         </div>
@@ -136,7 +138,7 @@ export default function PortfolioSummarySection({
             </ResponsiveInfoTip>
             <ResponsiveInfoTip content={<p className="font-mono">{formatCurrency(totalCurrentValue)}</p>}>
               <Typography as="div" className="text-lg md:text-2xl font-bold financial-value text-accent-gold truncate cursor-help">
-                {formatCurrency(totalCurrentValue)}
+                {isVisible ? formatCurrency(totalCurrentValue) : '••••••••'}
               </Typography>
             </ResponsiveInfoTip>
           </div>
@@ -154,7 +156,7 @@ export default function PortfolioSummarySection({
               <Stack direction="horizontal" gap="xs" className="items-center cursor-pointer w-fit">
                 <TrendingUp className={cn(
                   'w-4 h-4 shrink-0',
-                  totalPnL > 0 ? 'text-(--positive)' : totalPnL < 0 ? 'text-(--negative) rotate-180' : 'text-muted-foreground'
+                  totalPnL > 0 ? 'text-positive' : totalPnL < 0 ? 'text-negative rotate-180' : 'text-muted-foreground'
                 )} />
                 <Typography variant="caption" className="text-muted-foreground text-xs">
                   {t('holdings.summary.profitLoss')}
@@ -166,11 +168,17 @@ export default function PortfolioSummarySection({
             <div className={cn('flex flex-col xl:flex-row xl:items-baseline gap-x-2', pnlColor)}>
               <ResponsiveInfoTip content={<p className="font-mono">{totalPnL > 0 ? '+' : ''}{formatCurrency(totalPnL)}</p>}>
                 <Typography as="div" className="text-lg md:text-2xl font-bold truncate cursor-help">
-                  {totalPnL > 0 ? '+' : ''}{formatCurrency(totalPnL)}
+                  {isVisible ? (
+                    <>
+                      {totalPnL > 0 ? '+' : ''}{formatCurrency(totalPnL)}
+                    </>
+                  ) : (
+                    '••••••••'
+                  )}
                 </Typography>
               </ResponsiveInfoTip>
               <Typography variant="caption" className="text-xs shrink-0">
-                ({pnlPercentage > 0 ? '+' : ''}{pnlPercentage.toFixed(2)}%)
+                {isVisible ? `(${pnlPercentage > 0 ? '+' : ''}${pnlPercentage.toFixed(2)}%)` : '(•••%)'}
               </Typography>
             </div>
           </div>

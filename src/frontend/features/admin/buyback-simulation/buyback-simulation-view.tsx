@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
 import { fetchPortfolioList } from '@/frontend/services/portfolio/portfolio.api'
@@ -23,18 +24,6 @@ function BuybackSimulationContent() {
     pageSize: 10
   })
 
-  // Hook
-  const {
-    selectedIds,
-    selectedItems,
-    quantityOverrides,
-    toggleSelection,
-    updateQuantity,
-    resetSelection,
-    summary,
-    priceMap
-  } = useBuybackSimulation()
-
   // Fetch Holdings (Active only)
   const apiFilter = {
     status: 'active' as const,
@@ -50,9 +39,24 @@ function BuybackSimulationContent() {
   })
 
   // Transform Data
-  const holdings = data?.items.map(item => transformHoldingItem(item, language === 'id' ? 'id-ID' : 'en-US')) || []
+  const holdings = useMemo(() =>
+    data?.items.map(item => transformHoldingItem(item, language === 'id' ? 'id-ID' : 'en-US')) || [],
+    [data, language]
+  )
   const totalItems = data?.pagination.totalItems || 0
   const pageCount = data?.pagination.totalPages || 0
+
+  // Hook
+  const {
+    selectedIds,
+    selectedItems,
+    quantityOverrides,
+    toggleSelection,
+    updateQuantity,
+    resetSelection,
+    summary,
+    priceMap
+  } = useBuybackSimulation(holdings)
 
   return (
     <>

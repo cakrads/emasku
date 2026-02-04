@@ -106,27 +106,6 @@ export function HoldingsSelectorMobile({
                     <div className="italic text-muted-foreground">-</div>
                   )}
                 </div>
-
-                <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
-                  <div className="text-right">
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-widest block mb-1">Sell Qty</span>
-                    <div className="flex items-center gap-2 justify-end">
-                      <Input
-                        type="number"
-                        min={0}
-                        max={item.quantity}
-                        value={qtyToSell}
-                        onChange={(e) => {
-                          const val = parseInt(e.target.value) || 0
-                          onUpdateQuantity(item.id, Math.min(val, item.quantity))
-                        }}
-                        className="h-8 w-16 text-center px-1 text-sm bg-background"
-                        disabled={!isSelected}
-                      />
-                      <span className="text-xs text-muted-foreground">/ {item.quantity}</span>
-                    </div>
-                  </div>
-                </div>
               </div>
             </Card>
           )

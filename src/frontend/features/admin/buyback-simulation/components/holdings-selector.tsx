@@ -65,8 +65,6 @@ export function HoldingsSelector({
                 <th className="px-4 py-3 text-right">{t('buybackSimulation.table.gram')}</th>
                 <th className="px-4 py-3 text-right">{t('buybackSimulation.table.buyPrice')}</th>
                 <th className="px-4 py-3 text-right">{t('buybackSimulation.table.buybackPrice')}</th>
-                <th className="px-4 py-3 text-right w-32">{t('buybackSimulation.table.qtyToSell')}</th>
-                <th className="px-4 py-3 text-right">{t('buybackSimulation.table.quantity')}</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -74,14 +72,18 @@ export function HoldingsSelector({
                 const isSelected = selectedIds.has(item.id)
                 const priceKey = `${item.brand}:${item.rawWeight}`
                 const buybackPrice = priceMap.get(priceKey)
-                const qtyToSell = quantityOverrides[item.id] ?? item.quantity
 
                 return (
-                  <tr key={item.id} className={cn("hover:bg-muted/30 transition-colors", isSelected && "bg-primary/5")}>
+                  <tr
+                    key={item.id}
+                    className={cn("hover:bg-muted/30 transition-colors cursor-pointer", isSelected && "bg-primary/5")}
+                    onClick={() => onToggle(item)}
+                  >
                     <td className="px-4 py-3 text-center">
                       <Checkbox
                         checked={isSelected}
                         onCheckedChange={() => onToggle(item)}
+                        onClick={(e) => e.stopPropagation()}
                       />
                     </td>
                     <td className="px-4 py-3 font-medium">
@@ -99,23 +101,6 @@ export function HoldingsSelector({
                       ) : (
                         <span className="text-muted-foreground italic text-xs">-</span>
                       )}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <Input
-                        type="number"
-                        min={0}
-                        max={item.quantity}
-                        value={qtyToSell}
-                        onChange={(e) => {
-                          const val = parseInt(e.target.value) || 0
-                          onUpdateQuantity(item.id, Math.min(val, item.quantity))
-                        }}
-                        className="h-8 w-24 text-right ml-auto"
-                        disabled={!isSelected}
-                      />
-                    </td>
-                    <td className="px-4 py-3 text-right text-muted-foreground">
-                      / {item.quantity}
                     </td>
                   </tr>
                 )
