@@ -13,6 +13,8 @@ import {
   TooltipTrigger,
 } from '@/frontend/components/ui/tooltip'
 
+import { usePortfolioPrivacy } from '@/frontend/hooks/use-portfolio-privacy'
+
 interface BrandCardProps {
   brandCode: string
   brandName: string
@@ -33,6 +35,7 @@ export default function BrandCard({
   valuationSource,
 }: BrandCardProps) {
   const { t, language } = useLanguage()
+  const { isVisible } = usePortfolioPrivacy()
   const isPositive = deltaValue >= 0
   const isUnvalued = valuationSource === 'NONE'
 
@@ -93,7 +96,7 @@ export default function BrandCard({
             )}
           </div>
           <Typography variant="caption" className="text-muted-foreground font-medium text-xs">
-            {formatWeight(totalGrams)}
+            {isVisible ? formatWeight(totalGrams) : '••••'}
           </Typography>
         </div>
 
@@ -105,7 +108,9 @@ export default function BrandCard({
               {t('dashboard.brandCard.estimatedSellValue')}
             </Typography>
             <Typography variant="h2" className="financial-value text-xl">
-              {isUnvalued ? t('dashboard.brandCard.priceNotAvailable') : formatCurrency(currentValue)}
+              {isUnvalued
+                ? t('dashboard.brandCard.priceNotAvailable')
+                : isVisible ? formatCurrency(currentValue) : '••••••••'}
             </Typography>
           </div>
 
@@ -123,13 +128,13 @@ export default function BrandCard({
                   variant="caption"
                   className={cn("font-semibold text-xs", isPositive ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400")}
                 >
-                  {isPositive ? '+' : ''}{formatCurrency(deltaValue)}
+                  {isVisible ? (isPositive ? '+' : '') + formatCurrency(deltaValue) : '****'}
                 </Typography>
                 <Typography
                   variant="caption"
                   className={cn("font-medium text-[10px]", isPositive ? "text-emerald-600/80 dark:text-emerald-400/80" : "text-red-600/80 dark:text-red-400/80")}
                 >
-                  ({deltaPercentage >= 0 ? '+' : ''}{deltaPercentage.toFixed(2)}%)
+                  {isVisible ? `(${deltaPercentage >= 0 ? '+' : ''}${deltaPercentage.toFixed(2)}%)` : '(****%)'}
                 </Typography>
               </div>
             </div>
