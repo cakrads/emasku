@@ -303,6 +303,7 @@ export default {
       totalBuyback: 'Est. Nilai Jual',
       totalCost: 'Modal',
       totalPnL: 'Untung/Rugi',
+      remainingValue: 'Sisa Aset (Estimasi)',
       resetSelection: 'Reset Pilihan',
     },
     table: {

@@ -9,6 +9,7 @@ export interface SimulationSummary {
   totalCostBasis: number
   totalPnL: number
   pnlPercentage: number
+  remainingValue: number // Value of unsold items
 }
 
 export function useBuybackSimulation(availableItems: HoldingItemVM[] = []) {
@@ -131,7 +132,9 @@ export function useBuybackSimulation(availableItems: HoldingItemVM[] = []) {
     let totalBuybackValue = 0
     let totalCostBasis = 0
     let totalPnL = 0
+    let remainingValue = 0
 
+    // 1. Calculate Selected Stats
     selectedItems.forEach(item => {
       const qtyToSell = quantityOverrides[item.id] ?? item.quantity
       if (qtyToSell <= 0) return
@@ -148,6 +151,23 @@ export function useBuybackSimulation(availableItems: HoldingItemVM[] = []) {
       }
     })
 
+    // 2. Calculate Remaining Value (Unsold)
+    availableItems.forEach(item => {
+      let remainingQty = item.quantity
+
+      if (selectedItems.has(item.id)) {
+        const qtyToSell = quantityOverrides[item.id] ?? item.quantity
+        remainingQty = Math.max(0, item.quantity - qtyToSell)
+      }
+
+      const priceKey = `${item.brand}:${item.rawWeight}`
+      const price = priceMap.get(priceKey)
+
+      if (price && remainingQty > 0) {
+        remainingValue += (price * remainingQty)
+      }
+    })
+
     totalPnL = totalBuybackValue - totalCostBasis
     const pnlPercentage = totalCostBasis > 0 ? (totalPnL / totalCostBasis) * 100 : 0
 
@@ -156,9 +176,10 @@ export function useBuybackSimulation(availableItems: HoldingItemVM[] = []) {
       totalBuybackValue,
       totalCostBasis,
       totalPnL,
-      pnlPercentage
+      pnlPercentage,
+      remainingValue
     }
-  }, [selectedItems, quantityOverrides, priceMap])
+  }, [selectedItems, selectedIds, availableItems, quantityOverrides, priceMap])
 
   return {
     selectedIds,

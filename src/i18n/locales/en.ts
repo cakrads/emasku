@@ -302,6 +302,7 @@ export default {
       totalBuyback: 'Est. Sell Value',
       totalCost: 'Cost Basis',
       totalPnL: 'Profit/Loss',
+      remainingValue: 'Remaining Value',
       resetSelection: 'Reset Selection',
     },
     table: {
