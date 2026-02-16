@@ -105,6 +105,7 @@ model User {
 
   holdings PortfolioHolding[]
   consents Consent[]
+  goals    Goal[]
 }
 
 enum ConsentPurpose {
@@ -155,6 +156,10 @@ model PortfolioHolding {
   /// Useful for preserving user-typed custom brand names
   brandName String
 
+  /// Optional goal association
+  goalId String?
+  goal   Goal?   @relation(fields: [goalId], references: [id], onDelete: Restrict)
+
   ////////////////////////////////////////
   // OWNERSHIP DATA
   ////////////////////////////////////////
@@ -201,6 +206,7 @@ model PortfolioHolding {
 
   @@index([userId])
   @@index([brandCode])
+  @@index([goalId])
 }
 
 /// System-authoritative daily close price.
@@ -233,4 +239,37 @@ model GoldDailyClose {
   @@unique([brandCode, priceType, denominationGram, closeDate])
   // Efficient lookup for "Give me close price for Brand X on Date Y"
   @@index([brandCode, priceType, denominationGram, closeDate(sort: Desc)])
+}
+
+////////////////////////////////////////
+// GOAL (Tujuan Emas)
+////////////////////////////////////////
+
+/// User-defined financial goal for gold savings.
+/// Holdings can be optionally linked to a goal.
+model Goal {
+  id String @id @default(cuid())
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  /// Goal name (required)
+  name String
+
+  /// Optional description
+  description String?
+
+  /// Target amount in IDR (smallest currency unit)
+  /// Nullable — if not set, no progress % is shown
+  targetAmount BigInt?
+
+  /// Target date to achieve the goal
+  targetDate DateTime? @db.Date
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  holdings PortfolioHolding[]
+
+  @@index([userId])
 }

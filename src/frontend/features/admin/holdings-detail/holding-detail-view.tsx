@@ -160,6 +160,18 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
                   <Typography variant="body-sm">{t('holdingDetail.purchaseDetails.buyPricePerGram')}</Typography>
                   <Typography variant="body" className="font-medium">{holding.avgBuyPrice}</Typography>
                 </Stack>
+
+                {/* Debugging Goal Visibility */}
+                {/* {console.log('Holding Data:', holding)} */}
+                {holding.goalId && (
+                  <Stack direction="horizontal" className="justify-between items-center">
+                    <Typography variant="body-sm">{t('goals.title')}</Typography>
+                    <Link href={ROUTES.GOAL_DETAIL(holding.goalId)} className="text-primary hover:underline font-medium">
+                      {holding.goalName || 'Goal'}
+                    </Link>
+                  </Stack>
+                )}
+
                 {holding.isSold && holding.soldAt && (
                   <Stack direction="horizontal" className="justify-between items-center">
                     <Typography variant="body-sm">{t('holdingDetail.purchaseDetails.status')}</Typography>

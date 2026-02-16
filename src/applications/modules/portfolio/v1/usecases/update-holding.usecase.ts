@@ -53,6 +53,7 @@ export class UpdateHoldingUsecase {
       buyPrice: request.buyPrice,
       buyDate: request.buyDate ? new Date(request.buyDate) : undefined,
       notes: request.notes,
+      goalId: request.goalId,
     })
 
     logger.info('Holding updated successfully', { holdingId })

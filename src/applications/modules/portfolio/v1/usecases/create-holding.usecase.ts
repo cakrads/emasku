@@ -50,6 +50,7 @@ export class CreateHoldingUsecase {
       buyPrice: request.buyPrice || 0,
       buyDate: request.buyDate ? new Date(request.buyDate) : undefined,
       notes: request.notes,
+      goalId: request.goalId,
     })
 
     logger.info('Holding created successfully', { holdingId: holding.id })

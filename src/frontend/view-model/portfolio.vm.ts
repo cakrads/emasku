@@ -70,6 +70,8 @@ export interface HoldingItemVM {
   // Raw values for calculation
   rawWeight: number
   rawAvgBuyPrice: number
+  goalId: string | null
+  goalName: string | null
 }
 
 /**
@@ -208,6 +210,8 @@ export function transformHoldingItem(api: HoldingItem, locale: string = 'id-ID')
     notes: api.notes || undefined,
     rawWeight: api.denominationGram,
     rawAvgBuyPrice: api.avgBuyPrice,
+    goalId: api.goalId || null,
+    goalName: api.goalName || null,
   }
 }
 

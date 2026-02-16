@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { LayoutDashboard, Coins, Wallet, LogOut, User, Sun, Moon, Plus, Menu } from 'lucide-react'
+import { LayoutDashboard, Coins, Wallet, LogOut, User, Sun, Moon, Plus, Menu, Target } from 'lucide-react'
 import { cn } from '@/frontend/utils/cn'
 import { ROUTES } from '@/frontend/config/routes'
 import { useTheme } from "next-themes"
@@ -77,13 +77,22 @@ export function SharedNavbar() {
       mobileOrder: 3
     },
     {
+      id: 'goals',
+      href: ROUTES.GOALS_LIST,
+      label: t('navbar.goals'),
+      icon: Target,
+      requiresAuth: true,
+      desktopOrder: 3,
+      mobileOrder: 4
+    },
+    {
       id: 'prices',
       href: ROUTES.PRICES,
       label: t('navbar.prices'),
       icon: Coins,
       requiresAuth: false,
-      desktopOrder: 3,
-      mobileOrder: 4
+      desktopOrder: 4,
+      mobileOrder: 5
     },
     {
       id: 'profile',
@@ -92,7 +101,7 @@ export function SharedNavbar() {
       icon: User,
       requiresAuth: true,
       mobileOnly: true,
-      mobileOrder: 5
+      mobileOrder: 6
     },
   ]
 
@@ -327,7 +336,7 @@ export function SharedNavbar() {
 
         {/* Mobile Bottom Bar */}
         {showMobileBottomBar && (
-          <div className="w-full grid grid-cols-5 items-end pb-2 md:hidden px-2">
+          <div className="w-full grid grid-cols-6 items-end pb-2 md:hidden px-2">
             {mobileItems.map((item) => {
               // Add centered button
               if (item.id === 'add') {

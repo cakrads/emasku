@@ -22,6 +22,8 @@ interface DatePickerProps {
   placeholder?: string
   className?: string
   disabled?: (date: Date) => boolean
+  fromYear?: number
+  toYear?: number
 }
 
 export function DatePicker({
@@ -30,6 +32,8 @@ export function DatePicker({
   placeholder,
   className,
   disabled,
+  fromYear,
+  toYear,
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false)
   const { language, t } = useLanguage()
@@ -42,7 +46,7 @@ export function DatePicker({
         <Button
           variant={"outline"}
           className={cn(
-            "flex w-full shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm p-4 rounded-xl bg-(--surface-elevated) border-border text-foreground text-lg font-semibold h-14 justify-start text-left",
+            "flex w-full shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm p-4 rounded-xl bg-surface-elevated border-border text-foreground text-lg font-semibold h-14 justify-start text-left",
             !value && "text-muted-foreground",
             className
           )}
@@ -63,8 +67,8 @@ export function DatePicker({
           disabled={disabled}
           initialFocus
           captionLayout="dropdown"
-          fromYear={2000}
-          toYear={new Date().getFullYear()}
+          fromYear={fromYear || 2000}
+          toYear={toYear || new Date().getFullYear() + 50}
           locale={locale}
         />
       </PopoverContent>

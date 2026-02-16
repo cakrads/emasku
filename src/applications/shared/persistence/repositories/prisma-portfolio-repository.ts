@@ -73,6 +73,7 @@ export class PrismaPortfolioRepository {
       orderBy: { createdAt: 'desc' },
       skip,
       take,
+      include: { goal: { select: { name: true } } },
     })
 
     const duration = Date.now() - startTime
@@ -91,7 +92,8 @@ export class PrismaPortfolioRepository {
    */
   async findById(id: string): Promise<PortfolioHoldingDomain | null> {
     const holding = await this.prisma.portfolioHolding.findUnique({
-      where: { id }
+      where: { id },
+      include: { goal: { select: { name: true } } },
     })
 
     if (!holding) {
@@ -112,6 +114,7 @@ export class PrismaPortfolioRepository {
     buyPrice: number | bigint
     buyDate?: Date // Input is usually buyDate
     notes?: string
+    goalId?: string
   }): Promise<PortfolioHoldingDomain> {
     const brandName = await this.getBrandName(data.brandCode)
 
@@ -125,7 +128,9 @@ export class PrismaPortfolioRepository {
         buyPrice: BigInt(data.buyPrice),
         boughtAt: data.buyDate,
         notes: data.notes || null,
-      }
+        ...(data.goalId ? { goal: { connect: { id: data.goalId } } } : {}),
+      },
+      include: { goal: { select: { name: true } } },
     })
 
     logger.info('Holding created', { holdingId: holding.id, userId })
@@ -144,6 +149,7 @@ export class PrismaPortfolioRepository {
     buyDate?: Date
     notes?: string
     brandCode?: string
+    goalId?: string | null
   }): Promise<PortfolioHoldingDomain> {
     const updateData: Prisma.PortfolioHoldingUpdateInput = {}
 
@@ -161,9 +167,19 @@ export class PrismaPortfolioRepository {
 
     if (data.notes !== undefined) updateData.notes = data.notes
 
+    // Handle goalId: connect, disconnect, or skip
+    if (data.goalId !== undefined) {
+      if (data.goalId === null) {
+        updateData.goal = { disconnect: true }
+      } else {
+        updateData.goal = { connect: { id: data.goalId } }
+      }
+    }
+
     const holding = await this.prisma.portfolioHolding.update({
       where: { id, userId },
-      data: updateData
+      data: updateData,
+      include: { goal: { select: { name: true } } },
     })
 
     logger.info('Holding updated', { holdingId: id, userId })
@@ -224,7 +240,7 @@ export class PrismaPortfolioRepository {
    * Converts BigInt → number and Decimal → number.
    * NO business logic - pure data transformation.
    */
-  private toDomain(prismaHolding: PortfolioHolding): PortfolioHoldingDomain {
+  private toDomain(prismaHolding: PortfolioHolding & { goal?: { name: string } | null }): PortfolioHoldingDomain {
     return {
       id: prismaHolding.id,
       brandCode: prismaHolding.brandCode,
@@ -236,6 +252,8 @@ export class PrismaPortfolioRepository {
       soldAt: prismaHolding.soldAt,
       createdAt: prismaHolding.createdAt,
       notes: prismaHolding.notes || undefined,
+      goalId: prismaHolding.goalId || null,
+      goalName: prismaHolding.goal?.name || null,
     }
   }
 }

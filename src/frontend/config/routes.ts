@@ -18,6 +18,12 @@ export const ROUTES = {
   HOLDINGS_LIST: '/holdings',
   BUYBACK_SIMULATION: '/buyback-simulation',
 
+  // Goals
+  GOALS_LIST: '/goals',
+  GOAL_DETAIL: (id: string) => `/goals/${id}`,
+  GOAL_EDIT: (id: string) => `/goals/${id}/edit`,
+  ADD_GOAL: '/goals/create',
+
   // Deep Links / Future Placeholders
   HOLDING_DETAIL: (id: string) => `/holdings/${id}`,
   EDIT_HOLDING: (id: string) => `/holdings/${id}/edit`,

@@ -68,6 +68,8 @@ export const HoldingItemSchema = z.object({
   createdAt: z.string(), // ISO datetime
   soldAt: z.string().nullable().optional(),
   notes: z.string().nullable().optional(),
+  goalId: z.string().nullable().optional(),
+  goalName: z.string().nullable().optional(),
 })
 
 export type HoldingItem = z.infer<typeof HoldingItemSchema>

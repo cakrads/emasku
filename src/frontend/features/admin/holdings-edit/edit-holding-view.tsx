@@ -20,6 +20,7 @@ import { ErrorBoundary } from '@/frontend/components/fragments/admin/error-bound
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { WeightSelector } from '../holdings-create/components/weight-selector'
 import { CurrencyInput } from '@/frontend/components/ui/currency-input'
+import { GoalSelector } from '../holdings-create/components/goal-selector'
 
 interface EditHoldingViewProps {
   holdingId: string
@@ -47,6 +48,7 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
   const [buyPrice, setBuyPrice] = useState('')
   const [buyDate, setBuyDate] = useState<Date | undefined>(undefined)
   const [notes, setNotes] = useState('')
+  const [goalId, setGoalId] = useState<string | null>(null)
 
   // Initialize form when data loads
   useEffect(() => {
@@ -56,6 +58,7 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
       setBuyPrice(holding.avgBuyPrice.toString())
       setBuyDate(holding.buyDate ? new Date(holding.buyDate) : undefined)
       setNotes(holding.notes || '')
+      setGoalId(holding.goalId || null)
     }
   }, [holding])
 
@@ -121,6 +124,7 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
       buyPrice: buyPrice ? Math.round(parseFloat(buyPrice)) : undefined,
       buyDate: localDateString,
       notes: notes || undefined,
+      goalId: goalId,
     })
   }
 
@@ -209,6 +213,11 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
               placeholder={t('editHolding.form.notesPlaceholder')}
             />
           </Stack>
+
+          <GoalSelector
+            selectedGoalId={goalId || null}
+            onSelect={setGoalId}
+          />
         </Stack>
       </Section>
 

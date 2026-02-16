@@ -16,6 +16,7 @@ import { PortfolioSummarySkeleton } from './components/portfolio-summary-skeleto
 import { BrandBreakdownSkeleton } from './components/brand-breakdown-skeleton'
 import { ErrorBoundary } from '@/frontend/components/fragments/admin/error-boundary'
 import { useLanguage } from '@/frontend/hooks/use-language'
+import GoalsSection from './components/goals-section'
 
 function DashboardContent() {
   const { t, language } = useLanguage()
@@ -74,6 +75,11 @@ function DashboardContent() {
           </ErrorBoundary>
 
         </Stack>
+
+        {/* Goals Section */}
+        <ErrorBoundary>
+          <GoalsSection />
+        </ErrorBoundary>
 
         {/* Market Today - Full Width Row */}
         <ErrorBoundary>

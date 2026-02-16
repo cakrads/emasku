@@ -21,6 +21,7 @@ export const UpdateHoldingRequestSchema = z.object({
     'Buy date cannot be in the future'
   ).nullable().optional(),
   notes: z.string().max(500, 'Notes cannot exceed 500 characters').optional(),
+  goalId: z.string().nullable().optional(),
 }).refine(
   (data) => Object.keys(data).length > 0,
   'At least one field must be provided for update'
@@ -40,6 +41,7 @@ export const UpdateHoldingResponseSchema = z.object({
   buyPrice: z.number().int().nonnegative(),
   buyDate: z.string().nullable(),
   notes: z.string().nullable().optional(),
+  goalId: z.string().nullable().optional(),
   updatedAt: z.string(),
 })
 

@@ -20,6 +20,7 @@ export const CreateHoldingRequestSchema = z.object({
     'Buy date cannot be in the future'
   ).nullable().optional(),
   notes: z.string().max(500, 'Notes cannot exceed 500 characters').optional(),
+  goalId: z.string().optional(),
 })
 
 export type CreateHoldingRequest = z.infer<typeof CreateHoldingRequestSchema>
@@ -36,6 +37,7 @@ export const CreateHoldingResponseSchema = z.object({
   buyPrice: z.number().int().nonnegative(),
   buyDate: z.string().nullable(),
   notes: z.string().nullable().optional(),
+  goalId: z.string().nullable().optional(),
   createdAt: z.string(),
 })
 

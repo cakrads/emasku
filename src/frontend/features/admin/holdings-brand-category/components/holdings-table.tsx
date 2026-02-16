@@ -116,17 +116,22 @@ export default function HoldingsTable({
         ),
         cell: ({ row }) => (
           <Stack gap="xs">
-            <Typography variant="body-sm" className="font-medium">
-              {row.original.weight}
-            </Typography>
-            <Typography variant="caption" className="text-muted-foreground flex items-center gap-2">
-              {row.original.brandName}
+            <div className="flex flex-wrap items-center gap-2">
+              <Typography variant="body-sm" className="font-medium">
+                {row.original.brandName} {row.original.weight}
+              </Typography>
               {row.original.isSold && (
-                <span className="inline-flex items-center rounded-md bg-orange-100 px-2 py-1 text-xs font-medium text-orange-700 ring-1 ring-inset ring-orange-600/20">
+                <span className="inline-flex items-center rounded-md bg-orange-100 px-1.5 py-0.5 text-[10px] font-medium text-orange-700 ring-1 ring-inset ring-orange-600/20">
                   {t('holdings.filters.options.sold').toUpperCase()}
                 </span>
               )}
-            </Typography>
+            </div>
+            {row.original.goalId && (
+              <Typography variant="caption" className="text-primary font-medium flex items-center gap-1">
+                <span className="text-muted-foreground font-normal">{t('goals.title')}:</span>
+                {row.original.goalName || 'Goal'}
+              </Typography>
+            )}
           </Stack>
         ),
       },

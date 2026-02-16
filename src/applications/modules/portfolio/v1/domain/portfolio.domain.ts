@@ -21,6 +21,8 @@ export interface PortfolioHoldingDomain {
   soldAt?: Date | null
   createdAt: Date
   notes?: string
+  goalId?: string | null
+  goalName?: string | null
 }
 
 /**

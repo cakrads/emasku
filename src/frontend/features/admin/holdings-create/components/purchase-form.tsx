@@ -12,6 +12,7 @@ import { cn } from '@/frontend/utils/cn'
 import { fetchTodayPrices } from '@/frontend/services/prices/prices.api'
 import { transformTodayPrices } from '@/frontend/view-model/prices.vm'
 import { Brand } from './brand-selector'
+import { GoalSelector } from './goal-selector'
 
 interface PurchaseFormProps {
   brand: Brand | null
@@ -21,10 +22,11 @@ interface PurchaseFormProps {
   purchasePrice: string
   quantity: string
   notes: string
-  onChange: (updates: { purchaseDate?: Date; purchasePrice?: string; quantity?: string; notes?: string }) => void
+  goalId?: string | null
+  onChange: (updates: { purchaseDate?: Date; purchasePrice?: string; quantity?: string; notes?: string; goalId?: string | null }) => void
 }
 
-export function PurchaseForm({ brand, weight, pricesData, purchaseDate, purchasePrice, quantity, notes, onChange }: PurchaseFormProps) {
+export function PurchaseForm({ brand, weight, pricesData, purchaseDate, purchasePrice, quantity, notes, goalId, onChange }: PurchaseFormProps) {
   const { t, language } = useLanguage()
 
   const viewModel = pricesData ? transformTodayPrices(pricesData, language === 'id' ? 'id-ID' : 'en-US') : null
@@ -96,6 +98,12 @@ export function PurchaseForm({ brand, weight, pricesData, purchaseDate, purchase
               placeholder={t('addHolding.details.notesPlaceholder')}
             />
           </Stack>
+
+          {/* Goal Selector */}
+          <GoalSelector
+            selectedGoalId={goalId || null}
+            onSelect={(id) => onChange({ goalId: id })}
+          />
         </Stack>
       </Stack>
     </Stack>

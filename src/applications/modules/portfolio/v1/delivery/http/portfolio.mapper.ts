@@ -71,6 +71,8 @@ export class PortfolioMapper {
       createdAt: domain.createdAt.toISOString(),
       soldAt: domain.soldAt ? domain.soldAt.toISOString() : null,
       notes: domain.notes,
+      goalId: domain.goalId,
+      goalName: domain.goalName,
     }
   }
 

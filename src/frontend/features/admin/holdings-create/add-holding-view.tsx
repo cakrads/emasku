@@ -2,19 +2,19 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import { format } from 'date-fns'
 import { id, enUS } from 'date-fns/locale'
 
 import { ROUTES } from '@/frontend/config/routes'
+import { GoalSummary } from '@/shared/contracts/goals.contract'
 import { createHolding } from '@/frontend/services/portfolio/portfolio.api'
 import { fetchTodayPrices } from '@/frontend/services/prices/prices.api'
 import { transformTodayPrices } from '@/frontend/view-model/prices.vm'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
 import { ErrorBoundary } from '@/frontend/components/fragments/admin/error-boundary'
-import { useQuery } from '@tanstack/react-query'
 import { StepHeader } from '@/frontend/components/fragments/admin/step-header'
 import { WizardFooter } from '@/frontend/components/fragments/admin/wizard-footer'
 import { Stack, Section } from '@/frontend/components/ui/layout'
@@ -38,6 +38,7 @@ interface HoldingState {
   purchasePrice: string
   quantity: string
   notes: string
+  goalId: string | null
 }
 
 
@@ -57,7 +58,8 @@ function AddHoldingContent() {
     purchaseDate: undefined,
     purchasePrice: '', // This is Total Price
     quantity: '1',
-    notes: ''
+    notes: '',
+    goalId: null
   })
 
   const createMutation = useMutation({
@@ -134,7 +136,8 @@ function AddHoldingContent() {
       buyDate: isoDate,
       notes: state.brand.isCustom
         ? `[${state.brand.name}] ${state.notes}`.trim()
-        : state.notes || undefined
+        : state.notes || undefined,
+      goalId: state.goalId || undefined
     })
   }
 
@@ -187,6 +190,7 @@ function AddHoldingContent() {
               purchasePrice={state.purchasePrice}
               quantity={state.quantity}
               notes={state.notes}
+              goalId={state.goalId}
               onChange={updateState}
             />
           )}
@@ -200,6 +204,31 @@ function AddHoldingContent() {
         nextLabel={step === 4 ? (createMutation.isPending ? t('addHolding.actions.saving') : t('addHolding.actions.save')) : t('addHolding.actions.continue')}
         disabled={!canProceed() || createMutation.isPending}
       />
+    </div>
+  )
+}
+
+import { fetchGoals } from '@/frontend/services/goals/goals.api'
+
+function GoalReviewItem({ goalId }: { goalId: string }) {
+  const { t } = useLanguage()
+  const { data } = useQuery({
+    queryKey: ['goals', 'list'],
+    queryFn: fetchGoals,
+  })
+
+  const goal = data?.goals.find((g: GoalSummary) => g.id === goalId)
+
+  if (!goal) return null
+
+  return (
+    <div className="mt-4 pt-4 border-t border-border">
+      <dt className="text-text-secondary uppercase tracking-wider font-medium text-xs mb-2 block">
+        {t('goals.title')}
+      </dt>
+      <dd className="text-foreground leading-relaxed text-base font-medium">
+        {goal.name}
+      </dd>
     </div>
   )
 }
@@ -271,6 +300,8 @@ function ReviewStep({ state, pricesData }: { state: HoldingState, pricesData?: a
                 <dd className="text-foreground leading-relaxed text-base">{state.notes}</dd>
               </div>
             )}
+
+            {state.goalId && <GoalReviewItem goalId={state.goalId} />}
           </div>
         </dl>
 
