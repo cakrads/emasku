@@ -8,6 +8,7 @@ export interface FilterState {
   status: 'active' | 'sold' | 'all'
   sortBy: 'date' | 'value'
   sortOrder: 'asc' | 'desc'
+  goalId: string | null
   pageIndex: number
   pageSize: number
 }
@@ -22,6 +23,7 @@ export function useUrlFilters(initialState: Partial<FilterState> = {}) {
     status: 'active',
     sortBy: 'date',
     sortOrder: 'desc',
+    goalId: null,
     pageIndex: 0,
     pageSize: 10,
     ...initialState,
@@ -43,6 +45,7 @@ export function useUrlFilters(initialState: Partial<FilterState> = {}) {
     status: getParam<'active' | 'sold' | 'all'>('status', defaultState.status, ['active', 'sold', 'all']),
     sortBy: getParam<'date' | 'value'>('sort', defaultState.sortBy, ['date', 'value']),
     sortOrder: getParam<'asc' | 'desc'>('order', defaultState.sortOrder, ['asc', 'desc']),
+    goalId: searchParams.get('goalId'),
     pageIndex: Math.max(0, parseInt(searchParams.get('page') || '1') - 1),
     pageSize: parseInt(searchParams.get('size') || defaultState.pageSize.toString()),
   }
@@ -66,6 +69,9 @@ export function useUrlFilters(initialState: Partial<FilterState> = {}) {
 
       if (merged.sortOrder !== defaultState.sortOrder) params.set('order', merged.sortOrder)
       else params.delete('order')
+
+      if (merged.goalId) params.set('goalId', merged.goalId)
+      else params.delete('goalId')
 
       // Only set page if > 1 to keep URL clean
       if (merged.pageIndex > 0) params.set('page', (merged.pageIndex + 1).toString())

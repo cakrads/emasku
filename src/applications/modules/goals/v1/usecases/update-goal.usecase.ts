@@ -22,11 +22,20 @@ export class UpdateGoalUsecase {
             throw new NotFoundError('Goal not found')
         }
 
+        let completedAt: Date | null | undefined = undefined
+        if (request.lifecycleStatus === 'COMPLETED' && existing.lifecycleStatus !== 'COMPLETED') {
+            completedAt = new Date()
+        } else if (request.lifecycleStatus === 'ACTIVE' && existing.lifecycleStatus !== 'ACTIVE') {
+            completedAt = null
+        }
+
         const goal = await this.goalRepo.update(userId, goalId, {
             name: request.name,
             description: request.description,
             targetAmount: request.targetAmount,
             targetDate: request.targetDate != null ? new Date(request.targetDate) : request.targetDate,
+            lifecycleStatus: request.lifecycleStatus,
+            completedAt,
         })
 
         logger.info('Goal updated successfully', { goalId })

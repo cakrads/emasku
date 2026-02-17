@@ -18,6 +18,8 @@ export interface UpdateGoalData {
     description?: string | null
     targetAmount?: number | bigint | null
     targetDate?: Date | null
+    lifecycleStatus?: 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'ARCHIVED'
+    completedAt?: Date | null
 }
 
 export interface IGoalRepository {

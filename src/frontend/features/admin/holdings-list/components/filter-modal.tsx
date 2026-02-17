@@ -11,15 +11,18 @@ interface FilterModalProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   brands: Array<{ code: string; name: string }>
+  goals: Array<{ id: string; name: string }>
   // Current filter values
   brandFilter: string | null
   statusFilter: 'active' | 'sold' | 'all'
+  goalIdFilter: string | null
   sortBy: 'date' | 'value'
   sortOrder: 'asc' | 'desc'
   // Callbacks
   onApply: (filters: {
     brand: string | null
     status: 'active' | 'sold' | 'all'
+    goalId: string | null
     sortBy: 'date' | 'value'
     sortOrder: 'asc' | 'desc'
   }) => void
@@ -29,8 +32,10 @@ export default function FilterModal({
   open,
   onOpenChange,
   brands,
+  goals,
   brandFilter,
   statusFilter,
+  goalIdFilter,
   sortBy,
   sortOrder,
   onApply,
@@ -40,6 +45,7 @@ export default function FilterModal({
   // Local state for form
   const [localBrand, setLocalBrand] = useState<string | null>(brandFilter)
   const [localStatus, setLocalStatus] = useState<'active' | 'sold' | 'all'>(statusFilter)
+  const [localGoalId, setLocalGoalId] = useState<string | null>(goalIdFilter)
   const [localSortBy, setLocalSortBy] = useState<'date' | 'value'>(sortBy)
   const [localSortOrder, setLocalSortOrder] = useState<'asc' | 'desc'>(sortOrder)
 
@@ -48,6 +54,7 @@ export default function FilterModal({
     if (isOpen) {
       setLocalBrand(brandFilter)
       setLocalStatus(statusFilter)
+      setLocalGoalId(goalIdFilter)
       setLocalSortBy(sortBy)
       setLocalSortOrder(sortOrder)
     }
@@ -58,6 +65,7 @@ export default function FilterModal({
     onApply({
       brand: localBrand,
       status: localStatus,
+      goalId: localGoalId,
       sortBy: localSortBy,
       sortOrder: localSortOrder,
     })
@@ -67,6 +75,7 @@ export default function FilterModal({
   const handleClear = () => {
     setLocalBrand(null)
     setLocalStatus('active')
+    setLocalGoalId(null)
     setLocalSortBy('date')
     setLocalSortOrder('desc')
   }
@@ -74,6 +83,7 @@ export default function FilterModal({
   const hasChanges =
     localBrand !== null ||
     localStatus !== 'active' ||
+    localGoalId !== null ||
     localSortBy !== 'date' ||
     localSortOrder !== 'desc'
 
@@ -118,6 +128,25 @@ export default function FilterModal({
             {brands.map((brand) => (
               <option key={brand.code} value={brand.code}>
                 {brand.name}
+              </option>
+            ))}
+          </select>
+        </Stack>
+
+        {/* Goal Filter */}
+        <Stack gap="sm">
+          <Typography variant="body-sm" className="font-medium">
+            {t('holdings.filters.goal')}
+          </Typography>
+          <select
+            value={localGoalId || ''}
+            onChange={(e) => setLocalGoalId(e.target.value || null)}
+            className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-foreground"
+          >
+            <option value="">{t('holdings.filters.options.all') || 'All'}</option>
+            {goals.map((goal) => (
+              <option key={goal.id} value={goal.id}>
+                {goal.name}
               </option>
             ))}
           </select>

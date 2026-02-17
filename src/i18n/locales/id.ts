@@ -266,6 +266,7 @@ export default {
       description: 'Sesuaikan tampilan kepemilikan emas Anda',
       status: 'Status',
       brand: 'Merek',
+      goal: 'Tujuan',
       sort: 'Urutkan berdasarkan',
       order: 'Urutan',
       apply: 'Terapkan Filter',
@@ -611,6 +612,7 @@ export default {
       achieved: 'Tercapai ✓',
       inProgress: 'Dalam Progress',
       noTarget: 'Tanpa Target',
+      completed: 'Selesai ✓',
     },
     card: {
       holding: '{count} holding',
@@ -650,6 +652,20 @@ export default {
       linkedHoldings: 'Kontribusi Holding',
       noHoldings: 'Belum ada holding terkait',
       noHoldingsDesc: 'Tambahkan holding ke tujuan ini dari halaman Portofolio',
+      markAsCompleted: 'Tandai Selesai',
+      reopenGoal: 'Buka Kembali',
+      completedAt: 'Selesai pada',
+      completionDialog: {
+        title: 'Selesaikan Tujuan?',
+        description: 'Apakah Anda yakin ingin menandai tujuan ini sebagai selesai?',
+        warning: 'Tujuan ini belum mencapai target nominal. Apakah Anda yakin ingin menandainya sebagai selesai?',
+        confirm: 'Ya, Tandai Selesai',
+      },
+      reopenDialog: {
+        title: 'Buka Kembali?',
+        description: 'Apakah Anda yakin ingin membuka kembali tujuan ini? Tujuan akan menjadi aktif kembali.',
+        confirm: 'Ya, Buka Kembali',
+      },
     },
   },
 } as const;

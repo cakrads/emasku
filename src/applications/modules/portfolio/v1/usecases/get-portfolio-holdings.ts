@@ -16,6 +16,7 @@ export interface HoldingsFilter {
   brandCodes?: string[]
   dateFrom?: string
   dateTo?: string
+  goalId?: string
 }
 
 export interface PaginationParams {

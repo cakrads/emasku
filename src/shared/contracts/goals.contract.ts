@@ -26,6 +26,8 @@ export const CreateGoalResponseSchema = z.object({
     description: z.string().nullable(),
     targetAmount: z.number().nullable(),
     targetDate: z.string().nullable(),
+    lifecycleStatus: z.enum(['ACTIVE', 'COMPLETED', 'CANCELLED', 'ARCHIVED']),
+    completedAt: z.string().nullable(),
     createdAt: z.string(),
 })
 
@@ -40,6 +42,7 @@ export const UpdateGoalRequestSchema = z.object({
     description: z.string().max(500).nullable().optional(),
     targetAmount: z.number().int().positive('Target amount must be positive').nullable().optional(),
     targetDate: z.string().date('Invalid date format').nullable().optional(),
+    lifecycleStatus: z.enum(['ACTIVE', 'COMPLETED', 'CANCELLED', 'ARCHIVED']).optional(),
 }).refine(
     (data) => Object.keys(data).length > 0,
     'At least one field must be provided for update'
@@ -53,6 +56,8 @@ export const UpdateGoalResponseSchema = z.object({
     description: z.string().nullable(),
     targetAmount: z.number().nullable(),
     targetDate: z.string().nullable(),
+    lifecycleStatus: z.enum(['ACTIVE', 'COMPLETED', 'CANCELLED', 'ARCHIVED']),
+    completedAt: z.string().nullable(),
     updatedAt: z.string(),
 })
 
@@ -72,6 +77,8 @@ export const GoalSummarySchema = z.object({
     totalCurrentValue: z.number(),
     progressPercentage: z.number().nullable(),
     isAchieved: z.boolean(),
+    lifecycleStatus: z.enum(['ACTIVE', 'COMPLETED', 'CANCELLED', 'ARCHIVED']),
+    completedAt: z.string().nullable(),
     createdAt: z.string(),
 })
 
@@ -110,6 +117,8 @@ export const GoalDetailSchema = z.object({
     totalInvestedValue: z.number(),
     progressPercentage: z.number().nullable(),
     isAchieved: z.boolean(),
+    lifecycleStatus: z.enum(['ACTIVE', 'COMPLETED', 'CANCELLED', 'ARCHIVED']),
+    completedAt: z.string().nullable(),
     holdings: z.array(GoalDetailHoldingSchema),
     createdAt: z.string(),
     updatedAt: z.string(),

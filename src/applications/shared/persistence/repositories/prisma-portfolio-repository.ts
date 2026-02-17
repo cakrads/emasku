@@ -29,6 +29,7 @@ export class PrismaPortfolioRepository {
       brandCodes?: string[]
       dateFrom?: string
       dateTo?: string
+      goalId?: string
     },
     pagination?: { page: number; pageSize: number }
   ): Promise<{ items: PortfolioHoldingDomain[]; total: number }> {
@@ -59,6 +60,11 @@ export class PrismaPortfolioRepository {
       if (filter.dateTo) {
         where.boughtAt.lte = new Date(filter.dateTo)
       }
+    }
+
+    // Apply goal filter
+    if (filter?.goalId) {
+      where.goalId = filter.goalId
     }
 
     // Get total count for pagination

@@ -10,10 +10,10 @@ import { Button, buttonVariants } from '@/frontend/components/ui/button'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
 import { ErrorBoundary } from '@/frontend/components/fragments/admin/error-boundary'
 import { Skeleton } from '@/frontend/components/ui/skeleton'
-import { Pencil, Trash2, ExternalLink, TrendingUp, TrendingDown, Calendar } from 'lucide-react'
+import { Pencil, Trash2, ExternalLink, TrendingUp, TrendingDown, Calendar, CheckCircle2, RotateCcw } from 'lucide-react'
 import Link from 'next/link'
 import { ROUTES } from '@/frontend/config/routes'
-import { fetchGoalDetail, deleteGoal } from '@/frontend/services/goals/goals.api'
+import { fetchGoalDetail, deleteGoal, updateGoal } from '@/frontend/services/goals/goals.api'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { toast } from 'sonner'
 import { formatCurrency } from '@/frontend/utils/format'
@@ -44,6 +44,8 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
     const router = useRouter()
     const queryClient = useQueryClient()
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+    const [showCompleteDialog, setShowCompleteDialog] = useState(false)
+    const [showReopenDialog, setShowReopenDialog] = useState(false)
 
     const { data, isLoading, error } = useQuery({
         queryKey: ['goals', goalId],
@@ -59,6 +61,19 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
         },
         onError: () => {
             toast.error(t('goals.messages.deleteError'))
+        },
+    })
+
+    const updateMutation = useMutation({
+        mutationFn: ({ id, data }: { id: string; data: any }) => updateGoal(id, data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['goals', goalId] })
+            queryClient.invalidateQueries({ queryKey: ['goals'] })
+            setShowCompleteDialog(false)
+            setShowReopenDialog(false)
+        },
+        onError: () => {
+            toast.error(t('goals.messages.updateError'))
         },
     })
 
@@ -212,23 +227,48 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
     )
 
     // Status config
-    const statusConfig = data.isAchieved
-        ? { label: t('goals.status.achieved'), className: 'text-green-600 dark:text-green-400' }
-        : hasTarget
-            ? { label: t('goals.status.inProgress'), className: 'text-blue-600 dark:text-blue-400' }
-            : { label: t('goals.status.noTarget'), className: 'text-gray-500 dark:text-gray-400' }
+    const statusConfig = data.lifecycleStatus === 'COMPLETED'
+        ? { label: t('goals.status.completed'), className: 'text-green-600 dark:text-green-400' }
+        : data.isAchieved
+            ? { label: t('goals.status.achieved'), className: 'text-green-600 dark:text-green-400' }
+            : hasTarget
+                ? { label: t('goals.status.inProgress'), className: 'text-blue-600 dark:text-blue-400' }
+                : { label: t('goals.status.noTarget'), className: 'text-gray-500 dark:text-gray-400' }
 
     return (
         <StandardPageLayout
             title={t('goals.detail.title')}
             breadcrumbs={breadcrumbs}
             action={
-                <Link href={ROUTES.GOAL_EDIT(goalId)}>
-                    <Button variant="outline" className="gap-2">
-                        <Pencil className="h-4 w-4" />
-                        {t('goals.detail.edit')}
-                    </Button>
-                </Link>
+                <div className="flex gap-2">
+                    {data.lifecycleStatus === 'ACTIVE' && (
+                        <Button
+                            variant="solid"
+                            color="primary"
+                            className="gap-2"
+                            onClick={() => setShowCompleteDialog(true)}
+                        >
+                            <CheckCircle2 className="h-4 w-4" />
+                            <span className="hidden sm:inline">{t('goals.detail.markAsCompleted')}</span>
+                        </Button>
+                    )}
+                    {data.lifecycleStatus === 'COMPLETED' && (
+                        <Button
+                            variant="outline"
+                            className="gap-2"
+                            onClick={() => setShowReopenDialog(true)}
+                        >
+                            <RotateCcw className="h-4 w-4" />
+                            <span className="hidden sm:inline">{t('goals.detail.reopenGoal')}</span>
+                        </Button>
+                    )}
+                    <Link href={ROUTES.GOAL_EDIT(goalId)}>
+                        <Button variant="outline" className="gap-2">
+                            <Pencil className="h-4 w-4" />
+                            {t('goals.detail.edit')}
+                        </Button>
+                    </Link>
+                </div>
             }
         >
             <div className="max-w-xl mx-auto pb-24">
@@ -278,7 +318,10 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                 {hasTarget && (
                                     <div className="h-2.5 rounded-full bg-muted overflow-hidden">
                                         <div
-                                            className={cn('h-full rounded-full transition-all', data.isAchieved ? 'bg-green-500' : 'bg-primary')}
+                                            className={cn(
+                                                'h-full rounded-full transition-all',
+                                                data.lifecycleStatus === 'COMPLETED' || data.isAchieved ? 'bg-green-500' : 'bg-primary'
+                                            )}
                                             style={{ width: `${Math.min(progress, 100)}%` }}
                                         />
                                     </div>
@@ -332,7 +375,7 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                     </Stack>
 
                                     {/* Time Remaining */}
-                                    {data.targetDate && timeRemainingLabel && (
+                                    {data.targetDate && timeRemainingLabel && data.lifecycleStatus === 'ACTIVE' && (
                                         <Stack direction="horizontal" className="justify-between items-center">
                                             <Typography variant="body-sm">{t('goals.detail.timeRemaining')}</Typography>
                                             <Typography variant="body" className={cn(
@@ -340,6 +383,16 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                                 isPastDue && 'text-red-600 dark:text-red-400 font-semibold'
                                             )}>
                                                 {timeRemainingLabel}
+                                            </Typography>
+                                        </Stack>
+                                    )}
+
+                                    {/* Completed At */}
+                                    {data.completedAt && (
+                                        <Stack direction="horizontal" className="justify-between items-center">
+                                            <Typography variant="body-sm">{t('goals.detail.completedAt')}</Typography>
+                                            <Typography variant="body" className="font-medium">
+                                                {new Date(data.completedAt).toLocaleDateString(locale, { dateStyle: 'long' })}
                                             </Typography>
                                         </Stack>
                                     )}
@@ -474,6 +527,48 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                 className={buttonVariants({ variant: 'solid', color: 'destructive' })}
                             >
                                 {deleteMutation.isPending ? '...' : t('goals.detail.delete')}
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+
+                {/* Complete Dialog */}
+                <AlertDialog open={showCompleteDialog} onOpenChange={setShowCompleteDialog}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>{t('goals.detail.completionDialog.title')}</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                {progress < 100 ? t('goals.detail.completionDialog.warning') : t('goals.detail.completionDialog.description')}
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>{t('goals.form.cancel')}</AlertDialogCancel>
+                            <AlertDialogAction
+                                onClick={() => updateMutation.mutate({ id: goalId, data: { lifecycleStatus: 'COMPLETED' } })}
+                                className={buttonVariants({ variant: 'solid', color: 'primary' })}
+                            >
+                                {updateMutation.isPending ? '...' : t('goals.detail.completionDialog.confirm')}
+                            </AlertDialogAction>
+                        </AlertDialogFooter>
+                    </AlertDialogContent>
+                </AlertDialog>
+
+                {/* Reopen Dialog */}
+                <AlertDialog open={showReopenDialog} onOpenChange={setShowReopenDialog}>
+                    <AlertDialogContent>
+                        <AlertDialogHeader>
+                            <AlertDialogTitle>{t('goals.detail.reopenDialog.title')}</AlertDialogTitle>
+                            <AlertDialogDescription>
+                                {t('goals.detail.reopenDialog.description')}
+                            </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                            <AlertDialogCancel>{t('goals.form.cancel')}</AlertDialogCancel>
+                            <AlertDialogAction
+                                onClick={() => updateMutation.mutate({ id: goalId, data: { lifecycleStatus: 'ACTIVE' } })}
+                                className={buttonVariants({ variant: 'solid', color: 'primary' })}
+                            >
+                                {updateMutation.isPending ? '...' : t('goals.detail.reopenDialog.confirm')}
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>

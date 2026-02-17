@@ -34,6 +34,7 @@ export interface HoldingsFilter {
   brandCodes?: string[]
   dateFrom?: string
   dateTo?: string
+  goalId?: string
 }
 
 /**
@@ -54,6 +55,7 @@ function buildQueryString(filter?: HoldingsFilter, pagination?: PaginationParams
   if (filter?.brandCodes?.length) params.set('brandCodes', filter.brandCodes.join(','))
   if (filter?.dateFrom) params.set('dateFrom', filter.dateFrom)
   if (filter?.dateTo) params.set('dateTo', filter.dateTo)
+  if (filter?.goalId) params.set('goalId', filter.goalId)
   if (pagination?.page) params.set('page', pagination.page.toString())
   if (pagination?.pageSize) params.set('pageSize', pagination.pageSize.toString())
 

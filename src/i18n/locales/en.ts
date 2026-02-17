@@ -265,6 +265,7 @@ export default {
       description: 'Customize how your holdings are displayed',
       status: 'Status',
       brand: 'Brand',
+      goal: 'Goal',
       sort: 'Sort by',
       order: 'Order',
       apply: 'Apply Filters',
@@ -610,6 +611,7 @@ export default {
       achieved: 'Achieved ✓',
       inProgress: 'In Progress',
       noTarget: 'No Target',
+      completed: 'Completed ✓',
     },
     card: {
       holding: '{count} holding(s)',
@@ -649,6 +651,20 @@ export default {
       linkedHoldings: 'Holdings Contribution',
       noHoldings: 'No holdings linked to this goal',
       noHoldingsDesc: 'Assign holdings to this goal from the Portfolio page',
+      markAsCompleted: 'Mark as Completed',
+      reopenGoal: 'Reopen Goal',
+      completedAt: 'Completed at',
+      completionDialog: {
+        title: 'Complete Goal?',
+        description: 'Are you sure you want to mark this goal as completed?',
+        warning: 'This goal has not reached its target amount yet. Are you sure you want to mark it as completed?',
+        confirm: 'Yes, Mark as Completed',
+      },
+      reopenDialog: {
+        title: 'Reopen Goal?',
+        description: 'Are you sure you want to reopen this goal? It will become active again.',
+        confirm: 'Yes, Reopen',
+      },
     },
   },
 } as const;

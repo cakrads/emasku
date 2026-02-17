@@ -19,10 +19,11 @@ import { formatCurrency } from '@/frontend/utils/format'
 import { cn } from '@/frontend/utils/cn'
 import { Skeleton } from '@/frontend/components/ui/skeleton'
 
-type GoalStatus = 'achieved' | 'in-progress' | 'no-target'
-type FilterType = 'all' | 'achieved' | 'in-progress' | 'no-target'
+type GoalStatus = 'achieved' | 'in-progress' | 'no-target' | 'completed'
+type FilterType = 'all' | 'achieved' | 'in-progress' | 'no-target' | 'completed'
 
 function deriveStatus(goal: GoalSummary): GoalStatus {
+    if (goal.lifecycleStatus === 'COMPLETED') return 'completed'
     if (goal.targetAmount == null) return 'no-target'
     if (goal.isAchieved) return 'achieved'
     return 'in-progress'
@@ -90,9 +91,9 @@ function GoalsListContent() {
             ? withStatus
             : withStatus.filter((g) => g.status === activeFilter)
 
-        // Sort: in-progress first (ascending by progress%), then achieved, then no-target
+        // Sort: in-progress first (ascending by progress%), then achieved, then no-target, then completed
         return filtered.sort((a, b) => {
-            const statusOrder: Record<GoalStatus, number> = { 'in-progress': 0, 'achieved': 1, 'no-target': 2 }
+            const statusOrder: Record<GoalStatus, number> = { 'in-progress': 0, 'achieved': 1, 'no-target': 2, 'completed': 3 }
             const orderDiff = statusOrder[a.status] - statusOrder[b.status]
             if (orderDiff !== 0) return orderDiff
             // Within in-progress, sort ascending by progress %
@@ -105,13 +106,14 @@ function GoalsListContent() {
 
     // Count per filter
     const counts = useMemo(() => {
-        if (!data?.goals) return { all: 0, achieved: 0, 'in-progress': 0, 'no-target': 0 }
+        if (!data?.goals) return { all: 0, achieved: 0, 'in-progress': 0, 'no-target': 0, completed: 0 }
         const goals = data.goals
         return {
             all: goals.length,
             achieved: goals.filter((g) => deriveStatus(g) === 'achieved').length,
             'in-progress': goals.filter((g) => deriveStatus(g) === 'in-progress').length,
             'no-target': goals.filter((g) => deriveStatus(g) === 'no-target').length,
+            completed: goals.filter((g) => deriveStatus(g) === 'completed').length,
         }
     }, [data])
 
@@ -216,6 +218,7 @@ function GoalsListContent() {
         { key: 'all', label: t('goals.filter.all') },
         { key: 'in-progress', label: t('goals.filter.inProgress') },
         { key: 'achieved', label: t('goals.filter.achieved') },
+        { key: 'completed', label: t('goals.status.completed') },
         { key: 'no-target', label: t('goals.filter.noTarget') },
     ]
 
@@ -231,6 +234,10 @@ function GoalsListContent() {
         'no-target': {
             label: t('goals.status.noTarget'),
             className: 'bg-gray-100 text-gray-600 ring-gray-500/20 dark:bg-gray-500/10 dark:text-gray-400 dark:ring-gray-500/20',
+        },
+        'completed': {
+            label: t('goals.status.completed'),
+            className: 'bg-green-100 text-green-700 ring-green-600/20 dark:bg-green-500/10 dark:text-green-400 dark:ring-green-500/20',
         },
     }
 
@@ -366,7 +373,7 @@ function GoalsListContent() {
                                                             <div
                                                                 className={cn(
                                                                     'h-full rounded-full transition-all',
-                                                                    goal.status === 'achieved' ? 'bg-green-500' : progress >= 75 ? 'bg-amber-500' : 'bg-primary'
+                                                                    goal.status === 'completed' || goal.status === 'achieved' ? 'bg-green-500' : progress >= 75 ? 'bg-amber-500' : 'bg-primary'
                                                                 )}
                                                                 style={{ width: `${Math.min(progress, 100)}%` }}
                                                             />

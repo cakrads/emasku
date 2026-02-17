@@ -23,6 +23,14 @@ enum PriceType {
   BUYBACK
 }
 
+/// Goal lifecycle status
+enum GoalLifecycleStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+  ARCHIVED
+}
+
 ////////////////////////////////////////
 // MODELS
 ////////////////////////////////////////
@@ -265,6 +273,12 @@ model Goal {
 
   /// Target date to achieve the goal
   targetDate DateTime? @db.Date
+
+  /// Current lifecycle state
+  lifecycleStatus GoalLifecycleStatus @default(ACTIVE)
+
+  /// When the goal was marked as completed
+  completedAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

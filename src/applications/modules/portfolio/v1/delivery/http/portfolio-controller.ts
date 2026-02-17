@@ -76,12 +76,14 @@ export class PortfolioController {
     const brandCodes = brandCodesParam ? brandCodesParam.split(',') : undefined
     const dateFrom = searchParams.get('dateFrom') || undefined
     const dateTo = searchParams.get('dateTo') || undefined
+    const goalId = searchParams.get('goalId') || undefined
 
     const filter = {
       status: status || undefined,
       brandCodes,
       dateFrom,
       dateTo,
+      goalId,
     }
 
     // Parse pagination params

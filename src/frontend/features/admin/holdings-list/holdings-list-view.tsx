@@ -16,6 +16,7 @@ import { Plus, Filter, LayoutGrid, Calculator } from 'lucide-react'
 import Link from 'next/link'
 import { ROUTES } from '@/frontend/config/routes'
 import { fetchBrands } from '@/frontend/services/brands/brands.api'
+import { fetchGoals } from '@/frontend/services/goals/goals.api'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { useUrlFilters } from '@/frontend/hooks/use-url-filters'
 import { PrivacyToggle } from '@/frontend/components/ui/privacy-toggle'
@@ -68,6 +69,7 @@ function HoldingsListContent() {
   const {
     brand: brandFilter,
     status: statusFilter,
+    goalId,
     sortBy,
     sortOrder,
     pageIndex,
@@ -82,11 +84,12 @@ function HoldingsListContent() {
   const apiFilter = {
     status: statusFilter,
     brandCodes: brandFilter ? [brandFilter] : undefined,
+    goalId: goalId || undefined,
   }
 
   // Fetch holdings (filtered)
   const { data: filteredData, isLoading: isLoadingFiltered, error } = useQuery({
-    queryKey: ['portfolio', 'list', statusFilter, brandFilter, sortBy, sortOrder, pageIndex, pageSize],
+    queryKey: ['portfolio', 'list', statusFilter, brandFilter, goalId, sortBy, sortOrder, pageIndex, pageSize],
     queryFn: () => fetchPortfolioList(apiFilter, {
       page: pageIndex + 1, // API is 1-indexed
       pageSize: pageSize
@@ -101,7 +104,7 @@ function HoldingsListContent() {
 
   // Fetch Portfolio Summary with same filters for consistency
   const { data: summaryData, isLoading: isLoadingSummary } = useQuery({
-    queryKey: ['portfolio', 'summary', statusFilter, brandFilter],
+    queryKey: ['portfolio', 'summary', statusFilter, brandFilter, goalId],
     queryFn: () => fetchPortfolioSummary(apiFilter),
   })
 
@@ -109,6 +112,12 @@ function HoldingsListContent() {
   const { data: brandsData } = useQuery({
     queryKey: ['brands'],
     queryFn: fetchBrands,
+  })
+
+  // Fetch all goals for the filter
+  const { data: goalsData } = useQuery({
+    queryKey: ['goals'],
+    queryFn: fetchGoals,
   })
 
   // Handle loading and error
@@ -146,12 +155,13 @@ function HoldingsListContent() {
   const summaryViewModel = summaryData ? transformPortfolioSummary(summaryData, t, language === 'id' ? 'id-ID' : 'en-US') : null
 
   // Calculate if any filter is active (beyond defaults)
-  const isFiltered = brandFilter !== null || statusFilter !== 'active' || sortBy !== 'date' || sortOrder !== 'desc'
+  const isFiltered = brandFilter !== null || statusFilter !== 'active' || goalId !== null || sortBy !== 'date' || sortOrder !== 'desc'
 
   // Handle filter apply
   const handleFilterApply = (newFilters: {
     brand: string | null
     status: 'active' | 'sold' | 'all'
+    goalId: string | null
     sortBy: 'date' | 'value'
     sortOrder: 'asc' | 'desc'
   }) => {
@@ -170,6 +180,7 @@ function HoldingsListContent() {
   const activeFilterCount = [
     statusFilter !== 'active',
     brandFilter !== null,
+    goalId !== null,
     sortBy !== 'date',
     sortOrder !== 'desc',
   ].filter(Boolean).length
@@ -265,8 +276,10 @@ function HoldingsListContent() {
         open={isFilterOpen}
         onOpenChange={setIsFilterOpen}
         brands={brandsData?.items || []}
+        goals={goalsData?.goals || []}
         brandFilter={brandFilter}
         statusFilter={statusFilter}
+        goalIdFilter={goalId}
         sortBy={sortBy}
         sortOrder={sortOrder}
         onApply={handleFilterApply}

@@ -15,6 +15,8 @@ export interface GoalDomain {
   description: string | null
   targetAmount: number | null  // IDR
   targetDate: Date | null
+  lifecycleStatus: 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'ARCHIVED'
+  completedAt: Date | null
   createdAt: Date
   updatedAt: Date
 }

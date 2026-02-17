@@ -21,7 +21,10 @@ export class PrismaGoalRepository {
     async findAllByUserId(userId: string): Promise<GoalDomain[]> {
         const goals = await this.prisma.goal.findMany({
             where: { userId },
-            orderBy: { createdAt: 'desc' },
+            orderBy: [
+                { lifecycleStatus: 'asc' }, // ACTIVE first if sorted alphabetically ('ACTIVE' < 'COMPLETED')
+                { createdAt: 'desc' }
+            ],
         })
 
         logger.debug('Goals fetched', { userId, count: goals.length })
@@ -75,6 +78,8 @@ export class PrismaGoalRepository {
             updateData.targetAmount = data.targetAmount != null ? BigInt(data.targetAmount) : null
         }
         if (data.targetDate !== undefined) updateData.targetDate = data.targetDate
+        if (data.lifecycleStatus !== undefined) updateData.lifecycleStatus = data.lifecycleStatus
+        if (data.completedAt !== undefined) updateData.completedAt = data.completedAt
 
         const goal = await this.prisma.goal.update({
             where: { id, userId },
@@ -153,6 +158,8 @@ export class PrismaGoalRepository {
             description: goal.description,
             targetAmount: goal.targetAmount != null ? Number(goal.targetAmount) : null,
             targetDate: goal.targetDate,
+            lifecycleStatus: goal.lifecycleStatus as 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'ARCHIVED',
+            completedAt: goal.completedAt,
             createdAt: goal.createdAt,
             updatedAt: goal.updatedAt,
         }
