@@ -261,6 +261,14 @@ export default {
       profitLossTooltip: 'Dihitung dari Est. Nilai Jual dikurangi Nilai Beli',
       disclosure: 'Ringkasan hanya mencakup emas aktif dengan harga pasar.',
     },
+    tools: {
+      title: 'Alat Cepat',
+      description: 'Akses cepat ke alat portofolio',
+    },
+    privacy: {
+      title: 'Tampilkan / Sembunyikan',
+      description: 'Alihkan mode privasi untuk nilai',
+    },
     filters: {
       title: 'Filter & Urutkan',
       description: 'Sesuaikan tampilan kepemilikan emas Anda',
@@ -273,7 +281,7 @@ export default {
       clear: 'Hapus',
       options: {
         active: 'Aktif',
-        sold: 'Dijual',
+        sold: 'Terjual',
         all: 'Semua',
         allBrands: 'Semua Merek',
         date: 'Tanggal',
@@ -316,6 +324,7 @@ export default {
       totalCost: 'Modal',
       totalPnL: 'Untung/Rugi',
       resetSelection: 'Reset Pilihan',
+      sellSelected: 'Jual Terpilih',
     },
     table: {
       select: 'Pilih',
@@ -336,6 +345,17 @@ export default {
     },
     cta: 'Simulasi Buyback',
     noPriceWarning: 'Harga buyback tidak tersedia',
+    bulkSellModal: {
+      title: 'Jual Holding Terpilih',
+      description: 'Anda akan menjual {count} holding.',
+      partialWarning: 'Peringatan: {count} item dipilih sebagian dalam simulasi, namun tindakan ini akan menjual SELURUH holding.',
+      totalBuyPrice: 'Total Harga Beli',
+      totalSellPrice: 'Total Harga Jual',
+    },
+    messages: {
+      bulkSellSuccess: '{count} holding ditandai terjual.',
+      bulkSellPartialError: '{count} holding gagal dijual.',
+    },
   },
   addHolding: {
     title: 'Tambah Emas',
@@ -419,8 +439,11 @@ export default {
       buyPricePerGram: 'Harga Beli (Total)',
       totalBuyValue: 'Total Nilai Beli',
       status: 'Status',
-      sold: 'DIJUAL',
+      sold: 'TERJUAL',
       notes: 'Catatan',
+    },
+    status: {
+      sold: 'TERJUAL',
     },
     valuation: {
       title: 'Valuasi Saat Ini',
@@ -432,15 +455,15 @@ export default {
     },
     actions: {
       edit: 'Ubah',
-      markAsSold: 'Tandai Dijual',
+      markAsSold: 'Tandai Terjual',
       deletePermanent: 'Hapus Data Permanen',
     },
     dialog: {
       markAsSold: {
-        title: 'Tandai emas sebagai dijual?',
-        description: 'Ini akan menandai emas ini sebagai DIJUAL. Item akan tetap ada di riwayat Anda tetapi akan dikeluarkan dari nilai portofolio aktif.',
+        title: 'Tandai emas sebagai terjual?',
+        description: 'Ini akan menandai emas ini sebagai TERJUAL. Item akan tetap ada di riwayat Anda tetapi akan dikeluarkan dari nilai portofolio aktif.',
         cancel: 'Batal',
-        confirm: 'Ya, tandai dijual',
+        confirm: 'Ya, tandai terjual',
         confirming: 'Memproses...',
       },
       hardDelete: {
@@ -451,9 +474,39 @@ export default {
         confirming: 'Menghapus...',
       }
     },
+    sellModal: {
+      title: 'Tandai Terjual',
+      description: 'Masukkan detail penjualan di bawah ini. Item ini akan dipindahkan ke daftar "Terjual".',
+      priceStep: 'Harga Jual',
+      confirmStep: 'Konfirmasi Penjualan',
+      sellPriceLabel: 'Harga Jual (Total)',
+      sellPricePlaceholder: 'Contoh: 5000000',
+      sellDateLabel: 'Tanggal Penjualan',
+      notesLabel: 'Catatan (Opsional)',
+      notesPlaceholder: 'Contoh: Dijual ke toko emas...',
+      preview: 'Tinjauan Penjualan',
+      buyPrice: 'Harga Beli',
+      realizedPnL: 'Realisasi Untung/Rugi',
+      confirmSell: 'Konfirmasi Terjual',
+      confirming: 'Memproses...',
+      lossWarning: 'Anda menjual dengan kerugian.',
+      estimatedPnL: 'Estimasi Untung/Rugi',
+      next: 'Lanjut',
+      back: 'Kembali',
+      confirmTitle: 'Konfirmasi Penjualan',
+      confirmDescription: 'Mohon periksa detail di bawah ini sebelum konfirmasi.',
+      invalidPrice: 'Harga harus lebih dari 0',
+    },
+    sellInfo: {
+      title: 'Informasi Penjualan',
+      soldDate: 'Tanggal Jual',
+      sellPrice: 'Harga Jual',
+      realizedPnL: 'Realisasi Untung / Rugi',
+      realized: 'REALISASI',
+    },
     messages: {
       soldSuccess: 'Berhasil diperbarui',
-      soldDetail: 'Emas telah ditandai sebagai dijual.',
+      soldDetail: 'Emas telah ditandai sebagai terjual.',
       deleteSuccess: 'Data dihapus',
       deleteDetail: 'Emas telah dihapus secara permanen.',
       deleteError: 'Gagal menghapus data',

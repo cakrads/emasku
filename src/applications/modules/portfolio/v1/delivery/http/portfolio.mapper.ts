@@ -70,6 +70,13 @@ export class PortfolioMapper {
       priceAsOf: domain.priceAsOf ? domain.priceAsOf.toISOString() : null,
       createdAt: domain.createdAt.toISOString(),
       soldAt: domain.soldAt ? domain.soldAt.toISOString() : null,
+      status: domain.status,
+      // Sell transaction data (present when status = SOLD)
+      sellPrice: domain.sellPrice ? Math.round(domain.sellPrice) : null,
+      sellDate: domain.sellDate ? domain.sellDate.toISOString().split('T')[0] : null,
+      realizedPnL: domain.realizedPnL ?? null,
+      realizedPnLPercentage: domain.realizedPnLPercentage ?? null,
+      holdingDurationDays: domain.holdingDurationDays ?? null,
       notes: domain.notes,
       goalId: domain.goalId,
       goalName: domain.goalName,

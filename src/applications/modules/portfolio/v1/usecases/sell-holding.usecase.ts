@@ -1,24 +1,38 @@
 /**
  * Sell Holding Usecase
  * 
- * Business logic for selling (soft closing) a holding.
- * Implements Optimistic Locking to prevent double-selling.
+ * Business logic for selling a holding with proper transaction recording.
+ * Creates an immutable SELL transaction and updates holding status.
  */
 
-import { NotFoundError, ConflictError } from '@/applications/shared/lib/errors'
+import { NotFoundError, ConflictError, ValidationError } from '@/applications/shared/lib/errors'
 import { logger } from '@/applications/shared/lib/logger'
 import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
-import { prisma } from '@/applications/shared/persistence/prisma-client'
+import { SellHoldingResult } from '../domain/repository'
+
+interface SellHoldingInput {
+  sellPrice: number
+  sellDate: string // ISO date string
+  notes?: string
+}
 
 export class SellHoldingUsecase {
   constructor(private portfolioRepo: PrismaPortfolioRepository) { }
 
-  async execute(userId: string, holdingId: string): Promise<void> {
-    logger.info('Selling holding', { userId, holdingId })
+  async execute(userId: string, holdingId: string, input: SellHoldingInput): Promise<SellHoldingResult> {
+    logger.info('Selling holding', { userId, holdingId, sellPrice: input.sellPrice })
+
+    // Validate sell price
+    if (input.sellPrice <= 0) {
+      throw new ValidationError(
+        'Invalid sell price',
+        { sellPrice: input.sellPrice },
+      )
+    }
 
     // Verify holding exists and belongs to user
-    const exists = await this.portfolioRepo.existsByUserIdAndId(userId, holdingId)
-    if (!exists) {
+    const holding = await this.portfolioRepo.findById(holdingId)
+    if (!holding || holding.id !== holdingId) {
       throw new NotFoundError(
         'Holding not found',
         { holdingId },
@@ -27,23 +41,8 @@ export class SellHoldingUsecase {
       )
     }
 
-    // Optimistic Locking: Only update if soldAt is NULL
-    // We use raw updateMany to get the count of modified rows
-    const result = await prisma.portfolioHolding.updateMany({
-      where: {
-        id: holdingId,
-        userId: userId,
-        soldAt: null, // Critical: Ensure it's not already sold
-      },
-      data: {
-        soldAt: new Date(),
-      },
-    })
-
-    if (result.count === 0) {
-      // If count is 0, it means the holding was either not found (handled above)
-      // OR it was already sold (soldAt != null)
-      logger.warn('Double sell attempt prevented', { userId, holdingId })
+    // Check if already sold
+    if (holding.status === 'SOLD') {
       throw new ConflictError(
         'Holding already sold',
         { holdingId },
@@ -52,6 +51,18 @@ export class SellHoldingUsecase {
       )
     }
 
-    logger.info('Holding sold successfully', { holdingId })
+    // Execute atomic sell operation
+    const result = await this.portfolioRepo.sellHolding(userId, holdingId, {
+      sellPrice: input.sellPrice,
+      sellDate: new Date(input.sellDate),
+      notes: input.notes,
+    })
+
+    logger.info('Holding sold successfully', {
+      holdingId,
+      realizedPnL: result.realizedPnL,
+    })
+
+    return result
   }
 }

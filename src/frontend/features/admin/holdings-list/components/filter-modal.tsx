@@ -122,7 +122,7 @@ export default function FilterModal({
           <select
             value={localBrand || ''}
             onChange={(e) => setLocalBrand(e.target.value || null)}
-            className="w-full bg-(--surface) border border-(--border) rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-foreground"
+            className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-foreground"
           >
             <option value="">{t('holdings.filters.options.allBrands')}</option>
             {brands.map((brand) => (
@@ -199,7 +199,7 @@ export default function FilterModal({
         </Stack>
 
         {/* Actions */}
-        <Stack direction="horizontal" gap="sm" className="pt-4 border-t border-(--border)">
+        <Stack direction="horizontal" gap="sm" className="pt-4 border-t border-border focus-within:ring-0">
           <Button
             variant="outline"
             className="flex-1"

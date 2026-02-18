@@ -260,6 +260,14 @@ export default {
       profitLossTooltip: 'Calculated as Est. Sell Value minus Purchase Value',
       disclosure: 'Summary only includes active gold with market price.',
     },
+    tools: {
+      title: 'Quick Tools',
+      description: 'Quick access to portfolio tools',
+    },
+    privacy: {
+      title: 'Show / Hide',
+      description: 'Toggle privacy mode for values',
+    },
     filters: {
       title: 'Filter & Sort',
       description: 'Customize how your holdings are displayed',
@@ -315,6 +323,7 @@ export default {
       totalCost: 'Cost Basis',
       totalPnL: 'Profit/Loss',
       resetSelection: 'Reset Selection',
+      sellSelected: 'Sell Selected',
     },
     table: {
       select: 'Select',
@@ -335,6 +344,17 @@ export default {
     },
     cta: 'Simulate Buyback',
     noPriceWarning: 'Buyback price unavailable',
+    bulkSellModal: {
+      title: 'Sell Selected Holdings',
+      description: 'You are about to sell {count} holdings.',
+      partialWarning: 'Warning: {count} items were partially selected in simulation, but this action will sell the ENTIRE holding.',
+      totalBuyPrice: 'Total Buy Price',
+      totalSellPrice: 'Total Sell Price',
+    },
+    messages: {
+      bulkSellSuccess: '{count} holdings marked as sold.',
+      bulkSellPartialError: '{count} holdings failed to sell.',
+    },
   },
   addHolding: {
     title: 'Add Gold',
@@ -421,6 +441,9 @@ export default {
       sold: 'SOLD',
       notes: 'Notes',
     },
+    status: {
+      sold: 'SOLD',
+    },
     valuation: {
       title: 'Current Valuation',
       missingTitle: 'Values missing',
@@ -449,6 +472,36 @@ export default {
         confirm: 'Yes, Delete Forever',
         confirming: 'Deleting...',
       }
+    },
+    sellModal: {
+      title: 'Mark as Sold',
+      description: 'Enter the sell details below. This will move the holding to your "Sold" list.',
+      priceStep: 'Sell Price',
+      confirmStep: 'Confirm Sale',
+      sellPriceLabel: 'Sell Price (Total)',
+      sellPricePlaceholder: 'e.g. 5000000',
+      sellDateLabel: 'Date Sold',
+      notesLabel: 'Notes (Optional)',
+      notesPlaceholder: 'e.g. Sold to gold shop...',
+      preview: 'Sale Preview',
+      buyPrice: 'Buy Price',
+      realizedPnL: 'Realized P/L',
+      confirmSell: 'Confirm as Sold',
+      confirming: 'Processing...',
+      lossWarning: 'You are selling at a loss.',
+      estimatedPnL: 'Estimated P/L',
+      next: 'Next',
+      back: 'Back',
+      confirmTitle: 'Confirm Sale',
+      confirmDescription: 'Please review the details below before confirming.',
+      invalidPrice: 'Price must be greater than 0',
+    },
+    sellInfo: {
+      title: 'Sell Information',
+      soldDate: 'Sold Date',
+      sellPrice: 'Sell Price',
+      realizedPnL: 'Realized Profit / Loss',
+      realized: 'REALIZED',
     },
     messages: {
       soldSuccess: 'Update success',

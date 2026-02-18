@@ -15,11 +15,14 @@ import { PortfolioMapper } from './portfolio.mapper'
 import { PortfolioSummarySchema, PortfolioListSchema, HoldingDetailSchema, PortfolioHistorySchema } from '@/shared/contracts/portfolio.contract'
 import { CreateHoldingRequestSchema, CreateHoldingResponseSchema } from '@/shared/contracts/create-holding.contract'
 import { UpdateHoldingRequestSchema, UpdateHoldingResponseSchema } from '@/shared/contracts/update-holding.contract'
+import { SellHoldingRequestSchema, SellHoldingResponseSchema } from '@/shared/contracts/sell-holding.contract'
+import { BulkSellHoldingRequestSchema, BulkSellHoldingResponseSchema } from '@/shared/contracts/sell-holding.contract'
 import { PrismaUserRepository } from '@/applications/shared/persistence/repositories/prisma-user-repository'
 import { CreateHoldingUsecase } from '../../usecases/create-holding.usecase'
 import { UpdateHoldingUsecase } from '../../usecases/update-holding.usecase'
 import { DeleteHoldingUsecase } from '../../usecases/delete-holding.usecase'
 import { SellHoldingUsecase } from '../../usecases/sell-holding.usecase'
+import { BulkSellHoldingUsecase } from '../../usecases/bulk-sell-holding.usecase'
 import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
 import { getBrandName } from '@/applications/modules/brands/v1/domain/brands.const'
 import { verifyUser } from '@/applications/shared/auth/auth.utils'
@@ -236,23 +239,59 @@ export class PortfolioController {
 
   /**
    * POST /api/v1/portfolio/{id}/sell
+   * 
+   * Sells a holding by creating a SELL transaction.
+   * Requires sellPrice and sellDate in request body.
    */
   async sellHolding(req: NextRequest, id: string): Promise<NextResponse> {
     const userId = await verifyUser(req)
+    const body = await req.json()
+
+    // Validate request body
+    const parsed = SellHoldingRequestSchema.safeParse(body)
+    if (!parsed.success) {
+      const fieldErrors = parsed.error.flatten().fieldErrors
+      throw new ValidationError(
+        'Validation failed',
+        { errors: fieldErrors }
+      )
+    }
 
     const portfolioRepo = new PrismaPortfolioRepository()
     const usecase = new SellHoldingUsecase(portfolioRepo)
-    await usecase.execute(userId, id)
+    const result = await usecase.execute(userId, id, parsed.data)
 
-    return NextResponse.json(
-      {
-        code: 200,
-        success: true,
-        message: 'Holding marked as sold successfully',
-        data: null,
-      },
-      { status: 200 }
-    )
+    const validated = SellHoldingResponseSchema.parse(result)
+
+    return successResponse(validated, 'Holding marked as sold successfully')
+  }
+
+  /**
+   * POST /api/v1/portfolio/bulk-sell
+   * 
+   * Sells multiple holdings with a single sell price.
+   */
+  async bulkSellHoldings(req: NextRequest): Promise<NextResponse> {
+    const userId = await verifyUser(req)
+    const body = await req.json()
+
+    // Validate request body
+    const parsed = BulkSellHoldingRequestSchema.safeParse(body)
+    if (!parsed.success) {
+      const fieldErrors = parsed.error.flatten().fieldErrors
+      throw new ValidationError(
+        'Validation failed',
+        { errors: fieldErrors }
+      )
+    }
+
+    const portfolioRepo = new PrismaPortfolioRepository()
+    const usecase = new BulkSellHoldingUsecase(portfolioRepo)
+    const result = await usecase.execute(userId, parsed.data)
+
+    const validated = BulkSellHoldingResponseSchema.parse(result)
+
+    return successResponse(validated, 'Bulk sell completed')
   }
 
   /**

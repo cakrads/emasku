@@ -7,7 +7,7 @@ import { Typography } from '@/frontend/components/ui/typography'
 import { Button } from '@/frontend/components/ui/button'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
 import { ErrorBoundary } from '@/frontend/components/fragments/admin/error-boundary'
-import { Plus, Target, Trash2 } from 'lucide-react'
+import { Plus, Target, Trash2, Filter } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ROUTES } from '@/frontend/config/routes'
@@ -18,6 +18,7 @@ import { toast } from 'sonner'
 import { formatCurrency } from '@/frontend/utils/format'
 import { cn } from '@/frontend/utils/cn'
 import { Skeleton } from '@/frontend/components/ui/skeleton'
+import GoalFilterModal from './components/goal-filter-modal'
 
 type GoalStatus = 'achieved' | 'in-progress' | 'no-target' | 'completed'
 type FilterType = 'all' | 'achieved' | 'in-progress' | 'no-target' | 'completed'
@@ -41,9 +42,9 @@ export default function GoalsListView() {
             ]}
             action={
                 <Link href={ROUTES.ADD_GOAL}>
-                    <Button variant="solid" color="primary" className="hidden md:flex items-center gap-2">
+                    <Button variant="solid" color="primary" className="flex items-center gap-2">
                         <Plus className="h-4 w-4" />
-                        <span>{t('goals.list.add')}</span>
+                        <span className="hidden sm:inline">{t('goals.list.add')}</span>
                     </Button>
                 </Link>
             }
@@ -61,6 +62,7 @@ function GoalsListContent() {
     const router = useRouter()
     const queryClient = useQueryClient()
     const [activeFilter, setActiveFilter] = useState<FilterType>('all')
+    const [isFilterOpen, setIsFilterOpen] = useState(false)
 
     const { data, isLoading, error } = useQuery({
         queryKey: ['goals'],
@@ -140,20 +142,20 @@ function GoalsListContent() {
                                     <th className="py-3 px-4 text-right whitespace-nowrap font-medium">
                                         <Skeleton className="h-4 w-24 ml-auto" />
                                     </th>
-                                    <th className="py-3 px-4 text-right whitespace-nowrap font-medium">
+                                    <th className="py-3 px-4 text-right whitespace-nowrap font-medium hidden sm:table-cell">
                                         <Skeleton className="h-4 w-24 ml-auto" />
                                     </th>
-                                    <th className="py-3 px-4 text-right whitespace-nowrap font-medium">
+                                    <th className="py-3 px-4 text-right whitespace-nowrap font-medium hidden md:table-cell">
                                         <Skeleton className="h-4 w-20 ml-auto" />
                                     </th>
-                                    <th className="py-3 px-4 text-right whitespace-nowrap font-medium">
+                                    <th className="py-3 px-4 text-right whitespace-nowrap font-medium hidden lg:table-cell">
                                         <Skeleton className="h-4 w-24 ml-auto" />
                                     </th>
                                     <th className="py-3 px-4 text-left whitespace-nowrap font-medium">
                                         <Skeleton className="h-4 w-16" />
                                     </th>
                                     <th className="py-3 px-4 text-right whitespace-nowrap font-medium">
-                                        <span className="sr-only">Actions</span>
+                                        Actions
                                     </th>
                                 </tr>
                             </thead>
@@ -166,16 +168,16 @@ function GoalsListContent() {
                                         <td className="py-4 px-4 text-right">
                                             <Skeleton className="h-5 w-28 ml-auto" />
                                         </td>
-                                        <td className="py-4 px-4 text-right">
+                                        <td className="py-4 px-4 text-right hidden sm:table-cell">
                                             <Skeleton className="h-5 w-28 ml-auto" />
                                         </td>
-                                        <td className="py-4 px-4 text-right">
+                                        <td className="py-4 px-4 text-right hidden md:table-cell">
                                             <div className="flex flex-col items-end gap-2">
                                                 <Skeleton className="h-5 w-12" />
                                                 <Skeleton className="h-1.5 w-16 rounded-full" />
                                             </div>
                                         </td>
-                                        <td className="py-4 px-4 text-right">
+                                        <td className="py-4 px-4 text-right hidden lg:table-cell">
                                             <Skeleton className="h-5 w-28 ml-auto" />
                                         </td>
                                         <td className="py-4 px-4">
@@ -243,30 +245,30 @@ function GoalsListContent() {
 
     return (
         <Stack gap="sm">
-            {/* Filter Tabs */}
-            <div className="flex flex-wrap items-center gap-2">
-                {filters.map((f) => (
-                    <Button
-                        key={f.key}
-                        variant={activeFilter === f.key ? 'solid' : 'outline'}
-                        color={activeFilter === f.key ? 'primary' : undefined}
-                        size="sm"
-                        onClick={() => setActiveFilter(f.key)}
-                        className="gap-1.5"
-                    >
-                        <span>{f.label}</span>
-                        {counts[f.key] > 0 && (
-                            <span className={cn(
-                                'px-1.5 py-0.5 text-xs rounded-full',
-                                activeFilter === f.key
-                                    ? 'bg-white/20 text-primary-foreground'
-                                    : 'bg-muted text-muted-foreground'
-                            )}>
-                                {counts[f.key]}
-                            </span>
-                        )}
-                    </Button>
-                ))}
+            {/* Filter Button */}
+            <div className="flex items-center gap-2">
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setIsFilterOpen(true)}
+                    className="gap-2"
+                >
+                    <Filter className="w-4 h-4" />
+                    <span>Filter</span>
+                    {activeFilter !== 'all' && (
+                        <span className="ml-1 px-1.5 py-0.5 text-xs rounded-full bg-primary text-primary-foreground">
+                            1
+                        </span>
+                    )}
+                </Button>
+                {activeFilter !== 'all' && (
+                    <span className={cn(
+                        'inline-flex items-center rounded-md px-2 py-1 text-xs font-medium ring-1 ring-inset',
+                        'bg-primary/10 text-primary ring-primary/20'
+                    )}>
+                        {filters.find(f => f.key === activeFilter)?.label}
+                    </span>
+                )}
             </div>
 
             {/* Goals Table */}
@@ -277,42 +279,44 @@ function GoalsListContent() {
                             <thead>
                                 <tr className="border-b border-border">
                                     <th className="py-3 px-4 text-left whitespace-nowrap font-medium">
-                                        <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
+                                        <Typography variant="caption" className="font-semibold text-muted-foreground">
                                             {t('goals.table.name')}
                                         </Typography>
                                     </th>
                                     <th className="py-3 px-4 text-right whitespace-nowrap font-medium">
-                                        <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
+                                        <Typography variant="caption" className="font-semibold text-muted-foreground">
                                             {t('goals.table.currentValue')}
                                         </Typography>
                                     </th>
                                     <th className="py-3 px-4 text-right whitespace-nowrap font-medium">
-                                        <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
+                                        <Typography variant="caption" className="font-semibold text-muted-foreground">
                                             Target
                                         </Typography>
                                     </th>
-                                    <th className="py-3 px-4 text-left whitespace-nowrap font-medium">
-                                        <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
+                                    <th className="py-3 px-4 text-left whitespace-nowrap font-medium hidden sm:table-cell">
+                                        <Typography variant="caption" className="font-semibold text-muted-foreground">
                                             {t('goals.form.targetDate')}
                                         </Typography>
                                     </th>
-                                    <th className="py-3 px-4 text-right whitespace-nowrap font-medium">
-                                        <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
+                                    <th className="py-3 px-4 text-right whitespace-nowrap font-medium hidden md:table-cell">
+                                        <Typography variant="caption" className="font-semibold text-muted-foreground">
                                             Progress
                                         </Typography>
                                     </th>
-                                    <th className="py-3 px-4 text-right whitespace-nowrap font-medium">
-                                        <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
+                                    <th className="py-3 px-4 text-right whitespace-nowrap font-medium hidden lg:table-cell">
+                                        <Typography variant="caption" className="font-semibold text-muted-foreground">
                                             {t('goals.table.remaining')}
                                         </Typography>
                                     </th>
                                     <th className="py-3 px-4 text-center whitespace-nowrap font-medium">
-                                        <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
+                                        <Typography variant="caption" className="font-semibold text-muted-foreground">
                                             Status
                                         </Typography>
                                     </th>
                                     <th className="py-3 px-4 text-right whitespace-nowrap font-medium">
-                                        <span className="sr-only">Actions</span>
+                                        <Typography variant="caption" className="font-semibold text-muted-foreground">
+                                            Actions
+                                        </Typography>
                                     </th>
                                 </tr>
                             </thead>
@@ -353,14 +357,14 @@ function GoalsListContent() {
                                             </td>
 
                                             {/* Target Date */}
-                                            <td className="py-4 px-4 whitespace-nowrap text-left">
+                                            <td className="py-4 px-4 whitespace-nowrap text-left hidden sm:table-cell">
                                                 <Typography variant="body-sm" className="text-muted-foreground">
                                                     {goal.targetDate ? new Date(goal.targetDate).toLocaleDateString(locale, { dateStyle: 'medium' }) : '—'}
                                                 </Typography>
                                             </td>
 
                                             {/* Progress */}
-                                            <td className="py-4 px-4 whitespace-nowrap text-right">
+                                            <td className="py-4 px-4 whitespace-nowrap text-right hidden md:table-cell">
                                                 {hasTarget ? (
                                                     <Stack gap="xs" className="items-end">
                                                         <Typography variant="body-sm" className={cn(
@@ -385,7 +389,7 @@ function GoalsListContent() {
                                             </td>
 
                                             {/* Remaining */}
-                                            <td className="py-4 px-4 whitespace-nowrap text-right">
+                                            <td className="py-4 px-4 whitespace-nowrap text-right hidden lg:table-cell">
                                                 <Typography variant="body-sm" className={cn(
                                                     'financial-value',
                                                     remaining === 0 ? 'text-green-600 dark:text-green-400 font-medium' : ''
@@ -415,7 +419,7 @@ function GoalsListContent() {
                                                             deleteMutation.mutate(goal.id)
                                                         }
                                                     }}
-                                                    className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity"
+                                                    className="opacity-100 md:opacity-0 md:group-hover:opacity-100 text-muted-foreground hover:text-destructive transition-opacity"
                                                 >
                                                     <Trash2 className="h-4 w-4" />
                                                 </Button>
@@ -436,6 +440,15 @@ function GoalsListContent() {
             </Section>
 
             <div className="h-8" />
+
+            {/* Goal Filter Modal */}
+            <GoalFilterModal
+                open={isFilterOpen}
+                onOpenChange={setIsFilterOpen}
+                activeFilter={activeFilter}
+                counts={counts}
+                onApply={(filter) => setActiveFilter(filter)}
+            />
         </Stack>
     )
 }

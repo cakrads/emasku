@@ -57,7 +57,7 @@ export default function HoldingsTable({
       {
         accessorKey: 'buyDate',
         header: () => (
-          <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
+          <Typography variant="caption" className="font-semibold text-muted-foreground">
             {t('holdings.table.date')}
           </Typography>
         ),
@@ -110,7 +110,7 @@ export default function HoldingsTable({
       {
         accessorKey: 'weight',
         header: () => (
-          <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
+          <Typography variant="caption" className="font-semibold text-muted-foreground">
             {t('holdings.table.weight')}
           </Typography>
         ),
@@ -139,7 +139,7 @@ export default function HoldingsTable({
         accessorKey: 'avgBuyPrice',
         header: () => ( // Align Right
           <div className="text-right">
-            <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
+            <Typography variant="caption" className="font-semibold text-muted-foreground">
               {t('holdings.table.buyPrice')}
             </Typography>
           </div>
@@ -156,7 +156,7 @@ export default function HoldingsTable({
         accessorKey: 'totalValue',
         header: () => ( // Align Right
           <div className="text-right">
-            <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
+            <Typography variant="caption" className="font-semibold text-muted-foreground">
               {t('holdings.table.currentValue')}
             </Typography>
           </div>
@@ -173,7 +173,7 @@ export default function HoldingsTable({
         id: 'pnl',
         header: () => ( // Align Right
           <div className="text-right">
-            <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
+            <Typography variant="caption" className="font-semibold text-muted-foreground">
               {t('holdings.table.pnl')}
             </Typography>
           </div>
@@ -276,27 +276,40 @@ export default function HoldingsTable({
             ))}
           </thead>
           <tbody className={isLoading ? 'opacity-50 pointer-events-none' : ''}>
-            {table.getRowModel().rows.map((row) => (
-              <tr
-                key={row.id}
-                onClick={() => {
-                  const holdingId = row.original.id;
-                  // Ensure router path is constructed correctly
-                  const target = ROUTES.HOLDING_DETAIL(holdingId) + (backUrl ? `?backUrl=${encodeURIComponent(backUrl)}` : '')
-                  router.push(target)
-                }}
-                className="border-b border-border hover:bg-muted/50 cursor-pointer transition-colors group"
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className={cn(
-                    "py-4 px-4 whitespace-nowrap",
-                    cell.column.id === 'avgBuyPrice' || cell.column.id === 'totalValue' || cell.column.id === 'pnl' ? "text-right" : "text-left"
-                  )}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </td>
-                ))}
-              </tr>
-            ))}
+            {table.getRowModel().rows.map((row) => {
+              const isSold = row.original.isSold
+              return (
+                <tr
+                  key={row.id}
+                  onClick={() => {
+                    const holdingId = row.original.id;
+                    const target = ROUTES.HOLDING_DETAIL(holdingId) + (backUrl ? `?backUrl=${encodeURIComponent(backUrl)}` : '')
+                    router.push(target)
+                  }}
+                  className={cn(
+                    "border-b border-border hover:bg-muted/50 cursor-pointer transition-colors group",
+                    isSold && "bg-muted/20 hover:bg-muted/40"
+                  )}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <td key={cell.id} className={cn(
+                      "py-4 px-4 whitespace-nowrap",
+                      isSold && "opacity-70",
+                      cell.column.id === 'avgBuyPrice' || cell.column.id === 'totalValue' || cell.column.id === 'pnl' ? "text-right" : "text-left"
+                    )}>
+                      {cell.column.id === 'pnl' && isSold && (
+                        <div className="flex justify-end mb-0.5">
+                          <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground bg-muted px-1 rounded-sm">
+                            {t('holdingDetail.sellInfo.realized')}
+                          </span>
+                        </div>
+                      )}
+                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    </td>
+                  ))}
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>

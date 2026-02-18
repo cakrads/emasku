@@ -25,6 +25,14 @@ import {
   UpdateHoldingResponse,
   UpdateHoldingResponseSchema,
 } from '@/shared/contracts/update-holding.contract'
+import {
+  SellHoldingRequest,
+  SellHoldingResponse,
+  SellHoldingResponseSchema,
+  BulkSellHoldingRequest,
+  BulkSellHoldingResponse,
+  BulkSellHoldingResponseSchema,
+} from '@/shared/contracts/sell-holding.contract'
 
 /**
  * Holdings filter parameters
@@ -125,12 +133,27 @@ export async function updateHolding(id: string, request: UpdateHoldingRequest): 
 }
 
 /**
- * Mark a holding as sold (optimistic locking enabled)
+ * Sell a holding with sell price and date
  */
-export async function sellHolding(id: string): Promise<void> {
-  await fetchJson<unknown>(`/api/v1/portfolio/${id}/sell`, {
+export async function sellHolding(id: string, request: SellHoldingRequest): Promise<SellHoldingResponse> {
+  const data = await fetchJson<unknown>(`/api/v1/portfolio/${id}/sell`, {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(request),
   })
+  return SellHoldingResponseSchema.parse(data)
+}
+
+/**
+ * Bulk sell multiple holdings
+ */
+export async function bulkSellHoldings(request: BulkSellHoldingRequest): Promise<BulkSellHoldingResponse> {
+  const data = await fetchJson<unknown>('/api/v1/portfolio/bulk-sell', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(request),
+  })
+  return BulkSellHoldingResponseSchema.parse(data)
 }
 
 /**

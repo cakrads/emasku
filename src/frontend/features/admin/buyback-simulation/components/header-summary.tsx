@@ -7,9 +7,10 @@ import { RotateCcw } from 'lucide-react'
 interface HeaderSummaryProps {
   summary: SimulationSummary
   onReset: () => void
+  onSell: () => void
 }
 
-export function HeaderSummary({ summary, onReset }: HeaderSummaryProps) {
+export function HeaderSummary({ summary, onReset, onSell }: HeaderSummaryProps) {
   const { t } = useLanguage()
 
   // Format IDR helper
@@ -91,7 +92,7 @@ export function HeaderSummary({ summary, onReset }: HeaderSummaryProps) {
           </div>
         </div>
       </div>
-    </Card>
+    </Card >
   )
 }
 

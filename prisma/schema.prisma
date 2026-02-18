@@ -31,6 +31,18 @@ enum GoalLifecycleStatus {
   ARCHIVED
 }
 
+/// Holding lifecycle status
+enum HoldingStatus {
+  ACTIVE
+  SOLD
+}
+
+/// Transaction type for portfolio holdings
+enum TransactionType {
+  BUY
+  SELL
+}
+
 ////////////////////////////////////////
 // MODELS
 ////////////////////////////////////////
@@ -196,8 +208,19 @@ model PortfolioHolding {
 
   /**
    * Sold date (if null, holding is ACTIVE)
+   * Kept for backward compatibility; derived from SELL transaction date
    */
   soldAt DateTime?
+
+  /// Holding lifecycle status
+  status HoldingStatus @default(ACTIVE)
+
+  /// Reference to the SELL transaction (if sold)
+  soldTransactionId String?            @unique
+  soldTransaction   HoldingTransaction? @relation("SoldTransaction", fields: [soldTransactionId], references: [id])
+
+  /// All transactions for this holding
+  transactions HoldingTransaction[] @relation("HoldingTransactions")
 
   ////////////////////////////////////////
   // METADATA
@@ -215,6 +238,37 @@ model PortfolioHolding {
   @@index([userId])
   @@index([brandCode])
   @@index([goalId])
+  @@index([status])
+}
+
+/**
+ * Immutable transaction record for a portfolio holding.
+ * Each SELL creates one transaction row linked back to the holding.
+ */
+model HoldingTransaction {
+  id String @id @default(cuid())
+
+  holdingId String
+  holding   PortfolioHolding @relation("HoldingTransactions", fields: [holdingId], references: [id], onDelete: Cascade)
+
+  /// Transaction type (BUY or SELL)
+  type TransactionType
+
+  /// Transaction price per unit (smallest currency unit)
+  price BigInt
+
+  /// Date the transaction occurred
+  transactionDate DateTime
+
+  /// Optional notes
+  notes String?
+
+  createdAt DateTime @default(now())
+
+  /// Reverse relation: which holding was sold via this transaction
+  soldForHolding PortfolioHolding? @relation("SoldTransaction")
+
+  @@index([holdingId])
 }
 
 /// System-authoritative daily close price.

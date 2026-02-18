@@ -83,7 +83,7 @@ export function SharedNavbar() {
       icon: Target,
       requiresAuth: true,
       desktopOrder: 3,
-      mobileOrder: 4
+      // mobileOrder: 4 - Hidden on mobile as per user request
     },
     {
       id: 'prices',
@@ -117,7 +117,9 @@ export function SharedNavbar() {
     .sort((a, b) => (a.desktopOrder || 99) - (b.desktopOrder || 99))
 
   // Mobile links (sorted for bottom grid)
-  const mobileItems = [...visibleItems].sort((a, b) => (a.mobileOrder || 99) - (b.mobileOrder || 99))
+  const mobileItems = visibleItems
+    .filter(item => item.mobileOrder !== undefined)
+    .sort((a, b) => (a.mobileOrder || 99) - (b.mobileOrder || 99))
 
   // Layout logic: Authenticated users get bottom bar (unless on login or home/privacy page)
   const isHomePage = pathname === ROUTES.HOME
@@ -129,12 +131,16 @@ export function SharedNavbar() {
     setShowLogoutDialog(false)
   }
 
-  const isFormPage = pathname === ROUTES.ADD_HOLDING || pathname.endsWith('/edit')
+  const isFormPage =
+    pathname === ROUTES.ADD_HOLDING ||
+    pathname === ROUTES.ADD_GOAL ||
+    (pathname.includes('/holdings/') && pathname.endsWith('/edit')) ||
+    (pathname.includes('/goals/') && pathname.endsWith('/edit'))
 
   return (
-    <div className={cn(!showMobileBottomBar && !isHomePage && "mb-16")}>
+    <div className="relative">
       <nav className={cn(
-        "fixed z-50 transition-all duration-300",
+        "fixed z-50 transition-[background-color,border-color,text-color,box-shadow] duration-300",
         isFormPage && "hidden md:block",
         // Desktop: Always top
         "md:top-0 md:left-0 md:right-0 md:bottom-auto",
@@ -336,7 +342,7 @@ export function SharedNavbar() {
 
         {/* Mobile Bottom Bar */}
         {showMobileBottomBar && (
-          <div className="w-full grid grid-cols-6 items-end pb-2 md:hidden px-2">
+          <div className="w-full grid grid-cols-5 items-end pb-2 md:hidden px-2">
             {mobileItems.map((item) => {
               // Add centered button
               if (item.id === 'add') {

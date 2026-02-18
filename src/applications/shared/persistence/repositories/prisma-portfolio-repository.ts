@@ -6,17 +6,18 @@
  */
 
 import { prisma } from '../prisma-client'
-import { Prisma, PortfolioHolding } from '@prisma/client'
+import { Prisma, PortfolioHolding, HoldingTransaction } from '@prisma/client'
 import { PortfolioHoldingDomain } from '@/applications/modules/portfolio/v1/domain/portfolio.domain'
+import { SellHoldingData, SellHoldingResult, BulkSellResult } from '@/applications/modules/portfolio/v1/domain/repository'
 import { logger } from '@/applications/shared/lib/logger'
+
+type HoldingWithRelations = PortfolioHolding & {
+  goal?: { name: string } | null
+  soldTransaction?: HoldingTransaction | null
+}
 
 export class PrismaPortfolioRepository {
   private prisma = prisma
-
-  /**
-   * Extended filter type for holdings queries.
-   */
-  // Defining inline type instead of interface for class member compatibility
 
   /**
    * Fetch all holdings for a user with optional filters and pagination.
@@ -37,14 +38,14 @@ export class PrismaPortfolioRepository {
 
     const where: Prisma.PortfolioHoldingWhereInput = { userId }
 
-    // Apply status filter
+    // Apply status filter using the status field
     const status = filter?.status || 'active'
     if (status === 'active') {
-      where.soldAt = null
+      where.status = 'ACTIVE'
     } else if (status === 'sold') {
-      where.soldAt = { not: null }
+      where.status = 'SOLD'
     }
-    // If 'all', do not add soldAt condition
+    // If 'all', do not add status condition
 
     // Apply brand filter (multi-select)
     if (filter?.brandCodes && filter.brandCodes.length > 0) {
@@ -76,10 +77,16 @@ export class PrismaPortfolioRepository {
 
     const holdings = await prisma.portfolioHolding.findMany({
       where,
-      orderBy: { createdAt: 'desc' },
+      orderBy: [
+        { status: 'asc' }, // ACTIVE first, then SOLD
+        { createdAt: 'desc' },
+      ],
       skip,
       take,
-      include: { goal: { select: { name: true } } },
+      include: {
+        goal: { select: { name: true } },
+        soldTransaction: true,
+      },
     })
 
     const duration = Date.now() - startTime
@@ -89,7 +96,7 @@ export class PrismaPortfolioRepository {
 
     logger.debug('Portfolio holdings fetched', { userId, count: holdings.length, total })
 
-    return { items: holdings.map(this.toDomain), total }
+    return { items: holdings.map(h => this.toDomain(h)), total }
   }
 
   /**
@@ -99,7 +106,10 @@ export class PrismaPortfolioRepository {
   async findById(id: string): Promise<PortfolioHoldingDomain | null> {
     const holding = await this.prisma.portfolioHolding.findUnique({
       where: { id },
-      include: { goal: { select: { name: true } } },
+      include: {
+        goal: { select: { name: true } },
+        soldTransaction: true,
+      },
     })
 
     if (!holding) {
@@ -134,9 +144,13 @@ export class PrismaPortfolioRepository {
         buyPrice: BigInt(data.buyPrice),
         boughtAt: data.buyDate,
         notes: data.notes || null,
+        status: 'ACTIVE',
         ...(data.goalId ? { goal: { connect: { id: data.goalId } } } : {}),
       },
-      include: { goal: { select: { name: true } } },
+      include: {
+        goal: { select: { name: true } },
+        soldTransaction: true,
+      },
     })
 
     logger.info('Holding created', { holdingId: holding.id, userId })
@@ -185,7 +199,10 @@ export class PrismaPortfolioRepository {
     const holding = await this.prisma.portfolioHolding.update({
       where: { id, userId },
       data: updateData,
-      include: { goal: { select: { name: true } } },
+      include: {
+        goal: { select: { name: true } },
+        soldTransaction: true,
+      },
     })
 
     logger.info('Holding updated', { holdingId: id, userId })
@@ -205,18 +222,129 @@ export class PrismaPortfolioRepository {
   }
 
   /**
-   * soft-delete a holding (mark as sold).
+   * Sell a holding: create SELL transaction + update holding status.
+   * Atomic operation using DB transaction.
+   * Implements optimistic locking via status check.
    */
-  async markAsSold(userId: string, id: string): Promise<void> {
-    await this.prisma.portfolioHolding.update({
-      where: {
-        id,
-        userId,
-      },
-      data: {
-        soldAt: new Date(),
+  async sellHolding(userId: string, id: string, data: SellHoldingData): Promise<SellHoldingResult> {
+    const result = await this.prisma.$transaction(async (tx) => {
+      // Fetch the holding with lock
+      const holding = await tx.portfolioHolding.findFirst({
+        where: { id, userId, status: 'ACTIVE' },
+      })
+
+      if (!holding) {
+        throw new Error('HOLDING_NOT_ACTIVE')
+      }
+
+      // Create SELL transaction
+      const transaction = await tx.holdingTransaction.create({
+        data: {
+          holdingId: id,
+          type: 'SELL',
+          price: BigInt(data.sellPrice),
+          transactionDate: data.sellDate,
+          notes: data.notes || null,
+        },
+      })
+
+      // Update holding: status + soldAt + link transaction
+      await tx.portfolioHolding.update({
+        where: { id },
+        data: {
+          status: 'SOLD',
+          soldAt: data.sellDate,
+          soldTransactionId: transaction.id,
+        },
+      })
+
+      // Calculate realized P/L
+      const buyPrice = Number(holding.buyPrice)
+      const sellPrice = Number(data.sellPrice)
+      const realizedPnL = sellPrice - buyPrice
+      const realizedPnLPercentage = buyPrice > 0
+        ? ((sellPrice - buyPrice) / buyPrice) * 100
+        : 0
+
+      return {
+        holdingId: id,
+        realizedPnL: Math.round(realizedPnL),
+        realizedPnLPercentage: Number(realizedPnLPercentage.toFixed(2)),
+        status: 'SOLD' as const,
       }
     })
+
+    logger.info('Holding sold', { holdingId: id, userId, realizedPnL: result.realizedPnL })
+    return result
+  }
+
+  /**
+   * Bulk sell multiple holdings atomically.
+   * Each holding is processed independently but within a single DB transaction.
+   * Supports individual sell prices per holding.
+   */
+  async bulkSellHoldings(userId: string, items: { id: string, sellPrice: number }[], commonData: Omit<SellHoldingData, 'sellPrice'>): Promise<BulkSellResult> {
+    const results: BulkSellResult['results'] = []
+
+    await this.prisma.$transaction(async (tx) => {
+      for (const item of items) {
+        const { id: holdingId, sellPrice } = item
+        try {
+          // Fetch holding
+          const holding = await tx.portfolioHolding.findFirst({
+            where: { id: holdingId, userId, status: 'ACTIVE' },
+          })
+
+          if (!holding) {
+            results.push({ holdingId, status: 'FAILED', error: 'Holding not found or already sold' })
+            continue
+          }
+
+          // Create SELL transaction
+          const transaction = await tx.holdingTransaction.create({
+            data: {
+              holdingId,
+              type: 'SELL',
+              price: BigInt(sellPrice),
+              transactionDate: commonData.sellDate,
+              notes: commonData.notes || null,
+            },
+          })
+
+          // Update holding
+          await tx.portfolioHolding.update({
+            where: { id: holdingId },
+            data: {
+              status: 'SOLD',
+              soldAt: commonData.sellDate,
+              soldTransactionId: transaction.id,
+            },
+          })
+
+          // Calculate P/L
+          const buyPrice = Number(holding.buyPrice)
+          const realizedPnL = Math.round(sellPrice - buyPrice)
+
+          results.push({
+            holdingId,
+            status: 'SOLD',
+            realizedPnL,
+          })
+        } catch (err) {
+          const errorMessage = err instanceof Error ? err.message : 'Unknown error'
+          results.push({ holdingId, status: 'FAILED', error: errorMessage })
+        }
+      }
+    })
+
+    logger.info('Bulk sell completed', {
+      userId,
+      total: items.length,
+      sold: results.filter(r => r.status === 'SOLD').length,
+      failed: results.filter(r => r.status === 'FAILED').length,
+    })
+
+    return { results }
   }
 
   /**
@@ -244,22 +372,53 @@ export class PrismaPortfolioRepository {
   /**
    * Map Prisma model to domain model.
    * Converts BigInt → number and Decimal → number.
-   * NO business logic - pure data transformation.
+   * Includes sell transaction data when SOLD.
    */
-  private toDomain(prismaHolding: PortfolioHolding & { goal?: { name: string } | null }): PortfolioHoldingDomain {
+  private toDomain(prismaHolding: HoldingWithRelations): PortfolioHoldingDomain {
+    const sellTx = prismaHolding.soldTransaction
+    const buyPrice = Number(prismaHolding.buyPrice)
+    const sellPrice = sellTx ? Number(sellTx.price) : null
+
+    // Calculate realized P/L if sold
+    let realizedPnL: number | null = null
+    let realizedPnLPercentage: number | null = null
+    let holdingDurationDays: number | null = null
+
+    if (sellPrice !== null && sellTx) {
+      realizedPnL = Math.round(sellPrice - buyPrice)
+      realizedPnLPercentage = buyPrice > 0
+        ? Number(((sellPrice - buyPrice) / buyPrice * 100).toFixed(2))
+        : 0
+
+      // Calculate holding duration
+      if (prismaHolding.boughtAt) {
+        const buyDate = new Date(prismaHolding.boughtAt)
+        const sellDate = new Date(sellTx.transactionDate)
+        holdingDurationDays = Math.round((sellDate.getTime() - buyDate.getTime()) / (1000 * 60 * 60 * 24))
+      }
+    }
+
     return {
       id: prismaHolding.id,
       brandCode: prismaHolding.brandCode,
       brandName: prismaHolding.brandName,
       denominationGram: Number(prismaHolding.denominationGram),
       quantity: prismaHolding.quantity,
-      buyPrice: Number(prismaHolding.buyPrice),
+      buyPrice,
       boughtAt: prismaHolding.boughtAt,
       soldAt: prismaHolding.soldAt,
+      status: prismaHolding.status as 'ACTIVE' | 'SOLD',
       createdAt: prismaHolding.createdAt,
       notes: prismaHolding.notes || undefined,
       goalId: prismaHolding.goalId || null,
       goalName: prismaHolding.goal?.name || null,
+      // Sell transaction data
+      sellPrice,
+      sellDate: sellTx?.transactionDate || null,
+      sellNotes: sellTx?.notes || null,
+      realizedPnL,
+      realizedPnLPercentage,
+      holdingDurationDays,
     }
   }
 }

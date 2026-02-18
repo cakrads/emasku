@@ -8,7 +8,7 @@ interface LayoutProps extends React.HTMLAttributes<HTMLDivElement> {
 export function Container({ as: Component = "div", className, ...props }: LayoutProps) {
   return (
     <Component
-      className={cn("w-full max-w-lg mx-auto px-6", className)}
+      className={cn("w-full max-w-7xl mx-auto px-4 md:px-8", className)}
       {...props}
     />
   )
@@ -17,7 +17,7 @@ export function Container({ as: Component = "div", className, ...props }: Layout
 export function PageWrapper({ className, ...props }: LayoutProps) {
   return (
     <div
-      className={cn("min-h-screen bg-background flex justify-center", className)}
+      className={cn("flex flex-col flex-1 w-full", className)}
       {...props}
     />
   )
@@ -51,10 +51,10 @@ export function Stack({
   )
 }
 
-export function Section({ as: Component = "section", className, ...props }: LayoutProps) {
+export function Section({ className, ...props }: LayoutProps) {
   return (
-    <Component
-      className={cn("py-6", className)}
+    <section
+      className={cn("py-6 w-full min-w-0", className)}
       {...props}
     />
   )
@@ -77,7 +77,7 @@ export function Divider({ className, direction = "horizontal" }: { className?: s
   return (
     <div
       className={cn(
-        "bg-[var(--border)]",
+        "bg-border",
         direction === "horizontal" ? "h-px w-full" : "w-px h-full",
         className
       )}

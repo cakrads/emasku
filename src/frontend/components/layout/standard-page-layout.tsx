@@ -23,13 +23,11 @@ export function StandardPageLayout({
   action,
 }: StandardPageLayoutProps) {
   return (
-    <PageWrapper>
-      <Container className="max-w-7xl mx-auto px-4 md:px-8 py-8">
-        <PageHeader title={title} description={description} breadcrumbs={breadcrumbs} action={action} />
-        <div className="mt-6">
-          {children}
-        </div>
-      </Container>
-    </PageWrapper>
+    <Container className="py-8 flex flex-col min-w-0">
+      <PageHeader title={title} description={description} breadcrumbs={breadcrumbs} action={action} />
+      <div className="mt-6 flex-1 flex flex-col min-w-0">
+        {children}
+      </div>
+    </Container>
   )
 }

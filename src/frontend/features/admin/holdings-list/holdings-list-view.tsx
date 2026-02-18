@@ -25,6 +25,8 @@ import { PrivacyToggle } from '@/frontend/components/ui/privacy-toggle'
 import PortfolioSummarySection from './components/portfolio-summary-section'
 import FilterModal from './components/filter-modal'
 import BrandSummaryModal from './components/brand-summary-modal'
+import ToolsModal from './components/tools-modal'
+import { Wrench } from 'lucide-react'
 
 export default function HoldingsListView() {
   const { t } = useLanguage()
@@ -79,6 +81,7 @@ function HoldingsListContent() {
   // Modal state
   const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [isBrandSummaryOpen, setIsBrandSummaryOpen] = useState(false)
+  const [isToolsOpen, setIsToolsOpen] = useState(false)
 
   // Build filter object for API calls
   const apiFilter = {
@@ -188,12 +191,12 @@ function HoldingsListContent() {
   return (
     <Stack gap="sm">
       {/* Action Bar - Filter button + Brand Summary */}
+      {/* Action Bar - Mobile: 3 Modal Triggers | Desktop: Original layout */}
       <div className="flex flex-wrap items-center gap-2">
-        <Stack direction="horizontal" gap="sm">
-          {/* Privacy Toggle */}
+        {/* Desktop View */}
+        <div className="hidden md:flex flex-wrap items-center gap-2 flex-1">
           <PrivacyToggle className="border border-border/50" />
 
-          {/* Filter Button */}
           <Button
             variant="outline"
             size="sm"
@@ -209,7 +212,6 @@ function HoldingsListContent() {
             )}
           </Button>
 
-          {/* Simulate Buyback Button */}
           <Link href={ROUTES.BUYBACK_SIMULATION}>
             <Button
               variant="outline"
@@ -221,7 +223,6 @@ function HoldingsListContent() {
             </Button>
           </Link>
 
-          {/* Brand Summary Button */}
           {summaryViewModel?.brandAllocation && summaryViewModel.brandAllocation.length > 0 && (
             <Button
               variant="ghost"
@@ -233,7 +234,77 @@ function HoldingsListContent() {
               <span className="hidden sm:inline">{t('holdings.brandSummary.title')}</span>
             </Button>
           )}
-        </Stack>
+
+          <div className="h-6 w-px bg-border/50 mx-1" />
+
+          <div className="flex items-center bg-muted/50 p-1 rounded-lg border border-border/50">
+            <button
+              onClick={() => handleFilterApply({
+                brand: filters.brand,
+                status: 'active',
+                goalId: filters.goalId,
+                sortBy: filters.sortBy,
+                sortOrder: filters.sortOrder
+              })}
+              className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${statusFilter === 'active'
+                ? 'bg-background shadow-sm text-foreground ring-1 ring-border/50'
+                : 'text-muted-foreground hover:text-foreground'
+                }`}
+            >
+              {t('holdings.filters.options.active')}
+            </button>
+            <button
+              onClick={() => handleFilterApply({
+                brand: filters.brand,
+                status: 'sold',
+                goalId: filters.goalId,
+                sortBy: filters.sortBy,
+                sortOrder: filters.sortOrder
+              })}
+              className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${statusFilter === 'sold'
+                ? 'bg-background shadow-sm text-foreground ring-1 ring-border/50'
+                : 'text-muted-foreground hover:text-foreground'
+                }`}
+            >
+              {t('holdings.filters.options.sold')}
+            </button>
+          </div>
+        </div>
+
+        {/* Mobile View - 2 Consolidate Modals + Privacy Icon */}
+        <div className="flex md:hidden items-center gap-2 w-full">
+          {/* Privacy Icon Toggle */}
+          <PrivacyToggle className="h-10 w-10 border border-border/50 bg-background" iconClassName="h-5 w-5" />
+
+          {/* 1. Filter */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsFilterOpen(true)}
+            className="flex-1 gap-2 h-10 border-border/50"
+          >
+            <div className="relative">
+              <Filter className="w-4 h-4 text-muted-foreground" />
+              {activeFilterCount > 0 && (
+                <div className="absolute -top-2 -right-2 w-4 h-4 bg-accent-gold text-white text-[10px] flex items-center justify-center rounded-full border-2 border-background">
+                  {activeFilterCount}
+                </div>
+              )}
+            </div>
+            <span className="text-xs">{t('holdings.filters.title')}</span>
+          </Button>
+
+          {/* 2. Tools */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsToolsOpen(true)}
+            className="flex-1 gap-2 h-10 border-border/50"
+          >
+            <Wrench className="w-4 h-4 text-muted-foreground" />
+            <span className="text-xs">{t('holdings.tools.title')}</span>
+          </Button>
+        </div>
       </div>
 
       {/* Portfolio Summary Section */}
@@ -283,6 +354,12 @@ function HoldingsListContent() {
         sortBy={sortBy}
         sortOrder={sortOrder}
         onApply={handleFilterApply}
+      />
+
+      <ToolsModal
+        open={isToolsOpen}
+        onOpenChange={setIsToolsOpen}
+        onShowBrandSummary={() => setIsBrandSummaryOpen(true)}
       />
 
       {/* Brand Summary Modal - no click functionality */}

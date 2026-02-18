@@ -67,6 +67,13 @@ export const HoldingItemSchema = z.object({
   priceAsOf: z.string().nullable(), // ISO datetime
   createdAt: z.string(), // ISO datetime
   soldAt: z.string().nullable().optional(),
+  status: z.enum(['ACTIVE', 'SOLD']).default('ACTIVE'),
+  // Sell transaction data (present when status = SOLD)
+  sellPrice: z.number().int().nonnegative().nullable().optional(),
+  sellDate: z.string().nullable().optional(), // ISO date
+  realizedPnL: z.number().int().nullable().optional(),
+  realizedPnLPercentage: z.number().nullable().optional(),
+  holdingDurationDays: z.number().int().nonnegative().nullable().optional(),
   notes: z.string().nullable().optional(),
   goalId: z.string().nullable().optional(),
   goalName: z.string().nullable().optional(),

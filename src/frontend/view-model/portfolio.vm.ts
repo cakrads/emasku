@@ -64,6 +64,7 @@ export interface HoldingItemVM {
   pnlPercentage: string // Formatted percentage
   pnlColor: 'positive' | 'negative' | 'neutral'
   isSold: boolean
+  status: 'ACTIVE' | 'SOLD'
   soldAt?: string
   createdAt: string // Raw ISO string for sorting
   notes?: string
@@ -72,6 +73,14 @@ export interface HoldingItemVM {
   rawAvgBuyPrice: number
   goalId: string | null
   goalName: string | null
+  // Sell transaction data (present when status = SOLD)
+  sellPrice?: string  // Formatted IDR
+  sellDate?: string   // Formatted date
+  realizedPnL?: string // Formatted IDR
+  realizedPnLPercentage?: string // Formatted percentage
+  realizedPnLColor?: 'positive' | 'negative' | 'neutral'
+  holdingDurationDays?: number | null
+  holdingDuration?: string // Formatted duration e.g. "45 days"
 }
 
 /**
@@ -105,6 +114,22 @@ function formatDate(dateString?: string | null, locale: string = 'id-ID'): strin
     month: 'short',
     day: 'numeric',
   }).format(date)
+}
+
+/**
+ * Format holding duration
+ */
+function formatDuration(days: number | null | undefined): string {
+  if (days === null || days === undefined) return '—'
+  if (days < 30) return `${days} days`
+  if (days < 365) {
+    const months = Math.floor(days / 30)
+    const remainingDays = days % 30
+    return remainingDays > 0 ? `${months}mo ${remainingDays}d` : `${months} months`
+  }
+  const years = Math.floor(days / 365)
+  const remainingMonths = Math.floor((days % 365) / 30)
+  return remainingMonths > 0 ? `${years}y ${remainingMonths}mo` : `${years} years`
 }
 
 /**
@@ -188,9 +213,12 @@ function logTracing(api: PortfolioSummary, vm: PortfolioSummaryVM) {
 
 /**
  * Transform holding item to view model
+ * Handles both ACTIVE and SOLD holdings.
  */
 export function transformHoldingItem(api: HoldingItem, locale: string = 'id-ID'): HoldingItemVM {
-  return {
+  const isSold = api.status === 'SOLD' || !!api.soldAt
+
+  const base: HoldingItemVM = {
     id: api.id,
     brand: api.brand,
     brandName: api.brandName,
@@ -204,7 +232,8 @@ export function transformHoldingItem(api: HoldingItem, locale: string = 'id-ID')
     pnl: api.unrealizedPnL ? formatIDR(Math.abs(api.unrealizedPnL), locale) : '-',
     pnlPercentage: api.pnlPercentage ? formatPercentage(api.pnlPercentage) : '0.00%',
     pnlColor: api.unrealizedPnL ? getPnLColor(api.unrealizedPnL) : 'neutral',
-    isSold: !!api.soldAt,
+    isSold,
+    status: api.status || (isSold ? 'SOLD' : 'ACTIVE'),
     soldAt: api.soldAt ? formatDate(api.soldAt, locale) : undefined,
     createdAt: api.createdAt,
     notes: api.notes || undefined,
@@ -213,6 +242,29 @@ export function transformHoldingItem(api: HoldingItem, locale: string = 'id-ID')
     goalId: api.goalId || null,
     goalName: api.goalName || null,
   }
+
+  // Add sell transaction data for SOLD holdings
+  if (isSold && api.sellPrice) {
+    base.sellPrice = formatIDR(api.sellPrice, locale)
+    base.sellDate = formatDate(api.sellDate, locale)
+    base.realizedPnL = api.realizedPnL !== null && api.realizedPnL !== undefined
+      ? formatIDR(Math.abs(api.realizedPnL), locale)
+      : '-'
+    base.realizedPnLPercentage = api.realizedPnLPercentage !== null && api.realizedPnLPercentage !== undefined
+      ? formatPercentage(api.realizedPnLPercentage)
+      : '0.00%'
+    base.realizedPnLColor = getPnLColor(api.realizedPnL ?? null)
+    base.holdingDurationDays = api.holdingDurationDays ?? null
+    base.holdingDuration = formatDuration(api.holdingDurationDays)
+
+    // For SOLD holdings, override the display value with sell price
+    base.totalValue = formatIDR(api.sellPrice, locale)
+    base.pnl = base.realizedPnL
+    base.pnlPercentage = base.realizedPnLPercentage
+    base.pnlColor = base.realizedPnLColor
+  }
+
+  return base
 }
 
 /**
