@@ -95,7 +95,8 @@ export class GoalController {
         }
 
         const goalRepo = new PrismaGoalRepository()
-        const usecase = new UpdateGoalUsecase(goalRepo)
+        const priceRepo = new PrismaPriceRepository()
+        const usecase = new UpdateGoalUsecase(goalRepo, priceRepo)
         const goal = await usecase.execute(userId, id, parsed.data)
 
         const response = toGoalResponse(goal)

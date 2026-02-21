@@ -334,6 +334,10 @@ model Goal {
   /// When the goal was marked as completed
   completedAt DateTime?
 
+  /// Snapshot of total holdings value when completed (IDR)
+  /// Locked at completion time so it doesn't change with live prices
+  completedValue BigInt?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

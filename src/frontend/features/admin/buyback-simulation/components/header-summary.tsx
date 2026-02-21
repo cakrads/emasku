@@ -32,7 +32,7 @@ export function HeaderSummary({ summary, onReset, onSell }: HeaderSummaryProps) 
       : 'text-muted-foreground'
 
   return (
-    <Card className="sticky top-2 md:top-16 z-30 mb-6 p-3 md:p-4 border-2 border-primary/10 shadow-lg bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+    <Card className="mb-6 p-3 md:p-4 border-2 border-primary/10 shadow-lg bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between md:gap-4">
 
         {/* Selection Count */}

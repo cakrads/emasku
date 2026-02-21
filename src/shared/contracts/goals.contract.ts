@@ -28,6 +28,7 @@ export const CreateGoalResponseSchema = z.object({
     targetDate: z.string().nullable(),
     lifecycleStatus: z.enum(['ACTIVE', 'COMPLETED', 'CANCELLED', 'ARCHIVED']),
     completedAt: z.string().nullable(),
+    completedValue: z.number().nullable(),
     createdAt: z.string(),
 })
 
@@ -58,6 +59,7 @@ export const UpdateGoalResponseSchema = z.object({
     targetDate: z.string().nullable(),
     lifecycleStatus: z.enum(['ACTIVE', 'COMPLETED', 'CANCELLED', 'ARCHIVED']),
     completedAt: z.string().nullable(),
+    completedValue: z.number().nullable(),
     updatedAt: z.string(),
 })
 
@@ -79,6 +81,7 @@ export const GoalSummarySchema = z.object({
     isAchieved: z.boolean(),
     lifecycleStatus: z.enum(['ACTIVE', 'COMPLETED', 'CANCELLED', 'ARCHIVED']),
     completedAt: z.string().nullable(),
+    completedValue: z.number().nullable(),
     createdAt: z.string(),
 })
 
@@ -102,6 +105,9 @@ export const GoalDetailHoldingSchema = z.object({
     denominationGram: z.number(),
     quantity: z.number(),
     currentValue: z.number().nullable(),
+    status: z.string(),
+    isSold: z.boolean(),
+    soldDate: z.string().nullable(),
 })
 
 export type GoalDetailHolding = z.infer<typeof GoalDetailHoldingSchema>
@@ -119,6 +125,7 @@ export const GoalDetailSchema = z.object({
     isAchieved: z.boolean(),
     lifecycleStatus: z.enum(['ACTIVE', 'COMPLETED', 'CANCELLED', 'ARCHIVED']),
     completedAt: z.string().nullable(),
+    completedValue: z.number().nullable(),
     holdings: z.array(GoalDetailHoldingSchema),
     createdAt: z.string(),
     updatedAt: z.string(),

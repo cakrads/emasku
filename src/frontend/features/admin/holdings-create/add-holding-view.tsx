@@ -142,7 +142,7 @@ function AddHoldingContent() {
   }
 
   return (
-    <div className="flex flex-col relative max-w-lg mx-auto">
+    <div className="flex flex-col relative w-full max-w-lg mx-auto sm:min-w-[500px]">
       <StepHeader
         title={t('addHolding.title')}
         currentStep={step}

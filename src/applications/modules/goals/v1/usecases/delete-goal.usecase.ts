@@ -2,10 +2,10 @@
  * Delete Goal Usecase
  * 
  * Business logic for deleting goals.
- * Enforces: cannot delete goal with linked holdings.
+ * Unlinks any associated holdings before deletion.
  */
 
-import { NotFoundError, ValidationError } from '@/applications/shared/lib/errors'
+import { NotFoundError } from '@/applications/shared/lib/errors'
 import { logger } from '@/applications/shared/lib/logger'
 import { PrismaGoalRepository } from '@/applications/shared/persistence/repositories/prisma-goal-repository'
 
@@ -21,12 +21,11 @@ export class DeleteGoalUsecase {
             throw new NotFoundError('Goal not found')
         }
 
-        // Check no linked holdings
+        // Unlink any associated holdings (set goalId to null)
         const hasHoldings = await this.goalRepo.hasLinkedHoldings(goalId)
         if (hasHoldings) {
-            throw new ValidationError('Cannot delete goal', {
-                goal: 'Goal still has linked holdings. Remove all holdings from this goal before deleting.',
-            })
+            await this.goalRepo.unlinkHoldings(goalId)
+            logger.info('Unlinked holdings before goal deletion', { goalId })
         }
 
         await this.goalRepo.delete(userId, goalId)

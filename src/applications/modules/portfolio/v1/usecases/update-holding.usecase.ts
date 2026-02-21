@@ -30,7 +30,8 @@ export class UpdateHoldingUsecase {
     // Validate buy date if provided
     if (request.buyDate) {
       const buyDate = new Date(request.buyDate)
-      if (buyDate > new Date()) {
+      // Allow 24h buffer for timezone differences
+      if (buyDate.getTime() > new Date().getTime() + 86_400_000) {
         throw new ValidationError('Invalid buy date', {
           buyDate: 'Buy date cannot be in the future'
         })

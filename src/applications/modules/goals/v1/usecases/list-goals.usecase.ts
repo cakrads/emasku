@@ -27,23 +27,37 @@ export class ListGoalsUsecase {
         for (const goal of goals) {
             const holdings = await this.goalRepo.findHoldingsByGoalId(goal.id)
 
-            // Calculate total current value from holdings
-            let totalCurrentValue = new Decimal(0)
+            // Use snapshot value for completed goals, live value for active
+            let currentValueNum: number
 
-            for (const holding of holdings) {
-                // Get latest BUYBACK price for this brand + denomination
-                const priceResult = await this.priceRepo.getLatestBuybackPrice(
-                    holding.brandCode,
-                    holding.denominationGram,
-                )
+            if (goal.lifecycleStatus === 'COMPLETED' && goal.completedValue != null) {
+                // Use the locked snapshot value
+                currentValueNum = goal.completedValue
+            } else {
+                // Calculate live value from holdings
+                let totalCurrentValue = new Decimal(0)
 
-                if (priceResult) {
-                    const holdingValue = new Decimal(priceResult.price).times(holding.quantity)
-                    totalCurrentValue = totalCurrentValue.plus(holdingValue)
+                for (const holding of holdings) {
+                    if (holding.status === 'SOLD' && holding.sellPrice) {
+                        // Use realized sold price
+                        const holdingValue = new Decimal(holding.sellPrice).times(holding.quantity)
+                        totalCurrentValue = totalCurrentValue.plus(holdingValue)
+                    } else {
+                        // Use live market price
+                        const priceResult = await this.priceRepo.getLatestBuybackPrice(
+                            holding.brandCode,
+                            holding.denominationGram,
+                        )
+
+                        if (priceResult) {
+                            const holdingValue = new Decimal(priceResult.price).times(holding.quantity)
+                            totalCurrentValue = totalCurrentValue.plus(holdingValue)
+                        }
+                    }
                 }
-            }
 
-            const currentValueNum = totalCurrentValue.toNumber()
+                currentValueNum = totalCurrentValue.toNumber()
+            }
 
             // Calculate progress percentage
             let progressPercentage: number | null = null

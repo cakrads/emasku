@@ -132,27 +132,55 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
 
   if (isLoading) {
     return (
-      <div className="max-w-lg mx-auto pb-44">
-        <Section className="px-0">
-          <Stack gap="xl">
+      <div className="w-full max-w-lg mx-auto pb-44 sm:min-w-[500px]">
+        <Section className="py-6 w-full min-w-0 px-0">
+          <Stack gap="xl" className="px-4 sm:px-6">
+            {/* Brand (disabled input + caption) */}
             <Stack gap="sm">
-              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-5 w-28 rounded-md" />
               <Skeleton className="h-14 w-full rounded-xl" />
+              <Skeleton className="h-4 w-48 rounded-md" />
             </Stack>
+
+            {/* Weight Selector (label + 2x2 grid) */}
             <Stack gap="sm">
-              <Skeleton className="h-4 w-24" />
+              <Skeleton className="h-5 w-20 rounded-md" />
               <div className="grid grid-cols-2 gap-3">
                 {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-20 w-full rounded-xl" />)}
               </div>
             </Stack>
-            {[1, 2].map(i => (
-              <Stack key={i} gap="sm">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-14 w-full rounded-xl" />
-              </Stack>
-            ))}
+
+            {/* Buy Price */}
+            <Stack gap="sm">
+              <Skeleton className="h-5 w-32 rounded-md" />
+              <Skeleton className="h-14 w-full rounded-xl" />
+            </Stack>
+
+            {/* Purchase Date */}
+            <Stack gap="sm">
+              <Skeleton className="h-5 w-36 rounded-md" />
+              <Skeleton className="h-14 w-full rounded-xl" />
+            </Stack>
+
+            {/* Notes */}
+            <Stack gap="sm">
+              <Skeleton className="h-5 w-20 rounded-md" />
+              <Skeleton className="h-14 w-full rounded-xl" />
+            </Stack>
+
+            {/* Goal Selector */}
+            <Stack gap="sm">
+              <Skeleton className="h-5 w-24 rounded-md" />
+              <Skeleton className="h-14 w-full rounded-xl" />
+            </Stack>
           </Stack>
         </Section>
+
+        {/* Action Buttons */}
+        <div className="flex gap-3 mt-8 px-4 sm:px-6">
+          <Skeleton className="h-12 flex-1 rounded-xl" />
+          <Skeleton className="h-12 flex-1 rounded-xl" />
+        </div>
       </div>
     )
   }
@@ -162,7 +190,7 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
   }
 
   return (
-    <div className="max-w-lg mx-auto pb-44">
+    <div className="w-full max-w-lg mx-auto pb-44 sm:min-w-[500px]">
       {/* Form */}
       <Section className="px-0">
         <Stack gap="xl">

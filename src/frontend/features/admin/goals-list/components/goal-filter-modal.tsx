@@ -73,7 +73,7 @@ export default function GoalFilterModal({
                                 color={localFilter === f.key ? 'primary' : undefined}
                                 size="sm"
                                 onClick={() => setLocalFilter(f.key)}
-                                className="gap-1.5"
+                                className="gap-1.5 cursor-pointer"
                             >
                                 <span>{f.label}</span>
                                 {counts[f.key] > 0 && (
@@ -95,7 +95,7 @@ export default function GoalFilterModal({
                 <Stack direction="horizontal" gap="sm" className="pt-4 border-t border-border">
                     <Button
                         variant="outline"
-                        className="flex-1"
+                        className="flex-1 cursor-pointer"
                         onClick={handleClear}
                         disabled={localFilter === 'all'}
                     >
@@ -103,7 +103,7 @@ export default function GoalFilterModal({
                     </Button>
                     <Button
                         color="primary"
-                        className="flex-1"
+                        className="flex-1 cursor-pointer"
                         onClick={handleApply}
                     >
                         {t('holdings.filters.apply')}

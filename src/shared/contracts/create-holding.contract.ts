@@ -16,7 +16,8 @@ export const CreateHoldingRequestSchema = z.object({
   quantity: z.number().int().positive('Quantity must be at least 1').default(1),
   buyPrice: z.number().int().nonnegative('Buy price cannot be negative').optional(),
   buyDate: z.string().datetime('Invalid date format').refine(
-    (date) => new Date(date) <= new Date(),
+    // Allow a small buffer (24h) to account for timezone differences where local today might be UTC future
+    (date) => new Date(date).getTime() <= new Date().getTime() + 86_400_000,
     'Buy date cannot be in the future'
   ).nullable().optional(),
   notes: z.string().max(500, 'Notes cannot exceed 500 characters').optional(),

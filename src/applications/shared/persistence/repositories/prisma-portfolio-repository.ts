@@ -267,6 +267,7 @@ export class PrismaPortfolioRepository {
         : 0
 
       return {
+        id,
         holdingId: id,
         realizedPnL: Math.round(realizedPnL),
         realizedPnLPercentage: Number(realizedPnLPercentage.toFixed(2)),
@@ -296,7 +297,7 @@ export class PrismaPortfolioRepository {
           })
 
           if (!holding) {
-            results.push({ holdingId, status: 'FAILED', error: 'Holding not found or already sold' })
+            results.push({ id: holdingId, holdingId, status: 'FAILED', error: 'Holding not found or already sold' })
             continue
           }
 
@@ -326,13 +327,14 @@ export class PrismaPortfolioRepository {
           const realizedPnL = Math.round(sellPrice - buyPrice)
 
           results.push({
+            id: holdingId,
             holdingId,
             status: 'SOLD',
             realizedPnL,
           })
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Unknown error'
-          results.push({ holdingId, status: 'FAILED', error: errorMessage })
+          results.push({ id: holdingId, holdingId, status: 'FAILED', error: errorMessage })
         }
       }
     })

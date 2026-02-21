@@ -89,7 +89,7 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                 title={t('common.loading')}
                 breadcrumbs={breadcrumbs}
             >
-                <div className="max-w-xl mx-auto pb-24">
+                <div className="w-full max-w-xl mx-auto pb-24 sm:min-w-[500px]">
                     {/* Header Skeleton (Matches Centered Hero) */}
                     <Section className="py-6 px-6 text-center mb-6">
                         <Stack gap="xs" className="items-center">
@@ -171,14 +171,18 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
         throw error || new Error('Failed to load goal')
     }
 
+    // Base value for all metrics (use snapshot if completed, live if active)
+    const displayValue = (data.lifecycleStatus === 'COMPLETED' && data.completedValue != null)
+        ? data.completedValue
+        : (data.totalCurrentValue || 0)
+
     const progress = data.progressPercentage ?? 0
     const hasTarget = data.targetAmount != null && data.targetAmount > 0
-    const remaining = hasTarget ? Math.max(0, data.targetAmount! - data.totalCurrentValue) : null
+    const remaining = hasTarget ? Math.max(0, data.targetAmount! - displayValue) : null
 
-    // Profit/Loss Calculation
+    // Profit/Loss Calculation using the same displayValue
     const invested = data.totalInvestedValue || 0
-    const currentValue = data.totalCurrentValue || 0
-    const profit = currentValue - invested
+    const profit = displayValue - invested
     const profitPercent = invested > 0 ? (profit / invested) * 100 : 0
     const isPositive = profit >= 0
 
@@ -271,7 +275,7 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                 </div>
             }
         >
-            <div className="max-w-xl mx-auto pb-24">
+            <div className="w-full max-w-xl mx-auto pb-24 sm:min-w-[500px]">
 
                 {/* HERO SECTION: Goal Name (Large), Status (PnL style), Date */}
                 <Section className="py-6 px-6 text-center mb-6">
@@ -330,13 +334,16 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                 <Stack gap="md" className="mt-2">
                                     {/* Current Value & PnL Combined */}
                                     <Stack direction="horizontal" className="justify-between items-start">
-                                        <Typography variant="body-sm" className="pt-1">{t('goals.detail.currentValue')}</Typography>
-                                        <div className="text-right">
+                                        <Typography variant="body-sm" className="pt-1">
+                                            {data.lifecycleStatus === 'COMPLETED' ? t('goals.detail.finishedWithValue') : t('goals.detail.currentValue')}
+                                        </Typography>
+                                        <div className="text-right flex flex-col items-end">
                                             <Typography variant="body" className="font-medium financial-value text-lg">
-                                                {formatCurrency(currentValue, locale)}
+                                                {formatCurrency(displayValue, locale)}
                                             </Typography>
+
                                             {invested > 0 && (
-                                                <div className="flex items-center justify-end gap-1 mt-0.5">
+                                                <div className="flex items-center justify-end gap-1 mt-1">
                                                     {isPositive ? (
                                                         <TrendingUp className="w-3 h-3 text-green-600 dark:text-green-400" />
                                                     ) : (
@@ -350,10 +357,17 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                                     </Typography>
                                                 </div>
                                             )}
+
+                                            {/* Disclaimer for Completed Goals */}
+                                            {data.lifecycleStatus === 'COMPLETED' && (
+                                                <Typography variant="caption" className="text-muted-foreground mt-0.5 max-w-[200px] leading-tight">
+                                                    {t('goals.detail.finishedValueDisclaimer')}
+                                                </Typography>
+                                            )}
                                         </div>
                                     </Stack>
 
-                                    <div className="h-px bg-border w-full" />
+                                    <div className="h-px bg-border w-full mt-2" />
 
                                     {/* Target Amount */}
                                     <Stack direction="horizontal" className="justify-between items-center">
@@ -425,19 +439,14 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                         <table className="w-full border-collapse">
                                             <thead>
                                                 <tr className="border-b border-border">
-                                                    <th className="py-2 px-3 text-left">
+                                                    <th className="py-2 px-2 text-left">
                                                         <Typography variant="caption" className="font-semibold text-muted-foreground">
                                                             Holding
                                                         </Typography>
                                                     </th>
-                                                    <th className="py-2 px-3 text-right">
+                                                    <th className="py-2 px-2 text-right">
                                                         <Typography variant="caption" className="font-semibold text-muted-foreground">
-                                                            {t('holdings.table.weight')}
-                                                        </Typography>
-                                                    </th>
-                                                    <th className="py-2 px-3 text-right">
-                                                        <Typography variant="caption" className="font-semibold text-muted-foreground">
-                                                            {t('goals.detail.currentValue')}
+                                                            {data.lifecycleStatus === 'COMPLETED' ? t('goals.detail.holdingValueLabel') : t('goals.detail.currentValue')}
                                                         </Typography>
                                                     </th>
                                                 </tr>
@@ -449,44 +458,64 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                                         onClick={() => router.push(ROUTES.HOLDING_DETAIL(holding.id))}
                                                         className="border-b border-border hover:bg-muted/50 cursor-pointer transition-colors group"
                                                     >
-                                                        <td className="py-3 px-3">
-                                                            <Stack direction="horizontal" gap="xs" className="items-center">
-                                                                <Typography variant="body-sm" className="font-medium">
-                                                                    {holding.brandName} {holding.denominationGram}g
-                                                                </Typography>
-                                                                <ExternalLink className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                                                        <td className="py-3 px-2">
+                                                            <Stack gap="xs">
+                                                                <Stack direction="horizontal" gap="xs" className="items-center">
+                                                                    <Typography variant="body-sm" className="font-medium">
+                                                                        {holding.brandName}
+                                                                    </Typography>
+                                                                    <Typography variant="body-sm" className="text-muted-foreground font-medium">
+                                                                        {holding.denominationGram}g
+                                                                    </Typography>
+                                                                    <ExternalLink className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity ml-1" />
+                                                                </Stack>
                                                             </Stack>
                                                         </td>
-                                                        <td className="py-3 px-3 text-right">
-                                                            <Typography variant="body-sm">
-                                                                {holding.denominationGram}g
-                                                            </Typography>
-                                                        </td>
-                                                        <td className="py-3 px-3 text-right">
-                                                            <Typography variant="body-sm" className="financial-value font-medium">
-                                                                {holding.currentValue != null
-                                                                    ? formatCurrency(holding.currentValue, locale)
-                                                                    : '—'}
-                                                            </Typography>
+                                                        <td className="py-3 px-2 text-right">
+                                                            <Stack gap="xs" className="items-end">
+                                                                <Typography variant="body-sm" className="financial-value font-medium">
+                                                                    {holding.currentValue != null
+                                                                        ? formatCurrency(holding.currentValue, locale)
+                                                                        : '—'}
+                                                                </Typography>
+                                                                {(holding.status === 'SOLD' || holding.isSold) ? (
+                                                                    <Typography variant="caption" className="text-muted-foreground/70 text-[10px] flex gap-1 items-center">
+                                                                        {holding.soldDate
+                                                                            ? t('goals.detail.soldValueWithDate', {
+                                                                                date: new Date(holding.soldDate).toLocaleDateString(locale, {
+                                                                                    day: 'numeric', month: 'short', year: 'numeric'
+                                                                                })
+                                                                            })
+                                                                            : t('goals.detail.soldValueWithDate', { date: '—' }).split(' \u2022 ')[0]
+                                                                        }
+                                                                    </Typography>
+                                                                ) : (
+                                                                    <Typography variant="caption" className="text-muted-foreground/70 text-[10px]">
+                                                                        {t('goals.detail.currentValue')}
+                                                                    </Typography>
+                                                                )}
+                                                            </Stack>
                                                         </td>
                                                     </tr>
                                                 ))}
                                             </tbody>
-                                            {/* Subtotal */}
-                                            <tfoot>
-                                                <tr className="border-t-2 border-border">
-                                                    <td colSpan={2} className="py-3 px-3 text-right">
-                                                        <Typography variant="body-sm" className="font-semibold">
-                                                            Subtotal
-                                                        </Typography>
-                                                    </td>
-                                                    <td className="py-3 px-3 text-right">
-                                                        <Typography variant="body-sm" className="financial-value font-semibold">
-                                                            {formatCurrency(holdingsSubtotal, locale)}
-                                                        </Typography>
-                                                    </td>
-                                                </tr>
-                                            </tfoot>
+                                            {/* Subtotal - Only show for active goals because snapshot value doesn't match live sum */}
+                                            {data.lifecycleStatus !== 'COMPLETED' && (
+                                                <tfoot>
+                                                    <tr className="border-t-2 border-border">
+                                                        <td className="py-3 px-2 text-right">
+                                                            <Typography variant="body-sm" className="font-semibold">
+                                                                Subtotal
+                                                            </Typography>
+                                                        </td>
+                                                        <td className="py-3 px-2 text-right">
+                                                            <Typography variant="body-sm" className="financial-value font-semibold">
+                                                                {formatCurrency(holdingsSubtotal, locale)}
+                                                            </Typography>
+                                                        </td>
+                                                    </tr>
+                                                </tfoot>
+                                            )}
                                         </table>
                                     </div>
                                 )}

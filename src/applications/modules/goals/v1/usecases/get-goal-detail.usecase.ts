@@ -20,6 +20,9 @@ export interface GoalDetailResult extends GoalSummaryDomain {
         denominationGram: number
         quantity: number
         currentValue: number | null
+        status: string
+        isSold: boolean
+        soldDate: string | null
     }>
 }
 
@@ -44,21 +47,29 @@ export class GetGoalDetailUsecase {
 
         const enrichedHoldings = await Promise.all(
             holdings.map(async (holding) => {
-                const priceResult = await this.priceRepo.getLatestBuybackPrice(
-                    holding.brandCode,
-                    holding.denominationGram,
-                )
+
 
                 // Calculate invested value (cost basis)
-                // buyPrice is BigInt, convert to string for Decimal precision
                 const invested = new Decimal(holding.buyPrice.toString()).times(holding.quantity)
                 totalInvestedValue = totalInvestedValue.plus(invested)
 
                 let currentValue: number | null = null
-                if (priceResult) {
-                    const value = new Decimal(priceResult.price).times(holding.quantity)
+
+                if (holding.status === 'SOLD' && holding.sellPrice) {
+                    const value = new Decimal(holding.sellPrice).times(holding.quantity)
                     currentValue = value.toNumber()
                     totalCurrentValue = totalCurrentValue.plus(value)
+                } else {
+                    const priceResult = await this.priceRepo.getLatestBuybackPrice(
+                        holding.brandCode,
+                        holding.denominationGram,
+                    )
+
+                    if (priceResult) {
+                        const value = new Decimal(priceResult.price).times(holding.quantity)
+                        currentValue = value.toNumber()
+                        totalCurrentValue = totalCurrentValue.plus(value)
+                    }
                 }
 
                 return {
@@ -68,11 +79,17 @@ export class GetGoalDetailUsecase {
                     denominationGram: holding.denominationGram,
                     quantity: holding.quantity,
                     currentValue,
+                    status: holding.status,
+                    isSold: holding.status === 'SOLD',
+                    soldDate: holding.sellDate ? holding.sellDate.toISOString() : null,
                 }
             })
         )
 
-        const currentValueNum = totalCurrentValue.toNumber()
+        // Use snapshot value for completed goals, live value for active
+        const currentValueNum = (goal.lifecycleStatus === 'COMPLETED' && goal.completedValue != null)
+            ? goal.completedValue
+            : totalCurrentValue.toNumber()
 
         let progressPercentage: number | null = null
         let isAchieved = false

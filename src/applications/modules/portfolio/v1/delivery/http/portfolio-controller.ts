@@ -180,6 +180,7 @@ export class PortfolioController {
       buyPrice: holding.buyPrice,
       buyDate: holding.boughtAt ? holding.boughtAt.toISOString().split('T')[0] : null,
       notes: holding.notes,
+      goalId: holding.goalId,
       createdAt: new Date().toISOString(),
     }
 
@@ -229,6 +230,7 @@ export class PortfolioController {
       buyPrice: holding.buyPrice,
       buyDate: holding.boughtAt ? holding.boughtAt.toISOString().split('T')[0] : null,
       notes: holding.notes,
+      goalId: holding.goalId,
       updatedAt: new Date().toISOString(),
     }
 

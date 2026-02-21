@@ -132,7 +132,7 @@ function GoalEditContent({ goalId }: { goalId: string }) {
 
     if (isLoading) {
         return (
-            <div className="max-w-lg mx-auto pb-44">
+            <div className="w-full max-w-lg mx-auto pb-44 sm:min-w-[500px]">
                 <Section className="px-0">
                     <Stack gap="xl">
                         <Stack gap="sm">
@@ -154,7 +154,7 @@ function GoalEditContent({ goalId }: { goalId: string }) {
     }
 
     return (
-        <div className="max-w-lg mx-auto pb-44">
+        <div className="w-full max-w-lg mx-auto pb-44 sm:min-w-[500px]">
             <Section className="px-0">
                 <Stack gap="xl">
                     {/* Name */}

@@ -120,7 +120,7 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
   const hasMissingValue = !isSold && holding.totalValue === '-'
 
   return (
-    <div className="max-w-xl mx-auto pb-24">
+    <div className="w-full max-w-xl mx-auto pb-24 sm:min-w-[500px]">
       {/* Hero Section */}
       <Section className="px-6 text-center mb-8">
         <Stack gap="sm">

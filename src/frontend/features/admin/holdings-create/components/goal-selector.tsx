@@ -27,7 +27,7 @@ export function GoalSelector({ selectedGoalId, onSelect, label, className }: Goa
         queryFn: fetchGoals,
     })
 
-    const goals = data?.goals || []
+    const goals = data?.goals?.filter(goal => goal.lifecycleStatus === 'ACTIVE') || []
 
     const handleCreateSuccess = (newGoalId: string) => {
         setIsCreateOpen(false)

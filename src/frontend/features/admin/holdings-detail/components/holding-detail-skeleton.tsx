@@ -8,7 +8,7 @@ import { PageWrapper, Container, Stack, Section } from '@/frontend/components/ui
 export function HoldingDetailSkeleton() {
   return (
     <PageWrapper>
-      <Container className="max-w-xl mx-auto pb-24 px-4 md:px-8 py-8">
+      <Container className="w-full max-w-xl mx-auto pb-24 px-4 md:px-8 py-8 sm:min-w-[500px]">
         <Stack gap="xl">
           {/* Header / Breadcrumbs placeholder */}
           <div className="h-6 w-48 bg-muted/40 rounded animate-pulse mb-4" />

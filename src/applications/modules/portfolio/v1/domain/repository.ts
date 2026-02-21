@@ -7,7 +7,8 @@ export interface SellHoldingData {
 }
 
 export interface SellHoldingResult {
-  holdingId: string
+  id: string
+  holdingId: string // keep holdingId for internal backward compatibility if necessary
   realizedPnL: number
   realizedPnLPercentage: number
   status: 'SOLD'
@@ -15,6 +16,7 @@ export interface SellHoldingResult {
 
 export interface BulkSellResult {
   results: Array<{
+    id: string
     holdingId: string
     status: 'SOLD' | 'FAILED'
     realizedPnL?: number

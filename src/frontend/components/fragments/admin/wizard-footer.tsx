@@ -1,6 +1,5 @@
 import * as React from "react"
 import { Button } from "@/frontend/components/ui/button"
-import { Container } from "@/frontend/components/ui/layout"
 import { cn } from "@/frontend/utils/cn"
 
 interface WizardFooterProps {
@@ -18,7 +17,7 @@ export function WizardFooter({
 }: WizardFooterProps) {
   return (
     <footer className={cn("fixed bottom-0 left-0 right-0 p-4 md:p-0 bg-background border-t border-border md:static md:border-0 md:bg-transparent", className)}>
-      <Container className="p-0">
+      <div className="w-full">
         <Button
           variant="solid"
           color="primary"
@@ -28,7 +27,7 @@ export function WizardFooter({
         >
           {nextLabel}
         </Button>
-      </Container>
+      </div>
     </footer>
   )
 }

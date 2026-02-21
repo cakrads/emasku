@@ -67,7 +67,7 @@ export function FloatingSummaryBar({ summary, onReset, onSell }: FloatingSummary
                             </span>
                         </div>
                         <div>
-                            <Typography variant="caption" className="text-muted-foreground uppercase tracking-wider font-semibold">
+                            <Typography as="div" variant="caption" className="text-muted-foreground uppercase tracking-wider font-semibold">
                                 {t('buybackSimulation.headerSummary.totalBuyback')}
                             </Typography>
                             <Typography variant="h4" className="financial-value text-lg">
@@ -78,7 +78,7 @@ export function FloatingSummaryBar({ summary, onReset, onSell }: FloatingSummary
 
                     {/* PnL Mini (Visible on mobile/desktop) */}
                     <div className="text-right">
-                        <Typography variant="caption" className="text-muted-foreground uppercase tracking-wider font-semibold">
+                        <Typography as="div" variant="caption" className="text-muted-foreground uppercase tracking-wider font-semibold">
                             {t('buybackSimulation.headerSummary.totalPnL')}
                         </Typography>
                         <div className={cn("flex items-center justify-end gap-1.5", pnlColor)}>

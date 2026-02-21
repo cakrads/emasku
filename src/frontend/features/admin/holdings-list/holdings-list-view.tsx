@@ -237,7 +237,7 @@ function HoldingsListContent() {
 
           <div className="h-6 w-px bg-border/50 mx-1" />
 
-          <div className="flex items-center bg-muted/50 p-1 rounded-lg border border-border/50">
+          <div className="flex items-center bg-muted/50 p-1 rounded-lg border border-border/50 cursor-pointer">
             <button
               onClick={() => handleFilterApply({
                 brand: filters.brand,

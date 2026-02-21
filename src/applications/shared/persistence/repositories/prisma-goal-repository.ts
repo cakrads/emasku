@@ -80,6 +80,9 @@ export class PrismaGoalRepository {
         if (data.targetDate !== undefined) updateData.targetDate = data.targetDate
         if (data.lifecycleStatus !== undefined) updateData.lifecycleStatus = data.lifecycleStatus
         if (data.completedAt !== undefined) updateData.completedAt = data.completedAt
+        if (data.completedValue !== undefined) {
+            updateData.completedValue = data.completedValue != null ? BigInt(Math.round(data.completedValue)) : null
+        }
 
         const goal = await this.prisma.goal.update({
             where: { id, userId },
@@ -113,6 +116,18 @@ export class PrismaGoalRepository {
     }
 
     /**
+     * Unlink all holdings from a goal (set goalId to null).
+     * Used before deleting a goal so holdings are preserved.
+     */
+    async unlinkHoldings(goalId: string): Promise<void> {
+        await this.prisma.portfolioHolding.updateMany({
+            where: { goalId },
+            data: { goalId: null },
+        })
+        logger.info('Holdings unlinked from goal', { goalId })
+    }
+
+    /**
      * Find all holdings linked to a goal.
      * Returns raw holding data for enrichment by use case.
      */
@@ -123,9 +138,12 @@ export class PrismaGoalRepository {
         denominationGram: number
         quantity: number
         buyPrice: number
+        status: 'ACTIVE' | 'SOLD'
+        sellPrice?: number
+        sellDate?: Date
     }>> {
         const holdings = await this.prisma.portfolioHolding.findMany({
-            where: { goalId, soldAt: null },
+            where: { goalId },
             select: {
                 id: true,
                 brandCode: true,
@@ -133,6 +151,13 @@ export class PrismaGoalRepository {
                 denominationGram: true,
                 quantity: true,
                 buyPrice: true,
+                status: true,
+                soldTransaction: {
+                    select: {
+                        price: true,
+                        transactionDate: true,
+                    }
+                }
             },
         })
 
@@ -143,6 +168,9 @@ export class PrismaGoalRepository {
             denominationGram: Number(h.denominationGram),
             quantity: h.quantity,
             buyPrice: Number(h.buyPrice),
+            status: h.status as 'ACTIVE' | 'SOLD',
+            sellPrice: h.soldTransaction?.price ? Number(h.soldTransaction.price) : undefined,
+            sellDate: h.soldTransaction?.transactionDate ? h.soldTransaction.transactionDate : undefined,
         }))
     }
 
@@ -160,6 +188,7 @@ export class PrismaGoalRepository {
             targetDate: goal.targetDate,
             lifecycleStatus: goal.lifecycleStatus as 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'ARCHIVED',
             completedAt: goal.completedAt,
+            completedValue: goal.completedValue != null ? Number(goal.completedValue) : null,
             createdAt: goal.createdAt,
             updatedAt: goal.updatedAt,
         }

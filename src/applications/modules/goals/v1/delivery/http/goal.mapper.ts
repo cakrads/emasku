@@ -19,6 +19,7 @@ export function toGoalResponse(goal: GoalDomain) {
         targetDate: goal.targetDate ? goal.targetDate.toISOString().split('T')[0] : null,
         lifecycleStatus: goal.lifecycleStatus,
         completedAt: goal.completedAt ? goal.completedAt.toISOString() : null,
+        completedValue: goal.completedValue,
         createdAt: goal.createdAt.toISOString(),
         updatedAt: goal.updatedAt.toISOString(),
     }
@@ -40,6 +41,7 @@ export function toGoalSummaryResponse(goal: GoalSummaryDomain) {
         isAchieved: goal.isAchieved,
         lifecycleStatus: goal.lifecycleStatus,
         completedAt: goal.completedAt ? goal.completedAt.toISOString() : null,
+        completedValue: goal.completedValue,
         createdAt: goal.createdAt.toISOString(),
     }
 }
@@ -61,6 +63,7 @@ export function toGoalDetailResponse(detail: GoalDetailResult) {
         isAchieved: detail.isAchieved,
         lifecycleStatus: detail.lifecycleStatus,
         completedAt: detail.completedAt ? detail.completedAt.toISOString() : null,
+        completedValue: detail.completedValue,
         holdings: detail.holdings,
         createdAt: detail.createdAt.toISOString(),
         updatedAt: detail.updatedAt.toISOString(),

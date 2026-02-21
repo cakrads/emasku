@@ -17,6 +17,7 @@ export interface GoalDomain {
   targetDate: Date | null
   lifecycleStatus: 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'ARCHIVED'
   completedAt: Date | null
+  completedValue: number | null    // snapshot of total value at completion time
   createdAt: Date
   updatedAt: Date
 }
