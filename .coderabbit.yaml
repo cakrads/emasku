@@ -1,0 +1,8 @@
+reviews:
+  path_filters:
+    - "prisma/schema.prisma"
+    - "src/applications/**"
+    - "src/i18n/**"
+    - "src/lib/**"
+    - "src/shared/**"
+    - "src/middleware.ts"
