@@ -11,7 +11,10 @@ import { mapSupabaseError } from './auth.errors'
 import type { User, Session, AuthChangeEvent } from '@supabase/supabase-js'
 
 /**
- * Map Supabase user to our AuthUser type
+ * Create an AuthUser object from a Supabase User.
+ *
+ * @param user - Supabase `User` to map
+ * @returns An `AuthUser` with `id`, `email` (or `null`), `provider` (`'guest'` or `'google'`), `isGuest`, `displayName` (or `null`), `avatarUrl` (or `null`), and `createdAt`
  */
 function mapUser(user: User): AuthUser {
   const provider = user.app_metadata?.provider as string | undefined
@@ -29,7 +32,10 @@ function mapUser(user: User): AuthUser {
 }
 
 /**
- * Map Supabase session to our AuthSession type
+ * Convert a Supabase Session into the project's AuthSession shape.
+ *
+ * @param session - Supabase `Session` to map
+ * @returns The corresponding `AuthSession` with `user`, `accessToken`, and `expiresAt` (defaults to `0` when missing)
  */
 function mapSession(session: Session): AuthSession {
   return {
@@ -40,7 +46,9 @@ function mapSession(session: Session): AuthSession {
 }
 
 /**
- * Login as guest (anonymous sign-in)
+ * Signs in the user anonymously and returns the resulting authentication session.
+ *
+ * @returns On success, an `AuthResult` whose `data` is the mapped `AuthSession`; on failure, an `AuthResult` whose `error` is the mapped error
  */
 export async function loginAsGuest(): Promise<AuthResult<AuthSession>> {
   try {
@@ -62,9 +70,9 @@ export async function loginAsGuest(): Promise<AuthResult<AuthSession>> {
 }
 
 /**
- * Login with Google OAuth
- * Redirects to Google for authentication
- */
+ * Initiates a Google OAuth flow and provides the OAuth redirect URL.
+ *
+ * @returns The OAuth redirect URL as `{ url: string }` when successful; otherwise the result contains a mapped error.
 export async function loginWithGoogle(): Promise<AuthResult<{ url: string }>> {
   try {
     const supabase = getBrowserSupabaseClient()
@@ -96,7 +104,11 @@ export async function loginWithGoogle(): Promise<AuthResult<{ url: string }>> {
 }
 
 /**
- * Get the current session
+ * Retrieve the current authenticated session, if any.
+ *
+ * The returned session (when present) is converted to the module's AuthSession shape.
+ *
+ * @returns An AuthResult whose `data` is the mapped AuthSession when a session exists, `null` when no session exists. On failure `success` is `false` and `error` contains a mapped error.
  */
 export async function getSession(): Promise<AuthResult<AuthSession | null>> {
   try {
@@ -118,7 +130,13 @@ export async function getSession(): Promise<AuthResult<AuthSession | null>> {
 }
 
 /**
- * Get the current user (from session)
+ * Retrieve the currently authenticated user from the active session.
+ *
+ * If no session or user exists, resolves successfully with `data: null`. If an authentication error
+ * indicating "not authenticated" occurs, it is treated as success with `data: null`. Other errors
+ * are returned as failures in the `AuthResult`.
+ *
+ * @returns The mapped `AuthUser` from the active session, or `null` if there is no authenticated user.
  */
 export async function getUser(): Promise<AuthResult<AuthUser | null>> {
   try {
@@ -144,9 +162,10 @@ export async function getUser(): Promise<AuthResult<AuthUser | null>> {
 }
 
 /**
- * Sign out the current user
- * 
- * @param options.scope - 'local' clears only current session, 'global' invalidates all sessions
+ * Signs out the current user.
+ *
+ * @param options.scope - Scope of sign-out: `'local'` clears only the current session, `'global'` invalidates all sessions.
+ * @returns An AuthResult whose `data` is `undefined` on success; on failure `error` contains the mapped Supabase error.
  */
 export async function signOut(
   options: { scope?: 'local' | 'global' } = {}
@@ -168,8 +187,10 @@ export async function signOut(
 }
 
 /**
- * Subscribe to auth state changes
- * Returns an unsubscribe function
+ * Subscribe to authentication state changes and invoke the callback with a mapped session.
+ *
+ * @param callback - Invoked whenever auth state changes with the current `AuthSession` or `null` when there is no active session
+ * @returns A function that unsubscribes the auth state listener
  */
 export function onAuthStateChange(
   callback: (session: AuthSession | null) => void

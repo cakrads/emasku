@@ -54,7 +54,13 @@ export const logger = winston.createLogger({
 })
 
 /**
- * Log an HTTP request with standardized metadata
+ * Record an HTTP request entry with standardized metadata for structured logging.
+ *
+ * @param method - HTTP method (e.g., "GET", "POST")
+ * @param path - Request path or route
+ * @param statusCode - HTTP response status code
+ * @param duration - Time taken to handle the request, in milliseconds
+ * @param meta - Optional additional metadata to include with the log entry
  */
 export function logRequest(
   method: string,
@@ -73,7 +79,11 @@ export function logRequest(
 }
 
 /**
- * Log a database query for performance monitoring
+ * Record a database query event with execution time and performance metadata.
+ *
+ * @param query - The SQL or query string to log (will be truncated to 100 characters in the log)
+ * @param duration - Execution duration in milliseconds
+ * @param meta - Optional additional metadata to attach to the log entry
  */
 export function logQuery(
   query: string,
@@ -90,7 +100,15 @@ export function logQuery(
 }
 
 /**
- * Log an error with full context
+ * Log an error with contextual metadata.
+ *
+ * Includes the provided message and merges additional metadata into the log entry.
+ *
+ * If `error` is an `Error`, the log entry will include its `message`, `name`, and `stack`; otherwise the error will be stringified.
+ *
+ * @param message - Human-readable summary of the error context
+ * @param error - The error instance or any value representing the error
+ * @param meta - Optional additional metadata to attach to the log entry
  */
 export function logError(
   message: string,

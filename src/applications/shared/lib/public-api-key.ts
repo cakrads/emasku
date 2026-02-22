@@ -27,7 +27,12 @@ export interface PublicApiKeyInfo {
 }
 
 /**
- * Validate a public API key
+ * Determine validity and client type for a public API key.
+ *
+ * If `key` is null, empty, or does not start with a recognized prefix, it is treated as invalid.
+ *
+ * @param key - The public API key to evaluate, or `null`
+ * @returns An object with `isValid` indicating whether the key is accepted, `clientType` set to `'web'`, `'mobile'`, or `'unknown'` based on the key contents, and `keyPrefix` containing the first 20 characters of the provided key (or an empty string when invalid)
  */
 export function validatePublicApiKey(key: string | null): PublicApiKeyInfo {
   if (!key) {
@@ -57,8 +62,9 @@ export function validatePublicApiKey(key: string | null): PublicApiKeyInfo {
 }
 
 /**
- * Check if public API key validation is enforced
- * In development, we may skip validation if not configured
+ * Determine whether public API key validation is enforced for incoming requests.
+ *
+ * @returns `true` if the application is running in production or the `ENFORCE_PUBLIC_API_KEY` environment variable is set to `'true'`, `false` otherwise.
  */
 export function isPublicApiKeyRequired(): boolean {
   return process.env.NODE_ENV === 'production' ||
@@ -81,7 +87,12 @@ const BLOCKED_USER_AGENTS = [
 ]
 
 /**
- * Check if User-Agent is blocked
+ * Determines whether a User-Agent string should be blocked for public endpoints.
+ *
+ * Treats `null`, empty, or whitespace-only values as blocked; otherwise tests the value against the module's blocked patterns.
+ *
+ * @param userAgent - The User-Agent header value to evaluate; `null` or empty values are treated as blocked.
+ * @returns `true` if the User-Agent is blocked, `false` otherwise.
  */
 export function isBlockedUserAgent(userAgent: string | null): boolean {
   if (!userAgent || userAgent.trim() === '') {

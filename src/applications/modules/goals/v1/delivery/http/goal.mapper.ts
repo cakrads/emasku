@@ -8,7 +8,13 @@ import { GoalDomain, GoalSummaryDomain } from '../../domain/goal.domain'
 import { GoalDetailResult } from '../../usecases/get-goal-detail.usecase'
 
 /**
- * Map goal domain to create/update response.
+ * Map a GoalDomain to the API response shape used for create/update operations.
+ *
+ * @param goal - The domain model representing the goal to convert
+ * @returns The response object containing goal fields:
+ * - `id`, `name`, `description`, `targetAmount`, `lifecycleStatus`, `completedValue`, `createdAt`, `updatedAt`
+ * - `targetDate`: ISO date string in `YYYY-MM-DD` format or `null`
+ * - `completedAt`: ISO timestamp string or `null`
  */
 export function toGoalResponse(goal: GoalDomain) {
     return {
@@ -26,7 +32,10 @@ export function toGoalResponse(goal: GoalDomain) {
 }
 
 /**
- * Map goal summary domain to list response item.
+ * Convert a GoalSummaryDomain into an API-facing goal summary response object.
+ *
+ * @param goal - The domain-level goal summary to convert.
+ * @returns An object with fields: `id`, `name`, `description`, `targetAmount`, `targetDate` (ISO date `YYYY-MM-DD` or `null`), `holdingCount`, `totalCurrentValue`, `progressPercentage`, `isAchieved`, `lifecycleStatus`, `completedAt` (ISO timestamp or `null`), `completedValue`, and `createdAt` (ISO timestamp).
  */
 export function toGoalSummaryResponse(goal: GoalSummaryDomain) {
     return {
@@ -47,7 +56,10 @@ export function toGoalSummaryResponse(goal: GoalSummaryDomain) {
 }
 
 /**
- * Map goal detail to full response.
+ * Transform a GoalDetailResult into the API goal detail response.
+ *
+ * @param detail - The domain-level goal detail to convert.
+ * @returns An object containing goal detail fields suitable for API responses. Date fields are formatted: `targetDate` as `YYYY-MM-DD` or `null`, `completedAt`, `createdAt`, and `updatedAt` as ISO timestamp strings (or `null` for `completedAt`).
  */
 export function toGoalDetailResponse(detail: GoalDetailResult) {
     return {

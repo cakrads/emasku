@@ -4,14 +4,11 @@ import { UnauthorizedError } from '@/applications/shared/lib/errors'
 import { PrismaUserRepository } from '@/applications/shared/persistence/repositories/prisma-user-repository'
 
 /**
- * Verify User Authentication
- * 
- * Resolves the authenticated User ID from the request using:
- * 1. Bearer Token (Authorization Header)
- * 2. Supabase Cookie Session
- * 3. Development Fallback (if configured)
- * 
- * Throws UnauthorizedError if no valid authentication found.
+ * Resolve the authenticated user's ID from the incoming request.
+ *
+ * @param req - The NextRequest containing headers or cookies used for authentication
+ * @returns The authenticated user's ID
+ * @throws UnauthorizedError if no valid authentication is present or the Bearer token is invalid
  */
 export async function verifyUser(req: NextRequest): Promise<string> {
   const supabase = await createServerSupabaseClient()

@@ -15,7 +15,9 @@ const redis = new Redis({
 })
 
 /**
- * Check if rate limiting is enabled (env vars present)
+ * Indicates whether Redis-backed rate limiting is configured via environment variables.
+ *
+ * @returns `true` if both UPSTASH_REDIS_REST_URL and UPSTASH_REDIS_REST_TOKEN are set, `false` otherwise.
  */
 export function isRateLimitEnabled(): boolean {
   return !!(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN)
@@ -74,7 +76,13 @@ export type RateLimitResult = {
 }
 
 /**
- * Apply rate limiting to a request
+ * Enforces the configured rate limit for a given endpoint and requester identifier.
+ *
+ * When rate limiting is not configured, returns a permissive result allowing requests.
+ *
+ * @param endpoint - The key identifying which configured rate limiter to apply
+ * @param identifier - The requester identifier used to track usage (e.g., IP address or user ID)
+ * @returns A RateLimitResult where `success` is true if the request is allowed, `false` otherwise; `remaining` is the number of requests left in the current window; `reset` is the epoch milliseconds when the limit window resets; `limit` is the maximum requests allowed in the window
  */
 export async function checkRateLimit(
   endpoint: keyof typeof rateLimiters,

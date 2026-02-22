@@ -11,8 +11,15 @@ import { cookies } from 'next/headers'
 import { SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY } from '../lib/env'
 
 /**
- * Create a Supabase client for server-side usage
- * Must be called within a request context (has access to cookies)
+ * Create and return a Supabase client configured for server-side use with cookie-backed session handling.
+ *
+ * Must be called within a request context that provides access to cookies (e.g., a Next.js server component or route handler).
+ *
+ * The client is initialized with the module's Supabase URL and public key and uses the request's cookie store to
+ * read and write authentication cookies. If cookie writes fail (for example, when invoked from a Server Component),
+ * those write errors are silently ignored to allow middleware-driven session refresh patterns.
+ *
+ * @returns A Supabase client instance configured for server-side usage and cookie-based authentication.
  */
 export async function createServerSupabaseClient() {
   const cookieStore = await cookies()

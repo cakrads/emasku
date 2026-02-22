@@ -27,9 +27,13 @@ export interface DeserializedGoldPrice {
 }
 
 /**
- * Recursively resolves a value from the serialized array.
- * If the value is a number, treat it as an index reference.
- * Otherwise, return the value as-is.
+ * Resolve references in a Nuxt __NUXT_DATA__ serialized array to concrete values.
+ *
+ * Recursively resolves numeric index references and object properties: when `value` is a number within `data` bounds it is treated as an index reference; when an object is encountered its properties are resolved recursively.
+ *
+ * @param data - The serialized array containing values and index references.
+ * @param value - The value or reference to resolve.
+ * @returns The resolved value with index references replaced by their concrete values.
  */
 function resolveValue(data: unknown[], value: unknown): unknown {
   if (typeof value === 'number' && value >= 0 && value < data.length) {
@@ -65,8 +69,10 @@ function resolveValue(data: unknown[], value: unknown): unknown {
 }
 
 /**
- * Deserialize Nuxt.js __NUXT_DATA__ array into structured gold price data
- */
+ * Convert a Nuxt.js __NUXT_DATA__ array into a list of structured gold price records.
+ *
+ * @param data - The raw __NUXT_DATA__ array produced by Nuxt.js; this function expects the item indices to be stored at index `3`.
+ * @returns An array of `DeserializedGoldPrice` objects extracted from `data`. Only entries with an `id` and a defined `price` are included; unresolved or malformed entries are skipped.
 export function deserializeNuxtData(data: unknown[]): DeserializedGoldPrice[] {
   // Index 3 contains the array of item indices
   const itemIndices = data[3]

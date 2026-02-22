@@ -37,8 +37,9 @@ export const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
 export const NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY || ''
 
 /**
- * Validate critical environment variables
- * Call this at app startup to fail fast
+ * Validates that required Supabase environment variables are present.
+ *
+ * Checks NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY; if any are missing, throws an Error when NODE_ENV is "production" and logs a console warning otherwise.
  */
 export function validateEnv(): void {
   const missing: string[] = []

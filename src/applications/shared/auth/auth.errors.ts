@@ -35,10 +35,14 @@ const RECOVERY_ACTIONS: Record<AuthErrorCode, AuthRecoveryAction> = {
 }
 
 /**
- * Create a structured auth error
- * 
- * @param code - Error code
- * @param debugMessage - Technical details (only shown in dev)
+ * Constructs a sanitized AuthError object for the provided auth error code.
+ *
+ * Includes a user-facing message and a recovery action; the supplied `debugMessage`
+ * is attached only when running in a development environment.
+ *
+ * @param code - The AuthErrorCode representing the error scenario
+ * @param debugMessage - Technical details to include for debugging (development only)
+ * @returns An AuthError containing `code`, `userMessage`, optional `debugMessage`, and `recoveryAction`
  */
 export function createAuthError(
   code: AuthErrorCode,
@@ -53,8 +57,11 @@ export function createAuthError(
 }
 
 /**
- * Map Supabase error to AuthError
- * Extracts known error patterns and sanitizes output
+ * Maps a Supabase-style error to a sanitized AuthError with a user-facing message and recovery action.
+ *
+ * Extracts a text message from the input, matches known patterns to select a specific AuthErrorCode, and returns the corresponding AuthError. If the input is null/undefined or no known pattern matches, returns an AuthError with code `AUTH_UNKNOWN`. The original error message is preserved for development-only debug output.
+ *
+ * @returns An AuthError corresponding to the supplied error; the original message is preserved as a development-only `debugMessage`.
  */
 export function mapSupabaseError(error: unknown): AuthError {
   // Handle null/undefined

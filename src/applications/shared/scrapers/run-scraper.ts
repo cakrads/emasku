@@ -13,6 +13,14 @@ const pool = new pg.Pool({ connectionString })
 const adapter = new PrismaPg(pool)
 const prisma = new PrismaClient({ adapter })
 
+/**
+ * Orchestrates a single run of the gold price scraper and persists results to the database.
+ *
+ * Validates required environment variables, logs runtime information, constructs and runs
+ * the scraping use case, and prints the result. On missing configuration or on execution
+ * error the process exits with code 1. Ensures database client disconnection and pool shutdown
+ * in all cases.
+ */
 async function main() {
   console.log('=== Gold Price Scraper Runner ===\n')
 

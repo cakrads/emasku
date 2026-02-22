@@ -11,6 +11,11 @@ const pool = new pg.Pool({ connectionString })
 const adapter = new PrismaPg(pool)
 const prisma = new PrismaClient({ adapter })
 
+/**
+ * Orchestrates a verification workflow that forces a fresh ANTAM 1g price scrape, runs the scraper, and prints the latest scraper log.
+ *
+ * Deletes today's ANTAM 1g price records (SELL and BUYBACK) to trigger a re-scrape, executes the `scraper:run` npm script, and outputs the most recent log file from `.scrap/logs` if one exists.
+ */
 async function main() {
   console.log('--- Step 1: Cleaning up specific record to force re-scrape ---')
 
