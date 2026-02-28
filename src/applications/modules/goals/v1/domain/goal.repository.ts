@@ -4,24 +4,9 @@
  * Pure domain contract — no Prisma or framework imports.
  */
 
-import { GoalDomain } from './goal.domain'
+import { GoalDomain, CreateGoalData, UpdateGoalData } from '@/applications/shared/domain/goal.contract'
 
-export interface CreateGoalData {
-    name: string
-    description?: string
-    targetAmount?: number | bigint
-    targetDate?: Date
-}
-
-export interface UpdateGoalData {
-    name?: string
-    description?: string | null
-    targetAmount?: number | bigint | null
-    targetDate?: Date | null
-    lifecycleStatus?: 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'ARCHIVED'
-    completedAt?: Date | null
-    completedValue?: number | bigint | null
-}
+export type { CreateGoalData, UpdateGoalData } from '@/applications/shared/domain/goal.contract'
 
 export interface IGoalRepository {
     findAllByUserId(userId: string): Promise<GoalDomain[]>

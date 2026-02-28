@@ -104,13 +104,27 @@ export class PrismaPriceRepository {
   }
 
   /**
-   * Get latest BUYBACK prices for multiple keys.
-   * Key format: "brandCode:denominationGram"
+   * Batch fetch latest BUYBACK prices for multiple brand:denomination keys.
    */
   async getLatestBuybackPrices(keys: string[]): Promise<Record<string, PriceResult>> {
+    return this.getLatestPricesDict(keys, PriceType.BUYBACK)
+  }
+
+  /**
+   * Batch fetch latest SELL prices for multiple brand:denomination keys.
+   */
+  async getLatestSellPrices(keys: string[]): Promise<Record<string, PriceResult>> {
+    return this.getLatestPricesDict(keys, PriceType.SELL)
+  }
+
+  /**
+   * Generic batch fetch for latest prices of a specific type.
+   */
+  private async getLatestPricesDict(keys: string[], priceType: PriceType): Promise<Record<string, PriceResult>> {
     const results: Record<string, PriceResult> = {}
     if (keys.length === 0) return results
 
+    // Map normalized "brandCode:denominationGram" to original keys to handle minor formatting differences
     const keyMapping: Record<string, string[]> = {}
     const parsedConditions: Array<{ brandCode: string; denominationGram: number }> = []
 
@@ -140,7 +154,7 @@ export class PrismaPriceRepository {
     // Order by priceAt desc ensures the distinct pick is the latest record
     const priceRecords = await this.prisma.goldPrice.findMany({
       where: {
-        priceType: PriceType.BUYBACK,
+        priceType,
         OR: parsedConditions
       },
       orderBy: [

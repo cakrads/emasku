@@ -6,8 +6,7 @@
  */
 
 import { PrismaClient, Prisma, PortfolioHolding, HoldingTransaction, HoldingStatus } from '@prisma/client'
-import { PortfolioHoldingDomain } from '@/applications/modules/portfolio/v1/domain/portfolio.domain'
-import { SellHoldingData, SellHoldingResult, BulkSellResult } from '@/applications/modules/portfolio/v1/domain/repository'
+import { PortfolioHoldingDomain, SellHoldingData, SellHoldingResult, BulkSellResult } from '@/applications/shared/domain/portfolio.contract'
 import { logger } from '@/applications/shared/lib/logger'
 
 type HoldingWithRelations = PortfolioHolding & {

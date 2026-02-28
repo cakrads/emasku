@@ -54,4 +54,9 @@ export function validateEnv(): void {
   if (missing.length > 0) {
     console.warn(`⚠️ Missing environment variables: ${missing.join(', ')}`)
   }
+
+  // Security check: Never allow dev auth bypass in production
+  if (IS_PRODUCTION && process.env.ALLOW_DEV_AUTH === 'true') {
+    throw new Error('Security Violation: ALLOW_DEV_AUTH must not be enabled in production environments.')
+  }
 }

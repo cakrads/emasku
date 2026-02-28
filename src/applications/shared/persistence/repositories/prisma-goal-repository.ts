@@ -6,8 +6,7 @@
  */
 
 import { PrismaClient, Goal } from '@prisma/client'
-import { GoalDomain } from '@/applications/modules/goals/v1/domain/goal.domain'
-import { CreateGoalData, UpdateGoalData } from '@/applications/modules/goals/v1/domain/goal.repository'
+import { GoalDomain, CreateGoalData, UpdateGoalData } from '@/applications/shared/domain/goal.contract'
 import { logger } from '@/applications/shared/lib/logger'
 
 export class PrismaGoalRepository {

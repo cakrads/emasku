@@ -131,4 +131,23 @@ export class PrismaGoldDailyCloseRepository {
       ]
     })
   }
+  /**
+   * Batch fetch Daily Closes for specific brand/type/gram/date keys.
+   */
+  async getByDateBatch(
+    items: { brandCode: string; priceType: PriceType; denominationGram: Decimal; closeDate: Date }[]
+  ): Promise<GoldDailyClose[]> {
+    if (items.length === 0) return []
+
+    return this.prisma.goldDailyClose.findMany({
+      where: {
+        OR: items.map(item => ({
+          brandCode: item.brandCode,
+          priceType: item.priceType,
+          denominationGram: new Decimal(item.denominationGram),
+          closeDate: item.closeDate
+        }))
+      }
+    })
+  }
 }

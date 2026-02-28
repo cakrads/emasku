@@ -23,30 +23,9 @@ export interface HoldingTransactionDomain {
  * NO valuation, NO current prices.
  * This represents the immutable purchase record.
  */
-export interface PortfolioHoldingDomain {
-  id: string
-  userId: string
-  brandCode: string
-  brandName: string
-  denominationGram: number
-  quantity: number
-  buyPrice: number
-  boughtAt: Date | null
-  soldAt?: Date | null
-  status: 'ACTIVE' | 'SOLD'
-  createdAt: Date
-  updatedAt?: Date
-  notes?: string
-  goalId?: string | null
-  goalName?: string | null
-  // Sell transaction data (populated when status = SOLD)
-  sellPrice?: number | null
-  sellDate?: Date | null
-  sellNotes?: string | null
-  realizedPnL?: number | null
-  realizedPnLPercentage?: number | null
-  holdingDurationDays?: number | null
-}
+import { PortfolioHoldingDomain as SharedPortfolioHoldingDomain } from '@/applications/shared/domain/portfolio.contract'
+
+export type { PortfolioHoldingDomain } from '@/applications/shared/domain/portfolio.contract'
 
 /**
  * Holding enriched with current market valuation.
@@ -54,7 +33,7 @@ export interface PortfolioHoldingDomain {
  * For ACTIVE: includes market-driven valuation.
  * For SOLD: includes realized P/L from sell transaction.
  */
-export interface ValuatedHoldingDomain extends PortfolioHoldingDomain {
+export interface ValuatedHoldingDomain extends SharedPortfolioHoldingDomain {
   currentPrice: number | null
   currentValue: number | null
   unrealizedPnL: number | null

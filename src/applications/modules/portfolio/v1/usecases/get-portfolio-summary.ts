@@ -53,16 +53,56 @@ export class GetPortfolioSummaryUsecase {
       return this.emptyPortfolio()
     }
 
-    // 1. Enrich with valuations
-    const valuatedHoldings = await Promise.all(
-      holdings.map(async (holding) => {
-        const valuation = await this.getValuation(holding)
-        return { holding, valuation }
-      })
-    )
-
-    // 2. Prepare periods and state
+    // 0. Batch collect all required prices to fix N+1
     const dates = this.getPeriodicDates()
+    const activeHoldings = holdings.filter(h => h.status !== 'SOLD')
+    const priceKeys = new Set<string>()
+    const dailyCloseKeysList: Array<{ brandCode: string, priceType: PriceType, denominationGram: Decimal, closeDate: Date }> = []
+    const dailyCloseUniqueSet = new Set<string>()
+
+    for (const h of holdings) {
+      const g = new Decimal(h.denominationGram)
+      const k = `${h.brandCode}:${h.denominationGram}`
+      priceKeys.add(k)
+      if (!g.equals(1)) priceKeys.add(`${h.brandCode}:1`)
+
+      if (h.status !== 'SOLD') {
+        const addCloseKey = (gram: Decimal, date: Date) => {
+          const dk = `${h.brandCode}:${PriceType.SELL}:${gram.toString()}:${date.toISOString().split('T')[0]}`
+          if (!dailyCloseUniqueSet.has(dk)) {
+            dailyCloseUniqueSet.add(dk)
+            dailyCloseKeysList.push({ brandCode: h.brandCode, priceType: PriceType.SELL, denominationGram: gram, closeDate: date })
+          }
+        }
+
+        const targetDates = [dates.yesterday.date, dates.weekAgo.date, dates.monthAgo.date, dates.yearAgo.date]
+        for (const d of targetDates) {
+          addCloseKey(g, d)
+          if (!g.equals(1)) addCloseKey(new Decimal(1), d)
+        }
+      }
+    }
+
+    const [buybackPricesDict, sellPricesDict, dailyCloses] = await Promise.all([
+      this.priceRepo.getLatestBuybackPrices(Array.from(priceKeys)),
+      this.priceRepo.getLatestSellPrices(Array.from(priceKeys)),
+      this.dailyCloseRepo.getByDateBatch(dailyCloseKeysList)
+    ])
+
+    // Map daily closes to a fast lookup dictionary
+    const dailyClosesDict = new Map<string, number>()
+    for (const dc of dailyCloses) {
+      const dk = `${dc.brandCode}:${dc.priceType}:${dc.denominationGram.toString()}:${dc.closeDate.toISOString().split('T')[0]}`
+      dailyClosesDict.set(dk, Number(dc.price))
+    }
+
+    // 1. Enrich with valuations
+    const valuatedHoldings = holdings.map((holding) => {
+      const valuation = this.getValuationSync(holding, buybackPricesDict)
+      return { holding, valuation }
+    })
+
+    // 2. Prepare state
     this.logDates(dates)
 
     const state = {
@@ -78,21 +118,11 @@ export class GetPortfolioSummaryUsecase {
       monthly: { pnl: new Decimal(0), base: new Decimal(0), has: false },
       yearly: { pnl: new Decimal(0), base: new Decimal(0), has: false },
 
-      dailyCloseCache: new Map<string, number | null>(),
       brandMap: new Map<string, BrandAllocationDomain>()
     }
 
-    // 3. Main processing loop (Parallel PnL & Serial Aggregation)
-    const pnlResults = await Promise.all(
-      valuatedHoldings.map(({ holding, valuation }) => {
-        if (valuation.currentValue !== null) {
-          return this.processPeriodicPnLForHolding(holding, dates, state.dailyCloseCache)
-        }
-        return null
-      })
-    )
-
-    valuatedHoldings.forEach(({ holding, valuation }, index) => {
+    // 3. Process each holding
+    valuatedHoldings.forEach(({ holding, valuation }) => {
       const buyValue = new Decimal(holding.buyPrice).times(holding.quantity)
 
       if (valuation.currentValue !== null) {
@@ -107,8 +137,8 @@ export class GetPortfolioSummaryUsecase {
           state.latestPriceUpdate = valuation.priceAsOf
         }
 
-        // Apply PnL results from parallel execution
-        const pnl = pnlResults[index]
+        // Apply PnL results
+        const pnl = this.processPeriodicPnLForHoldingSync(holding, dates, sellPricesDict, dailyClosesDict)
         if (pnl) {
           state.daily.pnl = state.daily.pnl.plus(pnl.daily.pnl)
           state.daily.base = state.daily.base.plus(pnl.daily.base)
@@ -201,25 +231,26 @@ export class GetPortfolioSummaryUsecase {
     console.log('365 hari lalu (T-365):', dates.yearAgo.str);
   }
 
-  private async processPeriodicPnLForHolding(
+  private processPeriodicPnLForHoldingSync(
     holding: PortfolioHoldingDomain,
     dates: PeriodicDates,
-    cache: Map<string, number | null>
-  ): Promise<{
+    sellPricesDict: Record<string, { price: number, priceAt: Date }>,
+    dailyClosesDict: Map<string, number>
+  ): {
     daily: { pnl: Decimal, base: Decimal, has: boolean },
     weekly: { pnl: Decimal, base: Decimal, has: boolean },
     monthly: { pnl: Decimal, base: Decimal, has: boolean },
     yearly: { pnl: Decimal, base: Decimal, has: boolean }
-  }> {
+  } {
     const gram = new Decimal(holding.denominationGram)
     const qty = new Decimal(holding.quantity)
 
-    // 1. Fetch current live price for comparison (use SELL price for valuation delta)
-    let pTodayResult = await this.priceRepo.getLatestSellPrice(holding.brandCode, holding.denominationGram)
+    // 1. Get current live price from dict (with fallback)
+    const key = `${holding.brandCode}:${holding.denominationGram}`
+    let pTodayResult = sellPricesDict[key]
 
-    // Fallback for live price: if specific weight not found, scale from 1g
     if (!pTodayResult && !gram.equals(1)) {
-      const p1g = await this.priceRepo.getLatestSellPrice(holding.brandCode, 1)
+      const p1g = sellPricesDict[`${holding.brandCode}:1`]
       if (p1g) {
         pTodayResult = {
           price: new Decimal(p1g.price).times(gram).toNumber(),
@@ -230,13 +261,25 @@ export class GetPortfolioSummaryUsecase {
 
     const pToday = pTodayResult ? pTodayResult.price : null
 
-    // 2. Fetch all historical closes in parallel
-    const [pYesterday, pWeek, pMonth, pYear] = await Promise.all([
-      this.getClosePrice(holding.brandCode, gram, dates.yesterday.str, dates.yesterday.date, cache),
-      this.getClosePrice(holding.brandCode, gram, dates.weekAgo.str, dates.weekAgo.date, cache),
-      this.getClosePrice(holding.brandCode, gram, dates.monthAgo.str, dates.monthAgo.date, cache),
-      this.getClosePrice(holding.brandCode, gram, dates.yearAgo.str, dates.yearAgo.date, cache)
-    ])
+    // 2. Get historical closes from dict
+    const getClose = (date: Date) => {
+      const dk = `${holding.brandCode}:${PriceType.SELL}:${gram.toString()}:${date.toISOString().split('T')[0]}`
+      let val = dailyClosesDict.get(dk)
+
+      if (val === undefined && !gram.equals(1)) {
+        const dk1g = `${holding.brandCode}:${PriceType.SELL}:1:${date.toISOString().split('T')[0]}`
+        const val1g = dailyClosesDict.get(dk1g)
+        if (val1g !== undefined) {
+          val = new Decimal(val1g).times(gram).toNumber()
+        }
+      }
+      return val ?? null
+    }
+
+    const pYesterday = getClose(dates.yesterday.date)
+    const pWeek = getClose(dates.weekAgo.date)
+    const pMonth = getClose(dates.monthAgo.date)
+    const pYear = getClose(dates.yearAgo.date)
 
     const result = {
       daily: { pnl: new Decimal(0), base: new Decimal(0), has: false },
@@ -245,7 +288,6 @@ export class GetPortfolioSummaryUsecase {
       yearly: { pnl: new Decimal(0), base: new Decimal(0), has: false }
     }
 
-    // helper to update period accumulators
     const update = (obj: any, current: number | null, historical: number | null) => {
       if (current !== null && historical !== null) {
         const move = current - historical
@@ -263,43 +305,13 @@ export class GetPortfolioSummaryUsecase {
     return result
   }
 
-  private async getClosePrice(
-    brandCode: string,
-    gram: Decimal,
-    dateStr: string,
-    dateObj: Date,
-    cache: Map<string, number | null>
-  ): Promise<number | null> {
-    const key = `${brandCode}-SELL-${gram}-${dateStr}`
-    if (cache.has(key)) return cache.get(key)!
-
-    // 1. Exact match
-    let close = await this.dailyCloseRepo.getByDate(brandCode, PriceType.SELL, gram, dateObj)
-
-    // 2. Fallback to 1g scaled
-    if (!close && !gram.equals(1)) {
-      const close1g = await this.dailyCloseRepo.getByDate(brandCode, PriceType.SELL, new Decimal(1), dateObj)
-      if (close1g) {
-        const estimated = new Decimal(close1g.price).times(gram).toNumber()
-        cache.set(key, estimated)
-        return estimated
-      }
-    }
-
-    const val = close ? Number(close.price) : null
-    cache.set(key, val)
-    return val
-  }
-
   /**
    * Get valuation for a holding using fallback logic:
    * BUYBACK → NULL
    */
-  private async getValuation(holding: PortfolioHoldingDomain) {
-    const priceResult = await this.priceRepo.getLatestBuybackPrice(
-      holding.brandCode,
-      holding.denominationGram
-    )
+  private getValuationSync(holding: PortfolioHoldingDomain, buybackPricesDict: Record<string, { price: number, priceAt: Date }>) {
+    const key = `${holding.brandCode}:${holding.denominationGram}`
+    const priceResult = buybackPricesDict[key]
 
     if (!priceResult) {
       return { currentValue: null, valuationSource: 'NONE' as const, priceAsOf: null }

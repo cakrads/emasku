@@ -1,28 +1,7 @@
-import { PortfolioHoldingDomain } from './portfolio.domain';
+import { PortfolioHoldingDomain, SellHoldingData, SellHoldingResult, BulkSellResult } from '@/applications/shared/domain/portfolio.contract'
 
-export interface SellHoldingData {
-  sellPrice: number | bigint
-  sellDate: Date
-  notes?: string
-}
+export type { SellHoldingData, SellHoldingResult, BulkSellResult } from '@/applications/shared/domain/portfolio.contract'
 
-export interface SellHoldingResult {
-  id: string
-  holdingId: string // keep holdingId for internal backward compatibility if necessary
-  realizedPnL: number
-  realizedPnLPercentage: number
-  status: 'SOLD'
-}
-
-export interface BulkSellResult {
-  results: Array<{
-    id: string
-    holdingId: string
-    status: 'SOLD' | 'FAILED'
-    realizedPnL?: number
-    error?: string
-  }>
-}
 
 export interface IPortfolioRepository {
   findAllByUserId(

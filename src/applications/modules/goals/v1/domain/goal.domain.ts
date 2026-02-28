@@ -8,25 +8,15 @@
 /**
  * Raw goal (factual data from database).
  */
-export interface GoalDomain {
-  id: string
-  userId: string
-  name: string
-  description: string | null
-  targetAmount: number | bigint | null  // IDR
-  targetDate: Date | null
-  lifecycleStatus: 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'ARCHIVED'
-  completedAt: Date | null
-  completedValue: number | bigint | null    // snapshot of total value at completion time
-  createdAt: Date
-  updatedAt: Date
-}
+import { GoalDomain as SharedGoalDomain } from '@/applications/shared/domain/goal.contract'
+
+export type { GoalDomain } from '@/applications/shared/domain/goal.contract'
 
 /**
  * Goal enriched with calculated progress data.
  * Used in list and detail views.
  */
-export interface GoalSummaryDomain extends GoalDomain {
+export interface GoalSummaryDomain extends SharedGoalDomain {
   holdingCount: number
   totalCurrentValue: number | bigint  // sum of linked holdings' current value
   progressPercentage: number | null // null if no targetAmount
