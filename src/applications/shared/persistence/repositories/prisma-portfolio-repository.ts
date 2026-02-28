@@ -6,7 +6,7 @@
  */
 
 import { prisma } from '../prisma-client'
-import { Prisma, PortfolioHolding, HoldingTransaction } from '@prisma/client'
+import { Prisma, PortfolioHolding, HoldingTransaction, HoldingStatus } from '@prisma/client'
 import { PortfolioHoldingDomain } from '@/applications/modules/portfolio/v1/domain/portfolio.domain'
 import { SellHoldingData, SellHoldingResult, BulkSellResult } from '@/applications/modules/portfolio/v1/domain/repository'
 import { logger } from '@/applications/shared/lib/logger'
@@ -363,15 +363,21 @@ export class PrismaPortfolioRepository {
   }
 
   /**
-   * Hard delete a holding (permanently remove).
+   * Delete a holding.
+   * If hard=true, permanently remove.
+   * If hard=false, mark as ARCHIVED.
    */
-  async delete(userId: string, id: string): Promise<void> {
-    await this.prisma.portfolioHolding.delete({
-      where: {
-        id,
-        userId,
-      },
-    })
+  async delete(userId: string, id: string, hard: boolean = false): Promise<void> {
+    if (hard) {
+      await this.prisma.portfolioHolding.delete({
+        where: { id, userId },
+      })
+    } else {
+      await this.prisma.portfolioHolding.update({
+        where: { id, userId },
+        data: { status: HoldingStatus.ARCHIVED as any }
+      })
+    }
   }
 
   /**

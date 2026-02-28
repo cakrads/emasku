@@ -56,5 +56,5 @@ export interface IPortfolioRepository {
   existsByUserIdAndId(userId: string, id: string): Promise<boolean>;
   sellHolding(userId: string, id: string, data: SellHoldingData): Promise<SellHoldingResult>;
   bulkSellHoldings(userId: string, items: { id: string, sellPrice: number }[], commonData: Omit<SellHoldingData, 'sellPrice'>): Promise<BulkSellResult>;
-  delete(userId: string, id: string): Promise<void>;
+  delete(userId: string, id: string, hard?: boolean): Promise<void>;
 }

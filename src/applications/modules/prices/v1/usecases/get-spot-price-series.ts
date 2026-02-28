@@ -23,7 +23,18 @@ export class GetSpotPriceSeriesUsecase {
   async execute(params: GetSpotSeriesParams): Promise<GoldPriceRecord[]> {
     const { brandCode, from, to, denominationGram = 1 } = params
 
-    // Validation: from must be before to
+    // 1. Basic type validation
+    if (!(from instanceof Date) || isNaN(from.getTime())) {
+      throw new ValidationError('from date is invalid')
+    }
+    if (!(to instanceof Date) || isNaN(to.getTime())) {
+      throw new ValidationError('to date is invalid')
+    }
+    if (typeof denominationGram !== 'number' || !isFinite(denominationGram) || denominationGram <= 0) {
+      throw new ValidationError('denominationGram must be a positive number')
+    }
+
+    // 2. Logical validation: from must be before to
     if (from >= to) {
       throw new ValidationError('from date must be before to date', {
         from: from.toISOString(),

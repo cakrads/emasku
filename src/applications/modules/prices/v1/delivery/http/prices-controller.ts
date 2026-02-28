@@ -176,18 +176,18 @@ export class PricesController {
         denominationGram: denomination,
       })
 
-      // Group by brand (as per api-contract.md structure)
-      const brandGroups = new Map<string, PriceEntry[]>()
+      // Group by brandCode (to prevent collisions between brands with same display name)
+      const brandGroups = new Map<string, { brand: string, prices: PriceEntry[] }>()
 
       for (const price of prices) {
-        // Use Display Name (Title) for the brand key if requested by user
-        const brandDisplayName = getBrandName(price.brand)
-
-        if (!brandGroups.has(brandDisplayName)) {
-          brandGroups.set(brandDisplayName, [])
+        if (!brandGroups.has(price.brand)) {
+          brandGroups.set(price.brand, {
+            brand: getBrandName(price.brand),
+            prices: []
+          })
         }
 
-        brandGroups.get(brandDisplayName)!.push({
+        brandGroups.get(price.brand)!.prices.push({
           denominationGram: price.denominationGram,
           sellPrice: price.sellPrice,
           buybackPrice: price.buybackPrice,
@@ -209,10 +209,7 @@ export class PricesController {
       const dto = {
         date: responseDate.toISOString(),
         currency: 'IDR',
-        brands: Array.from(brandGroups.entries()).map(([brand, prices]) => ({
-          brand,
-          prices,
-        })),
+        brands: Array.from(brandGroups.values()),
       }
 
       // Create response with cache headers

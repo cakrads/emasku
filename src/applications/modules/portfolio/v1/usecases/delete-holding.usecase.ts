@@ -22,10 +22,9 @@ export class DeleteHoldingUsecase {
       })
     }
 
-    // Delete holding (permanently remove)
+    // Delete holding (permanently remove if hard=true)
     // Note: "Mark as Sold" is now handled by SellHoldingUsecase. 
-    // Delete operation removes the record completely.
-    await this.portfolioRepo.delete(userId, holdingId)
+    await this.portfolioRepo.delete(userId, holdingId, hard)
     logger.info('Holding deleted', { holdingId, hard })
   }
 }

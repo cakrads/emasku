@@ -8,7 +8,12 @@ const globalForPrisma = global as unknown as {
   adapter?: PrismaPg
 }
 
-const pool = globalForPrisma.pool ?? new pg.Pool({ connectionString: process.env.DATABASE_URL })
+const connectionString = process.env.DATABASE_URL
+if (!connectionString) {
+  throw new Error('DATABASE_URL is missing or empty. Please check your environment variables.')
+}
+
+const pool = globalForPrisma.pool ?? new pg.Pool({ connectionString })
 const adapter = globalForPrisma.adapter ?? new PrismaPg(pool)
 
 export const prisma =

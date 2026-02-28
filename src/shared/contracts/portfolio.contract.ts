@@ -134,9 +134,16 @@ export type PortfolioHistory = z.infer<typeof PortfolioHistorySchema>
  */
 export const PortfolioQuerySchema = z.object({
   status: z.enum(['active', 'sold', 'all']).default('active'),
-  brandCodes: z.string().optional().transform(val => val ? val.split(',') : undefined),
-  dateFrom: z.string().optional(),
-  dateTo: z.string().optional(),
+  brandCodes: z.string().optional().transform(val => {
+    if (!val) return undefined
+    return val.split(',').map(v => v.trim()).filter(v => v.length > 0)
+  }),
+  dateFrom: z.string().optional().refine(val => !val || !isNaN(Date.parse(val)), {
+    message: "Invalid ISO date format for dateFrom"
+  }),
+  dateTo: z.string().optional().refine(val => !val || !isNaN(Date.parse(val)), {
+    message: "Invalid ISO date format for dateTo"
+  }),
   goalId: z.string().optional(),
   page: z.coerce.number().int().positive().default(1),
   pageSize: z.coerce.number().int().positive().max(100).default(20),

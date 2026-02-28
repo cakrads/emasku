@@ -25,7 +25,12 @@ export class BuybackController {
     const items: { brandCode: string; denominationGram: number }[] = []
 
     // Parse items
+    const MAX_ITEMS = 100
     const rawItems = itemsParam.split(',')
+    if (rawItems.length > MAX_ITEMS) {
+      throw new ValidationError(`Too many items. Maximum ${MAX_ITEMS} items allowed per request.`)
+    }
+
     for (const raw of rawItems) {
       const [brand, weightStr] = raw.split(':')
       if (!brand || !weightStr) {

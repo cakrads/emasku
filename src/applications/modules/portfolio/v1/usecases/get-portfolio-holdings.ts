@@ -10,6 +10,7 @@ import { PrismaPortfolioRepository } from '@/applications/shared/persistence/rep
 import { PrismaPriceRepository } from '@/applications/shared/persistence/repositories/prisma-price-repository'
 import { ValuatedHoldingDomain } from '../domain/portfolio.domain'
 import { logger } from '@/applications/shared/lib/logger'
+import { ValidationError } from '@/applications/shared/lib/errors'
 
 export interface HoldingsFilter {
   status?: 'active' | 'sold' | 'all'
@@ -39,10 +40,13 @@ export class GetPortfolioHoldingsUsecase {
   private priceRepo = new PrismaPriceRepository()
 
   async execute(
-    userId: string = 'default-user-id',
+    userId: string,
     filter: HoldingsFilter = { status: 'active' },
     pagination: PaginationParams = { page: 1, pageSize: 20 }
   ): Promise<PaginatedHoldings> {
+    if (!userId) {
+      throw new ValidationError('userId is required')
+    }
     logger.info('Fetching portfolio holdings', { userId, filter, pagination })
 
     const { items: holdings, total } = await this.portfolioRepo.findAllByUserId(userId, filter, pagination)

@@ -102,7 +102,7 @@ export function deserializeNuxtData(data: unknown[]): DeserializedGoldPrice[] {
 
       // Validate and convert to DeserializedGoldPrice
       if (resolved.id && resolved.price !== undefined) {
-        results.push({
+        const item = {
           id: String(resolved.id),
           price: parseFloat(String(resolved.price)) || 0,
           sellingPrice: parseFloat(String(resolved.sellingPrice)) || 0,
@@ -111,6 +111,16 @@ export function deserializeNuxtData(data: unknown[]): DeserializedGoldPrice[] {
           vendorCode: String(resolved.vendorCode || ''),
           date: String(resolved.date || ''),
           denomination: parseFloat(String(resolved.denomination)) || 0,
+        }
+
+        // Validate denomination
+        if (typeof item.denomination !== 'number' || !isFinite(item.denomination) || item.denomination <= 0) {
+          console.warn(`[Deserializer] Invalid denomination for item ${resolved.id}: ${resolved.denomination}`)
+          continue
+        }
+
+        results.push({
+          ...item,
           status: String(resolved.status || '1'),
           createdAt: String(resolved.createdAt || ''),
           updatedAt: String(resolved.updatedAt || ''),

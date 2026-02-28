@@ -33,7 +33,7 @@ export class ScrapeAndPersistPrices {
         const commonTimestamp = raw.timestamp || new Date()
 
         // 1. Create SELL price (Market Truth)
-        if (raw.sellPrice) {
+        if (raw.sellPrice !== undefined && raw.sellPrice !== null && isFinite(raw.sellPrice) && raw.sellPrice >= 0) {
           pricesToSave.push({
             brandCode: raw.brand,
             brandName: raw.brandName,
@@ -48,7 +48,7 @@ export class ScrapeAndPersistPrices {
 
 
         // 3. Create BUYBACK price
-        if (raw.buybackPrice) {
+        if (raw.buybackPrice !== undefined && raw.buybackPrice !== null && isFinite(raw.buybackPrice) && raw.buybackPrice >= 0) {
           pricesToSave.push({
             brandCode: raw.brand,
             brandName: raw.brandName,

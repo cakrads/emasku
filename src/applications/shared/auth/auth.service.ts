@@ -32,10 +32,13 @@ function mapUser(user: User): AuthUser {
  * Map Supabase session to our AuthSession type
  */
 function mapSession(session: Session): AuthSession {
+  // If expires_at is missing, default to 24 hours from now (Supabase uses seconds)
+  const fallbackExpiry = Math.floor(Date.now() / 1000) + (24 * 60 * 60)
+
   return {
     user: mapUser(session.user),
     accessToken: session.access_token,
-    expiresAt: session.expires_at ?? 0,
+    expiresAt: session.expires_at ?? fallbackExpiry,
   }
 }
 

@@ -111,24 +111,8 @@ export class Galeri24Scraper {
 
     return rawPayload
   }
-
   /**
    * Parse raw payload into structured price data using deserializer
-   * 
-   * Maps vendor names from Galeri24 to our Brand codes:
-   * - "ANTAM" variants → ANTAM
-   * - "UBS" variants → UBS  
-   * - "GALERI 24" variants → GALERI24
-   * - "LOTUS" variants → LOTUS
-   */
-  /**
-   * Parse raw payload into structured price data using deserializer
-   * 
-   * Maps vendor names from Galeri24 to our Brand codes:
-   * - "ANTAM" variants → ANTAM
-   * - "UBS" variants → UBS  
-   * - "GALERI 24" variants → GALERI24
-   * - "LOTUS" variants → LOTUS
    */
   private async parsePrices(rawPayload: unknown[]): Promise<RawPriceData[]> {
     console.log(`[Galeri24] Parsing price data using deserializer`)

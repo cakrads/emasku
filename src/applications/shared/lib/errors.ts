@@ -27,7 +27,12 @@ export class BaseError extends Error {
     this.name = this.constructor.name
     this.title = title || message
     this.description = description || ''
-    Error.captureStackTrace(this, this.constructor)
+
+    if (typeof Error.captureStackTrace === 'function') {
+      Error.captureStackTrace(this, this.constructor)
+    } else {
+      this.stack = (new Error(message)).stack
+    }
 
     // Ensure details object exists and contains standard fields
     this.details = {

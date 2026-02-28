@@ -61,7 +61,7 @@ export class GetHoldingDetailUsecase {
     // Guard against division by zero if data is corrupted
     const currentPricePerGram = holding.denominationGram > 0
       ? new Decimal(priceResult.price).dividedBy(holding.denominationGram)
-      : new Decimal(0)
+      : new Decimal(priceResult.price)
 
     return {
       ...holding,

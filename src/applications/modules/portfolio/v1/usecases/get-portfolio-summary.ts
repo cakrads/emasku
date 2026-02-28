@@ -12,6 +12,7 @@ import { PrismaGoldDailyCloseRepository } from '@/applications/modules/prices/v1
 import { PortfolioSummaryDomain, BrandAllocationDomain, PortfolioHoldingDomain } from '../domain/portfolio.domain'
 import { PriceType } from '@prisma/client'
 import { logger } from '@/applications/shared/lib/logger'
+import { ValidationError } from '@/applications/shared/lib/errors'
 
 export interface HoldingsFilter {
   status?: 'active' | 'sold' | 'all'
@@ -34,7 +35,10 @@ export class GetPortfolioSummaryUsecase {
   private priceRepo = new PrismaPriceRepository()
   private dailyCloseRepo = new PrismaGoldDailyCloseRepository()
 
-  async execute(userId: string = 'default-user-id', filter: HoldingsFilter = {}): Promise<PortfolioSummaryDomain> {
+  async execute(userId: string, filter: HoldingsFilter = {}): Promise<PortfolioSummaryDomain> {
+    if (!userId) {
+      throw new ValidationError('userId is required')
+    }
     logger.info('Computing portfolio summary', { userId, filter })
 
     const { items: holdings } = await this.portfolioRepo.findAllByUserId(userId, filter)
@@ -72,8 +76,17 @@ export class GetPortfolioSummaryUsecase {
       brandMap: new Map<string, BrandAllocationDomain>()
     }
 
-    // 3. Main processing loop
-    for (const { holding, valuation } of valuatedHoldings) {
+    // 3. Main processing loop (Parallel PnL & Serial Aggregation)
+    const pnlResults = await Promise.all(
+      valuatedHoldings.map(({ holding, valuation }) => {
+        if (valuation.currentValue !== null) {
+          return this.processPeriodicPnLForHolding(holding, dates, state.dailyCloseCache)
+        }
+        return null
+      })
+    )
+
+    valuatedHoldings.forEach(({ holding, valuation }, index) => {
       const buyValue = new Decimal(holding.buyPrice).times(holding.quantity)
 
       if (valuation.currentValue !== null) {
@@ -88,12 +101,29 @@ export class GetPortfolioSummaryUsecase {
           state.latestPriceUpdate = valuation.priceAsOf
         }
 
-        // Process periodic PnL for this valuated holding
-        await this.processPeriodicPnLForHolding(holding, dates, state)
+        // Apply PnL results from parallel execution
+        const pnl = pnlResults[index]
+        if (pnl) {
+          state.daily.pnl = state.daily.pnl.plus(pnl.daily.pnl)
+          state.daily.base = state.daily.base.plus(pnl.daily.base)
+          if (pnl.daily.has) state.daily.has = true
+
+          state.weekly.pnl = state.weekly.pnl.plus(pnl.weekly.pnl)
+          state.weekly.base = state.weekly.base.plus(pnl.weekly.base)
+          if (pnl.weekly.has) state.weekly.has = true
+
+          state.monthly.pnl = state.monthly.pnl.plus(pnl.monthly.pnl)
+          state.monthly.base = state.monthly.base.plus(pnl.monthly.base)
+          if (pnl.monthly.has) state.monthly.has = true
+
+          state.yearly.pnl = state.yearly.pnl.plus(pnl.yearly.pnl)
+          state.yearly.base = state.yearly.base.plus(pnl.yearly.base)
+          if (pnl.yearly.has) state.yearly.has = true
+        }
       }
 
       this.aggregateBrand(state.brandMap, holding, valuation, buyValue)
-    }
+    })
 
     // 4. Final aggregation
     const totalPnL = state.totalCurrentValue.minus(state.totalBuyValue)
@@ -168,8 +198,13 @@ export class GetPortfolioSummaryUsecase {
   private async processPeriodicPnLForHolding(
     holding: PortfolioHoldingDomain,
     dates: PeriodicDates,
-    state: any
-  ) {
+    cache: Map<string, number | null>
+  ): Promise<{
+    daily: { pnl: Decimal, base: Decimal, has: boolean },
+    weekly: { pnl: Decimal, base: Decimal, has: boolean },
+    monthly: { pnl: Decimal, base: Decimal, has: boolean },
+    yearly: { pnl: Decimal, base: Decimal, has: boolean }
+  }> {
     const gram = new Decimal(holding.denominationGram)
     const qty = new Decimal(holding.quantity)
 
@@ -191,26 +226,35 @@ export class GetPortfolioSummaryUsecase {
 
     // 2. Fetch all historical closes in parallel
     const [pYesterday, pWeek, pMonth, pYear] = await Promise.all([
-      this.getClosePrice(holding.brandCode, gram, dates.yesterday.str, dates.yesterday.date, state.dailyCloseCache),
-      this.getClosePrice(holding.brandCode, gram, dates.weekAgo.str, dates.weekAgo.date, state.dailyCloseCache),
-      this.getClosePrice(holding.brandCode, gram, dates.monthAgo.str, dates.monthAgo.date, state.dailyCloseCache),
-      this.getClosePrice(holding.brandCode, gram, dates.yearAgo.str, dates.yearAgo.date, state.dailyCloseCache)
+      this.getClosePrice(holding.brandCode, gram, dates.yesterday.str, dates.yesterday.date, cache),
+      this.getClosePrice(holding.brandCode, gram, dates.weekAgo.str, dates.weekAgo.date, cache),
+      this.getClosePrice(holding.brandCode, gram, dates.monthAgo.str, dates.monthAgo.date, cache),
+      this.getClosePrice(holding.brandCode, gram, dates.yearAgo.str, dates.yearAgo.date, cache)
     ])
+
+    const result = {
+      daily: { pnl: new Decimal(0), base: new Decimal(0), has: false },
+      weekly: { pnl: new Decimal(0), base: new Decimal(0), has: false },
+      monthly: { pnl: new Decimal(0), base: new Decimal(0), has: false },
+      yearly: { pnl: new Decimal(0), base: new Decimal(0), has: false }
+    }
 
     // helper to update period accumulators
     const update = (obj: any, current: number | null, historical: number | null) => {
       if (current !== null && historical !== null) {
         const move = current - historical
-        obj.pnl = obj.pnl.plus(new Decimal(move).times(qty))
-        obj.base = obj.base.plus(new Decimal(historical).times(qty))
+        obj.pnl = new Decimal(move).times(qty)
+        obj.base = new Decimal(historical).times(qty)
         obj.has = true
       }
     }
 
-    update(state.daily, pToday, pYesterday)
-    update(state.weekly, pToday, pWeek)
-    update(state.monthly, pToday, pMonth)
-    update(state.yearly, pToday, pYear)
+    update(result.daily, pToday, pYesterday)
+    update(result.weekly, pToday, pWeek)
+    update(result.monthly, pToday, pMonth)
+    update(result.yearly, pToday, pYear)
+
+    return result
   }
 
   private async getClosePrice(
