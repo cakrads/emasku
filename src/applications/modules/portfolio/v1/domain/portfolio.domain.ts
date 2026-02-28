@@ -25,6 +25,7 @@ export interface HoldingTransactionDomain {
  */
 export interface PortfolioHoldingDomain {
   id: string
+  userId: string
   brandCode: string
   brandName: string
   denominationGram: number

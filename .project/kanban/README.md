@@ -1,0 +1,24 @@
+# Kanban Workflow
+
+This folder manages the task lifecycle for the EmasKu project development.
+
+## Folder Structure & Lifecycle
+
+| Folder | Name | Description |
+| :--- | :--- | :--- |
+| `0 backlog` | **Backlog** | PRD generated tasks. Files named as `[0001] - XXXXX.md`. |
+| `0.5 reject` | **Rejected** | Tasks that are deemed out of scope or redundant. |
+| `1 in-progress` | **In Progress** | Tasks currently being worked on by the AI agent. |
+| `1.5 in-progress-done` | **Done (AI)** | Tasks completed by the AI agent, awaiting PR or human review. |
+| `2 PR` | **Pull Request** | Tasks that have a dedicated Pull Request for review. |
+| `3 testing by human` | **Testing** | Tasks currently being manually verified by a human. |
+| `4 task done` | **Task Done** | Successfully verified and completed tasks. |
+
+## Development Flow
+
+1. **Backlog Entry**: New tasks are added to `0 backlog`.
+2. **Execution**: AI agent moves a task from `0 backlog` to `1 in-progress`.
+3. **Completion**: Once implemented and verified (lint/build), AI moves the task to `1.5 in-progress-done`.
+4. **Review**: Tasks move to `2 PR` when code review is initiated.
+5. **Validation**: Human testing occurs in stage `3 testing by human`.
+6. **Closing**: Finalized tasks are moved to `4 task done`.

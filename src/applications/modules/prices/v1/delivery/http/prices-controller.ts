@@ -86,6 +86,10 @@ export class PricesController {
       case 'all': from.setFullYear(2020, 0, 1); break // Start of records
     }
 
+    // Normalize to day boundaries to ensure inclusive range
+    from.setHours(0, 0, 0, 0)
+    to.setHours(23, 59, 59, 999)
+
     // Setup Prisma
     const pool = new pg.Pool({ connectionString: DATABASE_URL })
     const adapter = new PrismaPg(pool)

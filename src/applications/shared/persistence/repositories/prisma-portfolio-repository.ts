@@ -249,14 +249,18 @@ export class PrismaPortfolioRepository {
       })
 
       // Update holding: status + soldAt + link transaction
-      await tx.portfolioHolding.update({
-        where: { id },
+      const updated = await tx.portfolioHolding.updateMany({
+        where: { id, userId, status: 'ACTIVE' },
         data: {
           status: 'SOLD',
           soldAt: data.sellDate,
           soldTransactionId: transaction.id,
         },
       })
+
+      if (updated.count !== 1) {
+        throw new Error('HOLDING_NOT_ACTIVE')
+      }
 
       // Calculate realized P/L
       const buyPrice = Number(holding.buyPrice)
@@ -313,14 +317,18 @@ export class PrismaPortfolioRepository {
           })
 
           // Update holding
-          await tx.portfolioHolding.update({
-            where: { id: holdingId },
+          const updated = await tx.portfolioHolding.updateMany({
+            where: { id: holdingId, userId, status: 'ACTIVE' },
             data: {
               status: 'SOLD',
               soldAt: commonData.sellDate,
               soldTransactionId: transaction.id,
             },
           })
+
+          if (updated.count !== 1) {
+            throw new Error('HOLDING_NOT_ACTIVE')
+          }
 
           // Calculate P/L
           const buyPrice = Number(holding.buyPrice)
@@ -402,6 +410,7 @@ export class PrismaPortfolioRepository {
 
     return {
       id: prismaHolding.id,
+      userId: prismaHolding.userId,
       brandCode: prismaHolding.brandCode,
       brandName: prismaHolding.brandName,
       denominationGram: Number(prismaHolding.denominationGram),

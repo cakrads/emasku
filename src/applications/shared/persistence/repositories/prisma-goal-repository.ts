@@ -175,6 +175,64 @@ export class PrismaGoalRepository {
     }
 
     /**
+     * Find all holdings linked to multiple goals.
+     * Returns a map of goalId -> holdings[].
+     */
+    async findHoldingsByGoalIds(goalIds: string[]): Promise<Record<string, Array<{
+        id: string
+        brandCode: string
+        brandName: string
+        denominationGram: number
+        quantity: number
+        buyPrice: number
+        status: 'ACTIVE' | 'SOLD'
+        sellPrice?: number
+        sellDate?: Date
+    }>>> {
+        const holdings = await this.prisma.portfolioHolding.findMany({
+            where: { goalId: { in: goalIds } },
+            select: {
+                id: true,
+                goalId: true,
+                brandCode: true,
+                brandName: true,
+                denominationGram: true,
+                quantity: true,
+                buyPrice: true,
+                status: true,
+                soldTransaction: {
+                    select: {
+                        price: true,
+                        transactionDate: true,
+                    }
+                }
+            },
+        })
+
+        const mapped: Record<string, any[]> = {}
+        for (const goalId of goalIds) {
+            mapped[goalId] = []
+        }
+
+        for (const h of holdings) {
+            if (!h.goalId) continue
+            mapped[h.goalId].push({
+                id: h.id,
+                brandCode: h.brandCode,
+                brandName: h.brandName,
+                denominationGram: Number(h.denominationGram),
+                quantity: h.quantity,
+                buyPrice: Number(h.buyPrice),
+                status: h.status as 'ACTIVE' | 'SOLD',
+                sellPrice: h.soldTransaction?.price ? Number(h.soldTransaction.price) : undefined,
+                sellDate: h.soldTransaction?.transactionDate ? h.soldTransaction.transactionDate : undefined,
+            })
+        }
+
+        return mapped
+    }
+
+    /**
      * Map Prisma model to domain model.
      * Converts BigInt → number.
      */

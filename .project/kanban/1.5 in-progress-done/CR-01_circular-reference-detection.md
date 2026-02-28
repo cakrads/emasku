@@ -5,7 +5,7 @@ source: "CodeRabbit PR #4"
 source_url: "https://github.com/cakrads/emasku/pull/4#pullrequestreview-3836310403"
 target_file: "src/applications/shared/scrapers/nuxt-deserializer.ts"
 lines: "34-65"
-status: backlog
+status: done
 created: 2026-02-28
 ---
 

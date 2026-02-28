@@ -31,20 +31,27 @@ export interface DeserializedGoldPrice {
  * If the value is a number, treat it as an index reference.
  * Otherwise, return the value as-is.
  */
-function resolveValue(data: unknown[], value: unknown): unknown {
+function resolveValue(data: unknown[], value: unknown, visited: Set<number> = new Set()): unknown {
   if (typeof value === 'number' && value >= 0 && value < data.length) {
+    // Cycle detection: abort if this index was already visited
+    if (visited.has(value)) {
+      console.warn(`[Deserializer] Circular reference detected at index ${value}`)
+      return undefined
+    }
+    visited.add(value)
+
     const resolved = data[value]
 
     // If the resolved value is also a reference (number), recurse
     if (typeof resolved === 'number') {
-      return resolveValue(data, resolved)
+      return resolveValue(data, resolved, visited)
     }
 
     // If it's an object, resolve all its properties
     if (typeof resolved === 'object' && resolved !== null && !Array.isArray(resolved)) {
       const resolvedObj: Record<string, unknown> = {}
       for (const [key, val] of Object.entries(resolved)) {
-        resolvedObj[key] = resolveValue(data, val)
+        resolvedObj[key] = resolveValue(data, val, new Set(visited))
       }
       return resolvedObj
     }
@@ -56,7 +63,7 @@ function resolveValue(data: unknown[], value: unknown): unknown {
   if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
     const resolvedObj: Record<string, unknown> = {}
     for (const [key, val] of Object.entries(value)) {
-      resolvedObj[key] = resolveValue(data, val)
+      resolvedObj[key] = resolveValue(data, val, visited)
     }
     return resolvedObj
   }

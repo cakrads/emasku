@@ -21,11 +21,27 @@ export class ListGoalsUsecase {
         logger.info('Listing goals with summaries', { userId })
 
         const goals = await this.goalRepo.findAllByUserId(userId)
+        if (goals.length === 0) return []
 
-        const summaries: GoalSummaryDomain[] = []
+        // 1. Batch fetch all holdings for all goals
+        const allGoalIds = goals.map(g => g.id)
+        const holdingsByGoal = await this.goalRepo.findHoldingsByGoalIds(allGoalIds)
 
-        for (const goal of goals) {
-            const holdings = await this.goalRepo.findHoldingsByGoalId(goal.id)
+        // 2. Collect unique price keys needed for live valuation
+        const priceKeys = new Set<string>()
+        for (const goalHoldings of Object.values(holdingsByGoal)) {
+            for (const h of goalHoldings) {
+                if (h.status !== 'SOLD') {
+                    priceKeys.add(`${h.brandCode}:${h.denominationGram}`)
+                }
+            }
+        }
+
+        // 3. Batch fetch all required prices
+        const priceMap = await this.priceRepo.getLatestBuybackPrices([...priceKeys])
+
+        const summaries: GoalSummaryDomain[] = goals.map((goal) => {
+            const holdings = holdingsByGoal[goal.id] || []
 
             // Use snapshot value for completed goals, live value for active
             let currentValueNum: number
@@ -43,11 +59,9 @@ export class ListGoalsUsecase {
                         const holdingValue = new Decimal(holding.sellPrice).times(holding.quantity)
                         totalCurrentValue = totalCurrentValue.plus(holdingValue)
                     } else {
-                        // Use live market price
-                        const priceResult = await this.priceRepo.getLatestBuybackPrice(
-                            holding.brandCode,
-                            holding.denominationGram,
-                        )
+                        // Use cached live market price
+                        const priceKey = `${holding.brandCode}:${holding.denominationGram}`
+                        const priceResult = priceMap[priceKey]
 
                         if (priceResult) {
                             const holdingValue = new Decimal(priceResult.price).times(holding.quantity)
@@ -72,14 +86,14 @@ export class ListGoalsUsecase {
                 isAchieved = progressPercentage >= 100
             }
 
-            summaries.push({
+            return {
                 ...goal,
                 holdingCount: holdings.length,
                 totalCurrentValue: currentValueNum,
                 progressPercentage,
                 isAchieved,
-            })
-        }
+            }
+        })
 
         logger.info('Goals listed', { userId, count: summaries.length })
         return summaries

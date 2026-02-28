@@ -100,4 +100,31 @@ export class PrismaPriceRepository {
       priceAt: prev.priceAt
     }
   }
+
+  /**
+   * Get latest BUYBACK prices for multiple keys.
+   * Key format: "brandCode:denominationGram"
+   */
+  async getLatestBuybackPrices(keys: string[]): Promise<Record<string, PriceResult>> {
+    const results: Record<string, PriceResult> = {}
+    if (keys.length === 0) return results
+
+    // Fetch batch prices (most granular query possible)
+    const priceRecords = await Promise.all(
+      keys.map(async (key) => {
+        const [brandCode, denomStr] = key.split(':')
+        const denominationGram = parseFloat(denomStr)
+        const price = await this.getLatestBuybackPrice(brandCode, denominationGram)
+        return { key, price }
+      })
+    )
+
+    for (const item of priceRecords) {
+      if (item.price) {
+        results[item.key] = item.price
+      }
+    }
+
+    return results
+  }
 }

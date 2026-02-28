@@ -18,7 +18,7 @@ export class PrismaUserRepository {
     })
 
     if (!user) {
-      logger.warn('User not found by email', { email })
+      logger.warn('User not found by email')
       return null
     }
 

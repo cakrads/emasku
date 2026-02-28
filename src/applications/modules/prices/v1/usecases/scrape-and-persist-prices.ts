@@ -36,7 +36,7 @@ export class ScrapeAndPersistPrices {
         if (raw.sellPrice) {
           pricesToSave.push({
             brandCode: raw.brand,
-            brandName: raw.brand, // For standard brands, code equals name
+            brandName: raw.brandName,
             priceType: PriceType.SELL,
             denominationGram: raw.denominationGram,
             price: raw.sellPrice,
@@ -51,7 +51,7 @@ export class ScrapeAndPersistPrices {
         if (raw.buybackPrice) {
           pricesToSave.push({
             brandCode: raw.brand,
-            brandName: raw.brand,
+            brandName: raw.brandName,
             priceType: PriceType.BUYBACK,
             denominationGram: raw.denominationGram,
             price: raw.buybackPrice,

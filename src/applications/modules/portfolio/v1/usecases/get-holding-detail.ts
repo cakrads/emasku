@@ -15,11 +15,11 @@ export class GetHoldingDetailUsecase {
   private portfolioRepo = new PrismaPortfolioRepository()
   private priceRepo = new PrismaPriceRepository()
 
-  async execute(id: string): Promise<ValuatedHoldingDomain | null> {
-    logger.info('Fetching holding detail', { id })
+  async execute(id: string, userId: string): Promise<ValuatedHoldingDomain | null> {
+    logger.info('Fetching holding detail', { id, userId })
 
     const holding = await this.portfolioRepo.findById(id)
-    if (!holding) return null
+    if (!holding || holding.userId !== userId) return null
 
     // Try BUYBACK first
     let priceResult = await this.priceRepo.getLatestBuybackPrice(

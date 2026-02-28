@@ -8,6 +8,13 @@ import { ScrapeAndPersistPrices } from '../../modules/prices/v1/usecases/scrape-
 import { ComputeDailyCloseUsecase } from '../../modules/prices/v1/usecases/compute-daily-close.usecase'
 import { DIRECT_URL, SCRAPER_SOURCE_URL } from '../lib/env'
 
+// Validate environment before creating connections
+if (!DIRECT_URL) {
+  console.error('❌ DIRECT_URL is not set in environment variables')
+  console.log('Please ensure your .env file contains DIRECT_URL')
+  process.exit(1)
+}
+
 const connectionString = DIRECT_URL
 const pool = new pg.Pool({ connectionString })
 const adapter = new PrismaPg(pool)
@@ -16,12 +23,7 @@ const prisma = new PrismaClient({ adapter })
 async function main() {
   console.log('=== Gold Price Scraper Runner ===\n')
 
-  // Validate environment
-  if (!DIRECT_URL) {
-    console.error('❌ DIRECT_URL is not set in environment variables')
-    console.log('Please ensure your .env file contains DIRECT_URL')
-    process.exit(1)
-  }
+
 
   console.log(`Using database: ${DIRECT_URL.split('@')[1] || '[hidden]'}`)
   console.log(`Scraper source: ${SCRAPER_SOURCE_URL}\n`)

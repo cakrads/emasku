@@ -43,6 +43,7 @@ export const NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY = process.env.NEXT_PUB
 export function validateEnv(): void {
   const missing: string[] = []
 
+  if (!DATABASE_URL) missing.push('DATABASE_URL')
   if (!SUPABASE_URL) missing.push('NEXT_PUBLIC_SUPABASE_URL')
   if (!NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY) missing.push('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY')
 

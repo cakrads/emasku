@@ -115,9 +115,10 @@ export class PortfolioController {
   /**
    * GET /api/v1/portfolio/{id}
    */
-  async getHoldingDetail(id: string): Promise<NextResponse> {
+  async getHoldingDetail(req: NextRequest, id: string): Promise<NextResponse> {
+    const userId = await verifyUser(req)
     const usecase = new GetHoldingDetailUsecase()
-    const holding = await usecase.execute(id)
+    const holding = await usecase.execute(id, userId)
 
     if (!holding) {
       throw new NotFoundError(

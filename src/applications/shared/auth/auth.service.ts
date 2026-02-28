@@ -67,6 +67,13 @@ export async function loginAsGuest(): Promise<AuthResult<AuthSession>> {
  */
 export async function loginWithGoogle(): Promise<AuthResult<{ url: string }>> {
   try {
+    if (typeof window === 'undefined') {
+      return {
+        success: false,
+        error: mapSupabaseError(new Error('loginWithGoogle can only be called in browser context'))
+      }
+    }
+
     const supabase = getBrowserSupabaseClient()
     const redirectTo = `${window.location.origin}/auth/callback`
 

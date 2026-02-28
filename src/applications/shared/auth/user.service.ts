@@ -1,5 +1,6 @@
 import { prisma } from '../persistence/prisma-client'
 import { logger } from '@/applications/shared/lib/logger'
+import { NotFoundError } from '@/applications/shared/lib/errors'
 
 export class UserService {
   /**
@@ -55,7 +56,9 @@ export class UserService {
       }
     })
 
-    if (!user) throw new Error('User not found')
+    if (!user) {
+      throw new NotFoundError('User not found', { userId })
+    }
 
     return {
       metadata: {

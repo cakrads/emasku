@@ -16,7 +16,7 @@ export const GET = async (
 
   return wrapController(async () => {
     const controller = new PortfolioController()
-    return controller.getHoldingDetail(id)
+    return controller.getHoldingDetail(req, id)
   })(req)
 }
 

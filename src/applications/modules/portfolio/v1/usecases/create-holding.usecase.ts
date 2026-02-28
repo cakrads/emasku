@@ -28,6 +28,11 @@ export class CreateHoldingUsecase {
     // Validate buy date is not in future (only if provided)
     if (request.buyDate) {
       const buyDate = new Date(request.buyDate)
+      if (Number.isNaN(buyDate.getTime())) {
+        throw new ValidationError('Invalid buy date', {
+          buyDate: 'Buy date must be a valid date'
+        })
+      }
       // Allow 24h buffer for timezone differences
       if (buyDate.getTime() > new Date().getTime() + 86_400_000) {
         throw new ValidationError('Invalid buy date', {

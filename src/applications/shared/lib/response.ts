@@ -8,6 +8,7 @@
 import { NextResponse } from 'next/server'
 import { ZodError } from 'zod'
 import { BaseError } from './errors'
+import { logger } from './logger'
 
 /**
  * Standard API response envelope
@@ -69,7 +70,11 @@ export function errorResponse(
 ): NextResponse<ApiResponse<null>> {
   // Handle custom BaseError with known status codes
   if (error instanceof BaseError) {
-    console.log('BaseError details:', error.details)
+    logger.warn('BaseError', {
+      errorType: error.name,
+      traceId,
+      ...(process.env.NODE_ENV === 'development' ? { details: error.details } : {}),
+    })
     return NextResponse.json(
       {
         code: error.code,

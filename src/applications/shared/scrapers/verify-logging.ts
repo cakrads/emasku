@@ -37,6 +37,12 @@ async function main() {
 
   console.log('\n--- Step 3: Checking Logs ---')
   const logDir = path.join(process.cwd(), '.scrap', 'logs')
+
+  if (!fs.existsSync(logDir)) {
+    console.log('Log directory does not exist yet.')
+    return
+  }
+
   const files = fs.readdirSync(logDir).filter(f => f.endsWith('.log')).sort().reverse()
 
   if (files.length > 0) {
@@ -57,4 +63,5 @@ main()
   })
   .finally(async () => {
     await prisma.$disconnect()
+    await pool.end()
   })

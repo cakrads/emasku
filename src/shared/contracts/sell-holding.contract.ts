@@ -11,7 +11,7 @@ import { z } from 'zod'
  * POST /api/v1/portfolio/{id}/sell
  */
 export const SellHoldingRequestSchema = z.object({
-    sellPrice: z.number().positive('Sell price must be greater than 0'),
+    sellPrice: z.number().int().positive('Sell price must be greater than 0'),
     sellDate: z.string().min(1, 'Sell date is required'), // ISO date string YYYY-MM-DD
     notes: z.string().optional(),
 })
@@ -37,7 +37,7 @@ export type SellHoldingResponse = z.infer<typeof SellHoldingResponseSchema>
 export const BulkSellHoldingRequestSchema = z.object({
     items: z.array(z.object({
         id: z.string(),
-        sellPrice: z.number().positive('Sell price must be greater than 0'),
+        sellPrice: z.number().int().positive('Sell price must be greater than 0'),
     })).min(1, 'At least one holding must be selected'),
     sellDate: z.string().min(1, 'Sell date is required'),
     notes: z.string().optional(),

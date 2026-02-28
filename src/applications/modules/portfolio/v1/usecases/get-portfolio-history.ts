@@ -11,9 +11,12 @@ import { PortfolioHistoryDomain, HistoryEntryDomain } from '../domain/portfolio.
 import { logger } from '@/applications/shared/lib/logger'
 
 export class GetPortfolioHistoryUsecase {
-  private portfolioRepo = new PrismaPortfolioRepository()
+  constructor(private portfolioRepo: PrismaPortfolioRepository = new PrismaPortfolioRepository()) { }
 
-  async execute(userId: string = 'default-user-id'): Promise<PortfolioHistoryDomain> {
+  async execute(userId: string): Promise<PortfolioHistoryDomain> {
+    if (!userId) {
+      throw new Error('userId is required')
+    }
     logger.info('Fetching portfolio history', { userId })
 
     const { items: holdings } = await this.portfolioRepo.findAllByUserId(userId)

@@ -84,10 +84,15 @@ export class Galeri24Scraper {
 
     if (!match) {
       console.error('[Galeri24] Could not find __NUXT_DATA__ script tag')
-      console.log('[Galeri24] Saving HTML to debug-failed-scrape.html for inspection')
-      // Save for debugging
-      const fs = await import('fs')
-      fs.writeFileSync('debug-failed-scrape.html', html)
+
+      const isVercel = process.env.VERCEL === '1' || !!process.env.VERCEL
+      if (!isVercel) {
+        console.log('[Galeri24] Saving HTML to debug-failed-scrape.html for inspection')
+        const fs = await import('fs')
+        fs.writeFileSync('debug-failed-scrape.html', html)
+      } else {
+        console.log('[Galeri24] First 1000 chars of HTML:', html.substring(0, 1000))
+      }
       throw new Error('__NUXT_DATA__ not found in page source')
     }
 
