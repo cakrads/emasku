@@ -6,20 +6,16 @@
  */
 
 import Decimal from 'decimal.js'
-import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
-import { PrismaPriceRepository } from '@/applications/shared/persistence/repositories/prisma-price-repository'
-import { PrismaClient } from '@prisma/client'
+import { IPortfolioRepository } from '../domain/repository'
+import { IPriceRepository } from '@/applications/shared/domain/price.contract'
 import { ValuatedHoldingDomain } from '../domain/portfolio.domain'
 import { logger } from '@/applications/shared/lib/logger'
 
 export class GetHoldingDetailUsecase {
-  private portfolioRepo: PrismaPortfolioRepository
-  private priceRepo: PrismaPriceRepository
-
-  constructor(private readonly prisma: PrismaClient) {
-    this.portfolioRepo = new PrismaPortfolioRepository(prisma)
-    this.priceRepo = new PrismaPriceRepository(prisma)
-  }
+  constructor(
+    private readonly portfolioRepo: IPortfolioRepository,
+    private readonly priceRepo: IPriceRepository
+  ) { }
 
   async execute(id: string, userId: string): Promise<ValuatedHoldingDomain | null> {
     logger.info('Fetching holding detail', { id, userId })
@@ -43,40 +39,37 @@ export class GetHoldingDetailUsecase {
     // .times(holding.denominationGram) // REMOVED: buyPrice is per-piece
 
     if (!priceResult) {
-      return {
-        ...holding,
-        currentPrice: null,
-        currentValue: null,
-        unrealizedPnL: null,
-        pnlPercentage: null,
-        valuationSource: 'NONE',
-        priceAsOf: null
-      }
+      return new ValuatedHoldingDomain(
+        holding,
+        null,
+        null,
+        null,
+        null,
+        'NONE',
+        null
+      )
     }
 
-    const currentValue = new Decimal(priceResult.price)
+    const currentValue = new Decimal(priceResult.price.toString())
       .times(holding.quantity)
-    // .times(holding.denominationGram) // REMOVED: price is per-piece
 
     const unrealizedPnL = currentValue.minus(buyValue)
     const pnlPercentage = buyValue.greaterThan(0)
       ? unrealizedPnL.dividedBy(buyValue).times(100)
       : new Decimal(0)
 
-    // Normalize price to per-gram for consistency with UI labels
-    // Return null if denomination is invalid to avoid misleading the client
     const currentPricePerGram = holding.denominationGram > 0
-      ? new Decimal(priceResult.price).dividedBy(holding.denominationGram)
+      ? new Decimal(priceResult.price.toString()).dividedBy(holding.denominationGram)
       : null
 
-    return {
-      ...holding,
-      currentPrice: currentPricePerGram?.toNumber() ?? null,
-      currentValue: currentValue.toNumber(),
-      unrealizedPnL: unrealizedPnL.toNumber(),
-      pnlPercentage: pnlPercentage.toNumber(),
-      valuationSource: source,
-      priceAsOf: priceResult.priceAt
-    }
+    return new ValuatedHoldingDomain(
+      holding,
+      currentPricePerGram?.toNumber() ?? null,
+      currentValue.toNumber(),
+      unrealizedPnL.toNumber(),
+      pnlPercentage.toNumber(),
+      source,
+      priceResult.priceAt
+    )
   }
 }

@@ -6,12 +6,12 @@
 
 import { ValidationError } from '@/applications/shared/lib/errors'
 import { logger } from '@/applications/shared/lib/logger'
-import { PrismaGoalRepository } from '@/applications/shared/persistence/repositories/prisma-goal-repository'
+import { IGoalRepository } from '../domain/goal.repository'
 import { CreateGoalRequest } from '@/shared/contracts/goals.contract'
 import { GoalDomain } from '../domain/goal.domain'
 
 export class CreateGoalUsecase {
-    constructor(private goalRepo: PrismaGoalRepository) { }
+    constructor(private goalRepo: IGoalRepository) { }
 
     async execute(userId: string, request: CreateGoalRequest): Promise<GoalDomain> {
         logger.info('Creating new goal', { userId, name: request.name })

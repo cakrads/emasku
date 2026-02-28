@@ -16,9 +16,26 @@ export type { GoalDomain } from '@/applications/shared/domain/goal.contract'
  * Goal enriched with calculated progress data.
  * Used in list and detail views.
  */
-export interface GoalSummaryDomain extends SharedGoalDomain {
-  holdingCount: number
-  totalCurrentValue: number | bigint  // sum of linked holdings' current value
-  progressPercentage: number | null // null if no targetAmount
-  isAchieved: boolean               // true if progress >= 100%
+export class GoalSummaryDomain extends SharedGoalDomain {
+  constructor(
+    goal: SharedGoalDomain,
+    public holdingCount: number,
+    public totalCurrentValue: number | bigint,
+    public progressPercentage: number | null,
+    public isAchieved: boolean
+  ) {
+    super(
+      goal.id,
+      goal.userId,
+      goal.name,
+      goal.description,
+      goal.targetAmount,
+      goal.targetDate,
+      goal.lifecycleStatus,
+      goal.completedAt,
+      goal.completedValue,
+      goal.createdAt,
+      goal.updatedAt
+    )
+  }
 }

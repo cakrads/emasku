@@ -6,16 +6,16 @@
 
 import { NotFoundError, ValidationError } from '@/applications/shared/lib/errors'
 import { logger } from '@/applications/shared/lib/logger'
-import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
-import { PrismaGoalRepository } from '@/applications/shared/persistence/repositories/prisma-goal-repository'
+import { IPortfolioRepository } from '../domain/repository'
+import { IGoalRepository } from '@/applications/modules/goals/v1/domain/goal.repository'
 import { UpdateHoldingRequest } from '@/shared/contracts/update-holding.contract'
 import { PortfolioHoldingDomain } from '../domain/portfolio.domain'
 import { ONE_DAY_MS, MIN_DENOMINATION_GRAM, MAX_DENOMINATION_GRAM } from '@/applications/shared/lib/constants'
 
 export class UpdateHoldingUsecase {
   constructor(
-    private portfolioRepo: PrismaPortfolioRepository,
-    private goalRepo?: PrismaGoalRepository,
+    private portfolioRepo: IPortfolioRepository,
+    private goalRepo?: IGoalRepository,
   ) { }
 
   async execute(userId: string, holdingId: string, request: UpdateHoldingRequest): Promise<PortfolioHoldingDomain> {

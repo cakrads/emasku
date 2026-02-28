@@ -6,11 +6,11 @@
  */
 
 import Decimal from 'decimal.js'
-import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
-import { PrismaPriceRepository } from '@/applications/shared/persistence/repositories/prisma-price-repository'
-import { PrismaGoldDailyCloseRepository } from '@/applications/modules/prices/v1/repository/prisma-gold-daily-close.repository'
+import { IPortfolioRepository } from '../domain/repository'
+import { IPriceRepository } from '@/applications/shared/domain/price.contract'
+import { IGoldDailyCloseRepository } from '@/applications/modules/prices/v1/repository/daily-close-repository.interface'
 import { PortfolioSummaryDomain, BrandAllocationDomain, PortfolioHoldingDomain } from '../domain/portfolio.domain'
-import { PrismaClient, PriceType } from '@prisma/client'
+import { PriceType } from '@prisma/client'
 import { logger } from '@/applications/shared/lib/logger'
 import { ValidationError } from '@/applications/shared/lib/errors'
 
@@ -31,15 +31,11 @@ interface PeriodicDates {
 }
 
 export class GetPortfolioSummaryUsecase {
-  private portfolioRepo: PrismaPortfolioRepository
-  private priceRepo: PrismaPriceRepository
-  private dailyCloseRepo: PrismaGoldDailyCloseRepository
-
-  constructor(private readonly prisma: PrismaClient) {
-    this.portfolioRepo = new PrismaPortfolioRepository(prisma)
-    this.priceRepo = new PrismaPriceRepository(prisma)
-    this.dailyCloseRepo = new PrismaGoldDailyCloseRepository(prisma)
-  }
+  constructor(
+    private readonly portfolioRepo: IPortfolioRepository,
+    private readonly priceRepo: IPriceRepository,
+    private readonly dailyCloseRepo: IGoldDailyCloseRepository
+  ) { }
 
   async execute(userId: string, filter: HoldingsFilter = {}): Promise<PortfolioSummaryDomain> {
     if (!userId) {

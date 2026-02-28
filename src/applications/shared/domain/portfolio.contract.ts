@@ -5,29 +5,49 @@
  * Repositories and modules should depend on these to avoid coupling.
  */
 
-export interface PortfolioHoldingDomain {
-    id: string
-    userId: string
-    brandCode: string
-    brandName: string
-    denominationGram: number
-    quantity: number
-    buyPrice: number
-    boughtAt: Date | null
-    soldAt?: Date | null
-    status: 'ACTIVE' | 'SOLD'
-    createdAt: Date
-    updatedAt?: Date
-    notes?: string
-    goalId?: string | null
-    goalName?: string | null
-    // Sell transaction data
-    sellPrice?: number | null
-    sellDate?: Date | null
-    sellNotes?: string | null
-    realizedPnL?: number | null
-    realizedPnLPercentage?: number | null
-    holdingDurationDays?: number | null
+import Decimal from 'decimal.js'
+
+export class PortfolioHoldingDomain {
+    constructor(
+        public readonly id: string,
+        public readonly userId: string,
+        public readonly brandCode: string,
+        public readonly brandName: string,
+        public readonly denominationGram: number,
+        public readonly quantity: number,
+        public readonly buyPrice: number,
+        public readonly boughtAt: Date | null,
+        public status: 'ACTIVE' | 'SOLD',
+        public readonly createdAt: Date,
+        public updatedAt?: Date,
+        public notes?: string,
+        public goalId?: string | null,
+        public goalName?: string | null,
+        public soldAt?: Date | null,
+        // Sell transaction data
+        public sellPrice?: number | null,
+        public sellDate?: Date | null,
+        public sellNotes?: string | null,
+        public realizedPnL?: number | null,
+        public realizedPnLPercentage?: number | null,
+        public holdingDurationDays?: number | null,
+    ) {
+        this.validate()
+    }
+
+    private validate() {
+        if (this.quantity <= 0) throw new Error('Quantity must be greater than zero')
+        if (this.buyPrice < 0) throw new Error('Buy price cannot be negative')
+        if (this.denominationGram <= 0) throw new Error('Denomination must be greater than zero')
+    }
+
+    public getBuyValue(): Decimal {
+        return new Decimal(this.buyPrice).times(this.quantity)
+    }
+
+    public isSold(): boolean {
+        return this.status === 'SOLD'
+    }
 }
 
 export interface SellHoldingData {

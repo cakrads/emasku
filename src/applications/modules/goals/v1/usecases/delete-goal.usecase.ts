@@ -7,10 +7,10 @@
 
 import { NotFoundError } from '@/applications/shared/lib/errors'
 import { logger } from '@/applications/shared/lib/logger'
-import { PrismaGoalRepository } from '@/applications/shared/persistence/repositories/prisma-goal-repository'
+import { IGoalRepository } from '../domain/goal.repository'
 
 export class DeleteGoalUsecase {
-    constructor(private goalRepo: PrismaGoalRepository) { }
+    constructor(private goalRepo: IGoalRepository) { }
 
     async execute(userId: string, goalId: string): Promise<void> {
         logger.info('Deleting goal', { userId, goalId })

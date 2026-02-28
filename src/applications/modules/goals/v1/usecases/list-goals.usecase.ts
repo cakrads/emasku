@@ -7,14 +7,14 @@
 
 import { Decimal } from 'decimal.js'
 import { logger } from '@/applications/shared/lib/logger'
-import { PrismaGoalRepository } from '@/applications/shared/persistence/repositories/prisma-goal-repository'
-import { PrismaPriceRepository } from '@/applications/shared/persistence/repositories/prisma-price-repository'
+import { IGoalRepository } from '../domain/goal.repository'
+import { IPriceRepository } from '@/applications/shared/domain/price.contract'
 import { GoalSummaryDomain } from '../domain/goal.domain'
 
 export class ListGoalsUsecase {
     constructor(
-        private goalRepo: PrismaGoalRepository,
-        private priceRepo: PrismaPriceRepository,
+        private goalRepo: IGoalRepository,
+        private priceRepo: IPriceRepository,
     ) { }
 
     async execute(userId: string): Promise<GoalSummaryDomain[]> {
@@ -86,13 +86,13 @@ export class ListGoalsUsecase {
                 isAchieved = progressPercentage >= 100
             }
 
-            return {
-                ...goal,
-                holdingCount: holdings.length,
-                totalCurrentValue: currentValueNum,
+            return new GoalSummaryDomain(
+                goal,
+                holdings.length,
+                currentValueNum,
                 progressPercentage,
-                isAchieved,
-            }
+                isAchieved
+            )
         })
 
         logger.info('Goals listed', { userId, count: summaries.length })

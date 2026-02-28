@@ -7,13 +7,13 @@
 import { Decimal } from 'decimal.js'
 import { NotFoundError } from '@/applications/shared/lib/errors'
 import { logger } from '@/applications/shared/lib/logger'
-import { PrismaGoalRepository } from '@/applications/shared/persistence/repositories/prisma-goal-repository'
-import { PrismaPriceRepository } from '@/applications/shared/persistence/repositories/prisma-price-repository'
+import { IGoalRepository } from '../domain/goal.repository'
+import { IPriceRepository } from '@/applications/shared/domain/price.contract'
 import { GoalSummaryDomain } from '../domain/goal.domain'
 
-export interface GoalDetailResult extends GoalSummaryDomain {
-    totalInvestedValue: number | bigint
-    holdings: Array<{
+export class GoalDetailResult extends GoalSummaryDomain {
+    public totalInvestedValue: number | bigint
+    public holdings: Array<{
         id: string
         brandCode: string
         brandName: string
@@ -24,12 +24,28 @@ export interface GoalDetailResult extends GoalSummaryDomain {
         isSold: boolean
         soldDate: string | null
     }>
+
+    constructor(
+        summary: GoalSummaryDomain,
+        totalInvestedValue: number | bigint,
+        holdings: GoalDetailResult['holdings']
+    ) {
+        super(
+            summary,
+            summary.holdingCount,
+            summary.totalCurrentValue,
+            summary.progressPercentage,
+            summary.isAchieved
+        )
+        this.totalInvestedValue = totalInvestedValue
+        this.holdings = holdings
+    }
 }
 
 export class GetGoalDetailUsecase {
     constructor(
-        private goalRepo: PrismaGoalRepository,
-        private priceRepo: PrismaPriceRepository,
+        private goalRepo: IGoalRepository,
+        private priceRepo: IPriceRepository,
     ) { }
 
     async execute(userId: string, goalId: string): Promise<GoalDetailResult> {
@@ -63,7 +79,7 @@ export class GetGoalDetailUsecase {
             let currentValue: number | null = null
 
             if (holding.status === 'SOLD' && holding.sellPrice) {
-                const value = new Decimal(holding.sellPrice).times(holding.quantity)
+                const value = new Decimal(holding.sellPrice.toString()).times(holding.quantity)
                 currentValue = value.toNumber()
                 totalCurrentValue = totalCurrentValue.plus(value)
             } else {
@@ -71,7 +87,7 @@ export class GetGoalDetailUsecase {
                 const priceResult = pricesDict[key]
 
                 if (priceResult) {
-                    const value = new Decimal(priceResult.price).times(holding.quantity)
+                    const value = new Decimal(priceResult.price.toString()).times(holding.quantity)
                     currentValue = value.toNumber()
                     totalCurrentValue = totalCurrentValue.plus(value)
                 }
@@ -93,28 +109,32 @@ export class GetGoalDetailUsecase {
         // Use snapshot value for completed goals, live value for active
         const currentValueNum = (goal.lifecycleStatus === 'COMPLETED' && goal.completedValue != null)
             ? goal.completedValue
-            : totalCurrentValue.toNumber()
+            : BigInt(totalCurrentValue.toFixed(0))
 
         let progressPercentage: number | null = null
         let isAchieved = false
 
         if (goal.targetAmount != null && goal.targetAmount > 0) {
-            progressPercentage = new Decimal(currentValueNum)
-                .dividedBy(goal.targetAmount)
+            progressPercentage = new Decimal(currentValueNum.toString())
+                .dividedBy(new Decimal(goal.targetAmount.toString()))
                 .times(100)
                 .toDecimalPlaces(2)
                 .toNumber()
             isAchieved = progressPercentage >= 100
         }
 
-        return {
-            ...goal,
-            holdingCount: holdings.length,
-            totalCurrentValue: typeof currentValueNum === 'number' ? BigInt(Math.round(currentValueNum)) : currentValueNum,
-            totalInvestedValue: BigInt(totalInvestedValue.toFixed(0)),
+        const summary = new GoalSummaryDomain(
+            goal,
+            holdings.length,
+            currentValueNum,
             progressPercentage,
-            isAchieved,
-            holdings: enrichedHoldings,
-        }
+            isAchieved
+        )
+
+        return new GoalDetailResult(
+            summary,
+            BigInt(totalInvestedValue.toFixed(0)),
+            enrichedHoldings
+        )
     }
 }

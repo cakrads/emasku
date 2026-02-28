@@ -6,12 +6,10 @@
  */
 
 import Decimal from 'decimal.js'
-import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
-import { PrismaPriceRepository } from '@/applications/shared/persistence/repositories/prisma-price-repository'
-import { PrismaClient } from '@prisma/client'
-import { ValidationError } from '@/applications/shared/lib/errors'
-import { logger } from '@/applications/shared/lib/logger'
+import { IPortfolioRepository } from '../domain/repository'
+import { IPriceRepository } from '@/applications/shared/domain/price.contract'
 import { ValuatedHoldingDomain } from '../domain/portfolio.domain'
+import { logger } from '@/applications/shared/lib/logger'
 
 export interface HoldingsFilter {
   status?: 'active' | 'sold' | 'all'
@@ -37,19 +35,17 @@ export interface PaginatedHoldings {
 }
 
 export class GetPortfolioHoldingsUsecase {
-  private portfolioRepo: PrismaPortfolioRepository
-  private priceRepo: PrismaPriceRepository
-
-  constructor(private readonly prisma: PrismaClient) {
-    this.portfolioRepo = new PrismaPortfolioRepository(prisma)
-    this.priceRepo = new PrismaPriceRepository(prisma)
-  }
+  constructor(
+    private readonly portfolioRepo: IPortfolioRepository,
+    private readonly priceRepo: IPriceRepository
+  ) { }
 
   async execute(
     userId: string,
     filter: HoldingsFilter = { status: 'active' },
     pagination: PaginationParams = { page: 1, pageSize: 20 }
   ): Promise<PaginatedHoldings> {
+    const { ValidationError } = await import('@/applications/shared/lib/errors')
     if (!userId) {
       throw new ValidationError('userId is required')
     }
@@ -85,32 +81,32 @@ export class GetPortfolioHoldingsUsecase {
       const buyValue = new Decimal(holding.buyPrice).times(holding.quantity)
 
       if (!priceResult) {
-        return {
-          ...holding,
-          currentPrice: null,
-          currentValue: null,
-          unrealizedPnL: null,
-          pnlPercentage: null,
-          valuationSource: 'NONE' as const,
-          priceAsOf: null
-        }
+        return new ValuatedHoldingDomain(
+          holding,
+          null,
+          null,
+          null,
+          null,
+          'NONE',
+          null
+        )
       }
 
-      const currentValue = new Decimal(priceResult.price).times(holding.quantity)
+      const currentValue = new Decimal(priceResult.price.toString()).times(holding.quantity)
       const unrealizedPnL = currentValue.minus(buyValue)
       const pnlPercentage = buyValue.greaterThan(0)
         ? unrealizedPnL.dividedBy(buyValue).times(100)
         : new Decimal(0)
 
-      return {
-        ...holding,
-        currentPrice: priceResult.price,
-        currentValue: currentValue.toNumber(),
-        unrealizedPnL: unrealizedPnL.toNumber(),
-        pnlPercentage: pnlPercentage.toNumber(),
-        valuationSource: source,
-        priceAsOf: priceResult.priceAt
-      }
+      return new ValuatedHoldingDomain(
+        holding,
+        Number(priceResult.price),
+        currentValue.toNumber(),
+        unrealizedPnL.toNumber(),
+        pnlPercentage.toNumber(),
+        source,
+        priceResult.priceAt
+      )
     })
 
     logger.info('Portfolio holdings fetched', { count: valuatedHoldings.length, total })

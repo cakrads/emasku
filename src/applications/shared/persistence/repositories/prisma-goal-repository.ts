@@ -5,12 +5,17 @@
  * NO valuation logic - only data fetching and type conversion.
  */
 
-import { PrismaClient, Goal } from '@prisma/client'
+import { PrismaClient, Goal, Prisma } from '@prisma/client'
 import { GoalDomain, CreateGoalData, UpdateGoalData } from '@/applications/shared/domain/goal.contract'
+import { IGoalRepository } from '@/applications/modules/goals/v1/domain/goal.repository'
 import { logger } from '@/applications/shared/lib/logger'
 
-export class PrismaGoalRepository {
+export class PrismaGoalRepository implements IGoalRepository {
     constructor(private readonly prisma: PrismaClient) { }
+
+    private getClient(tx?: Prisma.TransactionClient) {
+        return tx || this.prisma
+    }
 
     /**
      * Fetch all goals for a user.
@@ -32,8 +37,9 @@ export class PrismaGoalRepository {
     /**
      * Fetch single goal by ID.
      */
-    async findById(id: string): Promise<GoalDomain | null> {
-        const goal = await this.prisma.goal.findUnique({
+    async findById(id: string, tx?: Prisma.TransactionClient): Promise<GoalDomain | null> {
+        const client = this.getClient(tx)
+        const goal = await client.goal.findUnique({
             where: { id },
         })
 
@@ -67,7 +73,8 @@ export class PrismaGoalRepository {
      * Update an existing goal.
      * Only updates provided fields.
      */
-    async update(userId: string, id: string, data: UpdateGoalData): Promise<GoalDomain> {
+    async update(userId: string, id: string, data: UpdateGoalData, tx?: Prisma.TransactionClient): Promise<GoalDomain> {
+        const client = this.getClient(tx)
         const updateData: Record<string, unknown> = {}
 
         if (data.name !== undefined) updateData.name = data.name
@@ -84,7 +91,7 @@ export class PrismaGoalRepository {
                 : null
         }
 
-        const goal = await this.prisma.goal.update({
+        const goal = await client.goal.update({
             where: { id, userId },
             data: updateData,
         })
@@ -119,8 +126,9 @@ export class PrismaGoalRepository {
      * Unlink all holdings from a goal (set goalId to null).
      * Used before deleting a goal so holdings are preserved.
      */
-    async unlinkHoldings(goalId: string): Promise<void> {
-        await this.prisma.portfolioHolding.updateMany({
+    async unlinkHoldings(goalId: string, tx?: Prisma.TransactionClient): Promise<void> {
+        const client = this.getClient(tx)
+        await client.portfolioHolding.updateMany({
             where: { goalId },
             data: { goalId: null },
         })
@@ -131,7 +139,7 @@ export class PrismaGoalRepository {
      * Find all holdings linked to a goal.
      * Returns raw holding data for enrichment by use case.
      */
-    async findHoldingsByGoalId(goalId: string): Promise<Array<{
+    async findHoldingsByGoalId(goalId: string, tx?: Prisma.TransactionClient): Promise<Array<{
         id: string
         brandCode: string
         brandName: string
@@ -142,7 +150,8 @@ export class PrismaGoalRepository {
         sellPrice?: number | bigint
         sellDate?: Date
     }>> {
-        const holdings = await this.prisma.portfolioHolding.findMany({
+        const client = this.getClient(tx)
+        const holdings = await client.portfolioHolding.findMany({
             where: { goalId },
             select: {
                 id: true,
@@ -237,18 +246,18 @@ export class PrismaGoalRepository {
      * Converts BigInt → number.
      */
     private toDomain(goal: Goal): GoalDomain {
-        return {
-            id: goal.id,
-            userId: goal.userId,
-            name: goal.name,
-            description: goal.description,
-            targetAmount: goal.targetAmount,
-            targetDate: goal.targetDate,
-            lifecycleStatus: goal.lifecycleStatus as 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'ARCHIVED',
-            completedAt: goal.completedAt,
-            completedValue: goal.completedValue,
-            createdAt: goal.createdAt,
-            updatedAt: goal.updatedAt,
-        }
+        return new GoalDomain(
+            goal.id,
+            goal.userId,
+            goal.name,
+            goal.description,
+            goal.targetAmount,
+            goal.targetDate,
+            goal.lifecycleStatus as 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'ARCHIVED',
+            goal.completedAt,
+            goal.completedValue,
+            goal.createdAt,
+            goal.updatedAt
+        )
     }
 }

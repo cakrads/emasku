@@ -7,8 +7,8 @@
 import { ValidationError } from '@/applications/shared/lib/errors'
 import { logger } from '@/applications/shared/lib/logger'
 import { BRAND_CONFIG } from '@/applications/modules/brands/v1/domain/brands.const'
-import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
-import { PrismaGoalRepository } from '@/applications/shared/persistence/repositories/prisma-goal-repository'
+import { IPortfolioRepository } from '../domain/repository'
+import { IGoalRepository } from '@/applications/modules/goals/v1/domain/goal.repository'
 import { CreateHoldingRequest } from '@/shared/contracts/create-holding.contract'
 import { PortfolioHoldingDomain } from '../domain/portfolio.domain'
 import { NotFoundError } from '@/applications/shared/lib/errors'
@@ -16,8 +16,8 @@ import { ONE_DAY_MS, MIN_DENOMINATION_GRAM, MAX_DENOMINATION_GRAM } from '@/appl
 
 export class CreateHoldingUsecase {
   constructor(
-    private portfolioRepo: PrismaPortfolioRepository,
-    private goalRepo: PrismaGoalRepository
+    private portfolioRepo: IPortfolioRepository,
+    private goalRepo: IGoalRepository
   ) { }
 
   async execute(userId: string, request: CreateHoldingRequest): Promise<PortfolioHoldingDomain> {

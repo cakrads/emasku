@@ -1,8 +1,9 @@
 import { PrismaClient, GoldDailyClose, PriceType } from '@prisma/client'
 import { logger } from '@/applications/shared/lib/logger'
 import { Decimal } from 'decimal.js'
+import { IGoldDailyCloseRepository } from './daily-close-repository.interface'
 
-export class PrismaGoldDailyCloseRepository {
+export class PrismaGoldDailyCloseRepository implements IGoldDailyCloseRepository {
   constructor(private readonly prisma: PrismaClient) { }
 
   /**

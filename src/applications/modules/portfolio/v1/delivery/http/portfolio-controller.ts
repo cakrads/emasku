@@ -23,14 +23,21 @@ import { UpdateHoldingUsecase } from '../../usecases/update-holding.usecase'
 import { DeleteHoldingUsecase } from '../../usecases/delete-holding.usecase'
 import { SellHoldingUsecase } from '../../usecases/sell-holding.usecase'
 import { BulkSellHoldingUsecase } from '../../usecases/bulk-sell-holding.usecase'
-import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
-import { PrismaGoalRepository } from '@/applications/shared/persistence/repositories/prisma-goal-repository'
 import { getBrandName } from '@/applications/modules/brands/v1/domain/brands.const'
 import { verifyUser } from '@/applications/shared/auth/auth.utils'
-import { prisma } from '@/applications/shared/persistence/prisma-client'
+import { PrismaGoldDailyCloseRepository } from '@/applications/modules/prices/v1/repository/prisma-gold-daily-close.repository'
+import { IPortfolioRepository } from '../../domain/repository'
+import { IGoalRepository } from '@/applications/modules/goals/v1/domain/goal.repository'
+import { IPriceRepository } from '@/applications/shared/domain/price.contract'
+import { PrismaClient } from '@prisma/client'
 
 export class PortfolioController {
-  private userRepo = new PrismaUserRepository(prisma)
+  constructor(
+    private readonly portfolioRepo: IPortfolioRepository,
+    private readonly goalRepo: IGoalRepository,
+    private readonly priceRepo: IPriceRepository,
+    private readonly prisma: PrismaClient
+  ) { }
 
 
   /**
@@ -56,7 +63,7 @@ export class PortfolioController {
       dateTo,
     }
 
-    const usecase = new GetPortfolioSummaryUsecase(prisma)
+    const usecase = new GetPortfolioSummaryUsecase(this.portfolioRepo, this.priceRepo, new PrismaGoldDailyCloseRepository(this.prisma))
     const domain = await usecase.execute(userId, filter)
     const dto = PortfolioMapper.toPortfolioSummaryResponse(domain)
     const validated = PortfolioSummarySchema.parse(dto)
@@ -94,7 +101,7 @@ export class PortfolioController {
 
     const pagination = { page, pageSize }
 
-    const usecase = new GetPortfolioHoldingsUsecase(prisma)
+    const usecase = new GetPortfolioHoldingsUsecase(this.portfolioRepo, this.priceRepo)
     const result = await usecase.execute(userId, filter, pagination)
 
     const dto = PortfolioMapper.toPortfolioListResponse(result.items)
@@ -117,7 +124,7 @@ export class PortfolioController {
    */
   async getHoldingDetail(req: NextRequest, id: string): Promise<NextResponse> {
     const userId = await verifyUser(req)
-    const usecase = new GetHoldingDetailUsecase(prisma)
+    const usecase = new GetHoldingDetailUsecase(this.portfolioRepo, this.priceRepo)
     const holding = await usecase.execute(id, userId)
 
     if (!holding) {
@@ -140,7 +147,7 @@ export class PortfolioController {
    */
   async getPortfolioHistory(req: NextRequest): Promise<NextResponse> {
     const userId = await verifyUser(req)
-    const usecase = new GetPortfolioHistoryUsecase(prisma)
+    const usecase = new GetPortfolioHistoryUsecase(this.portfolioRepo)
     const domain = await usecase.execute(userId)
     const dto = PortfolioMapper.toPortfolioHistoryResponse(domain)
     const validated = PortfolioHistorySchema.parse(dto)
@@ -171,9 +178,7 @@ export class PortfolioController {
       )
     }
 
-    const portfolioRepo = new PrismaPortfolioRepository(prisma)
-    const goalRepo = new PrismaGoalRepository(prisma)
-    const usecase = new CreateHoldingUsecase(portfolioRepo, goalRepo)
+    const usecase = new CreateHoldingUsecase(this.portfolioRepo, this.goalRepo)
     const holding = await usecase.execute(userId, parsed.data)
 
     // Map to response
@@ -227,9 +232,7 @@ export class PortfolioController {
       )
     }
 
-    const portfolioRepo = new PrismaPortfolioRepository(prisma)
-    const goalRepo = new PrismaGoalRepository(prisma)
-    const usecase = new UpdateHoldingUsecase(portfolioRepo, goalRepo)
+    const usecase = new UpdateHoldingUsecase(this.portfolioRepo, this.goalRepo)
     const holding = await usecase.execute(userId, id, parsed.data)
 
     // Map to response
@@ -277,8 +280,7 @@ export class PortfolioController {
       )
     }
 
-    const portfolioRepo = new PrismaPortfolioRepository(prisma)
-    const usecase = new SellHoldingUsecase(portfolioRepo)
+    const usecase = new SellHoldingUsecase(this.portfolioRepo)
     const result = await usecase.execute(userId, id, parsed.data)
 
     const validated = SellHoldingResponseSchema.parse(result)
@@ -310,8 +312,7 @@ export class PortfolioController {
       )
     }
 
-    const portfolioRepo = new PrismaPortfolioRepository(prisma)
-    const usecase = new BulkSellHoldingUsecase(portfolioRepo)
+    const usecase = new BulkSellHoldingUsecase(this.portfolioRepo)
     const result = await usecase.execute(userId, parsed.data)
 
     const validated = BulkSellHoldingResponseSchema.parse(result)
@@ -328,8 +329,7 @@ export class PortfolioController {
     const { searchParams } = new URL(req.url)
     const hard = searchParams.get('hard') === 'true'
 
-    const portfolioRepo = new PrismaPortfolioRepository(prisma)
-    const usecase = new DeleteHoldingUsecase(portfolioRepo)
+    const usecase = new DeleteHoldingUsecase(this.portfolioRepo)
     await usecase.execute(userId, id, hard)
 
     return NextResponse.json(

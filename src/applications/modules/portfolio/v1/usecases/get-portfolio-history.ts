@@ -7,18 +7,12 @@
 
 import Decimal from 'decimal.js'
 import { ValidationError } from '@/applications/shared/lib/errors'
-import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
+import { IPortfolioRepository } from '../domain/repository'
 import { PortfolioHistoryDomain, HistoryEntryDomain } from '../domain/portfolio.domain'
 import { logger } from '@/applications/shared/lib/logger'
 
-import { PrismaClient } from '@prisma/client'
-
 export class GetPortfolioHistoryUsecase {
-  private portfolioRepo: PrismaPortfolioRepository
-
-  constructor(private readonly prisma: PrismaClient) {
-    this.portfolioRepo = new PrismaPortfolioRepository(prisma)
-  }
+  constructor(private readonly portfolioRepo: IPortfolioRepository) { }
 
   async execute(userId: string): Promise<PortfolioHistoryDomain> {
     if (!userId) {

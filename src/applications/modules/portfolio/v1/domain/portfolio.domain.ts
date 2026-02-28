@@ -33,13 +33,40 @@ export type { PortfolioHoldingDomain } from '@/applications/shared/domain/portfo
  * For ACTIVE: includes market-driven valuation.
  * For SOLD: includes realized P/L from sell transaction.
  */
-export interface ValuatedHoldingDomain extends SharedPortfolioHoldingDomain {
-  currentPrice: number | null
-  currentValue: number | null
-  unrealizedPnL: number | null
-  pnlPercentage: number | null
-  valuationSource: 'BUYBACK' | 'NONE'
-  priceAsOf: Date | null
+export class ValuatedHoldingDomain extends SharedPortfolioHoldingDomain {
+  constructor(
+    holding: SharedPortfolioHoldingDomain,
+    public currentPrice: number | null,
+    public currentValue: number | null,
+    public unrealizedPnL: number | null,
+    public pnlPercentage: number | null,
+    public valuationSource: 'BUYBACK' | 'NONE',
+    public priceAsOf: Date | null
+  ) {
+    super(
+      holding.id,
+      holding.userId,
+      holding.brandCode,
+      holding.brandName,
+      holding.denominationGram,
+      holding.quantity,
+      holding.buyPrice,
+      holding.boughtAt,
+      holding.status,
+      holding.createdAt,
+      holding.updatedAt,
+      holding.notes,
+      holding.goalId,
+      holding.goalName,
+      holding.soldAt,
+      holding.sellPrice,
+      holding.sellDate,
+      holding.sellNotes,
+      holding.realizedPnL,
+      holding.realizedPnLPercentage,
+      holding.holdingDurationDays
+    )
+  }
 }
 
 /**

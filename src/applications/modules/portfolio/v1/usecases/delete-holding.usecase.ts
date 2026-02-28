@@ -6,10 +6,10 @@
 
 import { NotFoundError } from '@/applications/shared/lib/errors'
 import { logger } from '@/applications/shared/lib/logger'
-import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
+import { IPortfolioRepository } from '../domain/repository'
 
 export class DeleteHoldingUsecase {
-  constructor(private portfolioRepo: PrismaPortfolioRepository) { }
+  constructor(private portfolioRepo: IPortfolioRepository) { }
 
   async execute(userId: string, holdingId: string, hard: boolean = false): Promise<void> {
     logger.info('Deleting holding', { userId, holdingId, hard })

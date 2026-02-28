@@ -7,13 +7,9 @@
 
 import { PrismaClient, PriceType } from '@prisma/client'
 import { logger } from '@/applications/shared/lib/logger'
+import { IPriceRepository, PriceResult } from '@/applications/shared/domain/price.contract'
 
-export interface PriceResult {
-  price: number
-  priceAt: Date
-}
-
-export class PrismaPriceRepository {
+export class PrismaPriceRepository implements IPriceRepository {
   constructor(private readonly prisma: PrismaClient) { }
   /**
    * Get latest BUYBACK price for brand/denomination.
