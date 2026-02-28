@@ -12,6 +12,7 @@ import { verifyUser } from '@/applications/shared/auth/auth.utils'
 import { CreateGoalRequestSchema, UpdateGoalRequestSchema } from '@/shared/contracts/goals.contract'
 import { PrismaGoalRepository } from '@/applications/shared/persistence/repositories/prisma-goal-repository'
 import { PrismaPriceRepository } from '@/applications/shared/persistence/repositories/prisma-price-repository'
+import { prisma } from '@/applications/shared/persistence/prisma-client'
 
 import { CreateGoalUsecase } from '../../usecases/create-goal.usecase'
 import { UpdateGoalUsecase } from '../../usecases/update-goal.usecase'
@@ -29,8 +30,8 @@ export class GoalController {
     async listGoals(req: NextRequest): Promise<NextResponse> {
         const userId = await verifyUser(req)
 
-        const goalRepo = new PrismaGoalRepository()
-        const priceRepo = new PrismaPriceRepository()
+        const goalRepo = new PrismaGoalRepository(prisma)
+        const priceRepo = new PrismaPriceRepository(prisma)
         const usecase = new ListGoalsUsecase(goalRepo, priceRepo)
         const goals = await usecase.execute(userId)
 
@@ -61,7 +62,7 @@ export class GoalController {
             throw new ValidationError('Validation failed', { errors: fieldErrors })
         }
 
-        const goalRepo = new PrismaGoalRepository()
+        const goalRepo = new PrismaGoalRepository(prisma)
         const usecase = new CreateGoalUsecase(goalRepo)
         const goal = await usecase.execute(userId, parsed.data)
 
@@ -76,8 +77,8 @@ export class GoalController {
     async getGoalDetail(req: NextRequest, id: string): Promise<NextResponse> {
         const userId = await verifyUser(req)
 
-        const goalRepo = new PrismaGoalRepository()
-        const priceRepo = new PrismaPriceRepository()
+        const goalRepo = new PrismaGoalRepository(prisma)
+        const priceRepo = new PrismaPriceRepository(prisma)
         const usecase = new GetGoalDetailUsecase(goalRepo, priceRepo)
         const detail = await usecase.execute(userId, id)
 
@@ -104,8 +105,8 @@ export class GoalController {
             throw new ValidationError('Validation failed', { errors: fieldErrors })
         }
 
-        const goalRepo = new PrismaGoalRepository()
-        const priceRepo = new PrismaPriceRepository()
+        const goalRepo = new PrismaGoalRepository(prisma)
+        const priceRepo = new PrismaPriceRepository(prisma)
         const usecase = new UpdateGoalUsecase(goalRepo, priceRepo)
         const goal = await usecase.execute(userId, id, parsed.data)
 
@@ -120,7 +121,7 @@ export class GoalController {
     async deleteGoal(req: NextRequest, id: string): Promise<NextResponse> {
         const userId = await verifyUser(req)
 
-        const goalRepo = new PrismaGoalRepository()
+        const goalRepo = new PrismaGoalRepository(prisma)
         const usecase = new DeleteGoalUsecase(goalRepo)
         await usecase.execute(userId, id)
 

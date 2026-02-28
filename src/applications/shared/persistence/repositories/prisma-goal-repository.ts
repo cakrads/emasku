@@ -5,14 +5,13 @@
  * NO valuation logic - only data fetching and type conversion.
  */
 
-import { prisma } from '../prisma-client'
-import { Goal } from '@prisma/client'
+import { PrismaClient, Goal } from '@prisma/client'
 import { GoalDomain } from '@/applications/modules/goals/v1/domain/goal.domain'
 import { CreateGoalData, UpdateGoalData } from '@/applications/modules/goals/v1/domain/goal.repository'
 import { logger } from '@/applications/shared/lib/logger'
 
 export class PrismaGoalRepository {
-    private prisma = prisma
+    constructor(private readonly prisma: PrismaClient) { }
 
     /**
      * Fetch all goals for a user.

@@ -5,8 +5,7 @@
  * Used by portfolio and market modules.
  */
 
-import { prisma } from '../prisma-client'
-import { PriceType } from '@prisma/client'
+import { PrismaClient, PriceType } from '@prisma/client'
 import { logger } from '@/applications/shared/lib/logger'
 
 export interface PriceResult {
@@ -15,6 +14,7 @@ export interface PriceResult {
 }
 
 export class PrismaPriceRepository {
+  constructor(private readonly prisma: PrismaClient) { }
   /**
    * Get latest BUYBACK price for brand/denomination.
    * Returns null if no BUYBACK price exists.
@@ -48,7 +48,7 @@ export class PrismaPriceRepository {
   ): Promise<PriceResult | null> {
     const startTime = Date.now()
 
-    const priceRecord = await prisma.goldPrice.findFirst({
+    const priceRecord = await this.prisma.goldPrice.findFirst({
       where: {
         brandCode,
         denominationGram,
@@ -82,7 +82,7 @@ export class PrismaPriceRepository {
     denominationGram: number,
     priceType: PriceType
   ): Promise<PriceResult | null> {
-    const records = await prisma.goldPrice.findMany({
+    const records = await this.prisma.goldPrice.findMany({
       where: {
         brandCode,
         denominationGram,
@@ -139,7 +139,7 @@ export class PrismaPriceRepository {
 
     // Batch fetch latest prices using distinct on brand + denomination
     // Order by recordedAt desc ensures the distinct pick is the latest record
-    const priceRecords = await prisma.goldPrice.findMany({
+    const priceRecords = await this.prisma.goldPrice.findMany({
       where: {
         priceType: PriceType.BUYBACK,
         OR: parsedConditions

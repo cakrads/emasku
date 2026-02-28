@@ -15,7 +15,7 @@ async function main() {
     process.exit(1)
   }
 
-  const usecase = new GetPortfolioSummaryUsecase()
+  const usecase = new GetPortfolioSummaryUsecase(prisma)
 
   console.log(`--- START PNL DEBUG FOR USER: ${user.id} (${user.email}) ---`)
   const result = await usecase.execute(user.id)

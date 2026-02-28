@@ -5,8 +5,7 @@
  * NO valuation logic - only data fetching and type conversion.
  */
 
-import { prisma } from '../prisma-client'
-import { Prisma, PortfolioHolding, HoldingTransaction, HoldingStatus } from '@prisma/client'
+import { PrismaClient, Prisma, PortfolioHolding, HoldingTransaction, HoldingStatus } from '@prisma/client'
 import { PortfolioHoldingDomain } from '@/applications/modules/portfolio/v1/domain/portfolio.domain'
 import { SellHoldingData, SellHoldingResult, BulkSellResult } from '@/applications/modules/portfolio/v1/domain/repository'
 import { logger } from '@/applications/shared/lib/logger'
@@ -17,7 +16,7 @@ type HoldingWithRelations = PortfolioHolding & {
 }
 
 export class PrismaPortfolioRepository {
-  private prisma = prisma
+  constructor(private readonly prisma: PrismaClient) { }
 
   /**
    * Fetch all holdings for a user with optional filters and pagination.
@@ -69,13 +68,13 @@ export class PrismaPortfolioRepository {
     }
 
     // Get total count for pagination
-    const total = await prisma.portfolioHolding.count({ where })
+    const total = await this.prisma.portfolioHolding.count({ where })
 
     // Apply pagination
     const skip = pagination ? (pagination.page - 1) * pagination.pageSize : undefined
     const take = pagination?.pageSize
 
-    const holdings = await prisma.portfolioHolding.findMany({
+    const holdings = await this.prisma.portfolioHolding.findMany({
       where,
       orderBy: [
         { status: 'asc' }, // ACTIVE first, then SOLD

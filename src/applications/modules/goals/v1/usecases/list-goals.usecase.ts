@@ -44,7 +44,7 @@ export class ListGoalsUsecase {
             const holdings = holdingsByGoal[goal.id] || []
 
             // Use snapshot value for completed goals, live value for active
-            let currentValueNum: number
+            let currentValueNum: number | bigint
 
             if (goal.lifecycleStatus === 'COMPLETED' && goal.completedValue != null) {
                 // Use the locked snapshot value
@@ -56,7 +56,7 @@ export class ListGoalsUsecase {
                 for (const holding of holdings) {
                     if (holding.status === 'SOLD' && holding.sellPrice != null) {
                         // Use realized sold price
-                        const holdingValue = new Decimal(holding.sellPrice).times(holding.quantity)
+                        const holdingValue = new Decimal(holding.sellPrice.toString()).times(holding.quantity)
                         totalCurrentValue = totalCurrentValue.plus(holdingValue)
                     } else {
                         // Use cached live market price
@@ -70,7 +70,7 @@ export class ListGoalsUsecase {
                     }
                 }
 
-                currentValueNum = totalCurrentValue.toNumber()
+                currentValueNum = BigInt(totalCurrentValue.toFixed(0))
             }
 
             // Calculate progress percentage
@@ -78,8 +78,8 @@ export class ListGoalsUsecase {
             let isAchieved = false
 
             if (goal.targetAmount != null && goal.targetAmount > 0) {
-                progressPercentage = new Decimal(currentValueNum)
-                    .dividedBy(goal.targetAmount)
+                progressPercentage = new Decimal(currentValueNum.toString())
+                    .dividedBy(new Decimal(goal.targetAmount.toString()))
                     .times(100)
                     .toDecimalPlaces(2)
                     .toNumber()

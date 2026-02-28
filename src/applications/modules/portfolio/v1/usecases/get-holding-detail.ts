@@ -8,12 +8,18 @@
 import Decimal from 'decimal.js'
 import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
 import { PrismaPriceRepository } from '@/applications/shared/persistence/repositories/prisma-price-repository'
+import { PrismaClient } from '@prisma/client'
 import { ValuatedHoldingDomain } from '../domain/portfolio.domain'
 import { logger } from '@/applications/shared/lib/logger'
 
 export class GetHoldingDetailUsecase {
-  private portfolioRepo = new PrismaPortfolioRepository()
-  private priceRepo = new PrismaPriceRepository()
+  private portfolioRepo: PrismaPortfolioRepository
+  private priceRepo: PrismaPriceRepository
+
+  constructor(private readonly prisma: PrismaClient) {
+    this.portfolioRepo = new PrismaPortfolioRepository(prisma)
+    this.priceRepo = new PrismaPriceRepository(prisma)
+  }
 
   async execute(id: string, userId: string): Promise<ValuatedHoldingDomain | null> {
     logger.info('Fetching holding detail', { id, userId })

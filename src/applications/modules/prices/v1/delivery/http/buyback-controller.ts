@@ -3,10 +3,16 @@ import { successResponse } from '@/applications/shared/lib/response'
 import { ValidationError } from '@/applications/shared/lib/errors'
 import { GetBuybackPricesUsecase } from '../../usecases/get-buyback-prices.usecase'
 import { PrismaGoldDailyCloseRepository } from '../../repository/prisma-gold-daily-close.repository'
+import { prisma } from '@/applications/shared/persistence/prisma-client'
 
 export class BuybackController {
-  private repo = new PrismaGoldDailyCloseRepository()
-  private usecase = new GetBuybackPricesUsecase(this.repo)
+  private repo: PrismaGoldDailyCloseRepository
+  private usecase: GetBuybackPricesUsecase
+
+  constructor() {
+    this.repo = new PrismaGoldDailyCloseRepository(prisma)
+    this.usecase = new GetBuybackPricesUsecase(this.repo)
+  }
 
   /**
    * GET /api/v1/buyback/prices

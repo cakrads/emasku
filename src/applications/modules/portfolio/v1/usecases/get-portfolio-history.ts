@@ -11,8 +11,14 @@ import { PrismaPortfolioRepository } from '@/applications/shared/persistence/rep
 import { PortfolioHistoryDomain, HistoryEntryDomain } from '../domain/portfolio.domain'
 import { logger } from '@/applications/shared/lib/logger'
 
+import { PrismaClient } from '@prisma/client'
+
 export class GetPortfolioHistoryUsecase {
-  constructor(private portfolioRepo: PrismaPortfolioRepository = new PrismaPortfolioRepository()) { }
+  private portfolioRepo: PrismaPortfolioRepository
+
+  constructor(private readonly prisma: PrismaClient) {
+    this.portfolioRepo = new PrismaPortfolioRepository(prisma)
+  }
 
   async execute(userId: string): Promise<PortfolioHistoryDomain> {
     if (!userId) {

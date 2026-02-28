@@ -1,7 +1,8 @@
 import { ComputeDailyCloseUsecase } from '../src/applications/modules/prices/v1/usecases/compute-daily-close.usecase'
+import { prisma } from '../src/applications/shared/persistence/prisma-client'
 
 async function run(targetDateStr?: string) {
-  const usecase = new ComputeDailyCloseUsecase()
+  const usecase = new ComputeDailyCloseUsecase(prisma)
   await usecase.execute(targetDateStr)
 }
 

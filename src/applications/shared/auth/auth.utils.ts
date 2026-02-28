@@ -2,6 +2,7 @@ import { NextRequest } from 'next/server'
 import { createServerSupabaseClient } from './supabase.server'
 import { UnauthorizedError } from '@/applications/shared/lib/errors'
 import { PrismaUserRepository } from '@/applications/shared/persistence/repositories/prisma-user-repository'
+import { prisma } from '@/applications/shared/persistence/prisma-client'
 import { logger } from '@/applications/shared/lib/logger'
 
 /**
@@ -37,7 +38,7 @@ export async function verifyUser(req: NextRequest): Promise<string> {
   if (process.env.NODE_ENV === 'development' && process.env.ALLOW_DEV_AUTH === 'true') {
     // We instantiate repo here to check for test user
     // Ideally this shouldn't be needed often as we use real auth now
-    const userRepo = new PrismaUserRepository()
+    const userRepo = new PrismaUserRepository(prisma)
     const testUser = await userRepo.findByEmail('test@emasku.com')
     if (testUser) {
       logger.warn('Using development auth fallback', { userId: testUser.id })

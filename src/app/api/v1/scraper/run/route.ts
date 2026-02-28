@@ -21,7 +21,7 @@ async function runScraper() {
 
   try {
     const priceRepository = new PrismaPriceRepository(prisma)
-    const computeDailyClose = new ComputeDailyCloseUsecase()
+    const computeDailyClose = new ComputeDailyCloseUsecase(prisma)
     const usecase = new ScrapeAndPersistPrices(priceRepository, computeDailyClose)
     const logs = await usecase.execute()
     return logs

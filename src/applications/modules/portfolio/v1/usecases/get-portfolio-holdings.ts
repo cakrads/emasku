@@ -8,9 +8,10 @@
 import Decimal from 'decimal.js'
 import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
 import { PrismaPriceRepository } from '@/applications/shared/persistence/repositories/prisma-price-repository'
-import { ValuatedHoldingDomain } from '../domain/portfolio.domain'
-import { logger } from '@/applications/shared/lib/logger'
+import { PrismaClient } from '@prisma/client'
 import { ValidationError } from '@/applications/shared/lib/errors'
+import { logger } from '@/applications/shared/lib/logger'
+import { ValuatedHoldingDomain } from '../domain/portfolio.domain'
 
 export interface HoldingsFilter {
   status?: 'active' | 'sold' | 'all'
@@ -36,8 +37,13 @@ export interface PaginatedHoldings {
 }
 
 export class GetPortfolioHoldingsUsecase {
-  private portfolioRepo = new PrismaPortfolioRepository()
-  private priceRepo = new PrismaPriceRepository()
+  private portfolioRepo: PrismaPortfolioRepository
+  private priceRepo: PrismaPriceRepository
+
+  constructor(private readonly prisma: PrismaClient) {
+    this.portfolioRepo = new PrismaPortfolioRepository(prisma)
+    this.priceRepo = new PrismaPriceRepository(prisma)
+  }
 
   async execute(
     userId: string,
