@@ -12,6 +12,7 @@ import { PrismaGoalRepository } from '@/applications/shared/persistence/reposito
 import { CreateHoldingRequest } from '@/shared/contracts/create-holding.contract'
 import { PortfolioHoldingDomain } from '../domain/portfolio.domain'
 import { NotFoundError } from '@/applications/shared/lib/errors'
+import { ONE_DAY_MS, MIN_DENOMINATION_GRAM, MAX_DENOMINATION_GRAM } from '@/applications/shared/lib/constants'
 
 export class CreateHoldingUsecase {
   constructor(
@@ -30,6 +31,7 @@ export class CreateHoldingUsecase {
       })
     }
 
+
     // Validate buy date is not in future (only if provided)
     if (request.buyDate) {
       const buyDate = new Date(request.buyDate)
@@ -39,17 +41,29 @@ export class CreateHoldingUsecase {
         })
       }
       // Allow 24h buffer for timezone differences
-      if (buyDate.getTime() > new Date().getTime() + 86_400_000) {
+      if (buyDate.getTime() > new Date().getTime() + ONE_DAY_MS) {
         throw new ValidationError('Invalid buy date', {
           buyDate: 'Buy date cannot be in the future'
         })
       }
     }
 
+    // Validate quantity and buyPrice
+    if (request.quantity <= 0) {
+      throw new ValidationError('Invalid quantity', {
+        quantity: 'Quantity must be greater than 0'
+      })
+    }
+    if (request.buyPrice !== undefined && request.buyPrice < 0) {
+      throw new ValidationError('Invalid buy price', {
+        buyPrice: 'Buy price cannot be negative'
+      })
+    }
+
     // Validate denomination is reasonable (between 0.1g and 1000g)
-    if (request.denominationGram < 0.1 || request.denominationGram > 1000) {
+    if (request.denominationGram < MIN_DENOMINATION_GRAM || request.denominationGram > MAX_DENOMINATION_GRAM) {
       throw new ValidationError('Invalid denomination', {
-        denominationGram: 'Weight must be between 0.1g and 1000g'
+        denominationGram: `Weight must be between ${MIN_DENOMINATION_GRAM}g and ${MAX_DENOMINATION_GRAM}g`
       })
     }
     // Validate goal ownership (if goalId provided)

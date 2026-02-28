@@ -132,6 +132,8 @@ export class ScraperLogger {
    * Get summary for console output
    */
   getSummary(): string {
+    if (this.entries.length === 0) return 'No entries found.'
+
     const latest = this.entries[this.entries.length - 1]
 
     if (latest.status === 'error') {
@@ -160,6 +162,7 @@ export class ScraperLogger {
    * Get the last log entry (success or error)
    */
   getLastEntry(): ScraperLogEntry | undefined {
+    if (this.entries.length === 0) return undefined
     return this.entries[this.entries.length - 1]
   }
 

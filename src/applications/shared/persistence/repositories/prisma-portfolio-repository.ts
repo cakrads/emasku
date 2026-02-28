@@ -375,7 +375,7 @@ export class PrismaPortfolioRepository {
     } else {
       await this.prisma.portfolioHolding.update({
         where: { id, userId },
-        data: { status: HoldingStatus.ARCHIVED as any }
+        data: { status: HoldingStatus.ARCHIVED }
       })
     }
   }

@@ -84,7 +84,7 @@ export function errorResponse(
         details: {
           errorType: error.name,
           traceId,
-          ...(error.details || {}),
+          ...(process.env.NODE_ENV === 'development' ? (error.details || {}) : {}),
         },
       },
       { status: error.code }

@@ -5,7 +5,7 @@
  */
 
 import { Decimal } from 'decimal.js'
-import { NotFoundError } from '@/applications/shared/lib/errors'
+import { NotFoundError, ValidationError } from '@/applications/shared/lib/errors'
 import { logger } from '@/applications/shared/lib/logger'
 import { PrismaGoalRepository } from '@/applications/shared/persistence/repositories/prisma-goal-repository'
 import { PrismaPriceRepository } from '@/applications/shared/persistence/repositories/prisma-price-repository'
@@ -24,11 +24,11 @@ export class UpdateGoalUsecase {
         // Check goal exists
         const existing = await this.goalRepo.findById(goalId)
         if (!existing || existing.userId !== userId) {
-            throw new NotFoundError('Goal not found')
+            throw new NotFoundError('Goal not found', { goalId })
         }
 
         let completedAt: Date | null | undefined = undefined
-        let completedValue: number | null | undefined = undefined
+        let completedValue: number | bigint | null | undefined = undefined
 
         if (request.lifecycleStatus === 'COMPLETED' && existing.lifecycleStatus !== 'COMPLETED') {
             completedAt = new Date()
@@ -55,7 +55,7 @@ export class UpdateGoalUsecase {
                 }
             }
 
-            completedValue = totalValue.toNumber()
+            completedValue = BigInt(totalValue.toFixed(0))
             logger.info('Goal completion snapshot', { goalId, completedValue, holdingCount: holdings.length })
         } else if (request.lifecycleStatus === 'ACTIVE' && existing.lifecycleStatus !== 'ACTIVE') {
             // Reopening: clear snapshot
@@ -63,11 +63,26 @@ export class UpdateGoalUsecase {
             completedValue = null
         }
 
+        let targetDate: Date | null | undefined = undefined
+        if (request.targetDate !== undefined) {
+            if (request.targetDate === null) {
+                targetDate = null
+            } else {
+                const parsedDate = new Date(request.targetDate)
+                if (isNaN(parsedDate.getTime())) {
+                    throw new ValidationError('Invalid target date format', {
+                        targetDate: 'Must be a valid ISO date string'
+                    })
+                }
+                targetDate = parsedDate
+            }
+        }
+
         const goal = await this.goalRepo.update(userId, goalId, {
             name: request.name,
             description: request.description,
             targetAmount: request.targetAmount,
-            targetDate: request.targetDate != null ? new Date(request.targetDate) : request.targetDate,
+            targetDate,
             lifecycleStatus: request.lifecycleStatus,
             completedAt,
             completedValue,

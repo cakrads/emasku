@@ -177,12 +177,13 @@ export class PricesController {
       })
 
       // Group by brandCode (to prevent collisions between brands with same display name)
-      const brandGroups = new Map<string, { brand: string, prices: PriceEntry[] }>()
+      const brandGroups = new Map<string, { brandCode: string, displayName: string, prices: PriceEntry[] }>()
 
       for (const price of prices) {
         if (!brandGroups.has(price.brand)) {
           brandGroups.set(price.brand, {
-            brand: getBrandName(price.brand),
+            brandCode: price.brand,
+            displayName: getBrandName(price.brand),
             prices: []
           })
         }

@@ -6,6 +6,7 @@
  */
 
 import Decimal from 'decimal.js'
+import { ValidationError } from '@/applications/shared/lib/errors'
 import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
 import { PortfolioHistoryDomain, HistoryEntryDomain } from '../domain/portfolio.domain'
 import { logger } from '@/applications/shared/lib/logger'
@@ -15,7 +16,7 @@ export class GetPortfolioHistoryUsecase {
 
   async execute(userId: string): Promise<PortfolioHistoryDomain> {
     if (!userId) {
-      throw new Error('userId is required')
+      throw new ValidationError('userId is required')
     }
     logger.info('Fetching portfolio history', { userId })
 

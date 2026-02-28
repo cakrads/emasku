@@ -112,20 +112,37 @@ export class PrismaPriceRepository {
     const results: Record<string, PriceResult> = {}
     if (keys.length === 0) return results
 
-    const parsedKeys = keys.map(key => {
-      const [brandCode, denomStr] = key.split(':')
-      return {
-        brandCode,
-        denominationGram: parseFloat(denomStr)
+    const keyMapping: Record<string, string[]> = {}
+    const parsedConditions: Array<{ brandCode: string; denominationGram: number }> = []
+
+    for (const key of keys) {
+      const parts = key.split(':')
+      if (parts.length !== 2) continue
+
+      const [brandCode, denomStr] = parts
+      const denominationGram = parseFloat(denomStr)
+
+      if (!brandCode || isNaN(denominationGram)) continue
+
+      const normalizedBrand = brandCode.trim()
+      // Use a consistent normalized string for internal mapping
+      const normalizedKey = `${normalizedBrand}:${denominationGram}`
+
+      if (!keyMapping[normalizedKey]) {
+        keyMapping[normalizedKey] = []
+        parsedConditions.push({ brandCode: normalizedBrand, denominationGram })
       }
-    })
+      keyMapping[normalizedKey].push(key)
+    }
+
+    if (parsedConditions.length === 0) return results
 
     // Batch fetch latest prices using distinct on brand + denomination
     // Order by recordedAt desc ensures the distinct pick is the latest record
     const priceRecords = await prisma.goldPrice.findMany({
       where: {
         priceType: PriceType.BUYBACK,
-        OR: parsedKeys
+        OR: parsedConditions
       },
       orderBy: [
         { brandCode: 'asc' },
@@ -136,10 +153,16 @@ export class PrismaPriceRepository {
     })
 
     for (const record of priceRecords) {
-      const key = `${record.brandCode}:${Number(record.denominationGram)}`
-      results[key] = {
-        price: Number(record.price),
-        priceAt: record.priceAt
+      const normalizedKey = `${record.brandCode}:${Number(record.denominationGram)}`
+      const originalKeys = keyMapping[normalizedKey]
+
+      if (originalKeys) {
+        for (const originalKey of originalKeys) {
+          results[originalKey] = {
+            price: Number(record.price),
+            priceAt: record.priceAt
+          }
+        }
       }
     }
 

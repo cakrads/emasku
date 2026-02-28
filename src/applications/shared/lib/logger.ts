@@ -15,9 +15,23 @@ import { IS_PRODUCTION } from './env'
 const { combine, timestamp, printf, json, colorize, errors } = winston.format
 
 /**
+ * Custom format to redact raw userId for privacy/security.
+ * Transforms userId: "cuid-1234..." -> "user_***"
+ */
+const redactUserId = winston.format((info: winston.Logform.TransformableInfo) => {
+  if (info.userId && typeof info.userId === 'string') {
+    info.userId = `usr_${info.userId.substring(0, 4)}***`
+  }
+  // Also check deep nested meta objects if needed, but for our usage pattern
+  // userId is usually passed at the top level of the meta object
+  return info
+})
+
+/**
  * Development format: Human-readable with colors
  */
 const devFormat = combine(
+  redactUserId(),
   colorize(),
   timestamp({ format: 'HH:mm:ss' }),
   errors({ stack: true }),
@@ -31,6 +45,7 @@ const devFormat = combine(
  * Production format: JSON for log aggregation tools
  */
 const prodFormat = combine(
+  redactUserId(),
   timestamp(),
   errors({ stack: true }),
   json()

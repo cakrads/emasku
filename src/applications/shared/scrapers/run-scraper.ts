@@ -30,7 +30,7 @@ async function main() {
 
   // Dependency Injection
   const priceRepository = new PrismaPriceRepository(prisma)
-  const computeDailyClose = new ComputeDailyCloseUsecase()
+  const computeDailyClose = new ComputeDailyCloseUsecase(prisma)
   const usecase = new ScrapeAndPersistPrices(priceRepository, computeDailyClose)
 
   try {

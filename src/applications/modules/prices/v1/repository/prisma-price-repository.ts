@@ -99,7 +99,7 @@ export class PrismaPriceRepository implements IPriceRepository {
         priceType: { in: [PriceType.SELL, PriceType.BUYBACK] },
         recordedAt: { gte: startOfDay, lte: endOfDay },
       },
-      orderBy: [{ brandCode: 'asc' }, { denominationGram: 'asc' }, { recordedAt: 'desc' }],
+      orderBy: [{ brandCode: 'asc' }, { denominationGram: 'asc' }, { priceAt: 'desc' }, { recordedAt: 'desc' }],
     })
 
     logQuery('getTodayPrices', Date.now() - startTime, {

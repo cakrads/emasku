@@ -72,9 +72,26 @@ function resolveValue(data: unknown[], value: unknown, visited: Set<number> = ne
 }
 
 /**
+ * Type guard to verify if the data matches the expected Nuxt/Devalue format.
+ * Checks for basic array structure and presence of expected metadata indices.
+ */
+export function isDevalueFormat(data: unknown): data is unknown[] {
+  if (!Array.isArray(data) || data.length < 5) return false
+
+  // Basic heuristic for Nuxt 3 __NUXT_DATA__
+  // Index 0 is usually an object (state), Index 1 is often null or metadata
+  return typeof data[0] === 'object' && data[0] !== null
+}
+
+/**
  * Deserialize Nuxt.js __NUXT_DATA__ array into structured gold price data
  */
 export function deserializeNuxtData(data: unknown[]): DeserializedGoldPrice[] {
+  if (!isDevalueFormat(data)) {
+    console.warn('[Deserializer] Input data is not in valid Devalue/Nuxt format')
+    return []
+  }
+
   // Index 3 contains the array of item indices
   const itemIndices = data[3]
 
@@ -102,6 +119,14 @@ export function deserializeNuxtData(data: unknown[]): DeserializedGoldPrice[] {
 
       // Validate and convert to DeserializedGoldPrice
       if (resolved.id && resolved.price !== undefined) {
+        const denomination = parseFloat(String(resolved.denomination))
+
+        // Validate denomination: must be a finite, positive number
+        if (isNaN(denomination) || denomination <= 0) {
+          console.warn(`[Deserializer] Invalid denomination for item ${resolved.id}: ${resolved.denomination}`)
+          continue
+        }
+
         const item = {
           id: String(resolved.id),
           price: parseFloat(String(resolved.price)) || 0,
@@ -110,13 +135,7 @@ export function deserializeNuxtData(data: unknown[]): DeserializedGoldPrice[] {
           description: (resolved.description as string | null) || null,
           vendorCode: String(resolved.vendorCode || ''),
           date: String(resolved.date || ''),
-          denomination: parseFloat(String(resolved.denomination)) || 0,
-        }
-
-        // Validate denomination
-        if (typeof item.denomination !== 'number' || !isFinite(item.denomination) || item.denomination <= 0) {
-          console.warn(`[Deserializer] Invalid denomination for item ${resolved.id}: ${resolved.denomination}`)
-          continue
+          denomination,
         }
 
         results.push({

@@ -9,6 +9,7 @@ import { NotFoundError, ConflictError, ValidationError } from '@/applications/sh
 import { logger } from '@/applications/shared/lib/logger'
 import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
 import { SellHoldingResult } from '../domain/repository'
+import { ONE_DAY_MS } from '@/applications/shared/lib/constants'
 
 interface SellHoldingInput {
   sellPrice: number
@@ -30,9 +31,25 @@ export class SellHoldingUsecase {
       )
     }
 
+    // Validate sell date
+    const sellDateObj = new Date(input.sellDate)
+    if (Number.isNaN(sellDateObj.getTime())) {
+      throw new ValidationError(
+        'Invalid sell date format',
+        { sellDate: 'Must be a valid date string (e.g. YYYY-MM-DD)' }
+      )
+    }
+
+    if (sellDateObj.getTime() > new Date().getTime() + ONE_DAY_MS) {
+      throw new ValidationError(
+        'Invalid sell date',
+        { sellDate: 'Sell date cannot be in the future' }
+      )
+    }
+
     // Verify holding exists and belongs to user
     const holding = await this.portfolioRepo.findById(holdingId)
-    if (!holding || holding.id !== holdingId) {
+    if (!holding || holding.userId !== userId) {
       throw new NotFoundError(
         'Holding not found',
         { holdingId },
@@ -54,7 +71,7 @@ export class SellHoldingUsecase {
     // Execute atomic sell operation
     const result = await this.portfolioRepo.sellHolding(userId, holdingId, {
       sellPrice: input.sellPrice,
-      sellDate: new Date(input.sellDate),
+      sellDate: sellDateObj,
       notes: input.notes,
     })
 

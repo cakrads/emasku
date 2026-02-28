@@ -17,9 +17,11 @@ export class DeleteHoldingUsecase {
     // Verify holding exists and belongs to user
     const exists = await this.portfolioRepo.existsByUserIdAndId(userId, holdingId)
     if (!exists) {
-      throw new NotFoundError('Holding not found', {
-        holdingId: `Holding with ID "${holdingId}" not found or does not belong to you`
-      })
+      throw new NotFoundError(
+        'Holding not found',
+        { holdingId },
+        `Holding with ID "${holdingId}" not found or does not belong to you`
+      )
     }
 
     // Delete holding (permanently remove if hard=true)

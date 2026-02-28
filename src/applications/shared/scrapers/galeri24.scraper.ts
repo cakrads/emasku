@@ -44,7 +44,10 @@ export class Galeri24Scraper {
       const rawData = await this.fetchSourceData()
 
       // Step 2: Parse prices
-      const parsedPrices = await this.parsePrices(rawData as unknown[])
+      if (!Array.isArray(rawData)) {
+        throw new Error('[Galeri24] Source data is not an array')
+      }
+      const parsedPrices = await this.parsePrices(rawData)
 
       console.log(`[Galeri24] Scrape completed. Found ${parsedPrices.length} items.`)
 
@@ -211,7 +214,10 @@ export class Galeri24Scraper {
       }
 
       // Only store if we don't have this combination yet or if this one is newer
-      if (!priceMap.has(key) || itemDate.getTime() > new Date(priceMap.get(key)!.timestamp!).getTime()) {
+      const existing = priceMap.get(key)
+      const isNewer = !existing || !existing.timestamp || itemDate.getTime() > existing.timestamp.getTime()
+
+      if (isNewer) {
         priceMap.set(key, {
           brand: brandCode,
           brandName: getBrandName(brandCode),

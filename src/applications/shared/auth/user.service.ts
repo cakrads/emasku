@@ -7,7 +7,7 @@ export class UserService {
    * Syncs a Supabase user with the local Prisma database.
    * If the user doesn't exist, it creates one.
    */
-  async syncUser(params: { id: string, email: string, name?: string }) {
+  async syncUser(params: { id: string, email: string | null, name?: string }) {
     try {
       const user = await prisma.user.upsert({
         where: { id: params.id },

@@ -86,7 +86,15 @@ export async function checkRateLimit(
   }
 
   const limiter = rateLimiters[endpoint]
-  const result = await limiter.limit(identifier)
+
+  let result: Awaited<ReturnType<typeof limiter.limit>>
+  try {
+    result = await limiter.limit(identifier)
+  } catch (error) {
+    // Fallback if Redis/Upstash is down to avoid crashing the whole request
+    console.warn(`[RateLimiter] Upstash error on ${endpoint} for ${identifier}:`, error)
+    return { success: true, remaining: 999, reset: Date.now() + 60000, limit: 999 }
+  }
 
   return {
     success: result.success,

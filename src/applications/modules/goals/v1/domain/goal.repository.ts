@@ -20,7 +20,7 @@ export interface UpdateGoalData {
     targetDate?: Date | null
     lifecycleStatus?: 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'ARCHIVED'
     completedAt?: Date | null
-    completedValue?: number | null
+    completedValue?: number | bigint | null
 }
 
 export interface IGoalRepository {

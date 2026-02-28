@@ -47,60 +47,65 @@ export class GetPortfolioHoldingsUsecase {
     if (!userId) {
       throw new ValidationError('userId is required')
     }
-    if (pagination.pageSize < 1) {
-      throw new ValidationError('pageSize must be at least 1')
+    if (!Number.isInteger(pagination.page) || pagination.page < 1) {
+      throw new ValidationError('page must be a positive integer')
+    }
+    if (!Number.isInteger(pagination.pageSize) || pagination.pageSize < 1) {
+      throw new ValidationError('pageSize must be a positive integer')
+    }
+    if (pagination.pageSize > 100) {
+      throw new ValidationError('pageSize cannot exceed 100')
     }
     logger.info('Fetching portfolio holdings', { userId, filter, pagination })
 
     const { items: holdings, total } = await this.portfolioRepo.findAllByUserId(userId, filter, pagination)
 
-    const valuatedHoldings = await Promise.all(
-      holdings.map(async (holding) => {
-        // Try BUYBACK first
-        let priceResult = await this.priceRepo.getLatestBuybackPrice(
-          holding.brandCode,
-          holding.denominationGram
-        )
-        let source: 'BUYBACK' | 'NONE' = 'BUYBACK'
+    const uniqueKeys = new Set<string>()
+    for (const holding of holdings) {
+      uniqueKeys.add(`${holding.brandCode}:${holding.denominationGram}`)
+    }
 
-        if (!priceResult) {
-          source = 'NONE'
-        }
+    const pricesDict = await this.priceRepo.getLatestBuybackPrices(Array.from(uniqueKeys))
 
-        const buyValue = new Decimal(holding.buyPrice)
-          .times(holding.quantity)
+    const valuatedHoldings = holdings.map((holding) => {
+      const key = `${holding.brandCode}:${holding.denominationGram}`
+      const priceResult = pricesDict[key]
 
-        if (!priceResult) {
-          return {
-            ...holding,
-            currentPrice: null,
-            currentValue: null,
-            unrealizedPnL: null,
-            pnlPercentage: null,
-            valuationSource: 'NONE' as const,
-            priceAsOf: null
-          }
-        }
+      let source: 'BUYBACK' | 'NONE' = 'BUYBACK'
+      if (!priceResult) {
+        source = 'NONE'
+      }
 
-        const currentValue = new Decimal(priceResult.price)
-          .times(holding.quantity)
+      const buyValue = new Decimal(holding.buyPrice).times(holding.quantity)
 
-        const unrealizedPnL = currentValue.minus(buyValue)
-        const pnlPercentage = buyValue.greaterThan(0)
-          ? unrealizedPnL.dividedBy(buyValue).times(100)
-          : new Decimal(0)
-
+      if (!priceResult) {
         return {
           ...holding,
-          currentPrice: priceResult.price,
-          currentValue: currentValue.toNumber(),
-          unrealizedPnL: unrealizedPnL.toNumber(),
-          pnlPercentage: pnlPercentage.toNumber(),
-          valuationSource: source,
-          priceAsOf: priceResult.priceAt
+          currentPrice: null,
+          currentValue: null,
+          unrealizedPnL: null,
+          pnlPercentage: null,
+          valuationSource: 'NONE' as const,
+          priceAsOf: null
         }
-      })
-    )
+      }
+
+      const currentValue = new Decimal(priceResult.price).times(holding.quantity)
+      const unrealizedPnL = currentValue.minus(buyValue)
+      const pnlPercentage = buyValue.greaterThan(0)
+        ? unrealizedPnL.dividedBy(buyValue).times(100)
+        : new Decimal(0)
+
+      return {
+        ...holding,
+        currentPrice: priceResult.price,
+        currentValue: currentValue.toNumber(),
+        unrealizedPnL: unrealizedPnL.toNumber(),
+        pnlPercentage: pnlPercentage.toNumber(),
+        valuationSource: source,
+        priceAsOf: priceResult.priceAt
+      }
+    })
 
     logger.info('Portfolio holdings fetched', { count: valuatedHoldings.length, total })
 

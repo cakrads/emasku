@@ -9,6 +9,7 @@ import { logger } from '@/applications/shared/lib/logger'
 import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
 import { UpdateHoldingRequest } from '@/shared/contracts/update-holding.contract'
 import { PortfolioHoldingDomain } from '../domain/portfolio.domain'
+import { ONE_DAY_MS, MIN_DENOMINATION_GRAM, MAX_DENOMINATION_GRAM } from '@/applications/shared/lib/constants'
 
 export class UpdateHoldingUsecase {
   constructor(private portfolioRepo: PrismaPortfolioRepository) { }
@@ -31,7 +32,7 @@ export class UpdateHoldingUsecase {
     if (request.buyDate) {
       const buyDate = new Date(request.buyDate)
       // Allow 24h buffer for timezone differences
-      if (buyDate.getTime() > new Date().getTime() + 86_400_000) {
+      if (buyDate.getTime() > new Date().getTime() + ONE_DAY_MS) {
         throw new ValidationError('Invalid buy date', {
           buyDate: 'Buy date cannot be in the future'
         })
@@ -40,11 +41,23 @@ export class UpdateHoldingUsecase {
 
     // Validate denomination if provided
     if (request.denominationGram !== undefined) {
-      if (request.denominationGram < 0.1 || request.denominationGram > 1000) {
+      if (request.denominationGram < MIN_DENOMINATION_GRAM || request.denominationGram > MAX_DENOMINATION_GRAM) {
         throw new ValidationError('Invalid denomination', {
-          denominationGram: 'Weight must be between 0.1g and 1000g'
+          denominationGram: `Weight must be between ${MIN_DENOMINATION_GRAM}g and ${MAX_DENOMINATION_GRAM}g`
         })
       }
+    }
+
+    // Validate quantity and buyPrice if provided
+    if (request.quantity !== undefined && request.quantity <= 0) {
+      throw new ValidationError('Invalid quantity', {
+        quantity: 'Quantity must be greater than 0'
+      })
+    }
+    if (request.buyPrice !== undefined && request.buyPrice < 0) {
+      throw new ValidationError('Invalid buy price', {
+        buyPrice: 'Buy price cannot be negative'
+      })
     }
 
     // Update holding in database

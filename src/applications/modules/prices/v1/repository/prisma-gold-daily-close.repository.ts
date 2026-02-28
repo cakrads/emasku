@@ -1,9 +1,10 @@
-import { prisma } from '@/applications/shared/persistence/prisma-client'
-import { GoldDailyClose, PriceType } from '@prisma/client'
+import { PrismaClient, GoldDailyClose, PriceType } from '@prisma/client'
 import { logger } from '@/applications/shared/lib/logger'
 import { Decimal } from 'decimal.js'
 
 export class PrismaGoldDailyCloseRepository {
+  constructor(private readonly prisma: PrismaClient) { }
+
   /**
    * Upsert a daily close record.
    * If record exists for (brand, type, gram, date), update it (idempotent).
@@ -19,7 +20,7 @@ export class PrismaGoldDailyCloseRepository {
   }): Promise<GoldDailyClose> {
     const startTime = Date.now()
 
-    const result = await prisma.goldDailyClose.upsert({
+    const result = await this.prisma.goldDailyClose.upsert({
       where: {
         brandCode_priceType_denominationGram_closeDate: {
           brandCode: data.brandCode,
@@ -63,7 +64,7 @@ export class PrismaGoldDailyCloseRepository {
     denominationGram: Decimal,
     date: Date
   ): Promise<GoldDailyClose | null> {
-    return prisma.goldDailyClose.findUnique({
+    return this.prisma.goldDailyClose.findUnique({
       where: {
         brandCode_priceType_denominationGram_closeDate: {
           brandCode,
@@ -86,7 +87,7 @@ export class PrismaGoldDailyCloseRepository {
     beforeDate: Date
   ): Promise<GoldDailyClose | null> {
     // Find the most recent closeDate < beforeDate
-    return prisma.goldDailyClose.findFirst({
+    return this.prisma.goldDailyClose.findFirst({
       where: {
         brandCode,
         priceType,
@@ -115,7 +116,7 @@ export class PrismaGoldDailyCloseRepository {
       denominationGram: new Decimal(item.denominationGram)
     }))
 
-    return prisma.goldDailyClose.findMany({
+    return this.prisma.goldDailyClose.findMany({
       where: {
         priceType: 'BUYBACK',
         OR: orConditions,

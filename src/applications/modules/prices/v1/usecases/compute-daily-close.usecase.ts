@@ -1,10 +1,13 @@
-import { PriceType } from '@prisma/client'
+import { PriceType, PrismaClient } from '@prisma/client'
 import { Decimal } from 'decimal.js'
-import { prisma } from '@/applications/shared/persistence/prisma-client'
 import { PrismaGoldDailyCloseRepository } from '../repository/prisma-gold-daily-close.repository'
 
 export class ComputeDailyCloseUsecase {
-  private repo = new PrismaGoldDailyCloseRepository()
+  private repo: PrismaGoldDailyCloseRepository
+
+  constructor(private readonly prisma: PrismaClient) {
+    this.repo = new PrismaGoldDailyCloseRepository(this.prisma)
+  }
 
   /**
    * Execute daily close computation for a specific date (WIB).
@@ -18,7 +21,7 @@ export class ComputeDailyCloseUsecase {
     const boundaries = this.getDateBoundaries(dateStr)
 
     // 1. Identify all active brand/gram combinations
-    const baseMarkets = await prisma.goldPrice.groupBy({
+    const baseMarkets = await this.prisma.goldPrice.groupBy({
       by: ['brandCode', 'denominationGram'],
     })
 
@@ -59,7 +62,7 @@ export class ComputeDailyCloseUsecase {
       ? [PriceType.SELL, PriceType.RETAIL]
       : [PriceType.BUYBACK]
 
-    const latestPrice = await prisma.goldPrice.findFirst({
+    const latestPrice = await this.prisma.goldPrice.findFirst({
       where: {
         brandCode,
         priceType: { in: candidateTypes },

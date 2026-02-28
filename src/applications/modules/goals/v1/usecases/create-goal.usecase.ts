@@ -20,6 +20,11 @@ export class CreateGoalUsecase {
         // Normalize both dates to UTC midnight to avoid timezone mismatches
         if (request.targetDate) {
             const targetDate = new Date(request.targetDate)
+            if (Number.isNaN(targetDate.getTime())) {
+                throw new ValidationError('Invalid target date format', {
+                    targetDate: 'Must be a valid date string (e.g. YYYY-MM-DD)',
+                })
+            }
             targetDate.setUTCHours(0, 0, 0, 0)
             const today = new Date()
             today.setUTCHours(0, 0, 0, 0)

@@ -62,37 +62,39 @@ export function mapSupabaseError(error: unknown): AuthError {
     return createAuthError('AUTH_UNKNOWN', 'Unknown error occurred')
   }
 
-  // Extract error message
-  const message = error instanceof Error
+  // Extract and normalize error message
+  const rawMessage = error instanceof Error
     ? error.message
     : typeof error === 'object' && error !== null && 'message' in error
       ? String((error as { message: unknown }).message)
       : String(error)
 
+  const message = rawMessage.toLowerCase()
+
   // Map known Supabase error patterns
-  if (message.includes('Invalid login credentials')) {
-    return createAuthError('AUTH_INVALID_CREDENTIALS', message)
+  if (message.includes('invalid login credentials')) {
+    return createAuthError('AUTH_INVALID_CREDENTIALS', rawMessage)
   }
 
-  if (message.includes('JWT expired') || message.includes('session_not_found')) {
-    return createAuthError('AUTH_SESSION_EXPIRED', message)
+  if (message.includes('jwt expired') || message.includes('session_not_found')) {
+    return createAuthError('AUTH_SESSION_EXPIRED', rawMessage)
   }
 
   if (message.includes('refresh_token')) {
-    return createAuthError('AUTH_REFRESH_FAILED', message)
+    return createAuthError('AUTH_REFRESH_FAILED', rawMessage)
   }
 
   if (message.includes('rate limit') || message.includes('too many requests')) {
-    return createAuthError('AUTH_RATE_LIMITED', message)
+    return createAuthError('AUTH_RATE_LIMITED', rawMessage)
   }
 
   if (message.includes('network') || message.includes('fetch')) {
-    return createAuthError('AUTH_NETWORK_ERROR', message)
+    return createAuthError('AUTH_NETWORK_ERROR', rawMessage)
   }
 
   if (message.includes('popup') || message.includes('blocked')) {
-    return createAuthError('AUTH_POPUP_BLOCKED', message)
+    return createAuthError('AUTH_POPUP_BLOCKED', rawMessage)
   }
 
-  return createAuthError('AUTH_UNKNOWN', message)
+  return createAuthError('AUTH_UNKNOWN', rawMessage)
 }

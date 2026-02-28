@@ -13,11 +13,11 @@ export interface GoalDomain {
   userId: string
   name: string
   description: string | null
-  targetAmount: number | null  // IDR
+  targetAmount: number | bigint | null  // IDR
   targetDate: Date | null
   lifecycleStatus: 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'ARCHIVED'
   completedAt: Date | null
-  completedValue: number | null    // snapshot of total value at completion time
+  completedValue: number | bigint | null    // snapshot of total value at completion time
   createdAt: Date
   updatedAt: Date
 }
@@ -28,7 +28,7 @@ export interface GoalDomain {
  */
 export interface GoalSummaryDomain extends GoalDomain {
   holdingCount: number
-  totalCurrentValue: number         // sum of linked holdings' current value
+  totalCurrentValue: number | bigint  // sum of linked holdings' current value
   progressPercentage: number | null // null if no targetAmount
   isAchieved: boolean               // true if progress >= 100%
 }

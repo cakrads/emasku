@@ -81,7 +81,9 @@ export class PrismaGoalRepository {
         if (data.lifecycleStatus !== undefined) updateData.lifecycleStatus = data.lifecycleStatus
         if (data.completedAt !== undefined) updateData.completedAt = data.completedAt
         if (data.completedValue !== undefined) {
-            updateData.completedValue = data.completedValue != null ? BigInt(Math.round(data.completedValue)) : null
+            updateData.completedValue = data.completedValue != null
+                ? (typeof data.completedValue === 'bigint' ? data.completedValue : BigInt(Math.round(data.completedValue)))
+                : null
         }
 
         const goal = await this.prisma.goal.update({
@@ -137,9 +139,9 @@ export class PrismaGoalRepository {
         brandName: string
         denominationGram: number
         quantity: number
-        buyPrice: number
+        buyPrice: number | bigint
         status: 'ACTIVE' | 'SOLD'
-        sellPrice?: number
+        sellPrice?: number | bigint
         sellDate?: Date
     }>> {
         const holdings = await this.prisma.portfolioHolding.findMany({
@@ -167,9 +169,9 @@ export class PrismaGoalRepository {
             brandName: h.brandName,
             denominationGram: Number(h.denominationGram),
             quantity: h.quantity,
-            buyPrice: Number(h.buyPrice),
+            buyPrice: h.buyPrice,
             status: h.status as 'ACTIVE' | 'SOLD',
-            sellPrice: h.soldTransaction?.price ? Number(h.soldTransaction.price) : undefined,
+            sellPrice: h.soldTransaction?.price,
             sellDate: h.soldTransaction?.transactionDate ? h.soldTransaction.transactionDate : undefined,
         }))
     }
@@ -184,9 +186,9 @@ export class PrismaGoalRepository {
         brandName: string
         denominationGram: number
         quantity: number
-        buyPrice: number
+        buyPrice: number | bigint
         status: 'ACTIVE' | 'SOLD'
-        sellPrice?: number
+        sellPrice?: number | bigint
         sellDate?: Date
     }>>> {
         const holdings = await this.prisma.portfolioHolding.findMany({
@@ -222,9 +224,9 @@ export class PrismaGoalRepository {
                 brandName: h.brandName,
                 denominationGram: Number(h.denominationGram),
                 quantity: h.quantity,
-                buyPrice: Number(h.buyPrice),
+                buyPrice: h.buyPrice,
                 status: h.status as 'ACTIVE' | 'SOLD',
-                sellPrice: h.soldTransaction?.price ? Number(h.soldTransaction.price) : undefined,
+                sellPrice: h.soldTransaction?.price,
                 sellDate: h.soldTransaction?.transactionDate ? h.soldTransaction.transactionDate : undefined,
             })
         }
@@ -242,11 +244,11 @@ export class PrismaGoalRepository {
             userId: goal.userId,
             name: goal.name,
             description: goal.description,
-            targetAmount: goal.targetAmount != null ? Number(goal.targetAmount) : null,
+            targetAmount: goal.targetAmount,
             targetDate: goal.targetDate,
             lifecycleStatus: goal.lifecycleStatus as 'ACTIVE' | 'COMPLETED' | 'CANCELLED' | 'ARCHIVED',
             completedAt: goal.completedAt,
-            completedValue: goal.completedValue != null ? Number(goal.completedValue) : null,
+            completedValue: goal.completedValue,
             createdAt: goal.createdAt,
             updatedAt: goal.updatedAt,
         }

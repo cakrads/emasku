@@ -15,10 +15,12 @@ const VALID_KEY_PREFIXES = ['emasku_pub_v1_web', 'emasku_pub_v1_mobile']
  * Hardcoded keys for MVP (move to database in production)
  * These are non-secret, visible in frontend code
  */
-const VALID_KEYS = new Set([
-  process.env.NEXT_PUBLIC_API_KEY_WEB || 'emasku_pub_v1_web_default',
-  process.env.NEXT_PUBLIC_API_KEY_MOBILE || 'emasku_pub_v1_mobile_default',
-])
+const VALID_KEYS = new Set(
+  [
+    process.env.NEXT_PUBLIC_API_KEY_WEB,
+    process.env.NEXT_PUBLIC_API_KEY_MOBILE,
+  ].filter((k): k is string => Boolean(k))
+)
 
 export interface PublicApiKeyInfo {
   isValid: boolean

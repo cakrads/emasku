@@ -18,7 +18,7 @@ export class DeleteGoalUsecase {
         // Check goal exists
         const existing = await this.goalRepo.findById(goalId)
         if (!existing || existing.userId !== userId) {
-            throw new NotFoundError('Goal not found')
+            throw new NotFoundError('Goal not found', { goalId })
         }
 
         // Unlink any associated holdings (set goalId to null)

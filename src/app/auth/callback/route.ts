@@ -27,7 +27,7 @@ export async function GET(request: Request) {
 
           await userService.syncUser({
             id: user.id,
-            email: user.email!,
+            email: user.email ?? null,
             name: user.user_metadata?.full_name || user.user_metadata?.name
           })
 

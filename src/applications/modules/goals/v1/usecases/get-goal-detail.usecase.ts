@@ -12,14 +12,14 @@ import { PrismaPriceRepository } from '@/applications/shared/persistence/reposit
 import { GoalSummaryDomain } from '../domain/goal.domain'
 
 export interface GoalDetailResult extends GoalSummaryDomain {
-    totalInvestedValue: number
+    totalInvestedValue: number | bigint
     holdings: Array<{
         id: string
         brandCode: string
         brandName: string
         denominationGram: number
         quantity: number
-        currentValue: number | null
+        currentValue: number | bigint | null
         status: string
         isSold: boolean
         soldDate: string | null
@@ -37,7 +37,7 @@ export class GetGoalDetailUsecase {
 
         const goal = await this.goalRepo.findById(goalId)
         if (!goal || goal.userId !== userId) {
-            throw new NotFoundError('Goal not found')
+            throw new NotFoundError('Goal not found', { goalId })
         }
 
         const holdings = await this.goalRepo.findHoldingsByGoalId(goalId)
@@ -106,8 +106,8 @@ export class GetGoalDetailUsecase {
         return {
             ...goal,
             holdingCount: holdings.length,
-            totalCurrentValue: currentValueNum,
-            totalInvestedValue: totalInvestedValue.toNumber(),
+            totalCurrentValue: typeof currentValueNum === 'number' ? BigInt(Math.round(currentValueNum)) : currentValueNum,
+            totalInvestedValue: BigInt(totalInvestedValue.toFixed(0)),
             progressPercentage,
             isAchieved,
             holdings: enrichedHoldings,
