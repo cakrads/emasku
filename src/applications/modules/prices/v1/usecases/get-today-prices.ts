@@ -20,7 +20,7 @@ export class GetTodayPricesUsecase {
   async execute(params: GetTodayPricesParams): Promise<TodayPriceGroup[]> {
     const { brandCode, denominationGram } = params
 
-    const denom = denominationGram ? new Decimal(denominationGram) : undefined
+    const denom = denominationGram !== undefined ? new Decimal(denominationGram) : undefined
 
     logger.info('Fetching today prices', { brandCode, denominationGram })
 

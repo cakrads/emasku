@@ -63,7 +63,7 @@ function resolveValue(data: unknown[], value: unknown, visited: Set<number> = ne
   if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
     const resolvedObj: Record<string, unknown> = {}
     for (const [key, val] of Object.entries(value)) {
-      resolvedObj[key] = resolveValue(data, val, visited)
+      resolvedObj[key] = resolveValue(data, val, new Set(visited))
     }
     return resolvedObj
   }

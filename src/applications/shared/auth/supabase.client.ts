@@ -12,6 +12,12 @@ import { SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY } from '../l
  * Create a Supabase client for browser usage
  */
 export function createBrowserSupabaseClient() {
+  if (!SUPABASE_URL) {
+    throw new Error('Missing required environment variable: NEXT_PUBLIC_SUPABASE_URL')
+  }
+  if (!NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY) {
+    throw new Error('Missing required environment variable: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY')
+  }
   return createBrowserClient(SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY)
 }
 

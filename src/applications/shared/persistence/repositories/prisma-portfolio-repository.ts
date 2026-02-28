@@ -431,6 +431,7 @@ export class PrismaPortfolioRepository {
       soldAt: prismaHolding.soldAt,
       status: prismaHolding.status as 'ACTIVE' | 'SOLD',
       createdAt: prismaHolding.createdAt,
+      updatedAt: prismaHolding.updatedAt,
       notes: prismaHolding.notes || undefined,
       goalId: prismaHolding.goalId || null,
       goalName: prismaHolding.goal?.name || null,

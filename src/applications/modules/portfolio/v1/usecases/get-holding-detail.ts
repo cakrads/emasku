@@ -58,14 +58,14 @@ export class GetHoldingDetailUsecase {
       : new Decimal(0)
 
     // Normalize price to per-gram for consistency with UI labels
-    // Guard against division by zero if data is corrupted
+    // Return null if denomination is invalid to avoid misleading the client
     const currentPricePerGram = holding.denominationGram > 0
       ? new Decimal(priceResult.price).dividedBy(holding.denominationGram)
-      : new Decimal(priceResult.price)
+      : null
 
     return {
       ...holding,
-      currentPrice: currentPricePerGram.toNumber(),
+      currentPrice: currentPricePerGram?.toNumber() ?? null,
       currentValue: currentValue.toNumber(),
       unrealizedPnL: unrealizedPnL.toNumber(),
       pnlPercentage: pnlPercentage.toNumber(),

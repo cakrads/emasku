@@ -85,15 +85,19 @@ export class PrismaPriceRepository implements IPriceRepository {
 
     // Get latest prices for each brand/denomination combination
     // We'll fetch all SELL and BUYBACK prices and group them
-    // Only look at the last 24 hours to find deltas and current prices
-    const lookback = new Date(Date.now() - 24 * 60 * 60 * 1000)
+    // Bound to today's temporal window (00:00:00–23:59:59) to prevent stale data
+    const now = new Date()
+    const startOfDay = new Date(now)
+    startOfDay.setHours(0, 0, 0, 0)
+    const endOfDay = new Date(now)
+    endOfDay.setHours(23, 59, 59, 999)
 
     const prices = await this.prisma.goldPrice.findMany({
       where: {
         ...(brandCode && { brandCode }),
         ...(denominationGram && { denominationGram }),
         priceType: { in: [PriceType.SELL, PriceType.BUYBACK] },
-        recordedAt: { gte: lookback },
+        recordedAt: { gte: startOfDay, lte: endOfDay },
       },
       orderBy: [{ brandCode: 'asc' }, { denominationGram: 'asc' }, { recordedAt: 'desc' }],
     })

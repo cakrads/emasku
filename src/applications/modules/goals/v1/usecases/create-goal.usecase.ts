@@ -17,10 +17,12 @@ export class CreateGoalUsecase {
         logger.info('Creating new goal', { userId, name: request.name })
 
         // Validate target date is not in past (if provided)
+        // Normalize both dates to UTC midnight to avoid timezone mismatches
         if (request.targetDate) {
             const targetDate = new Date(request.targetDate)
+            targetDate.setUTCHours(0, 0, 0, 0)
             const today = new Date()
-            today.setHours(0, 0, 0, 0)
+            today.setUTCHours(0, 0, 0, 0)
             if (targetDate < today) {
                 throw new ValidationError('Invalid target date', {
                     targetDate: 'Target date cannot be in the past',

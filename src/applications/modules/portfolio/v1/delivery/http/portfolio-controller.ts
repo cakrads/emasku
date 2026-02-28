@@ -182,7 +182,7 @@ export class PortfolioController {
       buyDate: holding.boughtAt ? holding.boughtAt.toISOString().split('T')[0] : null,
       notes: holding.notes,
       goalId: holding.goalId,
-      createdAt: new Date().toISOString(),
+      createdAt: holding.createdAt?.toISOString() ?? new Date().toISOString(),
     }
 
     const validated = CreateHoldingResponseSchema.parse(response)
@@ -232,7 +232,7 @@ export class PortfolioController {
       buyDate: holding.boughtAt ? holding.boughtAt.toISOString().split('T')[0] : null,
       notes: holding.notes,
       goalId: holding.goalId,
-      updatedAt: new Date().toISOString(),
+      updatedAt: holding.updatedAt?.toISOString() ?? new Date().toISOString(),
     }
 
     const validated = UpdateHoldingResponseSchema.parse(response)

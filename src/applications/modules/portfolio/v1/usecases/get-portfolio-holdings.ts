@@ -47,6 +47,9 @@ export class GetPortfolioHoldingsUsecase {
     if (!userId) {
       throw new ValidationError('userId is required')
     }
+    if (pagination.pageSize < 1) {
+      throw new ValidationError('pageSize must be at least 1')
+    }
     logger.info('Fetching portfolio holdings', { userId, filter, pagination })
 
     const { items: holdings, total } = await this.portfolioRepo.findAllByUserId(userId, filter, pagination)

@@ -13,6 +13,18 @@ if (!connectionString || connectionString === 'undefined') {
   process.exit(1)
 }
 
+/** Mask sensitive parts of a connection string for safe logging */
+function maskConnectionString(url: string): string {
+  try {
+    const parsed = new URL(url)
+    if (parsed.password) parsed.password = '***'
+    if (parsed.username) parsed.username = '***'
+    return parsed.toString()
+  } catch {
+    return '***masked***'
+  }
+}
+
 const pool = new pg.Pool({ connectionString })
 const adapter = new PrismaPg(pool)
 const prisma = new PrismaClient({ adapter })

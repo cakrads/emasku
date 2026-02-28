@@ -35,6 +35,7 @@ export interface PortfolioHoldingDomain {
   soldAt?: Date | null
   status: 'ACTIVE' | 'SOLD'
   createdAt: Date
+  updatedAt?: Date
   notes?: string
   goalId?: string | null
   goalName?: string | null

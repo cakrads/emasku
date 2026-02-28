@@ -54,7 +54,7 @@ export class ListGoalsUsecase {
                 let totalCurrentValue = new Decimal(0)
 
                 for (const holding of holdings) {
-                    if (holding.status === 'SOLD' && holding.sellPrice) {
+                    if (holding.status === 'SOLD' && holding.sellPrice != null) {
                         // Use realized sold price
                         const holdingValue = new Decimal(holding.sellPrice).times(holding.quantity)
                         totalCurrentValue = totalCurrentValue.plus(holdingValue)

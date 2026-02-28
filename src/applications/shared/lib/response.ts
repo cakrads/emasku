@@ -92,6 +92,7 @@ export function errorResponse(
   }
 
   // Handle Zod Validation Errors
+  // In production, hide schema details to prevent leaking internal structure
   if (error instanceof ZodError) {
     return NextResponse.json(
       {
@@ -102,7 +103,9 @@ export function errorResponse(
         details: {
           errorType: 'ValidationSchemaError',
           traceId,
-          issues: error.issues,
+          ...(process.env.NODE_ENV === 'development' && {
+            issues: error.issues,
+          }),
         },
       },
       { status: 500 }
