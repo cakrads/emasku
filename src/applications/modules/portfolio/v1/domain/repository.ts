@@ -25,7 +25,17 @@ export interface BulkSellResult {
 }
 
 export interface IPortfolioRepository {
-  findAllByUserId(userId: string, filter?: { status?: 'active' | 'sold' | 'all' }): Promise<PortfolioHoldingDomain[]>;
+  findAllByUserId(
+    userId: string,
+    filter?: {
+      status?: 'active' | 'sold' | 'all'
+      brandCodes?: string[]
+      dateFrom?: string
+      dateTo?: string
+      goalId?: string
+    },
+    pagination?: { page: number; pageSize: number }
+  ): Promise<{ items: PortfolioHoldingDomain[]; total: number }>;
   findById(id: string): Promise<PortfolioHoldingDomain | null>;
   create(userId: string, data: {
     brandCode: string

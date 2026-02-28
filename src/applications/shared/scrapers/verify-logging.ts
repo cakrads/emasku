@@ -6,7 +6,13 @@ import fs from 'fs'
 import path from 'path'
 import { execSync } from 'child_process'
 
-const connectionString = `${process.env.DIRECT_URL}`
+const connectionString = process.env.DIRECT_URL
+if (!connectionString || connectionString === 'undefined') {
+  console.error('[verify-logging] Error: DIRECT_URL environment variable is missing or invalid.')
+  console.log('Ensure it is defined in your .env file.')
+  process.exit(1)
+}
+
 const pool = new pg.Pool({ connectionString })
 const adapter = new PrismaPg(pool)
 const prisma = new PrismaClient({ adapter })

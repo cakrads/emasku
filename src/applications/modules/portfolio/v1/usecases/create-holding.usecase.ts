@@ -8,11 +8,16 @@ import { ValidationError } from '@/applications/shared/lib/errors'
 import { logger } from '@/applications/shared/lib/logger'
 import { BRAND_CONFIG } from '@/applications/modules/brands/v1/domain/brands.const'
 import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
+import { PrismaGoalRepository } from '@/applications/shared/persistence/repositories/prisma-goal-repository'
 import { CreateHoldingRequest } from '@/shared/contracts/create-holding.contract'
 import { PortfolioHoldingDomain } from '../domain/portfolio.domain'
+import { NotFoundError } from '@/applications/shared/lib/errors'
 
 export class CreateHoldingUsecase {
-  constructor(private portfolioRepo: PrismaPortfolioRepository) { }
+  constructor(
+    private portfolioRepo: PrismaPortfolioRepository,
+    private goalRepo: PrismaGoalRepository
+  ) { }
 
   async execute(userId: string, request: CreateHoldingRequest): Promise<PortfolioHoldingDomain> {
     logger.info('Creating new holding', { userId, brandCode: request.brandCode })
@@ -46,6 +51,13 @@ export class CreateHoldingUsecase {
       throw new ValidationError('Invalid denomination', {
         denominationGram: 'Weight must be between 0.1g and 1000g'
       })
+    }
+    // Validate goal ownership (if goalId provided)
+    if (request.goalId) {
+      const goal = await this.goalRepo.findById(request.goalId)
+      if (!goal || goal.userId !== userId) {
+        throw new NotFoundError('Goal not found', { goalId: request.goalId })
+      }
     }
 
     // Create holding in database

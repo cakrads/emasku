@@ -163,6 +163,17 @@ export class Galeri24Scraper {
     // Group by vendor and denomination to get unique prices
     const priceMap = new Map<string, RawPriceData>()
 
+    const { fromZonedTime } = await import('date-fns-tz')
+    const TIMEZONE = 'Asia/Jakarta'
+
+    // Helper to parse date string or timestamp to Date object
+    const parseDateHelper = (dateStr: string | undefined): Date => {
+      if (!dateStr) return new Date()
+      if (dateStr.includes('T')) return new Date(dateStr)
+      // If it is just YYYY-MM-DD, treat as Midnight Jakarta Time
+      return fromZonedTime(dateStr, TIMEZONE)
+    }
+
     for (const item of items) {
       // VALIDATION: Ensure item matches expected schema
       const result = GoldPriceItemSchema.safeParse(item)
@@ -208,28 +219,11 @@ export class Galeri24Scraper {
       // Create unique key by brand + denomination
       const key = `${brandCode}_${validItem.denomination}`
 
-      // TIMEZONE HANDLING:
-      // Galeri24 is an Indonesian site (WIB / UTC+7).
-      // We must interpret dates in 'Asia/Jakarta' timezone to ensure
-      // consistency regardless of where this scraper runs (local vs Vercel).
-      const { fromZonedTime } = await import('date-fns-tz')
-      const TIMEZONE = 'Asia/Jakarta'
-
-      // Helper to parse date string or timestamp to Date object
-      const parseDate = (dateStr: string | undefined): Date => {
-        if (!dateStr) return new Date()
-
-        if (dateStr.includes('T')) return new Date(dateStr)
-
-        // If it is just YYYY-MM-DD, treat as Midnight Jakarta Time
-        return fromZonedTime(dateStr, TIMEZONE)
-      }
-
       // PRIORITY: Global Date > Item updatedAt > Item date
       let itemDate = globalDate
 
       if (!itemDate) {
-        itemDate = parseDate(validItem.updatedAt || validItem.date)
+        itemDate = parseDateHelper(validItem.updatedAt || validItem.date)
       }
 
       // Only store if we don't have this combination yet or if this one is newer

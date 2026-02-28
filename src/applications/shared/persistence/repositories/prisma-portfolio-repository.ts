@@ -291,18 +291,17 @@ export class PrismaPortfolioRepository {
   async bulkSellHoldings(userId: string, items: { id: string, sellPrice: number }[], commonData: Omit<SellHoldingData, 'sellPrice'>): Promise<BulkSellResult> {
     const results: BulkSellResult['results'] = []
 
-    await this.prisma.$transaction(async (tx) => {
-      for (const item of items) {
-        const { id: holdingId, sellPrice } = item
-        try {
-          // Fetch holding
+    for (const item of items) {
+      const { id: holdingId, sellPrice } = item
+      try {
+        const result = await this.prisma.$transaction(async (tx) => {
+          // Fetch holding with lock via status check
           const holding = await tx.portfolioHolding.findFirst({
             where: { id: holdingId, userId, status: 'ACTIVE' },
           })
 
           if (!holding) {
-            results.push({ id: holdingId, holdingId, status: 'FAILED', error: 'Holding not found or already sold' })
-            continue
+            throw new Error('HOLDING_NOT_ACTIVE')
           }
 
           // Create SELL transaction
@@ -334,18 +333,24 @@ export class PrismaPortfolioRepository {
           const buyPrice = Number(holding.buyPrice)
           const realizedPnL = Math.round(sellPrice - buyPrice)
 
-          results.push({
+          return {
             id: holdingId,
             holdingId,
-            status: 'SOLD',
+            status: 'SOLD' as const,
             realizedPnL,
-          })
-        } catch (err) {
-          const errorMessage = err instanceof Error ? err.message : 'Unknown error'
-          results.push({ id: holdingId, holdingId, status: 'FAILED', error: errorMessage })
-        }
+          }
+        })
+        results.push(result)
+      } catch (err) {
+        const errorMessage = err instanceof Error ? err.message : 'Unknown error'
+        results.push({
+          id: holdingId,
+          holdingId,
+          status: 'FAILED',
+          error: errorMessage === 'HOLDING_NOT_ACTIVE' ? 'Holding not found or already sold' : errorMessage
+        })
       }
-    })
+    }
 
     logger.info('Bulk sell completed', {
       userId,

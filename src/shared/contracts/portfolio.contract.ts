@@ -128,3 +128,18 @@ export const PortfolioHistorySchema = z.object({
 })
 
 export type PortfolioHistory = z.infer<typeof PortfolioHistorySchema>
+
+/**
+ * Query Parameters for Portfolio Lists
+ */
+export const PortfolioQuerySchema = z.object({
+  status: z.enum(['active', 'sold', 'all']).default('active'),
+  brandCodes: z.string().optional().transform(val => val ? val.split(',') : undefined),
+  dateFrom: z.string().optional(),
+  dateTo: z.string().optional(),
+  goalId: z.string().optional(),
+  page: z.coerce.number().int().positive().default(1),
+  pageSize: z.coerce.number().int().positive().max(100).default(20),
+})
+
+export type PortfolioQuery = z.infer<typeof PortfolioQuerySchema>

@@ -54,7 +54,7 @@ export class PrismaPriceRepository {
         denominationGram,
         priceType
       },
-      orderBy: { recordedAt: 'desc' }
+      orderBy: { priceAt: 'desc' }
     })
 
     const duration = Date.now() - startTime
@@ -88,7 +88,10 @@ export class PrismaPriceRepository {
         denominationGram,
         priceType
       },
-      orderBy: { recordedAt: 'desc' }, // Use recordedAt to break ties if priceAt is same
+      orderBy: [
+        { priceAt: 'desc' },
+        { recordedAt: 'desc' }
+      ],
       take: 2
     })
 
@@ -109,19 +112,34 @@ export class PrismaPriceRepository {
     const results: Record<string, PriceResult> = {}
     if (keys.length === 0) return results
 
-    // Fetch batch prices (most granular query possible)
-    const priceRecords = await Promise.all(
-      keys.map(async (key) => {
-        const [brandCode, denomStr] = key.split(':')
-        const denominationGram = parseFloat(denomStr)
-        const price = await this.getLatestBuybackPrice(brandCode, denominationGram)
-        return { key, price }
-      })
-    )
+    const parsedKeys = keys.map(key => {
+      const [brandCode, denomStr] = key.split(':')
+      return {
+        brandCode,
+        denominationGram: parseFloat(denomStr)
+      }
+    })
 
-    for (const item of priceRecords) {
-      if (item.price) {
-        results[item.key] = item.price
+    // Batch fetch latest prices using distinct on brand + denomination
+    // Order by recordedAt desc ensures the distinct pick is the latest record
+    const priceRecords = await prisma.goldPrice.findMany({
+      where: {
+        priceType: PriceType.BUYBACK,
+        OR: parsedKeys
+      },
+      orderBy: [
+        { brandCode: 'asc' },
+        { denominationGram: 'asc' },
+        { priceAt: 'desc' }
+      ],
+      distinct: ['brandCode', 'denominationGram']
+    })
+
+    for (const record of priceRecords) {
+      const key = `${record.brandCode}:${Number(record.denominationGram)}`
+      results[key] = {
+        price: Number(record.price),
+        priceAt: record.priceAt
       }
     }
 

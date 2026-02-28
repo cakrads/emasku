@@ -63,7 +63,7 @@ export function logRequest(
   duration: number,
   meta?: object
 ) {
-  logger.http(`${method} ${path}`, {
+  logger.info(`${method} ${path}`, {
     method,
     path,
     statusCode,

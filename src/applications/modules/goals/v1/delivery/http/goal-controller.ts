@@ -48,7 +48,12 @@ export class GoalController {
      */
     async createGoal(req: NextRequest): Promise<NextResponse> {
         const userId = await verifyUser(req)
-        const body = await req.json()
+        let body: any
+        try {
+            body = await req.json()
+        } catch (e) {
+            throw new ValidationError('Invalid JSON body')
+        }
 
         const parsed = CreateGoalRequestSchema.safeParse(body)
         if (!parsed.success) {
@@ -86,7 +91,12 @@ export class GoalController {
      */
     async updateGoal(req: NextRequest, id: string): Promise<NextResponse> {
         const userId = await verifyUser(req)
-        const body = await req.json()
+        let body: any
+        try {
+            body = await req.json()
+        } catch (e) {
+            throw new ValidationError('Invalid JSON body')
+        }
 
         const parsed = UpdateGoalRequestSchema.safeParse(body)
         if (!parsed.success) {

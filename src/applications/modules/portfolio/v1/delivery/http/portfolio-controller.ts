@@ -12,7 +12,7 @@ import { GetPortfolioHoldingsUsecase } from '../../usecases/get-portfolio-holdin
 import { GetHoldingDetailUsecase } from '../../usecases/get-holding-detail'
 import { GetPortfolioHistoryUsecase } from '../../usecases/get-portfolio-history'
 import { PortfolioMapper } from './portfolio.mapper'
-import { PortfolioSummarySchema, PortfolioListSchema, HoldingDetailSchema, PortfolioHistorySchema } from '@/shared/contracts/portfolio.contract'
+import { PortfolioSummarySchema, PortfolioListSchema, HoldingDetailSchema, PortfolioHistorySchema, PortfolioQuerySchema } from '@/shared/contracts/portfolio.contract'
 import { CreateHoldingRequestSchema, CreateHoldingResponseSchema } from '@/shared/contracts/create-holding.contract'
 import { UpdateHoldingRequestSchema, UpdateHoldingResponseSchema } from '@/shared/contracts/update-holding.contract'
 import { SellHoldingRequestSchema, SellHoldingResponseSchema } from '@/shared/contracts/sell-holding.contract'
@@ -24,6 +24,7 @@ import { DeleteHoldingUsecase } from '../../usecases/delete-holding.usecase'
 import { SellHoldingUsecase } from '../../usecases/sell-holding.usecase'
 import { BulkSellHoldingUsecase } from '../../usecases/bulk-sell-holding.usecase'
 import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
+import { PrismaGoalRepository } from '@/applications/shared/persistence/repositories/prisma-goal-repository'
 import { getBrandName } from '@/applications/modules/brands/v1/domain/brands.const'
 import { verifyUser } from '@/applications/shared/auth/auth.utils'
 
@@ -38,16 +39,17 @@ export class PortfolioController {
   async getPortfolioSummary(req: NextRequest): Promise<NextResponse> {
     const userId = await verifyUser(req)
     const { searchParams } = new URL(req.url)
+    const queryParams = Object.fromEntries(searchParams.entries())
 
-    // Parse filter params
-    const status = searchParams.get('status') as 'active' | 'sold' | 'all' | null
-    const brandCodesParam = searchParams.get('brandCodes')
-    const brandCodes = brandCodesParam ? brandCodesParam.split(',') : undefined
-    const dateFrom = searchParams.get('dateFrom') || undefined
-    const dateTo = searchParams.get('dateTo') || undefined
+    const parsed = PortfolioQuerySchema.safeParse(queryParams)
+    if (!parsed.success) {
+      throw new ValidationError('Invalid query parameters', { errors: parsed.error.flatten().fieldErrors })
+    }
+
+    const { status, brandCodes, dateFrom, dateTo } = parsed.data
 
     const filter = {
-      status: status || undefined,
+      status,
       brandCodes,
       dateFrom,
       dateTo,
@@ -72,26 +74,23 @@ export class PortfolioController {
   async getPortfolioHoldings(req: NextRequest): Promise<NextResponse> {
     const userId = await verifyUser(req)
     const { searchParams } = new URL(req.url)
+    const queryParams = Object.fromEntries(searchParams.entries())
 
-    // Parse filter params
-    const status = searchParams.get('status') as 'active' | 'sold' | 'all' | null
-    const brandCodesParam = searchParams.get('brandCodes')
-    const brandCodes = brandCodesParam ? brandCodesParam.split(',') : undefined
-    const dateFrom = searchParams.get('dateFrom') || undefined
-    const dateTo = searchParams.get('dateTo') || undefined
-    const goalId = searchParams.get('goalId') || undefined
+    const parsed = PortfolioQuerySchema.safeParse(queryParams)
+    if (!parsed.success) {
+      throw new ValidationError('Invalid query parameters', { errors: parsed.error.flatten().fieldErrors })
+    }
+
+    const { status, brandCodes, dateFrom, dateTo, goalId, page, pageSize } = parsed.data
 
     const filter = {
-      status: status || undefined,
+      status,
       brandCodes,
       dateFrom,
       dateTo,
       goalId,
     }
 
-    // Parse pagination params
-    const page = parseInt(searchParams.get('page') || '1', 10)
-    const pageSize = parseInt(searchParams.get('pageSize') || '20', 10)
     const pagination = { page, pageSize }
 
     const usecase = new GetPortfolioHoldingsUsecase()
@@ -167,7 +166,8 @@ export class PortfolioController {
     }
 
     const portfolioRepo = new PrismaPortfolioRepository()
-    const usecase = new CreateHoldingUsecase(portfolioRepo)
+    const goalRepo = new PrismaGoalRepository()
+    const usecase = new CreateHoldingUsecase(portfolioRepo, goalRepo)
     const holding = await usecase.execute(userId, parsed.data)
 
     // Map to response
