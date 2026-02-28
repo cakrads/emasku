@@ -7,12 +7,16 @@
 import { NotFoundError, ValidationError } from '@/applications/shared/lib/errors'
 import { logger } from '@/applications/shared/lib/logger'
 import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
+import { PrismaGoalRepository } from '@/applications/shared/persistence/repositories/prisma-goal-repository'
 import { UpdateHoldingRequest } from '@/shared/contracts/update-holding.contract'
 import { PortfolioHoldingDomain } from '../domain/portfolio.domain'
 import { ONE_DAY_MS, MIN_DENOMINATION_GRAM, MAX_DENOMINATION_GRAM } from '@/applications/shared/lib/constants'
 
 export class UpdateHoldingUsecase {
-  constructor(private portfolioRepo: PrismaPortfolioRepository) { }
+  constructor(
+    private portfolioRepo: PrismaPortfolioRepository,
+    private goalRepo?: PrismaGoalRepository,
+  ) { }
 
   async execute(userId: string, holdingId: string, request: UpdateHoldingRequest): Promise<PortfolioHoldingDomain> {
     logger.info('Updating holding', { userId, holdingId })
@@ -58,6 +62,14 @@ export class UpdateHoldingUsecase {
       throw new ValidationError('Invalid buy price', {
         buyPrice: 'Buy price cannot be negative'
       })
+    }
+
+    // Validate goal ownership if goalId is being set
+    if (request.goalId && this.goalRepo) {
+      const goal = await this.goalRepo.findById(request.goalId)
+      if (!goal || goal.userId !== userId) {
+        throw new NotFoundError('Goal not found', { goalId: request.goalId })
+      }
     }
 
     // Update holding in database

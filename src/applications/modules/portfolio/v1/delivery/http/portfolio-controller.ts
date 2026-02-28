@@ -153,7 +153,12 @@ export class PortfolioController {
    */
   async createHolding(req: NextRequest): Promise<NextResponse> {
     const userId = await verifyUser(req)
-    const body = await req.json()
+    let body: any
+    try {
+      body = await req.json()
+    } catch {
+      throw new ValidationError('Invalid JSON payload')
+    }
 
     // Validate request body
     const parsed = CreateHoldingRequestSchema.safeParse(body)
@@ -204,7 +209,12 @@ export class PortfolioController {
    */
   async updateHolding(req: NextRequest, id: string): Promise<NextResponse> {
     const userId = await verifyUser(req)
-    const body = await req.json()
+    let body: any
+    try {
+      body = await req.json()
+    } catch {
+      throw new ValidationError('Invalid JSON payload')
+    }
 
     // Validate request body
     const parsed = UpdateHoldingRequestSchema.safeParse(body)
@@ -218,7 +228,8 @@ export class PortfolioController {
     }
 
     const portfolioRepo = new PrismaPortfolioRepository(prisma)
-    const usecase = new UpdateHoldingUsecase(portfolioRepo)
+    const goalRepo = new PrismaGoalRepository(prisma)
+    const usecase = new UpdateHoldingUsecase(portfolioRepo, goalRepo)
     const holding = await usecase.execute(userId, id, parsed.data)
 
     // Map to response
@@ -249,7 +260,12 @@ export class PortfolioController {
    */
   async sellHolding(req: NextRequest, id: string): Promise<NextResponse> {
     const userId = await verifyUser(req)
-    const body = await req.json()
+    let body: any
+    try {
+      body = await req.json()
+    } catch {
+      throw new ValidationError('Invalid JSON payload')
+    }
 
     // Validate request body
     const parsed = SellHoldingRequestSchema.safeParse(body)
@@ -277,7 +293,12 @@ export class PortfolioController {
    */
   async bulkSellHoldings(req: NextRequest): Promise<NextResponse> {
     const userId = await verifyUser(req)
-    const body = await req.json()
+    let body: any
+    try {
+      body = await req.json()
+    } catch {
+      throw new ValidationError('Invalid JSON payload')
+    }
 
     // Validate request body
     const parsed = BulkSellHoldingRequestSchema.safeParse(body)

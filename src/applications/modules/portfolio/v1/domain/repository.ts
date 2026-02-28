@@ -44,6 +44,7 @@ export interface IPortfolioRepository {
     buyPrice: number | bigint
     buyDate?: Date
     notes?: string
+    goalId?: string
   }): Promise<PortfolioHoldingDomain>;
   update(userId: string, id: string, data: {
     denominationGram?: number
@@ -52,6 +53,7 @@ export interface IPortfolioRepository {
     buyDate?: Date
     notes?: string
     brandCode?: string
+    goalId?: string | null
   }): Promise<PortfolioHoldingDomain>;
   existsByUserIdAndId(userId: string, id: string): Promise<boolean>;
   sellHolding(userId: string, id: string, data: SellHoldingData): Promise<SellHoldingResult>;

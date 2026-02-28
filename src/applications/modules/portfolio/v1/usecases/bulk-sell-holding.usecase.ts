@@ -9,6 +9,7 @@ import { ValidationError } from '@/applications/shared/lib/errors'
 import { logger } from '@/applications/shared/lib/logger'
 import { PrismaPortfolioRepository } from '@/applications/shared/persistence/repositories/prisma-portfolio-repository'
 import { BulkSellResult } from '../domain/repository'
+import { ONE_DAY_MS } from '@/applications/shared/lib/constants'
 
 interface BulkSellInput {
     items: {
@@ -35,6 +36,21 @@ export class BulkSellHoldingUsecase {
             )
         }
 
+        // Validate sell date
+        const sellDateObj = new Date(input.sellDate)
+        if (Number.isNaN(sellDateObj.getTime())) {
+            throw new ValidationError(
+                'Invalid sell date format',
+                { sellDate: 'Must be a valid date string (e.g. YYYY-MM-DD)' }
+            )
+        }
+        if (sellDateObj.getTime() > new Date().getTime() + ONE_DAY_MS) {
+            throw new ValidationError(
+                'Invalid sell date',
+                { sellDate: 'Sell date cannot be in the future' }
+            )
+        }
+
         // Validate items
         input.items.forEach(item => {
             if (item.sellPrice <= 0) {
@@ -47,7 +63,7 @@ export class BulkSellHoldingUsecase {
 
         // Execute atomic bulk sell
         const result = await this.portfolioRepo.bulkSellHoldings(userId, input.items, {
-            sellDate: new Date(input.sellDate),
+            sellDate: sellDateObj,
             notes: input.notes,
         })
 

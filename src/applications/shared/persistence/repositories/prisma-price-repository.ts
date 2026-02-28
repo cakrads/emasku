@@ -89,8 +89,7 @@ export class PrismaPriceRepository {
         priceType
       },
       orderBy: [
-        { priceAt: 'desc' },
-        { recordedAt: 'desc' }
+        { priceAt: 'desc' }
       ],
       take: 2
     })
@@ -138,7 +137,7 @@ export class PrismaPriceRepository {
     if (parsedConditions.length === 0) return results
 
     // Batch fetch latest prices using distinct on brand + denomination
-    // Order by recordedAt desc ensures the distinct pick is the latest record
+    // Order by priceAt desc ensures the distinct pick is the latest record
     const priceRecords = await this.prisma.goldPrice.findMany({
       where: {
         priceType: PriceType.BUYBACK,

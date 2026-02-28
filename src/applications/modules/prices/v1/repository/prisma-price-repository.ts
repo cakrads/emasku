@@ -136,15 +136,15 @@ export class PrismaPriceRepository implements IPriceRepository {
       if (price.priceType === PriceType.SELL) {
         if (group.sellPrice === null) {
           group.sellPrice = priceVal
-        } else if (group.sellDelta === null && priceVal !== group.sellPrice) {
-          // Found the first DIFFERENT price in history - this is our trend baseline
+        } else if (group.sellDelta === null) {
+          // Immediate previous record — compute delta regardless of value match
           group.sellDelta = group.sellPrice - priceVal
         }
       } else if (price.priceType === PriceType.BUYBACK) {
         if (group.buybackPrice === null) {
           group.buybackPrice = priceVal
-        } else if (group.buybackDelta === null && priceVal !== group.buybackPrice) {
-          // Found the first DIFFERENT price in history - this is our trend baseline
+        } else if (group.buybackDelta === null) {
+          // Immediate previous record — compute delta regardless of value match
           group.buybackDelta = group.buybackPrice - priceVal
         }
       }
