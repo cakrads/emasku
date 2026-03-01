@@ -116,6 +116,7 @@ This pattern is required if more than one query exists on the page.
 
 ## 6. Strict Rules
 The agent MUST ensure:
+- **Strict Layer Separation**: Frontend code MUST NOT import from the `application` folder (e.g., UseCases, Repositories). The frontend must only communicate with the backend via HTTP calls. Server-side data fetching must use absolute URLs.
 - No `'use client'` in `page.tsx`
 - No client-only first fetch
 - No loading spinner on first render

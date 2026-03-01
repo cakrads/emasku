@@ -15,6 +15,7 @@ import {
   PortfolioHistory,
   PortfolioHistorySchema,
 } from '@/shared/contracts/portfolio.contract'
+import { getBaseUrl } from '@/frontend/utils/get-base-url'
 import {
   CreateHoldingRequest,
   CreateHoldingResponse,
@@ -74,9 +75,9 @@ function buildQueryString(filter?: HoldingsFilter, pagination?: PaginationParams
 /**
  * Fetch portfolio summary (optionally filtered)
  */
-export async function fetchPortfolioSummary(filter?: HoldingsFilter): Promise<PortfolioSummary> {
+export async function fetchPortfolioSummary(filter?: HoldingsFilter, options?: RequestInit): Promise<PortfolioSummary> {
   const query = buildQueryString(filter)
-  const data = await fetchJson<unknown>(`/api/v1/portfolio/summary${query}`)
+  const data = await fetchJson<unknown>(`${getBaseUrl()}/api/v1/portfolio/summary${query}`, options)
   return PortfolioSummarySchema.parse(data)
 }
 
@@ -85,26 +86,27 @@ export async function fetchPortfolioSummary(filter?: HoldingsFilter): Promise<Po
  */
 export async function fetchPortfolioList(
   filter?: HoldingsFilter,
-  pagination?: PaginationParams
+  pagination?: PaginationParams,
+  options?: RequestInit
 ): Promise<PortfolioList> {
   const query = buildQueryString(filter, pagination)
-  const data = await fetchJson<unknown>(`/api/v1/portfolio${query}`)
+  const data = await fetchJson<unknown>(`${getBaseUrl()}/api/v1/portfolio${query}`, options)
   return PortfolioListSchema.parse(data)
 }
 
 /**
  * Fetch holding detail by ID
  */
-export async function fetchHoldingDetail(id: string): Promise<HoldingDetail> {
-  const data = await fetchJson<unknown>(`/api/v1/portfolio/${id}`)
+export async function fetchHoldingDetail(id: string, options?: RequestInit): Promise<HoldingDetail> {
+  const data = await fetchJson<unknown>(`${getBaseUrl()}/api/v1/portfolio/${id}`, options)
   return HoldingDetailSchema.parse(data)
 }
 
 /**
  * Fetch portfolio history
  */
-export async function fetchPortfolioHistory(): Promise<PortfolioHistory> {
-  const data = await fetchJson<unknown>('/api/v1/portfolio/history')
+export async function fetchPortfolioHistory(options?: RequestInit): Promise<PortfolioHistory> {
+  const data = await fetchJson<unknown>(`${getBaseUrl()}/api/v1/portfolio/history`, options)
   return PortfolioHistorySchema.parse(data)
 }
 

@@ -17,20 +17,21 @@ import {
     UpdateGoalResponse,
     UpdateGoalResponseSchema,
 } from '@/shared/contracts/goals.contract'
+import { getBaseUrl } from '@/frontend/utils/get-base-url'
 
 /**
  * Fetch all goals for the current user
  */
-export async function fetchGoals(): Promise<GoalList> {
-    const data = await fetchJson<unknown>('/api/v1/goals')
+export async function fetchGoals(options?: RequestInit): Promise<GoalList> {
+    const data = await fetchJson<unknown>(`${getBaseUrl()}/api/v1/goals`, options)
     return GoalListSchema.parse(data)
 }
 
 /**
  * Fetch goal detail by ID
  */
-export async function fetchGoalDetail(id: string): Promise<GoalDetail> {
-    const data = await fetchJson<unknown>(`/api/v1/goals/${id}`)
+export async function fetchGoalDetail(id: string, options?: RequestInit): Promise<GoalDetail> {
+    const data = await fetchJson<unknown>(`${getBaseUrl()}/api/v1/goals/${id}`, options)
     return GoalDetailSchema.parse(data)
 }
 

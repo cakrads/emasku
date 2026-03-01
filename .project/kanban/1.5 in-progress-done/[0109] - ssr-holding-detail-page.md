@@ -11,9 +11,12 @@
 The holding detail page fetches a single holding record via client-side `useQuery`, showing a loading spinner until data arrives. The page route is already `async` (extracts `holdingId` from params) but doesn't prefetch data.
 
 ## Solution
-1. Prefetch holding data server-side using the holding ID from route params.
+1. Prefetch holding data server-side using the holding ID from route params via HTTP.
 2. Pass as `initialData` or use HydrationBoundary.
-3. Auth session required for ownership validation.
+3. Auth session required for ownership validation via HTTP.
+
+## Strict Rules
+- **Strict Layer Separation**: Frontend code MUST NOT import from the `application` folder (e.g., UseCases). The frontend must only communicate with the backend via HTTP calls using absolute URLs for server-side fetching.
 
 ## Verification
 - Holding detail renders immediately when navigating from holdings list.

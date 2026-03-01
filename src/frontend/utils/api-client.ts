@@ -38,10 +38,16 @@ export async function fetchJson<T>(url: string, options?: RequestInit): Promise<
   }
 
   try {
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 5000)
+
     const response = await fetch(url, {
       ...options,
       headers,
+      signal: controller.signal as any, // Next.js fetch polyfill typing compat
     })
+
+    clearTimeout(timeoutId)
 
     // If response is not OK, try to parse error details
     if (!response.ok) {

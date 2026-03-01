@@ -89,12 +89,13 @@ function BrandPriceSection({ brandName, prices }: BrandPriceGroupVM) {
   )
 }
 
-function PricesListViewContent() {
+function PricesListViewContent({ initialData }: { initialData?: any }) {
   const { t, language } = useLanguage()
-  // Fetch prices from API
+  // Fetch prices from API, hydrated with server data if available
   const { data, isLoading, error } = useQuery({
     queryKey: ['prices', 'today'],
     queryFn: fetchTodayPrices,
+    initialData,
   })
 
 
@@ -207,7 +208,7 @@ function PricesListViewContent() {
   )
 }
 
-export function PricesListView() {
+export function PricesListView({ initialData }: { initialData?: any }) {
   const { t } = useLanguage()
   return (
     <StandardPageLayout
@@ -216,7 +217,7 @@ export function PricesListView() {
       breadcrumbs={[{ label: t('common.home'), href: ROUTES.HOME }, { label: t('navbar.prices') }]}
     >
       <ErrorBoundary>
-        <PricesListViewContent />
+        <PricesListViewContent initialData={initialData} />
       </ErrorBoundary>
     </StandardPageLayout>
   )

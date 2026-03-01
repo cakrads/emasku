@@ -25,10 +25,13 @@ const { data, isLoading, error } = useQuery({
 ```
 
 ## Solution
-1. Fetch today's prices server-side in `page.tsx` using direct use-case call.
+1. Fetch today's prices server-side in `page.tsx` via HTTP (`fetchTodayPrices` using absolute URL `getBaseUrl()`).
 2. Pass `initialData` to `LandingView` → `PriceSection`.
 3. Add `export const revalidate = 60` (ISR aligned with React Query `staleTime`).
 4. `PriceSection` keeps `useQuery` with `initialData` for client-side revalidation.
+
+## Strict Rules
+- **Strict Layer Separation**: Frontend code MUST NOT import from the `application` folder (e.g., UseCases, Repositories). The frontend must only communicate with the backend via HTTP calls. Server-side data fetching must use absolute URLs.
 
 ## Verification
 - View page source at `/` — price data visible in HTML.

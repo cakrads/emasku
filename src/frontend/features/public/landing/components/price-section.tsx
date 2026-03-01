@@ -8,14 +8,16 @@ import { useQuery } from '@tanstack/react-query'
 import { fetchTodayPrices } from '@/frontend/services/prices/prices.api'
 import Link from 'next/link'
 import { ROUTES } from '@/frontend/config/routes'
+import { PricesTodayResponse } from '@/shared/contracts/prices.contract'
 
-export function PriceSection() {
+export function PriceSection({ initialData }: { initialData?: PricesTodayResponse }) {
   const { t, language } = useLanguage()
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error } = useQuery<PricesTodayResponse, Error>({
     queryKey: ['prices', 'today', 'landing'],
     queryFn: fetchTodayPrices,
     staleTime: 5 * 60 * 1000, // 5 minutes cache
+    initialData,
   })
 
   // Transform backend data to display format (1 gram only, all 4 brands)

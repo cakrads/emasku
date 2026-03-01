@@ -18,9 +18,12 @@ The holdings list page runs 5 parallel `useQuery` calls:
 All fetched client-side, resulting in multiple loading states and skeleton placeholders.
 
 ## Solution
-Use HydrationBoundary pattern to prefetch default-filter holdings and summary data server-side. Reference data (brands, goals) can also be prefetched.
+Use HydrationBoundary pattern to prefetch default-filter holdings and summary data server-side via HTTP. Reference data (brands, goals) can also be prefetched.
 
 Auth session resolution required server-side for user-scoped queries.
+
+## Strict Rules
+- **Strict Layer Separation**: Frontend code MUST NOT import from the `application` folder (e.g., UseCases). The frontend must only communicate with the backend via HTTP calls using absolute URLs for server-side fetching.
 
 ## Verification
 - Holdings list renders with data on initial load.

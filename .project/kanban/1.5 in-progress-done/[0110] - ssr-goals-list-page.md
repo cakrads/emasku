@@ -11,10 +11,13 @@
 The goals list page fetches all goals via client-side `useQuery`, showing a loading spinner on every navigation. The page also contains mutation logic (complete goal, delete goal).
 
 ## Solution
-1. Prefetch goals list server-side in `page.tsx`.
+1. Prefetch goals list server-side in `page.tsx` via HTTP.
 2. Pass via `initialData` or HydrationBoundary.
-3. Auth session required.
+3. Auth session required via HTTP.
 4. Mutations remain client-side (no change needed).
+
+## Strict Rules
+- **Strict Layer Separation**: Frontend code MUST NOT import from the `application` folder (e.g., UseCases). The frontend must only communicate with the backend via HTTP calls using absolute URLs for server-side fetching.
 
 ## Verification
 - Goals list renders immediately on navigation.
