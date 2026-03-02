@@ -15,8 +15,22 @@
 | **Portfolio** | `GET` | `/portfolio/summary` | Portfolio aggregate metrics (PNL, Total Grams). |
 | **Portfolio** | `GET` | `/portfolio` | List holdings with current real-time valuation. |
 | **Portfolio** | `POST` | `/portfolio` | Add new gold holding. |
+| **Portfolio** | `GET` | `/portfolio/{id}` | Get individual holding detail. |
+| **Portfolio** | `PUT` | `/portfolio/{id}` | Update an existing holding. |
+| **Portfolio** | `DELETE` | `/portfolio/{id}` | Delete a holding. |
 | **Portfolio** | `POST` | `/portfolio/{id}/sell` | Mark a holding as SOLD (Soft Close). |
-| **System** | `POST` | `/scraper/run` | Trigger on-demand price scraping (Auth required). |
+| **Portfolio** | `POST` | `/portfolio/bulk-sell` | Bulk mark multiple holdings as SOLD. |
+| **Portfolio** | `GET` | `/portfolio/history` | Portfolio performance history. |
+| **Goals** | `GET` | `/goals` | List all savings goals. |
+| **Goals** | `POST` | `/goals` | Create a new savings goal. |
+| **Goals** | `GET` | `/goals/{id}` | Get individual goal detail. |
+| **Goals** | `PUT` | `/goals/{id}` | Update an existing goal. |
+| **Goals** | `DELETE` | `/goals/{id}` | Delete a goal. |
+| **Buyback** | `GET` | `/buyback/prices` | Current buyback prices for simulation. |
+| **Auth** | `POST` | `/auth/consent` | Record user consent. |
+| **User** | `DELETE` | `/user/delete` | Delete user account and data. |
+| **User** | `GET` | `/user/export` | Export user portfolio data. |
+| **System** | `GET/POST` | `/scraper/run` | Trigger/check on-demand price scraping. |
 
 ---
 
@@ -392,3 +406,6 @@ In case of a failure, the `details` field provides deep diagnostic info.
 ---
 
 > This document is the source of truth for the API layer implementation.
+
+> [!NOTE]
+> Detailed request/response schemas for Goals, Buyback, and User endpoints are pending documentation. Refer to the corresponding controller implementations in `src/app/api/v1/` for current behavior.

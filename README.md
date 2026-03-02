@@ -13,7 +13,8 @@ It is not a tutorial project — it is a **serious engineering portfolio**.
 - Show current value based on latest gold prices
 - Display profit/loss (absolute & percentage)
 - Track historical prices and visualize trends
-- Prepare the system for future features (targets, allocation “pockets”)
+- Allocate holdings to savings goals ("pockets")
+- Simulate buyback scenarios
 
 ---
 
@@ -28,8 +29,9 @@ The system follows a **Module-Based Clean Architecture** inside a Next.js monoli
 These rules are enforced by structure and convention:
 
 - **Strict Isolation**: `frontend/` MUST NOT import from `applications/`, and vice-versa.
+- **Shared Contracts**: Both pillars import types from `src/shared/contracts/` — neither imports from the other.
 - **Routing Only**: `app/` is for routing/controllers only (minimal logic, < 10 LOC).
-- **Pure Domain**: `domain/` layers contains no framework, HTTP, or database code.
+- **Pure Domain**: `domain/` layers contain no framework, HTTP, or database code.
 - **API Boundary**: `services/` are the ONLY place the frontend can call APIs.
 - **Financial Precision**: All math MUST use `decimal.js` inside the domain.
 
@@ -40,56 +42,62 @@ These rules are enforced by structure and convention:
 ```text
 /emasku
 ├── .docs/                         # Project Documentation
-│   ├── api-contract.md            # API Specification
-│   ├── frontend-guidelines.md     # UI & Component Rules
+│   ├── .backend/                  # Backend docs (API contract, DB setup)
+│   ├── .frontend/                 # Frontend docs (guidelines, UI manifest)
 │   └── ...
+├── .spec/                         # Functional & Technical Specs
+│   ├── spec.md                    # Functional Spec
+│   └── tech-spec.md               # Technical Spec
 ├── prisma/
-│   ├── data                       # Initial Data (JSON)
+│   ├── data/                      # Initial Data (JSON)
 │   ├── migrations/                # DB Migrations
 │   ├── seed.ts                    # Seeding logic
 │   └── schema.prisma              # DB Source of Truth
 ├── src/
 │   ├── app/                       # Pillar 1: Routing ONLY (Next.js App Router)
 │   │   ├── api/v1/                # Versioned API Routes
-│   │   ├── (admin)/               # Admin Routes (Dashboard, Holdings)
-│   │   ├── (public)/              # Public Routes (Prices, Privacy)
+│   │   ├── (admin)/               # Admin Routes (Dashboard, Holdings, Goals)
+│   │   ├── (public)/              # Public Routes (Prices, Privacy, Landing)
 │   │   └── (auth)/                # Auth Routes (Login)
 │   ├── frontend/                  # Pillar 2: Frontend Implementation
 │   │   ├── components/            # React Components
-│   │   │   ├── ui/                # Pure UI Primitives
+│   │   │   ├── ui/                # Pure UI Primitives (31 components)
 │   │   │   ├── fragments/         # Business Fragments
-│   │   │   │   ├── admin/         # Admin Fragments (Navbar, etc)
-│   │   │   │   └── public/        # Public Fragments (SimpleNav)
-│   │   │   └── layout/            # Page Layouts
+│   │   │   │   ├── admin/         # Admin Fragments (Navbar, StepHeader, etc.)
+│   │   │   │   └── public/        # Public Fragments (SimpleFooter)
+│   │   │   └── layout/            # Page Layouts (StandardPageLayout, SharedNavbar)
 │   │   ├── features/              # Feature Modules
-│   │   │   ├── admin/             # Admin Features (e.g. dashboard, holdings)
-│   │   │   └── public/            # Public Features (e.g. login, prices)
+│   │   │   ├── admin/             # Admin Features (dashboard, holdings, goals, etc.)
+│   │   │   └── public/            # Public Features (login, prices, landing, privacy)
 │   │   ├── hooks/                 # Custom React Hooks
-│   │   ├── items/                 # Theme & Visual Styles
-│   │   ├── lib/                   # Frontend Utilities
 │   │   ├── services/              # API Client Layers
-│   │   └── view-model/            # Presentation Logic
+│   │   ├── view-model/            # Presentation Logic
+│   │   ├── utils/                 # Frontend Utilities (api-client, formatting)
+│   │   ├── context/               # React Contexts (language)
+│   │   ├── providers/             # App-wide Providers (auth, react-query, theme)
+│   │   ├── config/                # Frontend Config (routes)
+│   │   └── data/                  # Static/Reference Data
 │   ├── applications/              # Pillar 3: Backend Core Modules
-│   │   ├── modules/               # Domain Modules (prices, portfolio, auth)
-│   │   └── shared/                # Backend Shared Logic
+│   │   ├── modules/               # Domain Modules (brands, goals, portfolio, prices)
+│   │   └── shared/                # Backend Shared Logic (auth, persistence, scrapers)
+│   ├── shared/                    # Shared Contracts (DTOs between pillars)
+│   │   └── contracts/             # Type-only interfaces for frontend ↔ backend
 │   ├── i18n/                      # Localization (ID/EN)
 │   ├── lib/                       # Global Shared Libs
-│   ├── middleware.ts              # Route Protection & Localization
-│   └── shared/                    # Shared Infrastructure (DB, Logger)
+│   └── middleware.ts              # Route Protection & Localization
 ├── public/
 ├── .env.example
 ├── README.md
 ├── package.json
 └── tsconfig.json
-
 ```
 
 ---
 
 ## 🛠 Tech Stack
 
-- **Framework**: Next.js 15+ (App Router)
-- **Database**: PostgreSQL (Supabase) + Prisma ORM
+- **Framework**: Next.js 16+ (App Router)
+- **Database**: PostgreSQL (Supabase) + Prisma 7 ORM
 - **Rate Limiting**: Upstash Redis (Serverless)
 - **State Management**: TanStack Query (React Query) + Zustand
 - **UI System**: Tailwind CSS v4 + Shadcn UI
@@ -105,24 +113,32 @@ These rules are enforced by structure and convention:
 
 Inside `src/applications/modules/`, each feature follows a strict Clean Architecture pattern:
 
-| Layer      | Responsibility                                          |
-| :--------- | :------------------------------------------------------ |
-| **domain** | Pure business rules, entities, and interface contracts. |
-| **usecase**| Executes a specific business action (Orchestration).    |
-| **http**   | Translates HTTP/Requests into Use Case inputs.          |
+| Layer          | Responsibility                                          |
+| :------------- | :------------------------------------------------------ |
+| **domain**     | Pure business rules, entities, and interface contracts.  |
+| **usecases**   | Executes a specific business action (Orchestration).    |
+| **delivery/http** | Translates HTTP/Requests into Use Case inputs.       |
+
+Shared persistence: `src/applications/shared/persistence/repositories/` (one Prisma repository per domain).
 
 ---
 
-## 🔁 Data Flow Example: Dashboard Load
+## 🔁 Data Flow
+
+### Client-Side (default)
 
 1. **User Request**: Browser hits `/dashboard`.
-2. **Routing**: `app/(dashboard)/page.tsx` renders `DashboardView`.
-3. **Frontend View**: `DashboardView` (frontend/features) uses a custom hook.
+2. **Routing**: `app/(admin)/page.tsx` renders `DashboardView`.
+3. **Frontend View**: `DashboardView` (frontend/features) uses a TanStack Query hook.
 4. **API Service**: Hook calls `portfolio.api.ts` (frontend/services).
-5. **Controller**: Hits `/api/v1/portfolio` -> `applications/modules/portfolio/v1/http/controller.ts`.
-6. **Use Case**: Controller calls `getPortfolio.ts` (applications/modules/portfolio/v1/usecase).
-7. **Entity**: Use Case uses `entity.ts` (applications/modules/portfolio/v1/domain) for calculations.
-8. **Persistence**: Use Case saves/loads via `prismaPortfolioRepository.ts` (shared/persistence).
+5. **Controller**: Hits `/api/v1/portfolio` → `applications/modules/portfolio/v1/delivery/http/controller.ts`.
+6. **Use Case**: Controller calls use case (applications/modules/portfolio/v1/usecases).
+7. **Entity**: Use Case uses domain entities for calculations.
+8. **Persistence**: Use Case saves/loads via Prisma repository (shared/persistence).
+
+### SSR (when SEO or instant render is needed)
+
+`app/page.tsx` fetches data server-side → passes to frontend View as `initialData` for TanStack Query → hook hydrates from `initialData`, then revalidates client-side as normal.
 
 ---
 
@@ -147,8 +163,9 @@ To ensure accurate PnL ("Today", "Weekly", "Monthly") without the overhead of sc
 
 - [Functional Spec](.spec/spec.md)
 - [Technical Spec](.spec/tech-spec.md)
-- [Frontend Guidelines](.docs/frontend-guidelines.md)
-- [UI Architecture manifest](.docs/ui-structure-manifest.md)
+- [Frontend Guidelines](.docs/.frontend/frontend-guidelines.md)
+- [UI Architecture Manifest](.docs/.frontend/ui-structure-manifest.md)
 - [Scraper Implementation Guide](.docs/scraper-guide.md)
-- [Database Setup](.docs/database-setup.md)
-- [Production API Specification](.docs/.backend/production-api-spec.md)
+- [Database Setup](.docs/.backend/database-setup.md)
+- [API Contract](.docs/.backend/api-contract.md)
+- [Production API Spec](.docs/.backend/production-api-spec.md)

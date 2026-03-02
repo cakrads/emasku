@@ -25,10 +25,10 @@
 - **Environment**: Use `.env` for secrets/config. See `.env.example` for required variables.
 
 ## Integration & Patterns
-- **Prisma**: DB schema in `prisma/schema.prisma`. All persistence via repositories in `src/applications/shared/persistence/repositories/`.
+- **Prisma**: DB schema in `prisma/schema.prisma`. Persistence via repositories in `src/applications/shared/persistence/repositories/`.
 - **Scrapers**: Implemented in `src/applications/shared/scrapers/`.
-- **TypeScript**: Strict typing enforced throughout. Types in `src/frontend/types/`.
-- **Tailwind CSS**: Used for styling. See `postcss.config.mjs` and `tailwind.config.js`.
+- **TypeScript**: Strict typing enforced throughout. Shared contracts in `src/shared/contracts/`.
+- **Tailwind CSS**: v4, used for styling. See `postcss.config.mjs`.
 
 ## Examples
 - To add a new API: create a controller in `src/app/api/v1/{feature}/`, then implement logic in the corresponding backend module.

@@ -2,17 +2,18 @@
 
 > **Version Philosophy**: Always use the latest **stable** release of each technology. This spec documents explicit versions to ensure consistency and reliability.
 
-## 1. Stack Architecture (Versions as of Dec 2025)
+## 1. Stack Architecture
 
 | Technology         | Version       | Notes                                      |
 | ------------------ | ------------- | ------------------------------------------ |
-| **Next.js**        | `16.0.10`     | App Router                                 |
-| **React**          | `19.2.3`      | Stable                                     |
+| **Next.js**        | `^16.1.6`     | App Router                                 |
+| **React**          | `^19.2.3`     | Stable                                     |
 | **TypeScript**     | `5.x`         | Stable                                     |
-| **Prisma**         | `7.2.0`       | Stable (Nov 2025), TypeScript-based        |
+| **Prisma**         | `^7.4.0`      | TypeScript-based, adapter pattern           |
 | **PostgreSQL**     | `16+`         | Via Supabase                               |
-| **TanStack Query** | `5.62.7`      | Async state management                     |
-| **Tailwind CSS**   | `4.1.18`      | Latest stable                              |
+| **TanStack Query** | `^5.62.7`     | Async state management                     |
+| **Zustand**        | `^5.0.9`      | Client UI state                            |
+| **Tailwind CSS**   | `^4.1.18`     | v4 (CSS-first config)                      |
 | **Node.js**        | `20.x LTS`    | Active LTS                                 |
 | **Deployment**     | Vercel        | Edge-optimized                             |
 
@@ -53,7 +54,7 @@
 
 ## 5. Prisma 7 Configuration
 
-### 4.1 Schema File (`prisma/schema.prisma`)
+### 5.1 Schema File (`prisma/schema.prisma`)
 
 ```prisma
 generator client {
@@ -66,7 +67,7 @@ datasource db {
 }
 ```
 
-### 4.2 Config File (`prisma.config.ts`)
+### 5.2 Config File (`prisma.config.ts`)
 
 ```typescript
 import path from 'node:path'
@@ -84,7 +85,7 @@ export default defineConfig({
 })
 ```
 
-### 4.3 Client Instantiation
+### 5.3 Client Instantiation
 
 ```typescript
 import { PrismaClient } from '@prisma/client'
@@ -97,7 +98,7 @@ const adapter = new PrismaPg(pool)
 export const prisma = new PrismaClient({ adapter })
 ```
 
-## 5. Data Acquisition Strategy
+## 6. Data Acquisition Strategy
 
 ### 5.1 Live Price Scraper
 
@@ -115,13 +116,14 @@ export const prisma = new PrismaClient({ adapter })
 - **Purpose**: Powering the "Today", "Weekly", and "Monthly" PnL metrics without scanning millions of intraday points.
 - **Valuation Strategy**: All historical charts and periodic differences use `PriceType.SELL` from this table as the canonical spot price proxy.
 
-## 6. UI/UX Rules
+## 7. UI/UX Rules
 
 - **Framework**: Tailwind CSS v4.
-- **Client State**: TanStack Query for async data fetching and caching.
+- **Server State**: TanStack Query for async data fetching and caching.
+- **Client UI State**: Zustand for modals, filters, and local preferences.
 - **Responsiveness**: Mobile-first design.
 - **Theme**: Premium aesthetics.
 
-## 7. Data Models (Prisma)
+## 8. Data Models (Prisma)
 
-See [`prisma/schema.prisma`](file:///c:/Project/emasku/prisma/schema.prisma) for current models.
+See `prisma/schema.prisma` for current models.

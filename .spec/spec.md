@@ -48,8 +48,10 @@ The price used to calculate the current value and historical trends.
 
 ### 3.2 Asset Management
 
-- **Inventory List**: A list of all owned gold assets with their individual details.
+- **Inventory List**: A list of all owned gold assets with individual details.
 - **Add/Edit/Delete**: Tools to keep the portfolio up to date.
+- **Bulk Sell**: Mark multiple holdings as sold in a single operation.
+- **Holdings Detail**: Performance analysis per individual holding.
 
 ### 3.3 Gold Price Insights
 
@@ -61,14 +63,37 @@ The price used to calculate the current value and historical trends.
 
 - **Browse by Brand**: Specialized views to see holdings and current prices grouped by manufacturer (Antam, UBS, Lotus Archi, etc).
 
+### 3.5 Goal Pockets
+
+- **Create Goals**: Define savings goals with target amounts (e.g., "Emergency Fund", "Down Payment").
+- **Allocate Holdings**: Assign gold assets to specific goals.
+- **Track Progress**: Monitor goal completion percentage.
+- **Edit/Delete Goals**: Manage goal lifecycle.
+
+### 3.6 Buyback Simulation
+
+- **Simulate Sales**: Preview potential profit/loss before selling.
+- **Buyback Prices**: View current buyback prices for simulation.
+
+### 3.7 User Management
+
+- **Profile**: View and manage user account.
+- **Data Export**: Export portfolio data.
+- **Account Deletion**: Delete user account and data.
+- **Privacy**: Privacy policy page.
+
+### 3.8 Landing Page
+
+- **Public Homepage**: Marketing-oriented landing page for unauthenticated users.
+
 ---
 
 ## 4. Roadmap (Future)
 
-- **Goal Pockets**: Allocate gold assets to specific savings goals (e.g., "Emergency Fund", "Down Payment").
 - **Automatic Alerts**: Notification when gold price hits a specific target.
+- **Multi-currency Support**: Support for currencies beyond IDR.
 
 ---
 
 > [!NOTE]
-> For technical implementation details, financial precision rules, and architecture, refer to [tech-spec.md](file:///c:/Project/emasku/tech-spec.md).
+> For technical implementation details, financial precision rules, and architecture, refer to [tech-spec.md](.spec/tech-spec.md).

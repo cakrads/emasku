@@ -76,8 +76,36 @@ Use the `color` prop instead of manually setting background colors.
 
 ## 🧩 Inter-Feature Dependencies
 
-- **Imports**: Favor absolute aliases (e.g., `@/frontend/features/holdings-list/components/...`).
+- **Imports**: Favor absolute aliases (e.g., `@/frontend/features/admin/holdings-list/components/...`).
 - **Standard Layout**: Every feature view should wrap its content in `<StandardPageLayout />` from `@/frontend/components/layout/standard-page-layout`.
 - **Typography**: Never use raw `h1-h6` or `p`. Use `<Typography variant="..." />`.
 - **Layout Primitives**: Use `<Stack />`, `<Section />`, and `<Container />` for all spacing.
 - **Interactivity**: Labels and Checkboxes must have `cursor-pointer`.
+
+---
+
+## 📂 Supporting Directories
+
+### `utils/`
+
+Frontend utilities: `api-client.ts` (HTTP wrapper), `format.ts` (display formatting), `cn.ts` (class merging), `aggregations.ts` (data aggregation helpers), `get-base-url.ts`, `get-query-client.ts`.
+
+### `context/`
+
+React contexts for cross-cutting concerns. Currently: `language-context.tsx` for i18n.
+
+### `providers/`
+
+App-wide providers wrapping the root layout:
+- `auth-provider.tsx` + `auth.store.ts` (Zustand for auth state)
+- `react-query-provider.tsx` (TanStack Query)
+- `theme-provider.tsx` (Dark/light theme)
+
+### `config/`
+
+Frontend configuration constants. Currently: `routes.ts` for route path definitions.
+
+### `data/`
+
+Static/reference data used by the frontend (e.g., brand options, denomination lists).
+
