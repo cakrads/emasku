@@ -19,6 +19,7 @@ export default {
     pickDate: 'Pilih tanggal',
     saveChanges: 'Simpan Perubahan',
     saving: 'Menyimpan...',
+    loading: 'Memuat...',
     home: 'Beranda',
     useToday: 'Hari Ini',
     default: 'Otomatis',

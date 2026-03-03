@@ -29,6 +29,7 @@ import {
 } from '@/frontend/components/ui/alert-dialog'
 import { GoalDetailSkeleton } from './components/goal-detail-skeleton'
 import { useGoalDetailMetrics } from './hooks/use-goal-detail-metrics'
+import { Skeleton } from '@/frontend/components/ui/skeleton'
 
 export default function GoalDetailView({ goalId }: { goalId: string }) {
     return (
@@ -88,7 +89,16 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
 
     if (isLoading) {
         return (
-            <StandardPageLayout title={t('common.loading')} breadcrumbs={breadcrumbs}>
+            <StandardPageLayout
+                title={t('goals.detail.title')}
+                breadcrumbs={breadcrumbs}
+                action={
+                    <div className="flex gap-2">
+                        <Skeleton className="h-11 w-9 sm:w-36" />
+                        <Skeleton className="h-11 w-9 sm:w-20" />
+                    </div>
+                }
+            >
                 <GoalDetailSkeleton />
             </StandardPageLayout>
         )
@@ -126,7 +136,7 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                     <Link href={ROUTES.GOAL_EDIT(goalId)}>
                         <Button variant="outline" className="gap-2">
                             <Pencil className="h-4 w-4" />
-                            {t('goals.detail.edit')}
+                            <span className="hidden sm:inline">{t('goals.detail.edit')}</span>
                         </Button>
                     </Link>
                 </div>

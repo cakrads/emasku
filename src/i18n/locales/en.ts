@@ -19,6 +19,7 @@ export default {
     pickDate: 'Pick a date',
     saveChanges: 'Save Changes',
     saving: 'Saving...',
+    loading: 'Loading...',
     home: 'Home',
     useToday: 'Today',
     default: 'Default',

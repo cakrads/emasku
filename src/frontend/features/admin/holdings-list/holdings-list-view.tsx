@@ -124,6 +124,12 @@ function HoldingsListContent() {
     queryFn: fetchGoals,
   })
 
+  const allHoldings = filteredData?.items ?? []
+
+  // Sort holdings (client-side sorting of current page, API doesn't support it yet)
+  // Must be called unconditionally before any early returns (Rules of Hooks)
+  const sortedHoldings = useSortedHoldings(allHoldings, sortBy, sortOrder)
+
   // Handle loading and error
   if (isLoadingFiltered || isLoadingAll) return (
     <HoldingsListSkeleton />
@@ -133,15 +139,11 @@ function HoldingsListContent() {
     throw error || new Error('Failed to load holdings')
   }
 
-  const allHoldings = filteredData.items
   const totalHoldingsCount = allData.pagination.totalItems // Total items in DB (for empty state check)
 
   // Pagination info from current query
   const totalFilteredItems = filteredData.pagination.totalItems
   const pageCount = filteredData.pagination.totalPages
-
-  // Sort holdings (client-side sorting of current page, API doesn't support it yet)
-  const sortedHoldings = useSortedHoldings(allHoldings, sortBy, sortOrder)
 
   // Transform to View Models
   const viewModels = sortedHoldings.map(item => transformHoldingItem(item, language === 'id' ? 'id-ID' : 'en-US'))

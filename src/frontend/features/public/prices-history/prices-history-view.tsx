@@ -56,7 +56,7 @@ function RangeSelector({ current, onChange, language }: { current: TimeRange, on
 
 import { SpotPriceSeries } from '@/shared/contracts/prices.contract'
 
-function PricesHistoryContent({ initialData }: { initialData?: SpotPriceSeries }) {
+function PricesHistoryContent() {
   const { t, language } = useLanguage()
   const locale = language === 'id' ? 'id-ID' : 'en-US'
 
@@ -77,7 +77,6 @@ function PricesHistoryContent({ initialData }: { initialData?: SpotPriceSeries }
       range: '5y',
       denomination: 1,
     }),
-    initialData,
   })
 
   // Filter data for the chart client-side
@@ -212,7 +211,7 @@ function PricesHistoryContent({ initialData }: { initialData?: SpotPriceSeries }
   )
 }
 
-export function PricesHistoryView({ initialData }: { initialData?: SpotPriceSeries }) {
+export function PricesHistoryView() {
   const { t } = useLanguage()
 
   return (
@@ -224,7 +223,7 @@ export function PricesHistoryView({ initialData }: { initialData?: SpotPriceSeri
       ]}
     >
       <ErrorBoundary>
-        <PricesHistoryContent initialData={initialData} />
+        <PricesHistoryContent />
       </ErrorBoundary>
     </StandardPageLayout>
   )

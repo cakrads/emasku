@@ -6,21 +6,19 @@ import { HowItWorksSection } from './components/how-it-works-section'
 import { WhySection } from './components/why-section'
 import { TargetAudienceSection } from './components/target-audience-section'
 import { CtaSection } from './components/cta-section'
-import { PricesTodayResponse } from '@/shared/contracts/prices.contract'
-
 /**
  * LandingView - Main orchestrator for the public landing page
- * 
+ *
  * Design principles:
  * - Clean, calm, Stripe-inspired
  * - Scroll-based narrative
  * - Performance-first (LCP < 2.5s)
  */
-export function LandingView({ initialPricesData }: { initialPricesData?: PricesTodayResponse }) {
+export function LandingView() {
   return (
     <main className="min-h-screen">
       <HeroSection />
-      <PriceSection initialData={initialPricesData} />
+      <PriceSection />
       <HowItWorksSection />
       <WhySection />
       <TargetAudienceSection />

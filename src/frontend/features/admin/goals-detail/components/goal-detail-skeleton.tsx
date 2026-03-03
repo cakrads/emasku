@@ -5,71 +5,130 @@ import { Card, CardContent } from '@/frontend/components/ui/card'
 export function GoalDetailSkeleton() {
     return (
         <div className="w-full max-w-xl mx-auto pb-24 sm:min-w-[500px]">
-            {/* Header Skeleton */}
+
+            {/* Hero — mirrors: div.flex-col.items-center.gap-2 > h2 text-4xl + div.flex-col.items-center.gap-1 */}
             <Section className="py-6 px-6 text-center mb-6">
-                <Stack gap="xs" className="items-center">
-                    <Skeleton className="h-12 w-64" />
-                    <Skeleton className="h-5 w-24 rounded-md mt-2" />
-                    <Skeleton className="h-4 w-40 mt-3" />
-                </Stack>
+                <div className="flex flex-col items-center gap-2">
+                    <Skeleton className="h-10 w-52" />
+                    <div className="flex flex-col items-center gap-1">
+                        <Skeleton className="h-6 w-20" />
+                        <div className="flex items-center gap-1.5 mt-1">
+                            <Skeleton className="h-4 w-4 rounded-sm" />
+                            <Skeleton className="h-5 w-28" />
+                        </div>
+                    </div>
+                </div>
             </Section>
 
-            {/* Summary Card Skeleton */}
+            {/* Summary Card — mirrors: Card > CardContent p-5 > Stack gap="md" */}
             <Section className="px-0 mb-6">
                 <Card className="bg-surface-elevated border-border shadow-sm">
                     <CardContent className="p-5">
                         <Stack gap="md">
-                            <div className="flex justify-between items-center">
-                                <Skeleton className="h-5 w-32" />
-                                <Skeleton className="h-5 w-12" />
-                            </div>
-                            <Skeleton className="h-2.5 w-full rounded-full opacity-50" />
+                            {/* Row: h3 text-sm + body font-semibold */}
+                            <Stack direction="horizontal" className="justify-between items-center">
+                                <Skeleton className="h-5 w-24" />
+                                <Skeleton className="h-6 w-10" />
+                            </Stack>
+
+                            {/* Progress bar */}
+                            <Skeleton className="h-2.5 w-full rounded-full" />
+
+                            {/* Inner rows — mirrors: Stack gap="md" mt-2 */}
                             <Stack gap="md" className="mt-2">
-                                <div className="flex justify-between items-start">
-                                    <Skeleton className="h-4 w-32 mt-1" />
-                                    <div className="text-right flex flex-col items-end gap-1.5">
-                                        <Skeleton className="h-6 w-40" />
-                                        <Skeleton className="h-4 w-24 opacity-60" />
+                                {/* Current value: body-sm pt-1 left + body text-lg + caption right */}
+                                <Stack direction="horizontal" className="justify-between items-start">
+                                    <Skeleton className="h-5 w-28 mt-1" />
+                                    <div className="flex flex-col items-end gap-1">
+                                        <Skeleton className="h-7 w-36" />
+                                        <Skeleton className="h-4 w-24" />
                                     </div>
-                                </div>
-                                <div className="h-px bg-border w-full opacity-50" />
-                                <div className="flex justify-between items-center">
-                                    <Skeleton className="h-4 w-32" />
+                                </Stack>
+
+                                <div className="h-px bg-border w-full mt-2" />
+
+                                {/* Target amount: body-sm + body */}
+                                <Stack direction="horizontal" className="justify-between items-center">
                                     <Skeleton className="h-5 w-28" />
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <Skeleton className="h-4 w-28" />
+                                    <Skeleton className="h-6 w-32" />
+                                </Stack>
+
+                                {/* Remaining: body-sm + body */}
+                                <Stack direction="horizontal" className="justify-between items-center">
                                     <Skeleton className="h-5 w-24" />
-                                </div>
+                                    <Skeleton className="h-6 w-28" />
+                                </Stack>
+
+                                {/* Time remaining: body-sm + body */}
+                                <Stack direction="horizontal" className="justify-between items-center">
+                                    <Skeleton className="h-5 w-28" />
+                                    <Skeleton className="h-6 w-20" />
+                                </Stack>
                             </Stack>
                         </Stack>
                     </CardContent>
                 </Card>
             </Section>
 
-            {/* Holdings List Skeleton */}
+            {/* Holdings Card — mirrors: Card > CardContent p-5 > Stack gap="md" > table */}
             <Section className="px-0 mt-6">
                 <Card className="bg-surface-elevated border-border shadow-sm">
                     <CardContent className="p-5">
                         <Stack gap="md">
-                            <Skeleton className="h-5 w-48 mb-2" />
-                            <div className="space-y-4">
-                                <div className="flex justify-between border-b border-border pb-2">
-                                    <Skeleton className="h-3 w-16 opacity-40" />
-                                    <Skeleton className="h-3 w-16 opacity-40" />
-                                    <Skeleton className="h-3 w-16 opacity-40" />
-                                </div>
-                                {[1, 2, 3].map(i => (
-                                    <div key={i} className="flex justify-between items-center py-1">
-                                        <Skeleton className="h-5 w-40" />
-                                        <Skeleton className="h-5 w-12" />
-                                        <Skeleton className="h-5 w-28" />
-                                    </div>
-                                ))}
+                            {/* h3 text-sm font-medium */}
+                            <Skeleton className="h-5 w-44" />
+
+                            <div className="overflow-x-auto">
+                                <table className="w-full border-collapse">
+                                    <thead>
+                                        <tr className="border-b border-border">
+                                            <th className="py-2 px-2 text-left">
+                                                <Skeleton className="h-4 w-14" />
+                                            </th>
+                                            <th className="py-2 px-2 text-right">
+                                                <Skeleton className="h-4 w-24 ml-auto" />
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {[1, 2, 3].map(i => (
+                                            <tr key={i} className="border-b border-border">
+                                                {/* Left: brand + gram on one line = body-sm h-5 */}
+                                                <td className="py-3 px-2">
+                                                    <Skeleton className="h-5 w-36" />
+                                                </td>
+                                                {/* Right: body-sm h-5 + gap-1 + caption h-4 */}
+                                                <td className="py-3 px-2">
+                                                    <div className="flex flex-col items-end gap-1">
+                                                        <Skeleton className="h-5 w-24" />
+                                                        <Skeleton className="h-4 w-16" />
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                    <tfoot>
+                                        <tr className="border-t-2 border-border">
+                                            <td className="py-3 px-2">
+                                                <Skeleton className="h-5 w-16" />
+                                            </td>
+                                            <td className="py-3 px-2">
+                                                <div className="flex justify-end">
+                                                    <Skeleton className="h-5 w-28" />
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
                             </div>
                         </Stack>
                     </CardContent>
                 </Card>
+            </Section>
+
+            {/* Delete button — mirrors: Button h-14 w-full rounded-xl */}
+            <Section className="px-0 mt-8">
+                <Skeleton className="h-14 w-full rounded-xl" />
             </Section>
         </div>
     )
