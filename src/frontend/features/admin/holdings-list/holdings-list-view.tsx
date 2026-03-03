@@ -19,6 +19,7 @@ import { fetchBrands } from '@/frontend/services/brands/brands.api'
 import { fetchGoals } from '@/frontend/services/goals/goals.api'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { useUrlFilters } from '@/frontend/hooks/use-url-filters'
+import { useSortedHoldings } from '@/frontend/hooks/use-sorted-holdings'
 import { PrivacyToggle } from '@/frontend/components/ui/privacy-toggle'
 
 // New components
@@ -139,19 +140,8 @@ function HoldingsListContent() {
   const totalFilteredItems = filteredData.pagination.totalItems
   const pageCount = filteredData.pagination.totalPages
 
-  // Sort holdings (Client-side sorting of current page)
-  // Note: Since API doesn't support sorting yet, we sort the *current page* results.
-  let sortedHoldings = [...allHoldings].sort((a, b) => {
-    let output = 0
-    if (sortBy === 'date') {
-      const timeA = new Date(a.createdAt).getTime()
-      const timeB = new Date(b.createdAt).getTime()
-      output = timeA - timeB
-    } else {
-      output = (a.currentValue || 0) - (b.currentValue || 0)
-    }
-    return sortOrder === 'asc' ? output : -output
-  })
+  // Sort holdings (client-side sorting of current page, API doesn't support it yet)
+  const sortedHoldings = useSortedHoldings(allHoldings, sortBy, sortOrder)
 
   // Transform to View Models
   const viewModels = sortedHoldings.map(item => transformHoldingItem(item, language === 'id' ? 'id-ID' : 'en-US'))

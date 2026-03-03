@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import NextTopLoader from "nextjs-toploader";
 import ReactQueryProvider from "@/frontend/providers/react-query-provider";
 import { ThemeProvider } from "@/frontend/providers/theme-provider";
 import { AuthProvider } from "@/frontend/providers/auth-provider";
@@ -22,6 +23,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
+        <NextTopLoader color="#D4AF37" showSpinner={false} />
         <ReactQueryProvider>
           <ThemeProvider
             attribute="class"

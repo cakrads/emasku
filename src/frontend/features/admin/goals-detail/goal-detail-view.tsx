@@ -9,7 +9,6 @@ import { Typography } from '@/frontend/components/ui/typography'
 import { Button, buttonVariants } from '@/frontend/components/ui/button'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
 import { ErrorBoundary } from '@/frontend/components/fragments/admin/error-boundary'
-import { Skeleton } from '@/frontend/components/ui/skeleton'
 import { Pencil, Trash2, ExternalLink, TrendingUp, TrendingDown, Calendar, CheckCircle2, RotateCcw } from 'lucide-react'
 import Link from 'next/link'
 import { ROUTES } from '@/frontend/config/routes'
@@ -18,7 +17,6 @@ import { useLanguage } from '@/frontend/hooks/use-language'
 import { toast } from 'sonner'
 import { formatCurrency } from '@/frontend/utils/format'
 import { cn } from '@/frontend/utils/cn'
-import { intervalToDuration } from 'date-fns'
 import {
     AlertDialog,
     AlertDialogAction,
@@ -29,6 +27,8 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/frontend/components/ui/alert-dialog'
+import { GoalDetailSkeleton } from './components/goal-detail-skeleton'
+import { useGoalDetailMetrics } from './hooks/use-goal-detail-metrics'
 
 export default function GoalDetailView({ goalId }: { goalId: string }) {
     return (
@@ -52,6 +52,9 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
         queryFn: () => fetchGoalDetail(goalId),
     })
 
+    // Metrics hook is called unconditionally — handles undefined data internally
+    const metrics = useGoalDetailMetrics(data, locale, t)
+
     const deleteMutation = useMutation({
         mutationFn: deleteGoal,
         onSuccess: () => {
@@ -65,7 +68,7 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
     })
 
     const updateMutation = useMutation({
-        mutationFn: ({ id, data }: { id: string; data: any }) => updateGoal(id, data),
+        mutationFn: ({ id, data: updateData }: { id: string; data: any }) => updateGoal(id, updateData),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['goals', goalId] })
             queryClient.invalidateQueries({ queryKey: ['goals'] })
@@ -85,84 +88,8 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
 
     if (isLoading) {
         return (
-            <StandardPageLayout
-                title={t('common.loading')}
-                breadcrumbs={breadcrumbs}
-            >
-                <div className="w-full max-w-xl mx-auto pb-24 sm:min-w-[500px]">
-                    {/* Header Skeleton (Matches Centered Hero) */}
-                    <Section className="py-6 px-6 text-center mb-6">
-                        <Stack gap="xs" className="items-center">
-                            <Skeleton className="h-12 w-64" /> {/* Name */}
-                            <Skeleton className="h-5 w-24 rounded-md mt-2" /> {/* Status */}
-                            <Skeleton className="h-4 w-40 mt-3" /> {/* Date */}
-                        </Stack>
-                    </Section>
-
-                    {/* Summary Card Skeleton (Detailed) */}
-                    <Section className="px-0 mb-6">
-                        <Card className="bg-surface-elevated border-border shadow-sm">
-                            <CardContent className="p-5">
-                                <Stack gap="md">
-                                    <div className="flex justify-between items-center">
-                                        <Skeleton className="h-5 w-32" />
-                                        <Skeleton className="h-5 w-12" />
-                                    </div>
-
-                                    {/* Progress Bar Placeholder */}
-                                    <Skeleton className="h-2.5 w-full rounded-full opacity-50" />
-
-                                    <Stack gap="md" className="mt-2">
-                                        {/* Detail Rows */}
-                                        <div className="flex justify-between items-start">
-                                            <Skeleton className="h-4 w-32 mt-1" />
-                                            <div className="text-right flex flex-col items-end gap-1.5">
-                                                <Skeleton className="h-6 w-40" />
-                                                <Skeleton className="h-4 w-24 opacity-60" />
-                                            </div>
-                                        </div>
-                                        <div className="h-px bg-border w-full opacity-50" />
-                                        <div className="flex justify-between items-center">
-                                            <Skeleton className="h-4 w-32" />
-                                            <Skeleton className="h-5 w-28" />
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <Skeleton className="h-4 w-28" />
-                                            <Skeleton className="h-5 w-24" />
-                                        </div>
-                                    </Stack>
-                                </Stack>
-                            </CardContent>
-                        </Card>
-                    </Section>
-
-                    {/* Holdings List Skeleton (Table Style) */}
-                    <Section className="px-0 mt-6">
-                        <Card className="bg-surface-elevated border-border shadow-sm">
-                            <CardContent className="p-5">
-                                <Stack gap="md">
-                                    <Skeleton className="h-5 w-48 mb-2" />
-                                    <div className="space-y-4">
-                                        {/* Table Header Placeholder */}
-                                        <div className="flex justify-between border-b border-border pb-2">
-                                            <Skeleton className="h-3 w-16 opacity-40" />
-                                            <Skeleton className="h-3 w-16 opacity-40" />
-                                            <Skeleton className="h-3 w-16 opacity-40" />
-                                        </div>
-                                        {/* Row Placeholders */}
-                                        {[1, 2, 3].map(i => (
-                                            <div key={i} className="flex justify-between items-center py-1">
-                                                <Skeleton className="h-5 w-40" />
-                                                <Skeleton className="h-5 w-12" />
-                                                <Skeleton className="h-5 w-28" />
-                                            </div>
-                                        ))}
-                                    </div>
-                                </Stack>
-                            </CardContent>
-                        </Card>
-                    </Section>
-                </div>
+            <StandardPageLayout title={t('common.loading')} breadcrumbs={breadcrumbs}>
+                <GoalDetailSkeleton />
             </StandardPageLayout>
         )
     }
@@ -171,73 +98,12 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
         throw error || new Error('Failed to load goal')
     }
 
-    // Base value for all metrics (use snapshot if completed, live if active)
-    const displayValue = (data.lifecycleStatus === 'COMPLETED' && data.completedValue != null)
-        ? data.completedValue
-        : (data.totalCurrentValue || 0)
-
-    const progress = data.progressPercentage ?? 0
-    const hasTarget = data.targetAmount != null && data.targetAmount > 0
-    const remaining = hasTarget ? Math.max(0, data.targetAmount! - displayValue) : null
-
-    // Profit/Loss Calculation using the same displayValue
-    const invested = data.totalInvestedValue || 0
-    const profit = displayValue - invested
-    const profitPercent = invested > 0 ? (profit / invested) * 100 : 0
-    const isPositive = profit >= 0
-
-    // Compute time remaining if targetDate exists
-    let timeRemainingLabel = ''
-    let isPastDue = false
-    let formattedDate = ''
-    if (data.targetDate) {
-        const targetDate = new Date(data.targetDate)
-        formattedDate = targetDate.toLocaleDateString(locale, {
-            day: 'numeric', month: 'long', year: 'numeric'
-        })
-        const now = new Date()
-        if (targetDate > now) {
-            const duration = intervalToDuration({ start: now, end: targetDate })
-            const parts: string[] = []
-            if (duration.years && duration.years > 0) {
-                const unit = duration.years === 1
-                    ? t('common.duration.year')
-                    : t('common.duration.years')
-                parts.push(`${duration.years} ${unit}`)
-            }
-            if (duration.months && duration.months > 0) {
-                const unit = duration.months === 1
-                    ? t('common.duration.month')
-                    : t('common.duration.months')
-                parts.push(`${duration.months} ${unit}`)
-            }
-            if (parts.length === 0 && duration.days && duration.days > 0) {
-                const unit = duration.days === 1
-                    ? t('common.duration.day')
-                    : t('common.duration.days')
-                parts.push(`${duration.days} ${unit}`)
-            }
-            timeRemainingLabel = parts.join(' ')
-        } else {
-            timeRemainingLabel = t('goals.detail.pastDue')
-            isPastDue = true
-        }
-    }
-
-    // Holdings subtotal
-    const holdingsSubtotal = data.holdings.reduce(
-        (sum, h) => sum + (h.currentValue ?? 0),
-        0
-    )
-
-    // Status config
-    const statusConfig = data.lifecycleStatus === 'COMPLETED'
-        ? { label: t('goals.status.completed'), className: 'text-green-600 dark:text-green-400' }
-        : data.isAchieved
-            ? { label: t('goals.status.achieved'), className: 'text-green-600 dark:text-green-400' }
-            : hasTarget
-                ? { label: t('goals.status.inProgress'), className: 'text-blue-600 dark:text-blue-400' }
-                : { label: t('goals.status.noTarget'), className: 'text-gray-500 dark:text-gray-400' }
+    const {
+        displayValue, progress, hasTarget, remaining,
+        invested, profit, profitPercent, isPositive,
+        timeRemainingLabel, isPastDue, formattedDate,
+        holdingsSubtotal, statusConfig,
+    } = metrics
 
     return (
         <StandardPageLayout
@@ -246,22 +112,13 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
             action={
                 <div className="flex gap-2">
                     {data.lifecycleStatus === 'ACTIVE' && (
-                        <Button
-                            variant="solid"
-                            color="primary"
-                            className="gap-2"
-                            onClick={() => setShowCompleteDialog(true)}
-                        >
+                        <Button variant="solid" color="primary" className="gap-2" onClick={() => setShowCompleteDialog(true)}>
                             <CheckCircle2 className="h-4 w-4" />
                             <span className="hidden sm:inline">{t('goals.detail.markAsCompleted')}</span>
                         </Button>
                     )}
                     {data.lifecycleStatus === 'COMPLETED' && (
-                        <Button
-                            variant="outline"
-                            className="gap-2"
-                            onClick={() => setShowReopenDialog(true)}
-                        >
+                        <Button variant="outline" className="gap-2" onClick={() => setShowReopenDialog(true)}>
                             <RotateCcw className="h-4 w-4" />
                             <span className="hidden sm:inline">{t('goals.detail.reopenGoal')}</span>
                         </Button>
@@ -277,34 +134,27 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
         >
             <div className="w-full max-w-xl mx-auto pb-24 sm:min-w-[500px]">
 
-                {/* HERO SECTION: Goal Name (Large), Status (PnL style), Date */}
+                {/* HERO: Goal Name, Status, Date */}
                 <Section className="py-6 px-6 text-center mb-6">
                     <div className="flex flex-col items-center gap-2">
                         <Typography variant="h2" className="text-4xl font-bold tracking-tight">
                             {data.name}
                         </Typography>
-
                         <div className="flex flex-col items-center gap-1">
-                            <span className={cn(
-                                'text-base font-semibold',
-                                statusConfig.className
-                            )}>
+                            <span className={cn('text-base font-semibold', statusConfig.className)}>
                                 {statusConfig.label}
                             </span>
-
                             {data.targetDate && (
                                 <div className="flex items-center gap-1.5 text-muted-foreground mt-1">
                                     <Calendar className="w-4 h-4" />
-                                    <span className="text-sm font-medium">
-                                        {formattedDate}
-                                    </span>
+                                    <span className="text-sm font-medium">{formattedDate}</span>
                                 </div>
                             )}
                         </div>
                     </div>
                 </Section>
 
-                {/* SECTION: SUMMARY CARD (Clean Layout) */}
+                {/* SUMMARY CARD */}
                 <Section className="px-0 mb-6">
                     <Card className="bg-surface-elevated border-border shadow-sm">
                         <CardContent className="p-5">
@@ -318,7 +168,6 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                     )}
                                 </Stack>
 
-                                {/* Progress Bar */}
                                 {hasTarget && (
                                     <div className="h-2.5 rounded-full bg-muted overflow-hidden">
                                         <div
@@ -332,7 +181,6 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                 )}
 
                                 <Stack gap="md" className="mt-2">
-                                    {/* Current Value & PnL Combined */}
                                     <Stack direction="horizontal" className="justify-between items-start">
                                         <Typography variant="body-sm" className="pt-1">
                                             {data.lifecycleStatus === 'COMPLETED' ? t('goals.detail.finishedWithValue') : t('goals.detail.currentValue')}
@@ -341,24 +189,20 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                             <Typography variant="body" className="font-medium financial-value text-lg">
                                                 {formatCurrency(displayValue, locale)}
                                             </Typography>
-
                                             {invested > 0 && (
                                                 <div className="flex items-center justify-end gap-1 mt-1">
-                                                    {isPositive ? (
-                                                        <TrendingUp className="w-3 h-3 text-green-600 dark:text-green-400" />
-                                                    ) : (
-                                                        <TrendingDown className="w-3 h-3 text-red-600 dark:text-red-400" />
-                                                    )}
+                                                    {isPositive
+                                                        ? <TrendingUp className="w-3 h-3 text-green-600 dark:text-green-400" />
+                                                        : <TrendingDown className="w-3 h-3 text-red-600 dark:text-red-400" />
+                                                    }
                                                     <Typography variant="caption" className={cn(
-                                                        "font-medium",
-                                                        isPositive ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"
+                                                        'font-medium',
+                                                        isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
                                                     )}>
                                                         {formatCurrency(profit, locale)} ({isPositive ? '+' : ''}{profitPercent.toFixed(2)}%)
                                                     </Typography>
                                                 </div>
                                             )}
-
-                                            {/* Disclaimer for Completed Goals */}
                                             {data.lifecycleStatus === 'COMPLETED' && (
                                                 <Typography variant="caption" className="text-muted-foreground mt-0.5 max-w-[200px] leading-tight">
                                                     {t('goals.detail.finishedValueDisclaimer')}
@@ -369,7 +213,6 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
 
                                     <div className="h-px bg-border w-full mt-2" />
 
-                                    {/* Target Amount */}
                                     <Stack direction="horizontal" className="justify-between items-center">
                                         <Typography variant="body-sm">{t('goals.detail.targetAmount')}</Typography>
                                         <Typography variant="body" className="font-medium financial-value">
@@ -377,7 +220,6 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                         </Typography>
                                     </Stack>
 
-                                    {/* Remaining Amount */}
                                     <Stack direction="horizontal" className="justify-between items-center">
                                         <Typography variant="body-sm">{t('goals.detail.remaining')}</Typography>
                                         <Typography variant="body" className={cn(
@@ -388,7 +230,6 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                         </Typography>
                                     </Stack>
 
-                                    {/* Time Remaining */}
                                     {data.targetDate && timeRemainingLabel && data.lifecycleStatus === 'ACTIVE' && (
                                         <Stack direction="horizontal" className="justify-between items-center">
                                             <Typography variant="body-sm">{t('goals.detail.timeRemaining')}</Typography>
@@ -401,7 +242,6 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                         </Stack>
                                     )}
 
-                                    {/* Completed At */}
                                     {data.completedAt && (
                                         <Stack direction="horizontal" className="justify-between items-center">
                                             <Typography variant="body-sm">{t('goals.detail.completedAt')}</Typography>
@@ -416,7 +256,7 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                     </Card>
                 </Section>
 
-                {/* SECTION: HOLDINGS CONTRIBUTION */}
+                {/* HOLDINGS CONTRIBUTION */}
                 <Section className="px-0 mt-6">
                     <Card className="bg-surface-elevated border-border shadow-sm">
                         <CardContent className="p-5">
@@ -440,9 +280,7 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                             <thead>
                                                 <tr className="border-b border-border">
                                                     <th className="py-2 px-2 text-left">
-                                                        <Typography variant="caption" className="font-semibold text-muted-foreground">
-                                                            Holding
-                                                        </Typography>
+                                                        <Typography variant="caption" className="font-semibold text-muted-foreground">Holding</Typography>
                                                     </th>
                                                     <th className="py-2 px-2 text-right">
                                                         <Typography variant="caption" className="font-semibold text-muted-foreground">
@@ -461,12 +299,8 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                                         <td className="py-3 px-2">
                                                             <Stack gap="xs">
                                                                 <Stack direction="horizontal" gap="xs" className="items-center">
-                                                                    <Typography variant="body-sm" className="font-medium">
-                                                                        {holding.brandName}
-                                                                    </Typography>
-                                                                    <Typography variant="body-sm" className="text-muted-foreground font-medium">
-                                                                        {holding.denominationGram}g
-                                                                    </Typography>
+                                                                    <Typography variant="body-sm" className="font-medium">{holding.brandName}</Typography>
+                                                                    <Typography variant="body-sm" className="text-muted-foreground font-medium">{holding.denominationGram}g</Typography>
                                                                     <ExternalLink className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity ml-1" />
                                                                 </Stack>
                                                             </Stack>
@@ -474,9 +308,7 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                                         <td className="py-3 px-2 text-right">
                                                             <Stack gap="xs" className="items-end">
                                                                 <Typography variant="body-sm" className="financial-value font-medium">
-                                                                    {holding.currentValue != null
-                                                                        ? formatCurrency(holding.currentValue, locale)
-                                                                        : '—'}
+                                                                    {holding.currentValue != null ? formatCurrency(holding.currentValue, locale) : '—'}
                                                                 </Typography>
                                                                 {(holding.status === 'SOLD' || holding.isSold) ? (
                                                                     <Typography variant="caption" className="text-muted-foreground/70 text-[10px] flex gap-1 items-center">
@@ -499,14 +331,11 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                                     </tr>
                                                 ))}
                                             </tbody>
-                                            {/* Subtotal - Only show for active goals because snapshot value doesn't match live sum */}
                                             {data.lifecycleStatus !== 'COMPLETED' && (
                                                 <tfoot>
                                                     <tr className="border-t-2 border-border">
                                                         <td className="py-3 px-2 text-right">
-                                                            <Typography variant="body-sm" className="font-semibold">
-                                                                Subtotal
-                                                            </Typography>
+                                                            <Typography variant="body-sm" className="font-semibold">Subtotal</Typography>
                                                         </td>
                                                         <td className="py-3 px-2 text-right">
                                                             <Typography variant="body-sm" className="financial-value font-semibold">
@@ -538,16 +367,12 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                     </Button>
                 </Section>
 
-                {/* Delete Dialog */}
+                {/* Dialogs */}
                 <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
                     <AlertDialogContent>
                         <AlertDialogHeader>
-                            <AlertDialogTitle className="text-destructive">
-                                {t('goals.detail.deleteTitle')}
-                            </AlertDialogTitle>
-                            <AlertDialogDescription>
-                                {t('goals.messages.deleteConfirm')}
-                            </AlertDialogDescription>
+                            <AlertDialogTitle className="text-destructive">{t('goals.detail.deleteTitle')}</AlertDialogTitle>
+                            <AlertDialogDescription>{t('goals.messages.deleteConfirm')}</AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                             <AlertDialogCancel>{t('goals.form.cancel')}</AlertDialogCancel>
@@ -561,7 +386,6 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                     </AlertDialogContent>
                 </AlertDialog>
 
-                {/* Complete Dialog */}
                 <AlertDialog open={showCompleteDialog} onOpenChange={setShowCompleteDialog}>
                     <AlertDialogContent>
                         <AlertDialogHeader>
@@ -582,14 +406,11 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                     </AlertDialogContent>
                 </AlertDialog>
 
-                {/* Reopen Dialog */}
                 <AlertDialog open={showReopenDialog} onOpenChange={setShowReopenDialog}>
                     <AlertDialogContent>
                         <AlertDialogHeader>
                             <AlertDialogTitle>{t('goals.detail.reopenDialog.title')}</AlertDialogTitle>
-                            <AlertDialogDescription>
-                                {t('goals.detail.reopenDialog.description')}
-                            </AlertDialogDescription>
+                            <AlertDialogDescription>{t('goals.detail.reopenDialog.description')}</AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
                             <AlertDialogCancel>{t('goals.form.cancel')}</AlertDialogCancel>

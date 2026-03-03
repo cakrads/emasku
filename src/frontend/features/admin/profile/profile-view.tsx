@@ -17,6 +17,7 @@ import { LogoutDialog } from '@/frontend/components/fragments/admin/logout-dialo
 import { ROUTES } from '@/frontend/config/routes'
 import { toast } from 'sonner'
 import Link from 'next/link'
+import { exportUserData, deleteUser } from '@/frontend/services/user/user.api'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,10 +52,7 @@ export function ProfileView() {
   const handleExportData = async () => {
     setIsExporting(true)
     try {
-      const response = await fetch('/api/v1/user/export')
-      if (!response.ok) throw new Error('Export failed')
-
-      const blob = await response.blob()
+      const blob = await exportUserData()
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
@@ -75,9 +73,7 @@ export function ProfileView() {
   const handleDeleteAccount = async () => {
     setIsDeleting(true)
     try {
-      const response = await fetch('/api/v1/user/delete', { method: 'DELETE' })
-      if (!response.ok) throw new Error('Deletion failed')
-
+      await deleteUser()
       toast.success(t('profile.messages.deleteSuccess'))
       await logout()
       router.push(ROUTES.LOGIN)

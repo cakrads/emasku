@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Stack, Section } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
@@ -12,23 +12,13 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { ROUTES } from '@/frontend/config/routes'
 import { fetchGoals, deleteGoal } from '@/frontend/services/goals/goals.api'
-import { GoalSummary } from '@/shared/contracts/goals.contract'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { toast } from 'sonner'
 import { formatCurrency } from '@/frontend/utils/format'
 import { cn } from '@/frontend/utils/cn'
-import { Skeleton } from '@/frontend/components/ui/skeleton'
 import GoalFilterModal from './components/goal-filter-modal'
-
-type GoalStatus = 'achieved' | 'in-progress' | 'no-target' | 'completed'
-type FilterType = 'all' | 'achieved' | 'in-progress' | 'no-target' | 'completed'
-
-function deriveStatus(goal: GoalSummary): GoalStatus {
-    if (goal.lifecycleStatus === 'COMPLETED') return 'completed'
-    if (goal.targetAmount == null) return 'no-target'
-    if (goal.isAchieved) return 'achieved'
-    return 'in-progress'
-}
+import { GoalsListSkeleton } from './components/goals-list-skeleton'
+import { useGoalsList, FilterType, GoalStatus } from './hooks/use-goals-list'
 
 export default function GoalsListView() {
     const { t } = useLanguage()
@@ -80,119 +70,9 @@ function GoalsListContent() {
         },
     })
 
-    // Derive status, filter, sort
-    const processedGoals = useMemo(() => {
-        if (!data?.goals) return []
+    const { processedGoals, counts } = useGoalsList(data, activeFilter)
 
-        const withStatus = data.goals.map((goal) => ({
-            ...goal,
-            status: deriveStatus(goal),
-        }))
-
-        const filtered = activeFilter === 'all'
-            ? withStatus
-            : withStatus.filter((g) => g.status === activeFilter)
-
-        // Sort: in-progress first (ascending by progress%), then achieved, then no-target, then completed
-        return filtered.sort((a, b) => {
-            const statusOrder: Record<GoalStatus, number> = { 'in-progress': 0, 'achieved': 1, 'no-target': 2, 'completed': 3 }
-            const orderDiff = statusOrder[a.status] - statusOrder[b.status]
-            if (orderDiff !== 0) return orderDiff
-            // Within in-progress, sort ascending by progress %
-            if (a.status === 'in-progress' && b.status === 'in-progress') {
-                return (a.progressPercentage ?? 0) - (b.progressPercentage ?? 0)
-            }
-            return 0
-        })
-    }, [data, activeFilter])
-
-    // Count per filter
-    const counts = useMemo(() => {
-        if (!data?.goals) return { all: 0, achieved: 0, 'in-progress': 0, 'no-target': 0, completed: 0 }
-        const goals = data.goals
-        return {
-            all: goals.length,
-            achieved: goals.filter((g) => deriveStatus(g) === 'achieved').length,
-            'in-progress': goals.filter((g) => deriveStatus(g) === 'in-progress').length,
-            'no-target': goals.filter((g) => deriveStatus(g) === 'no-target').length,
-            completed: goals.filter((g) => deriveStatus(g) === 'completed').length,
-        }
-    }, [data])
-
-    // Loading skeleton
-    if (isLoading) {
-        return (
-            <Stack gap="sm">
-                {/* Filter Tabs Skeleton */}
-                <div className="flex flex-wrap items-center gap-2">
-                    {[1, 2, 3, 4].map((i) => (
-                        <Skeleton key={i} className="h-8 w-24 rounded-lg" />
-                    ))}
-                </div>
-
-                {/* Goals Table Skeleton */}
-                <Section>
-                    <div className="overflow-x-auto">
-                        <table className="w-full border-collapse">
-                            <thead>
-                                <tr className="border-b border-border">
-                                    <th className="py-3 px-4 text-left whitespace-nowrap font-medium">
-                                        <Skeleton className="h-4 w-20" />
-                                    </th>
-                                    <th className="py-3 px-4 text-right whitespace-nowrap font-medium">
-                                        <Skeleton className="h-4 w-24 ml-auto" />
-                                    </th>
-                                    <th className="py-3 px-4 text-right whitespace-nowrap font-medium hidden sm:table-cell">
-                                        <Skeleton className="h-4 w-24 ml-auto" />
-                                    </th>
-                                    <th className="py-3 px-4 text-right whitespace-nowrap font-medium hidden md:table-cell">
-                                        <Skeleton className="h-4 w-20 ml-auto" />
-                                    </th>
-                                    <th className="py-3 px-4 text-right whitespace-nowrap font-medium hidden lg:table-cell">
-                                        <Skeleton className="h-4 w-24 ml-auto" />
-                                    </th>
-                                    <th className="py-3 px-4 text-left whitespace-nowrap font-medium">
-                                        <Skeleton className="h-4 w-16" />
-                                    </th>
-                                    <th className="py-3 px-4 text-right whitespace-nowrap font-medium">
-                                        Actions
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {[1, 2, 3, 4, 5].map((i) => (
-                                    <tr key={i} className="border-b border-border">
-                                        <td className="py-4 px-4">
-                                            <Skeleton className="h-5 w-40" />
-                                        </td>
-                                        <td className="py-4 px-4 text-right">
-                                            <Skeleton className="h-5 w-28 ml-auto" />
-                                        </td>
-                                        <td className="py-4 px-4 text-right hidden sm:table-cell">
-                                            <Skeleton className="h-5 w-28 ml-auto" />
-                                        </td>
-                                        <td className="py-4 px-4 text-right hidden md:table-cell">
-                                            <div className="flex flex-col items-end gap-2">
-                                                <Skeleton className="h-5 w-12" />
-                                                <Skeleton className="h-1.5 w-16 rounded-full" />
-                                            </div>
-                                        </td>
-                                        <td className="py-4 px-4 text-right hidden lg:table-cell">
-                                            <Skeleton className="h-5 w-28 ml-auto" />
-                                        </td>
-                                        <td className="py-4 px-4">
-                                            <Skeleton className="h-6 w-20 rounded-md" />
-                                        </td>
-                                        <td className="py-4 px-4"></td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </Section>
-            </Stack>
-        )
-    }
+    if (isLoading) return <GoalsListSkeleton />
 
     if (error || !data) {
         throw error || new Error('Failed to load goals')
@@ -335,35 +215,26 @@ function GoalsListContent() {
                                             onClick={() => router.push(ROUTES.GOAL_DETAIL(goal.id))}
                                             className="border-b border-border hover:bg-muted/50 cursor-pointer transition-colors group"
                                         >
-                                            {/* Goal Name */}
                                             <td className="py-4 px-4 whitespace-nowrap">
                                                 <Typography variant="body-sm" className="font-medium">
                                                     {goal.name}
                                                 </Typography>
                                             </td>
-
-                                            {/* Current Value */}
                                             <td className="py-4 px-4 whitespace-nowrap text-right">
                                                 <Typography variant="body-sm" className="financial-value font-semibold">
                                                     {formatCurrency(goal.totalCurrentValue, locale)}
                                                 </Typography>
                                             </td>
-
-                                            {/* Target */}
                                             <td className="py-4 px-4 whitespace-nowrap text-right">
                                                 <Typography variant="body-sm" className="financial-value">
                                                     {hasTarget ? formatCurrency(goal.targetAmount!, locale) : '—'}
                                                 </Typography>
                                             </td>
-
-                                            {/* Target Date */}
                                             <td className="py-4 px-4 whitespace-nowrap text-left hidden sm:table-cell">
                                                 <Typography variant="body-sm" className="text-muted-foreground">
                                                     {goal.targetDate ? new Date(goal.targetDate).toLocaleDateString(locale, { dateStyle: 'medium' }) : '—'}
                                                 </Typography>
                                             </td>
-
-                                            {/* Progress */}
                                             <td className="py-4 px-4 whitespace-nowrap text-right hidden md:table-cell">
                                                 {hasTarget ? (
                                                     <Stack gap="xs" className="items-end">
@@ -387,8 +258,6 @@ function GoalsListContent() {
                                                     <Typography variant="body-sm" className="text-muted-foreground">—</Typography>
                                                 )}
                                             </td>
-
-                                            {/* Remaining */}
                                             <td className="py-4 px-4 whitespace-nowrap text-right hidden lg:table-cell">
                                                 <Typography variant="body-sm" className={cn(
                                                     'financial-value',
@@ -397,8 +266,6 @@ function GoalsListContent() {
                                                     {remaining != null ? formatCurrency(remaining, locale) : '—'}
                                                 </Typography>
                                             </td>
-
-                                            {/* Status */}
                                             <td className="py-4 px-4 whitespace-nowrap text-center">
                                                 <span className={cn(
                                                     'inline-flex items-center rounded-md px-1.5 py-0.5 text-[10px] font-medium ring-1 ring-inset',
@@ -407,8 +274,6 @@ function GoalsListContent() {
                                                     {badge.label}
                                                 </span>
                                             </td>
-
-                                            {/* Delete */}
                                             <td className="py-4 px-4 whitespace-nowrap text-right">
                                                 <Button
                                                     variant="ghost"
@@ -441,7 +306,6 @@ function GoalsListContent() {
 
             <div className="h-8" />
 
-            {/* Goal Filter Modal */}
             <GoalFilterModal
                 open={isFilterOpen}
                 onOpenChange={setIsFilterOpen}
