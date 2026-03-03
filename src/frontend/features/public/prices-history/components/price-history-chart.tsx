@@ -1,15 +1,23 @@
+'use client'
+
 /**
  * PriceHistoryChart - Business Logic Wrapper for Price Charts
- * 
+ *
  * This component handles:
  * - Date formatting (human-readable)
  * - IDR currency formatting
  * - Data transformation
- * 
+ *
  * It uses ChartRenderer internally for actual rendering.
  */
 
-import { ChartRenderer } from '@/frontend/components/ui/chart-renderer'
+import dynamic from 'next/dynamic'
+import { Skeleton } from '@/frontend/components/ui/skeleton'
+
+const ChartRenderer = dynamic(
+  () => import('@/frontend/components/ui/chart-renderer').then(mod => ({ default: mod.ChartRenderer })),
+  { ssr: false, loading: () => <Skeleton className="w-full h-[300px]" /> }
+)
 
 export interface PriceHistoryChartProps {
   /** Array of price data points */

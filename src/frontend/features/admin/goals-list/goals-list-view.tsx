@@ -16,8 +16,10 @@ import { useLanguage } from '@/frontend/hooks/use-language'
 import { toast } from 'sonner'
 import { formatCurrency } from '@/frontend/utils/format'
 import { cn } from '@/frontend/utils/cn'
-import GoalFilterModal from './components/goal-filter-modal'
+import dynamic from 'next/dynamic'
 import { GoalsListSkeleton } from './components/goals-list-skeleton'
+
+const GoalFilterModal = dynamic(() => import('./components/goal-filter-modal'), { ssr: false })
 import { useGoalsList, FilterType, GoalStatus } from './hooks/use-goals-list'
 
 export default function GoalsListView() {

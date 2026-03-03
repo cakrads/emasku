@@ -13,7 +13,7 @@ import { ErrorBoundary } from '@/frontend/components/fragments/admin/error-bound
 import { Switch } from "@/frontend/components/ui/switch"
 import { Avatar, AvatarFallback, AvatarImage } from '@/frontend/components/ui/avatar'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/frontend/components/ui/card'
-import { LogoutDialog } from '@/frontend/components/fragments/admin/logout-dialog'
+import dynamic from 'next/dynamic'
 import { ROUTES } from '@/frontend/config/routes'
 import { toast } from 'sonner'
 import Link from 'next/link'
@@ -28,6 +28,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/frontend/components/ui/alert-dialog"
+
+const LogoutDialog = dynamic(
+  () => import('@/frontend/components/fragments/admin/logout-dialog').then(mod => ({ default: mod.LogoutDialog })),
+  { ssr: false }
+)
 
 export function ProfileView() {
   const { user, logout } = useAuth()

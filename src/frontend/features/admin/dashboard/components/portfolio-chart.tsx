@@ -1,11 +1,17 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { Stack } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { Card } from '@/frontend/components/ui/card'
+import { Skeleton } from '@/frontend/components/ui/skeleton'
 import { TrendingUp } from 'lucide-react'
 import { useLanguage } from '@/frontend/hooks/use-language'
-import { ChartRenderer } from '@/frontend/components/ui/chart-renderer'
+
+const ChartRenderer = dynamic(
+  () => import('@/frontend/components/ui/chart-renderer').then(mod => ({ default: mod.ChartRenderer })),
+  { ssr: false, loading: () => <Skeleton className="w-full h-[200px]" /> }
+)
 
 interface ChartDataPoint {
   date: string

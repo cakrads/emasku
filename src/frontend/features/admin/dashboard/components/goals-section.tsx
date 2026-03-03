@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Stack, Section } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
@@ -20,18 +21,24 @@ export default function GoalsSection() {
         queryFn: fetchGoals,
     })
 
-    if (isLoading) {
-        return <GoalsSectionSkeleton />
-    }
-
     // If no goals, don't show section? Or show empty state?
     // User request: "Update dashboard — add 'Tujuan Saya' section"
     // Showing empty state encourages usage.
-    const goals = data?.goals || []
+    const goals = data?.goals ?? []
 
-    // Calculate aggregate metrics
-    const totalGoalsValue = goals.reduce((sum, goal) => sum + (goal.totalCurrentValue || 0), 0)
-    const activeGoalsCount = goals.filter(g => !g.isAchieved && (g.targetAmount == null || g.targetAmount > 0)).length
+    // Calculate aggregate metrics (memoized to avoid re-running on every render)
+    const totalGoalsValue = useMemo(
+        () => goals.reduce((sum, goal) => sum + (goal.totalCurrentValue || 0), 0),
+        [goals]
+    )
+    const activeGoalsCount = useMemo(
+        () => goals.filter(g => !g.isAchieved && (g.targetAmount == null || g.targetAmount > 0)).length,
+        [goals]
+    )
+
+    if (isLoading) {
+        return <GoalsSectionSkeleton />
+    }
 
     if (goals.length === 0) {
         return (

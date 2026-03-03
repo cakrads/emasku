@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Stack, Section } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
@@ -23,11 +23,13 @@ import { useSortedHoldings } from '@/frontend/hooks/use-sorted-holdings'
 import { PrivacyToggle } from '@/frontend/components/ui/privacy-toggle'
 
 // New components
+import dynamic from 'next/dynamic'
 import PortfolioSummarySection from './components/portfolio-summary-section'
-import FilterModal from './components/filter-modal'
-import BrandSummaryModal from './components/brand-summary-modal'
-import ToolsModal from './components/tools-modal'
 import { Wrench } from 'lucide-react'
+
+const FilterModal = dynamic(() => import('./components/filter-modal'), { ssr: false })
+const BrandSummaryModal = dynamic(() => import('./components/brand-summary-modal'), { ssr: false })
+const ToolsModal = dynamic(() => import('./components/tools-modal'), { ssr: false })
 
 export default function HoldingsListView() {
   const { t } = useLanguage()
@@ -130,6 +132,24 @@ function HoldingsListContent() {
   // Must be called unconditionally before any early returns (Rules of Hooks)
   const sortedHoldings = useSortedHoldings(allHoldings, sortBy, sortOrder)
 
+  // Memoized computations — placed before early returns to satisfy Rules of Hooks
+  const viewModels = useMemo(
+    () => sortedHoldings.map(item => transformHoldingItem(item, language === 'id' ? 'id-ID' : 'en-US')),
+    [sortedHoldings, language]
+  )
+  const summaryViewModel = useMemo(
+    () => summaryData ? transformPortfolioSummary(summaryData, t, language === 'id' ? 'id-ID' : 'en-US') : null,
+    [summaryData, t, language]
+  )
+  const isFiltered = useMemo(
+    () => brandFilter !== null || statusFilter !== 'active' || goalId !== null || sortBy !== 'date' || sortOrder !== 'desc',
+    [brandFilter, statusFilter, goalId, sortBy, sortOrder]
+  )
+  const activeFilterCount = useMemo(
+    () => [statusFilter !== 'active', brandFilter !== null, goalId !== null, sortBy !== 'date', sortOrder !== 'desc'].filter(Boolean).length,
+    [statusFilter, brandFilter, goalId, sortBy, sortOrder]
+  )
+
   // Handle loading and error
   if (isLoadingFiltered || isLoadingAll) return (
     <HoldingsListSkeleton />
@@ -144,13 +164,6 @@ function HoldingsListContent() {
   // Pagination info from current query
   const totalFilteredItems = filteredData.pagination.totalItems
   const pageCount = filteredData.pagination.totalPages
-
-  // Transform to View Models
-  const viewModels = sortedHoldings.map(item => transformHoldingItem(item, language === 'id' ? 'id-ID' : 'en-US'))
-  const summaryViewModel = summaryData ? transformPortfolioSummary(summaryData, t, language === 'id' ? 'id-ID' : 'en-US') : null
-
-  // Calculate if any filter is active (beyond defaults)
-  const isFiltered = brandFilter !== null || statusFilter !== 'active' || goalId !== null || sortBy !== 'date' || sortOrder !== 'desc'
 
   // Handle filter apply
   const handleFilterApply = (newFilters: {
@@ -170,15 +183,6 @@ function HoldingsListContent() {
   if (totalHoldingsCount === 0 && !isFiltered) {
     return <HoldingsListEmpty />
   }
-
-  // Get active filter count for badge
-  const activeFilterCount = [
-    statusFilter !== 'active',
-    brandFilter !== null,
-    goalId !== null,
-    sortBy !== 'date',
-    sortOrder !== 'desc',
-  ].filter(Boolean).length
 
   return (
     <Stack gap="sm">
