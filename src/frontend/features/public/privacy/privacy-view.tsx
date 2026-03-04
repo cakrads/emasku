@@ -16,6 +16,15 @@ export function PrivacyView() {
   const { t, language, setLanguage } = useLanguage()
   const localizedLastUpdated = new Date('2026-01-11').toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', { dateStyle: 'long' })
 
+  const identityItems = (t('privacy.sections.collectedData.identity.items') as unknown) as string[]
+  const safeIdentityItems = Array.isArray(identityItems) ? identityItems : []
+  const financialItems = (t('privacy.sections.collectedData.financial.items') as unknown) as string[]
+  const safeFinancialItems = Array.isArray(financialItems) ? financialItems : []
+  const technicalItems = (t('privacy.sections.collectedData.technical.items') as unknown) as string[]
+  const safeTechnicalItems = Array.isArray(technicalItems) ? technicalItems : []
+  const purposeItems = (t('privacy.sections.purpose.items') as unknown) as string[]
+  const safePurposeItems = Array.isArray(purposeItems) ? purposeItems : []
+
   return (
     <StandardPageLayout
       title={t('privacy.title')}
@@ -70,7 +79,7 @@ export function PrivacyView() {
                   <h3>{t('privacy.sections.collectedData.identity.title')}</h3>
                 </div>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  {(t('privacy.sections.collectedData.identity.items') as unknown as string[]).map((item, i) => (
+                  {safeIdentityItems.map((item, i) => (
                     <li key={i} className="flex items-center gap-2">• {item}</li>
                   ))}
                 </ul>
@@ -81,7 +90,7 @@ export function PrivacyView() {
                   <h3>{t('privacy.sections.collectedData.financial.title')}</h3>
                 </div>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  {(t('privacy.sections.collectedData.financial.items') as unknown as string[]).map((item, i) => (
+                  {safeFinancialItems.map((item, i) => (
                     <li key={i} className="flex items-center gap-2">• {item}</li>
                   ))}
                 </ul>
@@ -92,7 +101,7 @@ export function PrivacyView() {
                   <h3>{t('privacy.sections.collectedData.technical.title')}</h3>
                 </div>
                 <ul className="space-y-2 text-sm text-muted-foreground">
-                  {(t('privacy.sections.collectedData.technical.items') as unknown as string[]).map((item, i) => (
+                  {safeTechnicalItems.map((item, i) => (
                     <li key={i} className="flex items-center gap-2">• {item}</li>
                   ))}
                 </ul>
@@ -108,7 +117,7 @@ export function PrivacyView() {
             {t('privacy.sections.purpose.title')}
           </h2>
           <div className="grid sm:grid-cols-2 gap-4">
-            {(t('privacy.sections.purpose.items') as unknown as string[]).map((item, i) => (
+            {safePurposeItems.map((item, i) => (
               <div key={i} className="flex items-center gap-3 p-4 rounded-lg bg-muted/30 border border-muted/50">
                 <div className="w-1.5 h-1.5 rounded-full bg-accent-gold shadow-[0_0_8px_rgba(212,175,55,0.5)]" />
                 <span className="text-sm font-medium">{item}</span>

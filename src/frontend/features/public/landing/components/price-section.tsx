@@ -102,7 +102,7 @@ export function PriceSection() {
                       <div className="md:hidden flex items-center gap-4 relative">
                         {/* Logo Left */}
                         <div className="w-12 h-12 rounded-2xl bg-accent-gold/10 flex items-center justify-center shadow-inner group-hover:bg-accent-gold/20 transition-colors shrink-0">
-                          <span className="font-bold text-accent-gold text-lg">{item.provider[0]}</span>
+                          <span className="font-bold text-accent-gold text-lg">{item.provider?.charAt(0) ?? '?'}</span>
                         </div>
 
                         {/* Content Column */}
@@ -140,7 +140,7 @@ export function PriceSection() {
                         {/* Brand Info */}
                         <div className="flex items-center gap-4">
                           <div className="w-12 h-12 rounded-2xl bg-accent-gold/10 flex items-center justify-center shadow-inner group-hover:bg-accent-gold/20 transition-colors">
-                            <span className="font-bold text-accent-gold text-lg">{item.provider[0]}</span>
+                            <span className="font-bold text-accent-gold text-lg">{item.provider?.charAt(0) ?? '?'}</span>
                           </div>
                           <span className="text-xl font-medium text-foreground">{item.provider}</span>
                         </div>

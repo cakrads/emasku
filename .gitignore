@@ -48,6 +48,7 @@ next-env.d.ts
 
 # scrap
 .scrap
+.tmp
 
 # data
 # prisma/data

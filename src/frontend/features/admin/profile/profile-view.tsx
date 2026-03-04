@@ -80,11 +80,12 @@ export function ProfileView() {
     try {
       await deleteUser()
       toast.success(t('profile.messages.deleteSuccess'))
-      await logout()
+      await logout().catch(() => {})
       router.push(ROUTES.LOGIN)
     } catch (err) {
       console.error(err)
       toast.error(t('profile.messages.deleteError'))
+    } finally {
       setIsDeleting(false)
     }
   }
