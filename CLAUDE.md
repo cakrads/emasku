@@ -164,6 +164,39 @@ Connection URL is in `prisma.config.ts` (not `schema.prisma`). Client is instant
 - **Layout**: `<StandardPageLayout />` wraps every feature page.
 - **Imports**: Always use absolute aliases: `@/frontend/features/...`
 
+### Styling Rules
+
+- **No arbitrary Tailwind values**: `text-[15px]`, `bg-[#fff]`, `mt-[22px]` — FORBIDDEN. Use design tokens.
+- **No raw Tailwind color classes**: `gray-500`, `blue-200`, `purple-100` — FORBIDDEN. Use CSS variable tokens (`text-foreground`, `bg-muted`, `text-text-secondary`, `bg-accent-gold`, etc.).
+- **No inline styles**: `style={{ color: '#fff' }}` — FORBIDDEN.
+- **No magic numbers**: every spacing/sizing value must map to a Tailwind scale or design token.
+- Use `cn()` from `@/frontend/utils/cn` for all className composition.
+- Use `cva` (class-variance-authority) for components with multiple variants. Never use conditional className strings.
+
+### Component Creation Checklist
+
+Before creating any new component:
+1. **Check** `src/frontend/components/ui/` — does a primitive already exist?
+2. **Check** shadcn/ui registry — can you install one via `npx shadcn@latest add <component>`?
+3. **Check** `src/frontend/components/fragments/` — does a fragment already exist?
+4. Only if none exist → create in the correct layer (see [UI Structure Manifest](.docs/.frontend/ui-structure-manifest.md)).
+
+### Feature Page Scaffold
+
+Every new feature page MUST follow this structure:
+```
+src/frontend/features/[group]/[entity]-[action]/
+├── [entity]-[action]-view.tsx    ← Exported View component
+└── components/                   ← Page-specific sub-components
+    ├── [entity]-[action]-skeleton.tsx
+    └── [name].tsx
+```
+
+The View file pattern:
+- Outer component: layout wrapper (`StandardPageLayout` or `PageWrapper` + `Container`) + `ErrorBoundary`
+- Inner component: React Query data fetching + view-model transformation + UI composition
+- Use `Stack`, `Section`, `Typography` — never raw HTML tags
+
 ## Git Conventions
 
 - **Branches**: `feat/<feature-name>`, `fix/<bug-name>`, `refactor/<area>`
