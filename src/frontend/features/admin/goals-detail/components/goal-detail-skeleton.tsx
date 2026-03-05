@@ -1,5 +1,5 @@
 import { Skeleton } from '@/frontend/components/ui/skeleton'
-import { Section, Stack } from '@/frontend/components/ui/layout'
+import { Section, Stack, Divider } from '@/frontend/components/ui/layout'
 import { Card, CardContent } from '@/frontend/components/ui/card'
 
 export function GoalDetailSkeleton() {
@@ -8,16 +8,16 @@ export function GoalDetailSkeleton() {
 
             {/* Hero — mirrors: div.flex-col.items-center.gap-2 > h2 text-4xl + div.flex-col.items-center.gap-1 */}
             <Section className="py-6 px-6 text-center mb-6">
-                <div className="flex flex-col items-center gap-2">
+                <Stack direction="vertical" className="items-center gap-2">
                     <Skeleton className="h-10 w-52" />
-                    <div className="flex flex-col items-center gap-1">
+                    <Stack direction="vertical" className="items-center gap-1">
                         <Skeleton className="h-6 w-20" />
-                        <div className="flex items-center gap-1.5 mt-1">
+                        <Stack direction="horizontal" className="items-center gap-1.5 mt-1">
                             <Skeleton className="h-4 w-4 rounded-sm" />
                             <Skeleton className="h-5 w-28" />
-                        </div>
-                    </div>
-                </div>
+                        </Stack>
+                    </Stack>
+                </Stack>
             </Section>
 
             {/* Summary Card — mirrors: Card > CardContent p-5 > Stack gap="md" */}
@@ -39,13 +39,13 @@ export function GoalDetailSkeleton() {
                                 {/* Current value: body-sm pt-1 left + body text-lg + caption right */}
                                 <Stack direction="horizontal" className="justify-between items-start">
                                     <Skeleton className="h-5 w-28 mt-1" />
-                                    <div className="flex flex-col items-end gap-1">
+                                    <Stack direction="vertical" className="items-end gap-1">
                                         <Skeleton className="h-7 w-36" />
                                         <Skeleton className="h-4 w-24" />
-                                    </div>
+                                    </Stack>
                                 </Stack>
 
-                                <div className="h-px bg-border w-full mt-2" />
+                                <Divider className="mt-2" />
 
                                 {/* Target amount: body-sm + body */}
                                 <Stack direction="horizontal" className="justify-between items-center">
@@ -99,10 +99,10 @@ export function GoalDetailSkeleton() {
                                                 </td>
                                                 {/* Right: body-sm h-5 + gap-1 + caption h-4 */}
                                                 <td className="py-3 px-2">
-                                                    <div className="flex flex-col items-end gap-1">
+                                                    <Stack direction="vertical" className="items-end gap-1">
                                                         <Skeleton className="h-5 w-24" />
                                                         <Skeleton className="h-4 w-16" />
-                                                    </div>
+                                                    </Stack>
                                                 </td>
                                             </tr>
                                         ))}
@@ -113,9 +113,9 @@ export function GoalDetailSkeleton() {
                                                 <Skeleton className="h-5 w-16" />
                                             </td>
                                             <td className="py-3 px-2">
-                                                <div className="flex justify-end">
+                                                <Stack direction="horizontal" className="justify-end">
                                                     <Skeleton className="h-5 w-28" />
-                                                </div>
+                                                </Stack>
                                             </td>
                                         </tr>
                                     </tfoot>

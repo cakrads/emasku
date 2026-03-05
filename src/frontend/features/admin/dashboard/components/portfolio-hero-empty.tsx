@@ -15,7 +15,7 @@ export default function PortfolioHeroEmpty() {
       <Stack gap="xs">
         <Typography variant="h4" className="mb-2">{t('dashboard.portfolioValue')}</Typography>
 
-        <div className="flex items-center gap-3">
+        <Stack direction="horizontal" gap="sm" className="items-center">
           <div className="w-12 h-12 rounded-full bg-accent-gold/10 flex items-center justify-center">
             <Coins className="w-6 h-6 text-accent-gold" />
           </div>
@@ -27,7 +27,7 @@ export default function PortfolioHeroEmpty() {
               {t('dashboard.emptyPortfolioDesc')}
             </Typography>
           </Stack>
-        </div>
+        </Stack>
       </Stack>
 
       <Stack direction="horizontal" gap="md" className="items-center flex-wrap">

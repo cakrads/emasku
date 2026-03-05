@@ -15,7 +15,7 @@ export default function BrandBreakdownEmpty() {
       </Stack>
 
       <ScrollArea>
-        <div className="flex gap-4 pb-2">
+        <Stack direction="horizontal" gap="md" className="pb-2">
           {/* Placeholder Card */}
           <div className="shrink-0 w-[280px] bg-(--surface-elevated) border border-dashed border-(--border) rounded-xl p-6 flex flex-col items-center justify-center text-center gap-3 min-h-[180px]">
             <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center">
@@ -26,7 +26,7 @@ export default function BrandBreakdownEmpty() {
             </Typography>
           </div>
           <div className="w-2 shrink-0" />
-        </div>
+        </Stack>
       </ScrollArea>
     </Stack>
   )

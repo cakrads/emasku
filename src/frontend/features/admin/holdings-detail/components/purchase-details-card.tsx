@@ -1,5 +1,5 @@
 import { Card, CardContent } from '@/frontend/components/ui/card'
-import { Stack } from '@/frontend/components/ui/layout'
+import { Stack, Divider } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import Link from 'next/link'
 import { ROUTES } from '@/frontend/config/routes'
@@ -55,7 +55,7 @@ export function PurchaseDetailsCard({ holding, isSold, t }: PurchaseDetailsCardP
                             </Stack>
                         )}
 
-                        <div className="h-px bg-border w-full" />
+                        <Divider />
 
                         <Stack direction="horizontal" className="justify-between items-center">
                             <Typography variant="body-sm">{t('holdingDetail.purchaseDetails.totalBuyValue')}</Typography>

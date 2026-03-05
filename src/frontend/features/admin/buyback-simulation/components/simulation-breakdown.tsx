@@ -1,6 +1,9 @@
+import Decimal from 'decimal.js'
 import { HoldingItemVM } from '@/frontend/view-model/portfolio.vm'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { Card, CardHeader, CardTitle, CardContent } from '@/frontend/components/ui/card'
+import { Stack } from '@/frontend/components/ui/layout'
+import { Typography } from '@/frontend/components/ui/typography'
 import { cn } from '@/frontend/utils/cn'
 
 interface SimulationBreakdownProps {
@@ -30,9 +33,9 @@ export function SimulationBreakdown({ selectedItems, quantityOverrides, priceMap
   if (selectedItems.size === 0) {
     return (
       <Card className="border-dashed">
-        <div className="p-12 text-center text-muted-foreground">
+        <Typography as="p" variant="body-sm" className="p-12 text-center text-muted-foreground">
           {t('buybackSimulation.breakdown.noSelection')}
-        </div>
+        </Typography>
       </Card>
     )
   }
@@ -62,13 +65,16 @@ export function SimulationBreakdown({ selectedItems, quantityOverrides, priceMap
                 const qtyToSell = quantityOverrides[item.id] ?? item.quantity
                 if (qtyToSell <= 0) return null
 
-                // Calculations
+                // Calculations (using decimal.js for financial precision)
                 const priceKey = `${item.brand}:${item.rawWeight}`
                 const buybackPrice = priceMap.get(priceKey) || 0
-                const buybackValue = buybackPrice * qtyToSell
-                const costBasis = item.rawAvgBuyPrice * qtyToSell
-                const pnl = buybackValue - costBasis
-                const pnlPct = costBasis > 0 ? (pnl / costBasis) * 100 : 0
+                const buybackValueD = new Decimal(buybackPrice).mul(qtyToSell)
+                const costBasisD = new Decimal(item.rawAvgBuyPrice).mul(qtyToSell)
+                const pnlD = buybackValueD.minus(costBasisD)
+                const buybackValue = buybackValueD.toNumber()
+                const costBasis = costBasisD.toNumber()
+                const pnl = pnlD.toNumber()
+                const pnlPct = costBasisD.gt(0) ? pnlD.div(costBasisD).mul(100).toNumber() : 0
 
                 const pnlColor = pnl > 0
                   ? 'text-green-600 dark:text-green-400'
@@ -79,8 +85,8 @@ export function SimulationBreakdown({ selectedItems, quantityOverrides, priceMap
                 return (
                   <tr key={item.id} className="hover:bg-muted/30">
                     <td className="px-4 py-3">
-                      <div className="font-medium text-foreground">{item.brandName}</div>
-                      <div className="text-muted-foreground text-xs">{item.weight}</div>
+                      <Typography as="div" variant="body-sm" className="font-medium text-foreground">{item.brandName}</Typography>
+                      <Typography as="div" variant="caption" className="text-muted-foreground">{item.weight}</Typography>
                     </td>
                     <td className="px-4 py-3 text-right">
                       {qtyToSell} <span className="text-muted-foreground text-xs">pcs</span>
@@ -95,12 +101,12 @@ export function SimulationBreakdown({ selectedItems, quantityOverrides, priceMap
                       {formatIDR(costBasis)}
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <div className={cn("font-medium", pnlColor)}>
+                      <Typography as="div" variant="body-sm" className={cn("font-medium", pnlColor)}>
                         {pnl > 0 ? '+' : ''}{formatIDR(pnl)}
-                      </div>
-                      <div className={cn("text-xs", pnlColor)}>
+                      </Typography>
+                      <Typography as="div" variant="caption" className={cn(pnlColor)}>
                         {formatPct(pnlPct)}
-                      </div>
+                      </Typography>
                     </td>
                   </tr>
                 )

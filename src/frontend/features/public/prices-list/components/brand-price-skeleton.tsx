@@ -1,19 +1,20 @@
 /**
  * Brand Price Skeleton Section
- * 
+ *
  * Loading skeleton for brand price tables.
  * Matches the structure of the actual BrandPriceSection component.
  */
 
 import { Skeleton } from '@/frontend/components/ui/skeleton'
+import { Stack } from '@/frontend/components/ui/layout'
 
 export function BrandPriceSkeletonSection() {
   return (
-    <div className="mb-8 last:mb-0">
+    <Stack direction="vertical" gap="none" className="mb-8 last:mb-0">
       {/* Brand Header Skeleton */}
-      <div className="bg-accent-gold/10 border border-accent-gold/20 px-6 py-3 rounded-t-lg">
+      <Stack direction="horizontal" className="bg-accent-gold/10 border border-accent-gold/20 px-6 py-3 rounded-t-lg items-center justify-center">
         <Skeleton className="h-7 w-48 mx-auto" />
-      </div>
+      </Stack>
 
       {/* Price Table Skeleton */}
       <div className="border border-border border-t-0 rounded-b-lg overflow-x-auto">
@@ -58,6 +59,6 @@ export function BrandPriceSkeletonSection() {
           </tbody>
         </table>
       </div>
-    </div>
+    </Stack>
   )
 }

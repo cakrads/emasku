@@ -1,6 +1,6 @@
 import { Calendar, Clock, TrendingUp, TrendingDown } from 'lucide-react'
 import { Card, CardContent } from '@/frontend/components/ui/card'
-import { Stack } from '@/frontend/components/ui/layout'
+import { Stack, Divider } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { cn } from '@/frontend/utils/cn'
 import { HoldingItemVM } from '@/frontend/view-model/portfolio.vm'
@@ -39,7 +39,7 @@ export function SellInfoCard({ holding, t }: SellInfoCardProps) {
                             </Stack>
                         )}
 
-                        <div className="h-px bg-border w-full" />
+                        <Divider />
 
                         <Stack direction="horizontal" className="justify-between items-center">
                             <Typography variant="body-sm" className="font-medium">{t('holdingDetail.sellInfo.realizedPnL')}</Typography>

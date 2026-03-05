@@ -82,7 +82,7 @@ function GoalsListContent() {
 
     if (data.goals.length === 0) {
         return (
-            <div className="py-16 text-center border border-dashed border-border rounded-xl bg-surface/50">
+            <Stack direction="vertical" className="py-16 text-center border border-dashed border-border rounded-xl bg-surface/50">
                 <Target className="mx-auto h-12 w-12 text-muted-foreground/50 mb-4" />
                 <Typography variant="h3" className="mb-2">{t('goals.list.empty')}</Typography>
                 <Typography variant="body" className="text-muted-foreground mb-6">
@@ -94,7 +94,7 @@ function GoalsListContent() {
                         {t('goals.list.add')}
                     </Button>
                 </Link>
-            </div>
+            </Stack>
         )
     }
 
@@ -128,7 +128,7 @@ function GoalsListContent() {
     return (
         <Stack gap="sm">
             {/* Filter Button */}
-            <div className="flex items-center gap-2">
+            <Stack direction="horizontal" className="items-center gap-2">
                 <Button
                     variant="outline"
                     size="sm"
@@ -151,7 +151,7 @@ function GoalsListContent() {
                         {filters.find(f => f.key === activeFilter)?.label}
                     </span>
                 )}
-            </div>
+            </Stack>
 
             {/* Goals Table */}
             <Section>
@@ -298,15 +298,15 @@ function GoalsListContent() {
                         </table>
                     </div>
                 ) : (
-                    <div className="py-16 text-center border border-dashed border-border rounded-xl bg-surface/50">
+                    <Stack direction="vertical" className="py-16 text-center border border-dashed border-border rounded-xl bg-surface/50">
                         <Typography variant="body" className="text-muted-foreground uppercase tracking-widest text-xs font-semibold">
                             {t('goals.list.empty')}
                         </Typography>
-                    </div>
+                    </Stack>
                 )}
             </Section>
 
-            <div className="h-8" />
+            <Stack className="h-8" />
 
             <GoalFilterModal
                 open={isFilterOpen}

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import Decimal from 'decimal.js'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/frontend/components/ui/dialog'
 import { Button } from '@/frontend/components/ui/button'
 import { Input } from '@/frontend/components/ui/input'
@@ -36,8 +37,8 @@ export function BulkSellModal({
 
     // Calculate totals and prepare payload preview
     const summary = useMemo(() => {
-        let totalBuyPrice = 0
-        let totalSellPrice = 0
+        let totalBuyPrice = new Decimal(0)
+        let totalSellPrice = new Decimal(0)
         let partialSellCount = 0
         const itemsPayload: { id: string; sellPrice: number }[] = []
 
@@ -53,29 +54,30 @@ export function BulkSellModal({
             const unitBuybackPrice = priceMap.get(priceKey) || 0
 
             // We assume the user wants to sell the HOLDING at the current unit buyback price * TOTAL quantity
-            const estimatedTotalSellPrice = unitBuybackPrice * holding.quantity
+            const estimatedTotalSellPrice = new Decimal(unitBuybackPrice).mul(holding.quantity)
 
-            totalBuyPrice += holding.rawAvgBuyPrice * holding.quantity // Cost basis for full holding
-            totalSellPrice += estimatedTotalSellPrice
+            totalBuyPrice = totalBuyPrice.plus(new Decimal(holding.rawAvgBuyPrice).mul(holding.quantity))
+            totalSellPrice = totalSellPrice.plus(estimatedTotalSellPrice)
 
             itemsPayload.push({
                 id: holding.id,
-                sellPrice: estimatedTotalSellPrice
+                sellPrice: estimatedTotalSellPrice.toNumber()
             })
         })
 
-        const realizedPnL = totalSellPrice - totalBuyPrice
-        const realizedPnLPercentage = totalBuyPrice > 0 ? (realizedPnL / totalBuyPrice) * 100 : 0
-        const color = realizedPnL > 0 ? 'positive' : realizedPnL < 0 ? 'negative' : 'neutral'
+        const realizedPnL = totalSellPrice.minus(totalBuyPrice)
+        const realizedPnLPercentage = totalBuyPrice.gt(0) ? realizedPnL.div(totalBuyPrice).mul(100).toDP(2).toNumber() : 0
+        const realizedPnLNum = realizedPnL.toNumber()
+        const color = realizedPnLNum > 0 ? 'positive' : realizedPnLNum < 0 ? 'negative' : 'neutral'
 
         return {
-            totalSellPrice,
-            totalBuyPrice,
-            realizedPnL,
-            realizedPnLPercentage: Number(realizedPnLPercentage.toFixed(2)),
+            totalSellPrice: totalSellPrice.toNumber(),
+            totalBuyPrice: totalBuyPrice.toNumber(),
+            realizedPnL: realizedPnLNum,
+            realizedPnLPercentage,
             color,
-            formattedPnL: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(Math.abs(realizedPnL)),
-            formattedSellPrice: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalSellPrice),
+            formattedPnL: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(Math.abs(realizedPnLNum)),
+            formattedSellPrice: new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(totalSellPrice.toNumber()),
             itemsPayload,
             partialSellCount
         }
@@ -112,26 +114,26 @@ export function BulkSellModal({
                 <Stack gap="md" className="py-2">
                     {/* Partial Sell Warning */}
                     {summary.partialSellCount > 0 && (
-                        <div className="flex items-start gap-2 rounded-lg p-3 bg-orange-50 border border-orange-200 dark:bg-orange-950/20 dark:border-orange-900/50">
+                        <Stack direction="horizontal" gap="xs" className="items-start rounded-lg p-3 bg-orange-50 border border-orange-200 dark:bg-orange-950/20 dark:border-orange-900/50">
                             <AlertTriangle className="w-5 h-5 text-orange-600 dark:text-orange-400 mt-0.5 shrink-0" />
                             <Typography variant="body-sm" className="text-orange-800 dark:text-orange-200">
                                 {t('buybackSimulation.bulkSellModal.partialWarning', { count: summary.partialSellCount })}
                             </Typography>
-                        </div>
+                        </Stack>
                     )}
 
                     {/* Warning for loss */}
                     {summary.realizedPnL < 0 && (
-                        <div className="flex items-start gap-2 rounded-lg p-3 bg-red-50 border border-red-200 dark:bg-red-950/20 dark:border-red-900/50">
+                        <Stack direction="horizontal" gap="xs" className="items-start rounded-lg p-3 bg-red-50 border border-red-200 dark:bg-red-950/20 dark:border-red-900/50">
                             <TrendingDown className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
                             <Typography variant="body-sm" className="text-red-800 dark:text-red-200">
                                 {t('holdingDetail.sellModal.lossWarning')}
                             </Typography>
-                        </div>
+                        </Stack>
                     )}
 
                     {/* Summary Box */}
-                    <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+                    <Stack gap="sm" className="bg-muted/50 rounded-lg p-4">
                         <Stack gap="sm">
                             <Stack direction="horizontal" className="justify-between">
                                 <Typography variant="body-sm" className="text-muted-foreground">{t('buybackSimulation.bulkSellModal.totalBuyPrice')}</Typography>
@@ -148,7 +150,7 @@ export function BulkSellModal({
 
                             <div className="h-px bg-border w-full" />
 
-                            <Stack direction="horizontal" className="justify-between items-center">
+                            <Stack direction="horizontal" className="justify-between items-center" gap="none">
                                 <Typography variant="body-sm" className="font-medium">{t('holdingDetail.sellInfo.realizedPnL')}</Typography>
                                 <Stack direction="horizontal" gap="xs" className="items-center">
                                     {summary.color === 'positive' && <TrendingUp className="w-4 h-4 text-positive" />}
@@ -166,7 +168,7 @@ export function BulkSellModal({
                                 </Stack>
                             </Stack>
                         </Stack>
-                    </div>
+                    </Stack>
 
                     {/* Inputs */}
                     <Stack gap="xs">

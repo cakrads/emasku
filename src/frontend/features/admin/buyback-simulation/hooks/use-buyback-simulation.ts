@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react'
+import Decimal from 'decimal.js'
 import { HoldingItemVM } from '@/frontend/view-model/portfolio.vm'
 import { useQuery } from '@tanstack/react-query'
 import { fetchBuybackPrices } from '@/frontend/services/prices/prices.api'
@@ -128,34 +129,33 @@ export function useBuybackSimulation(availableItems: HoldingItemVM[] = []) {
 
   // Computed Summary
   const summary = useMemo<SimulationSummary>(() => {
-    let totalBuybackValue = 0
-    let totalCostBasis = 0
-    let totalPnL = 0
+    let totalBuybackValue = new Decimal(0)
+    let totalCostBasis = new Decimal(0)
 
     selectedItems.forEach(item => {
       const qtyToSell = quantityOverrides[item.id] ?? item.quantity
       if (qtyToSell <= 0) return
 
       // Cost Basis (Unit Price * Qty)
-      totalCostBasis += (item.rawAvgBuyPrice * qtyToSell)
+      totalCostBasis = totalCostBasis.plus(new Decimal(item.rawAvgBuyPrice).mul(qtyToSell))
 
       // Buyback Value
       const priceKey = `${item.brand}:${item.rawWeight}`
       const price = priceMap.get(priceKey)
 
       if (price) {
-        totalBuybackValue += (price * qtyToSell)
+        totalBuybackValue = totalBuybackValue.plus(new Decimal(price).mul(qtyToSell))
       }
     })
 
-    totalPnL = totalBuybackValue - totalCostBasis
-    const pnlPercentage = totalCostBasis > 0 ? (totalPnL / totalCostBasis) * 100 : 0
+    const totalPnL = totalBuybackValue.minus(totalCostBasis)
+    const pnlPercentage = totalCostBasis.gt(0) ? totalPnL.div(totalCostBasis).mul(100).toNumber() : 0
 
     return {
       selectedCount: selectedIds.size,
-      totalBuybackValue,
-      totalCostBasis,
-      totalPnL,
+      totalBuybackValue: totalBuybackValue.toNumber(),
+      totalCostBasis: totalCostBasis.toNumber(),
+      totalPnL: totalPnL.toNumber(),
       pnlPercentage
     }
   }, [selectedItems, quantityOverrides, priceMap])

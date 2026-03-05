@@ -1,6 +1,7 @@
 'use client'
 import Link from 'next/link'
 
+import { Stack } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { TrendingUp, Info } from 'lucide-react'
 import { cn } from '@/frontend/utils/cn'
@@ -72,13 +73,13 @@ export default function BrandCard({
       href={ROUTES.BRAND_DETAIL(brandCode)}
       className="block outline-none group"
     >
-      <div className="shrink-0 w-[280px] bg-surface-elevated border border-border rounded-xl p-4 shadow-sm transition-all group-hover:shadow-md group-hover:border-accent-gold/50 cursor-pointer relative overflow-hidden flex flex-col justify-between">
+      <Stack className="shrink-0 w-[280px] bg-surface-elevated border border-border rounded-xl p-4 shadow-sm transition-all group-hover:shadow-md group-hover:border-accent-gold/50 cursor-pointer relative overflow-hidden justify-between">
         {/* Subtle background glow on hover */}
         <div className="absolute inset-0 bg-accent-gold/0 group-hover:bg-accent-gold/5 transition-colors duration-300" />
 
         {/* Header: Brand Name + Weight */}
-        <div className="flex justify-between items-start relative z-10 mb-2">
-          <div className="flex items-center gap-1.5">
+        <Stack direction="horizontal" gap="sm" className="justify-between items-start relative z-10 mb-2">
+          <Stack direction="horizontal" gap="xs" className="items-center">
             <Typography as="h3" variant="h3" className="group-hover:text-accent-gold transition-colors">
               {brandName}
             </Typography>
@@ -89,21 +90,21 @@ export default function BrandCard({
                     <Info className="w-3.5 h-3.5 text-muted-foreground" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p className="text-xs">{tooltipText}</p>
+                    <Typography variant="caption">{tooltipText}</Typography>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             )}
-          </div>
+          </Stack>
           <Typography variant="caption" className="text-muted-foreground font-medium text-xs">
             {isVisible ? formatWeight(totalGrams) : '••••'}
           </Typography>
-        </div>
+        </Stack>
 
         {/* Bottom Section: Value & Chip */}
-        <div className="relative z-10 flex flex-col gap-1">
+        <Stack gap="xs" className="relative z-10">
           {/* Main Value */}
-          <div>
+          <Stack gap="xs">
             <Typography variant="caption" className="text-muted-foreground mb-0.5 block text-[10px] uppercase tracking-wider">
               {t('dashboard.brandCard.estimatedSellValue')}
             </Typography>
@@ -112,18 +113,20 @@ export default function BrandCard({
                 ? t('dashboard.brandCard.priceNotAvailable')
                 : isVisible ? formatCurrency(currentValue) : '••••••••'}
             </Typography>
-          </div>
+          </Stack>
 
           {/* Daily Change - Compact Chip */}
           {!isUnvalued && deltaValue !== 0 && (
-            <div
+            <Stack
+              direction="horizontal"
+              gap="xs"
               className={cn(
-                "flex items-center gap-1.5 w-fit px-2 py-1 rounded-md",
+                "items-center w-fit px-2 py-1 rounded-md",
                 isPositive ? "bg-emerald-500/10" : "bg-red-500/10"
               )}
             >
               <TrendingUp className={cn("w-3.5 h-3.5", !isPositive && "rotate-180 text-red-600", isPositive && "text-emerald-600")} />
-              <div className="flex items-baseline gap-1">
+              <Stack direction="horizontal" gap="xs" className="items-baseline">
                 <Typography
                   variant="caption"
                   className={cn("font-semibold text-xs", isPositive ? "text-emerald-700 dark:text-emerald-400" : "text-red-700 dark:text-red-400")}
@@ -136,8 +139,8 @@ export default function BrandCard({
                 >
                   {isVisible ? `(${deltaPercentage >= 0 ? '+' : ''}${deltaPercentage.toFixed(2)}%)` : '(****%)'}
                 </Typography>
-              </div>
-            </div>
+              </Stack>
+            </Stack>
           )}
 
           {/* Empty state for unvalued */}
@@ -146,8 +149,8 @@ export default function BrandCard({
               {t('dashboard.valuationTooltip.none')}
             </Typography>
           )}
-        </div>
-      </div>
+        </Stack>
+      </Stack>
     </Link>
   )
 }

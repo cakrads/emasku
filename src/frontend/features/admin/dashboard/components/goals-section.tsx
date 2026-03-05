@@ -43,7 +43,7 @@ export default function GoalsSection() {
     if (goals.length === 0) {
         return (
             <Section title={t('goals.title')}>
-                <div className="rounded-xl border border-dashed border-border bg-surface/50 p-6 text-center">
+                <Stack className="rounded-xl border border-dashed border-border bg-surface/50 p-6 text-center items-center">
                     <Target className="mx-auto h-10 w-10 text-muted-foreground/50 mb-3" />
                     <Typography variant="body" className="text-muted-foreground mb-4">
                         {t('goals.list.emptyDesc')}
@@ -51,7 +51,7 @@ export default function GoalsSection() {
                     <Link href={ROUTES.ADD_GOAL} className="text-sm font-medium text-primary hover:underline">
                         {t('goals.list.add')} →
                     </Link>
-                </div>
+                </Stack>
             </Section>
         )
     }
@@ -61,19 +61,19 @@ export default function GoalsSection() {
     const displayedGoals = goals.slice(0, 4)
 
     return (
-        <div className="flex flex-col gap-4">
-            <div className="flex items-center justify-between">
-                <div className="flex items-baseline gap-3">
+        <Stack gap="md">
+            <Stack direction="horizontal" gap="md" className="items-center justify-between">
+                <Stack direction="horizontal" gap="sm" className="items-baseline">
                     <Typography variant="h3">{t('goals.title')}</Typography>
-                    <div className="hidden sm:flex items-baseline gap-2 text-sm text-muted-foreground">
+                    <Stack direction="horizontal" gap="sm" className="hidden sm:flex items-baseline text-sm text-muted-foreground">
                         <span className="w-1 h-1 rounded-full bg-border" />
                         <span>{t('dashboard.goals.activeCount', { count: activeGoalsCount })}</span>
-                    </div>
-                </div>
+                    </Stack>
+                </Stack>
                 <Link href={ROUTES.GOALS_LIST} className="text-sm text-accent-gold hover:text-accent-gold/80 transition-colors flex items-center gap-1">
                     {t('common.viewAll') || 'View All'} <ArrowRight className="h-4 w-4" />
                 </Link>
-            </div>
+            </Stack>
 
             {/* Mobile-only summary line */}
 
@@ -88,74 +88,74 @@ export default function GoalsSection() {
                             href={ROUTES.GOAL_DETAIL(goal.id)}
                             className="group block rounded-xl border border-border bg-surface p-4 hover:border-accent-gold/50 hover:bg-accent-gold/5 hover:shadow-sm transition-all"
                         >
-                            <div className="mb-3">
+                            <Stack className="mb-3">
                                 <Typography variant="body" className="font-semibold truncate group-hover:text-accent-gold transition-colors">
                                     {goal.name}
                                 </Typography>
                                 {/* goal.description && <Typography variant="caption" className="text-muted-foreground line-clamp-1">{goal.description}</Typography> */}
-                            </div>
+                            </Stack>
 
                             {goal.targetAmount != null && goal.targetAmount > 0 ? (
-                                <div>
-                                    <div className="flex justify-between text-xs text-muted-foreground mb-1.5">
+                                <Stack gap="xs">
+                                    <Stack direction="horizontal" gap="xs" className="justify-between text-xs text-muted-foreground mb-1.5">
                                         <span className="group-hover:text-accent-gold/80 transition-colors">{formatCurrency(goal.totalCurrentValue, locale)}</span>
                                         <span className="group-hover:text-accent-gold/80 transition-colors">{progress.toFixed(0)}%</span>
-                                    </div>
+                                    </Stack>
                                     <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                                         <div
                                             className="h-full rounded-full bg-accent-gold transition-all"
                                             style={{ width: `${Math.min(progress, 100)}%` }}
                                         />
                                     </div>
-                                </div>
+                                </Stack>
                             ) : (
-                                <div className="mt-4">
+                                <Stack className="mt-4">
                                     <Typography variant="caption" className="text-muted-foreground group-hover:text-accent-gold/80 transition-colors">
                                         {formatCurrency(goal.totalCurrentValue, locale)} collected
                                     </Typography>
-                                </div>
+                                </Stack>
                             )}
                         </Link>
                     )
                 })}
             </div>
-        </div>
+        </Stack>
     )
 }
 
 function GoalsSectionSkeleton() {
     return (
-        <div className="flex flex-col gap-4">
+        <Stack gap="md">
             {/* Header Skeleton */}
-            <div className="flex items-center justify-between">
-                <div className="flex items-baseline gap-3">
+            <Stack direction="horizontal" gap="md" className="items-center justify-between">
+                <Stack direction="horizontal" gap="sm" className="items-baseline">
                     <Skeleton className="h-8 w-24" />
-                    <div className="hidden sm:flex items-baseline gap-2">
+                    <Stack direction="horizontal" gap="sm" className="hidden sm:flex items-baseline">
                         <Skeleton className="w-1 h-1 rounded-full opacity-50" />
                         <Skeleton className="h-4 w-24 opacity-60" />
-                    </div>
-                </div>
+                    </Stack>
+                </Stack>
                 <Skeleton className="h-5 w-20 opacity-80" />
-            </div>
+            </Stack>
 
             {/* Cards Grid Skeleton */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {[1, 2, 3, 4].map((i) => (
-                    <div
+                    <Stack
                         key={i}
                         className="rounded-xl border border-border bg-surface p-4 min-h-[120px]"
                     >
                         <Skeleton className="h-5 w-3/4 mb-4" />
-                        <div className="space-y-2 mt-4">
-                            <div className="flex justify-between">
+                        <Stack gap="xs" className="mt-4">
+                            <Stack direction="horizontal" gap="md" className="justify-between">
                                 <Skeleton className="h-3 w-20 opacity-70" />
                                 <Skeleton className="h-3 w-8 opacity-70" />
-                            </div>
+                            </Stack>
                             <Skeleton className="h-1.5 w-full rounded-full opacity-50" />
-                        </div>
-                    </div>
+                        </Stack>
+                    </Stack>
                 ))}
             </div>
-        </div>
+        </Stack>
     )
 }

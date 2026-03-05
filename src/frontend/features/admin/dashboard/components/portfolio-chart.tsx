@@ -68,8 +68,9 @@ export default function PortfolioChart({ data }: PortfolioChartProps) {
         </Stack>
 
         <Card className="p-4 bg-(--surface-elevated) border-(--border) shadow-(--shadow-sm)">
-          <div
-            className="w-full flex flex-col items-center justify-center text-center gap-3"
+          <Stack
+            gap="sm"
+            className="w-full items-center justify-center text-center"
             style={{ height: '200px' }}
           >
             <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center">
@@ -78,7 +79,7 @@ export default function PortfolioChart({ data }: PortfolioChartProps) {
             <Typography variant="body-sm" className="text-muted-foreground max-w-xs">
               {t('dashboard.chartEmpty')}
             </Typography>
-          </div>
+          </Stack>
         </Card>
       </Stack>
     )

@@ -10,9 +10,8 @@ import {
   signOut as serviceSignOut,
   getSession as serviceGetSession,
   onAuthStateChange as serviceOnAuthStateChange,
-  type AuthSession,
-  type AuthResult,
 } from '@/applications/shared/auth'
+import type { AuthSession, AuthResult } from '@/shared/contracts/auth.contract'
 
 /**
  * Login with Google OAuth

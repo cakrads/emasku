@@ -40,8 +40,8 @@ export function GoalSelector({ selectedGoalId, onSelect, label, className }: Goa
                 {label || t('goals.title')} <span className="text-xs normal-case font-normal text-muted-foreground">({t('goals.form.optional')})</span>
             </Label>
 
-            <div className="flex gap-2">
-                <div className="relative flex-1">
+            <Stack direction="horizontal" gap="sm">
+                <Stack className="relative flex-1">
                     <select
                         value={selectedGoalId || ''}
                         onChange={(e) => onSelect(e.target.value || null)}
@@ -61,7 +61,7 @@ export function GoalSelector({ selectedGoalId, onSelect, label, className }: Goa
                     <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-muted-foreground">
                         <ChevronDown className="h-5 w-5" />
                     </div>
-                </div>
+                </Stack>
 
                 <Button
                     type="button"
@@ -72,7 +72,7 @@ export function GoalSelector({ selectedGoalId, onSelect, label, className }: Goa
                 >
                     <Plus className="h-6 w-6" />
                 </Button>
-            </div>
+            </Stack>
 
             <GoalCreateDialog
                 open={isCreateOpen}

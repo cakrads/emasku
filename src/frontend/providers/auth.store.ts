@@ -6,7 +6,7 @@
  */
 
 import { create } from 'zustand'
-import type { AuthUser, AuthSession, AuthStatus, AuthError } from '@/applications/shared/auth'
+import type { AuthUser, AuthSession, AuthStatus, AuthError } from '@/shared/contracts/auth.contract'
 
 interface AuthStoreState {
   status: AuthStatus

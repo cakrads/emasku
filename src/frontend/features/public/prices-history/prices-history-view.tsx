@@ -10,6 +10,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Typography } from '@/frontend/components/ui/typography'
+import { Stack } from '@/frontend/components/ui/layout'
 import { PriceHistoryChart } from '@/frontend/features/public/prices-history/components/price-history-chart'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
 import { ROUTES } from '@/frontend/config/routes'
@@ -34,7 +35,7 @@ function RangeSelector({ current, onChange, language }: { current: TimeRange, on
   ]
 
   return (
-    <div className="flex p-1 bg-muted/50 rounded-lg items-center gap-1 w-fit mb-6 overflow-x-auto no-scrollbar">
+    <div className="flex p-1 bg-muted/50 rounded-lg items-center gap-1 w-fit mb-6 overflow-x-auto no-scrollbar" role="group">
       {ranges.map((r) => (
         <button
           key={r.value}
@@ -101,9 +102,9 @@ function PricesHistoryContent() {
 
   if (isLoading || isTransitioning) {
     return (
-      <div className="flex flex-col">
+      <Stack direction="vertical">
         <PricesHistorySkeleton />
-      </div>
+      </Stack>
     )
   }
 
@@ -137,19 +138,19 @@ function PricesHistoryContent() {
   }
 
   return (
-    <div className="flex flex-col">
+    <Stack direction="vertical" gap="none">
       {/* Current Price Header */}
-      <div className="mb-8">
-        <div className="flex flex-col gap-1">
+      <Stack direction="vertical" className="mb-8">
+        <Stack direction="vertical" gap="xs">
           <Typography variant="caption" className="text-muted-foreground font-medium uppercase tracking-wider">
             {t('priceHistory.description')}
           </Typography>
 
-          <div className="flex items-baseline gap-2">
+          <Stack direction="horizontal" gap="sm" className="items-baseline">
             <Typography variant="h1" className="text-4xl md:text-5xl font-bold tracking-tighter text-foreground">
               {currentPrice}
             </Typography>
-          </div>
+          </Stack>
 
           {/* Price Context */}
           {priceContext && (
@@ -158,35 +159,35 @@ function PricesHistoryContent() {
             </Typography>
           )}
 
-          <div className="flex items-center gap-2 mt-4">
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-accent-gold/10 text-accent-gold border border-accent-gold/20">
-              <div className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
-              <span className="text-xs font-medium">
+          <Stack direction="horizontal" gap="sm" className="items-center mt-4">
+            <Stack direction="horizontal" gap="xs" className="items-center px-3 py-1 rounded-full bg-accent-gold/10 text-accent-gold border border-accent-gold/20">
+              <Stack direction="horizontal" className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
+              <Typography variant="caption" className="text-xs font-medium">
                 {language === 'id' ? 'Harga pasar diperbarui' : 'Market price updated'}: {lastUpdated}
-              </span>
+              </Typography>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger>
                     <Info className="w-3 h-3 opacity-70 hover:opacity-100 cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent side="right" className="max-w-[200px]">
-                    <p className="text-xs">
+                    <Typography variant="caption">
                       {language === 'id'
                         ? 'Waktu update resmi dari sumber harga, bukan waktu refresh halaman'
                         : 'Official update time from price source, not page refresh time'}
-                    </p>
+                    </Typography>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-            </div>
-          </div>
-        </div>
-      </div>
+            </Stack>
+          </Stack>
+        </Stack>
+      </Stack>
 
       {/* Range Selector */}
       <RangeSelector current={range} onChange={setRange} language={language} />
 
-      {/* Chart Section */}
+      {/* Chart Section - overflow-hidden is an exception */}
       <div className="bg-card/50 backdrop-blur-sm rounded-2xl border border-border p-2 md:p-6 mb-8 overflow-hidden">
         <PriceHistoryChart
           data={chartData}
@@ -202,12 +203,12 @@ function PricesHistoryContent() {
       </div>
 
       {/* Footer Note */}
-      <div className="text-center px-4">
-        <Typography variant="body-sm" className="text-muted-foreground leading-relaxed">
+      <Stack direction="horizontal" className="justify-center px-4">
+        <Typography variant="body-sm" className="text-muted-foreground leading-relaxed text-center">
           {t('priceHistory.referenceNote')}
         </Typography>
-      </div>
-    </div>
+      </Stack>
+    </Stack>
   )
 }
 

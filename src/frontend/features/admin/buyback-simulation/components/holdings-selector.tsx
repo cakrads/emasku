@@ -3,6 +3,8 @@ import { useLanguage } from '@/frontend/hooks/use-language'
 import { Checkbox } from '@/frontend/components/ui/checkbox'
 import { Input } from '@/frontend/components/ui/input'
 import { Button } from '@/frontend/components/ui/button'
+import { Stack } from '@/frontend/components/ui/layout'
+import { Typography } from '@/frontend/components/ui/typography'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/frontend/utils/cn'
 
@@ -46,15 +48,15 @@ export function HoldingsSelector({
   }
 
   if (isLoading) {
-    return <div className="p-8 text-center text-muted-foreground">Loading...</div>
+    return <Typography as="p" variant="body-sm" className="p-8 text-center text-muted-foreground">Loading...</Typography>
   }
 
   if (holdings.length === 0) {
-    return <div className="p-8 text-center text-muted-foreground">{t('holdings.table.empty')}</div>
+    return <Typography as="p" variant="body-sm" className="p-8 text-center text-muted-foreground">{t('holdings.table.empty')}</Typography>
   }
 
   return (
-    <div className="space-y-4">
+    <Stack gap="md">
       <div className="border rounded-lg overflow-hidden bg-surface">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -111,15 +113,15 @@ export function HoldingsSelector({
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between px-2">
-        <div className="text-xs text-muted-foreground">
+      <Stack direction="horizontal" className="items-center justify-between px-2">
+        <Typography as="p" variant="caption" className="text-muted-foreground">
           {t('holdings.pagination.showing', {
             from: pagination.pageIndex * pagination.pageSize + 1,
             to: Math.min((pagination.pageIndex + 1) * pagination.pageSize, totalItems),
             total: totalItems
           })}
-        </div>
-        <div className="flex items-center gap-2">
+        </Typography>
+        <Stack direction="horizontal" gap="sm" className="items-center">
           <Button
             variant="outline"
             size="icon"
@@ -129,9 +131,9 @@ export function HoldingsSelector({
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
-          <div className="text-xs font-medium">
+          <Typography as="p" variant="caption" className="font-medium">
             {pagination.pageIndex + 1} / {pageCount}
-          </div>
+          </Typography>
           <Button
             variant="outline"
             size="icon"
@@ -141,8 +143,8 @@ export function HoldingsSelector({
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
-        </div>
-      </div>
-    </div>
+        </Stack>
+      </Stack>
+    </Stack>
   )
 }

@@ -4,6 +4,8 @@ import { Checkbox } from '@/frontend/components/ui/checkbox'
 import { Input } from '@/frontend/components/ui/input'
 import { Button } from '@/frontend/components/ui/button'
 import { Card } from '@/frontend/components/ui/card'
+import { Stack } from '@/frontend/components/ui/layout'
+import { Typography } from '@/frontend/components/ui/typography'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { cn } from '@/frontend/utils/cn'
 
@@ -47,16 +49,16 @@ export function HoldingsSelectorMobile({
   }
 
   if (isLoading) {
-    return <div className="p-8 text-center text-muted-foreground">Loading...</div>
+    return <Typography as="p" variant="body-sm" className="p-8 text-center text-muted-foreground">Loading...</Typography>
   }
 
   if (holdings.length === 0) {
-    return <div className="p-8 text-center text-muted-foreground">{t('holdings.table.empty')}</div>
+    return <Typography as="p" variant="body-sm" className="p-8 text-center text-muted-foreground">{t('holdings.table.empty')}</Typography>
   }
 
   return (
-    <div className="space-y-4">
-      <div className="space-y-3">
+    <Stack gap="md">
+      <Stack gap="sm">
         {holdings.map(item => {
           const isSelected = selectedIds.has(item.id)
           const priceKey = `${item.brand}:${item.rawWeight}`
@@ -77,47 +79,47 @@ export function HoldingsSelectorMobile({
                 }
               }}
             >
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex items-center gap-3">
+              <Stack direction="horizontal" className="items-start justify-between mb-3">
+                <Stack direction="horizontal" gap="sm" className="items-center">
                   <Checkbox
                     checked={isSelected}
                     onCheckedChange={() => onToggle(item)}
                     onClick={(e) => e.stopPropagation()}
                   />
-                  <div>
-                    <div className="font-semibold text-sm text-foreground">{item.brandName}</div>
-                    <div className="text-xs text-muted-foreground">{item.buyDate}</div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="font-medium text-sm">{item.weight}</div>
-                  <div className="text-xs text-muted-foreground">
+                  <Stack gap="xs">
+                    <Typography as="div" variant="body-sm" className="font-semibold text-foreground">{item.brandName}</Typography>
+                    <Typography as="div" variant="caption" className="text-muted-foreground">{item.buyDate}</Typography>
+                  </Stack>
+                </Stack>
+                <Stack className="text-right" gap="xs">
+                  <Typography as="div" variant="body-sm" className="font-medium">{item.weight}</Typography>
+                  <Typography as="div" variant="caption" className="text-muted-foreground">
                     Buy: {formatIDR(item.rawAvgBuyPrice)}
-                  </div>
-                </div>
-              </div>
+                  </Typography>
+                </Stack>
+              </Stack>
 
-              <div className="flex items-center justify-between p-2 bg-muted/40 rounded-md">
-                <div className="text-xs">
-                  <div className="text-muted-foreground mb-0.5">{t('buybackSimulation.table.buybackPrice')}</div>
+              <Stack direction="horizontal" className="items-center justify-between p-2 bg-muted/40 rounded-md">
+                <Stack gap="xs" className="text-xs">
+                  <Typography as="div" variant="caption" className="text-muted-foreground mb-0.5">{t('buybackSimulation.table.buybackPrice')}</Typography>
                   {buybackPrice ? (
-                    <div className="font-medium text-foreground">{formatIDR(buybackPrice)}</div>
+                    <Typography as="div" variant="body-sm" className="font-medium text-foreground">{formatIDR(buybackPrice)}</Typography>
                   ) : (
-                    <div className="italic text-muted-foreground">-</div>
+                    <Typography as="div" variant="caption" className="italic text-muted-foreground">-</Typography>
                   )}
-                </div>
-              </div>
+                </Stack>
+              </Stack>
             </Card>
           )
         })}
-      </div>
+      </Stack>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between px-2 pt-2">
-        <div className="text-xs text-muted-foreground">
+      <Stack direction="horizontal" className="items-center justify-between px-2 pt-2">
+        <Typography as="p" variant="caption" className="text-muted-foreground">
           {pagination.pageIndex + 1} / {pageCount} ({totalItems} items)
-        </div>
-        <div className="flex items-center gap-2">
+        </Typography>
+        <Stack direction="horizontal" gap="sm" className="items-center">
           <Button
             variant="outline"
             size="icon"
@@ -136,8 +138,8 @@ export function HoldingsSelectorMobile({
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
-        </div>
-      </div>
-    </div>
+        </Stack>
+      </Stack>
+    </Stack>
   )
 }

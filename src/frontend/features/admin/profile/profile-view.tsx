@@ -13,6 +13,8 @@ import { ErrorBoundary } from '@/frontend/components/fragments/admin/error-bound
 import { Switch } from "@/frontend/components/ui/switch"
 import { Avatar, AvatarFallback, AvatarImage } from '@/frontend/components/ui/avatar'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/frontend/components/ui/card'
+import { Stack } from '@/frontend/components/ui/layout'
+import { Typography } from '@/frontend/components/ui/typography'
 import dynamic from 'next/dynamic'
 import { ROUTES } from '@/frontend/config/routes'
 import { toast } from 'sonner'
@@ -102,7 +104,7 @@ export function ProfileView() {
         { label: t('common.profile') }
       ]}
     >
-      <div className="max-w-lg mx-auto space-y-6 pb-24 md:pb-4">
+      <Stack gap="lg" className="max-w-lg mx-auto pb-24 md:pb-4">
         <Card>
           <CardHeader className="flex flex-row items-center gap-4">
             <Avatar className="h-16 w-16">
@@ -111,74 +113,74 @@ export function ProfileView() {
                 {user?.displayName?.charAt(0).toUpperCase() || 'U'}
               </AvatarFallback>
             </Avatar>
-            <div className="flex flex-col">
+            <Stack>
               <CardTitle className="text-xl">
                 {user?.displayName}
               </CardTitle>
               <CardDescription>
                 {user?.email}
               </CardDescription>
-            </div>
+            </Stack>
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid gap-2">
+            <Stack gap="sm">
               {user?.email && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground p-2 rounded-md bg-muted/50">
+                <Stack direction="horizontal" gap="sm" className="items-center text-sm text-muted-foreground p-2 rounded-md bg-muted/50">
                   <Mail className="h-4 w-4" />
-                  <span>{user.email}</span>
-                </div>
+                  <Typography variant="body-sm">{user.email}</Typography>
+                </Stack>
               )}
-              <div className="flex items-center gap-2 text-sm text-muted-foreground p-2 rounded-md bg-muted/50">
+              <Stack direction="horizontal" gap="sm" className="items-center text-sm text-muted-foreground p-2 rounded-md bg-muted/50">
                 <Calendar className="h-4 w-4" />
-                <span>{t('profile.joined')} {user?.createdAt ? new Date(user.createdAt).toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', { dateStyle: 'long' }) : t('profile.justNow')}</span>
-              </div>
-            </div>
+                <Typography variant="body-sm">{t('profile.joined')} {user?.createdAt ? new Date(user.createdAt).toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', { dateStyle: 'long' }) : t('profile.justNow')}</Typography>
+              </Stack>
+            </Stack>
           </CardContent>
         </Card>
 
-        <div className="space-y-2 md:hidden">
-          <h3 className="text-sm font-medium text-muted-foreground ml-1">{t('profile.preferences')}</h3>
+        <Stack gap="sm" className="md:hidden">
+          <Typography variant="body-sm" className="font-medium text-muted-foreground ml-1">{t('profile.preferences')}</Typography>
           <Card>
             <CardContent className="p-4 space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
+              <Stack direction="horizontal" className="items-center justify-between">
+                <Stack direction="horizontal" gap="md" className="items-center">
                   {theme === 'dark' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-                  <span className="font-medium">{t('common.darkMode')}</span>
-                </div>
+                  <Typography variant="body" className="font-medium">{t('common.darkMode')}</Typography>
+                </Stack>
                 {mounted && (
                   <Switch
                     checked={theme === 'dark'}
                     onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
                   />
                 )}
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
+              </Stack>
+              <Stack direction="horizontal" className="items-center justify-between">
+                <Stack direction="horizontal" gap="md" className="items-center">
                   <Globe className="h-5 w-5" />
-                  <span className="font-medium">{t('common.language')}</span>
-                </div>
-                <div className="flex items-center gap-2">
+                  <Typography variant="body" className="font-medium">{t('common.language')}</Typography>
+                </Stack>
+                <Stack direction="horizontal" gap="sm" className="items-center">
                   <Button variant={language === 'id' ? 'solid' : 'outline'} size="sm" onClick={() => setLanguage('id')} className="h-7 px-2 text-xs">ID</Button>
                   <Button variant={language === 'en' ? 'solid' : 'outline'} size="sm" onClick={() => setLanguage('en')} className="h-7 px-2 text-xs">EN</Button>
-                </div>
-              </div>
+                </Stack>
+              </Stack>
             </CardContent>
           </Card>
-        </div>
+        </Stack>
 
-        <div className="space-y-2">
-          <h3 className="text-sm font-medium text-muted-foreground ml-1">{t('profile.privacy')}</h3>
+        <Stack gap="sm">
+          <Typography variant="body-sm" className="font-medium text-muted-foreground ml-1">{t('profile.privacy')}</Typography>
           <Card>
             <CardContent className="p-0 divide-y">
-              <div className="p-4 flex flex-col gap-1">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+              <Stack className="p-4 gap-1">
+                <Stack direction="horizontal" className="items-center justify-between">
+                  <Stack direction="horizontal" gap="md" className="items-center">
                     <Download className="h-5 w-5 text-primary" />
-                    <div>
-                      <span className="font-medium block">{t('profile.exportData')}</span>
-                      <span className="text-xs text-muted-foreground">{t('profile.exportDesc')}</span>
-                    </div>
-                  </div>
+                    <Stack gap="xs">
+                      <Typography variant="body" className="font-medium">{t('profile.exportData')}</Typography>
+                      <Typography variant="caption" className="text-muted-foreground">{t('profile.exportDesc')}</Typography>
+                    </Stack>
+                  </Stack>
                   <Button
                     variant="outline"
                     size="sm"
@@ -187,35 +189,35 @@ export function ProfileView() {
                   >
                     {isExporting ? t('common.exporting') : t('common.export')}
                   </Button>
-                </div>
-              </div>
+                </Stack>
+              </Stack>
 
-              <div className="p-4 flex flex-col gap-1">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+              <Stack className="p-4 gap-1">
+                <Stack direction="horizontal" className="items-center justify-between">
+                  <Stack direction="horizontal" gap="md" className="items-center">
                     <Shield className="h-5 w-5 text-accent-gold" />
-                    <div>
-                      <span className="font-medium block">{t('profile.privacyPolicy')}</span>
-                      <span className="text-xs text-muted-foreground">{t('profile.privacyDesc')}</span>
-                    </div>
-                  </div>
+                    <Stack gap="xs">
+                      <Typography variant="body" className="font-medium">{t('profile.privacyPolicy')}</Typography>
+                      <Typography variant="caption" className="text-muted-foreground">{t('profile.privacyDesc')}</Typography>
+                    </Stack>
+                  </Stack>
                   <Button variant="ghost" size="sm" asChild>
                     <Link href={ROUTES.PRIVACY_POLICY}>
                       <Info className="h-4 w-4" />
                     </Link>
                   </Button>
-                </div>
-              </div>
+                </Stack>
+              </Stack>
 
-              <div className="p-4 flex flex-col gap-1">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
+              <Stack className="p-4 gap-1">
+                <Stack direction="horizontal" className="items-center justify-between">
+                  <Stack direction="horizontal" gap="md" className="items-center">
                     <Trash2 className="h-5 w-5 text-destructive" />
-                    <div>
-                      <span className="font-medium block text-destructive">{t('profile.deleteAccount')}</span>
-                      <span className="text-xs text-muted-foreground">{t('profile.deleteDesc')}</span>
-                    </div>
-                  </div>
+                    <Stack gap="xs">
+                      <Typography variant="body" className="font-medium text-destructive">{t('profile.deleteAccount')}</Typography>
+                      <Typography variant="caption" className="text-muted-foreground">{t('profile.deleteDesc')}</Typography>
+                    </Stack>
+                  </Stack>
                   <Button
                     variant="solid"
                     color="destructive"
@@ -225,14 +227,14 @@ export function ProfileView() {
                   >
                     {t('common.delete')}
                   </Button>
-                </div>
-              </div>
+                </Stack>
+              </Stack>
             </CardContent>
           </Card>
-        </div>
+        </Stack>
 
-        <div className="space-y-2">
-          <h3 className="text-sm font-medium text-muted-foreground ml-1">{t('common.account')}</h3>
+        <Stack gap="sm">
+          <Typography variant="body-sm" className="font-medium text-muted-foreground ml-1">{t('common.account')}</Typography>
 
           <Button
             variant="solid"
@@ -243,7 +245,7 @@ export function ProfileView() {
             <LogOut className="h-4 w-4" />
             {t('common.logout')}
           </Button>
-        </div>
+        </Stack>
 
         <LogoutDialog
           open={showLogoutDialog}
@@ -270,7 +272,7 @@ export function ProfileView() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      </div>
+      </Stack>
     </StandardPageLayout>
   )
 }

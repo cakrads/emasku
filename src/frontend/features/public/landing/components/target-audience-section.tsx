@@ -3,7 +3,8 @@
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { Wallet, TrendingUp, Users } from 'lucide-react'
 import { ScrollReveal } from '@/frontend/components/ui/scroll-reveal'
-import { cn } from '@/frontend/utils/cn'
+import { Typography } from '@/frontend/components/ui/typography'
+import { Stack } from '@/frontend/components/ui/layout'
 
 const audiences = [
   { key: 'collector', Icon: Wallet },
@@ -16,15 +17,15 @@ export function TargetAudienceSection() {
 
   return (
     <section className="py-16 md:py-20 bg-white dark:bg-zinc-950">
-      <div className="max-w-5xl mx-auto px-6">
+      <Stack className="max-w-5xl mx-auto px-6">
         {/* Section Header */}
         <ScrollReveal direction="up" duration={800} threshold={0.2} className="text-center mb-12">
-          <h2 className="text-2xl md:text-3xl font-semibold text-foreground block mb-3">
+          <Typography variant="h2" as="h2" className="text-2xl md:text-3xl font-semibold text-foreground block mb-3">
             {t('landing.audience.title')}
-          </h2>
-          <p className="text-base text-foreground/70 max-w-lg mx-auto block">
+          </Typography>
+          <Typography variant="body" as="p" className="text-base text-foreground/70 max-w-lg mx-auto block">
             {t('landing.audience.subtitle')}
-          </p>
+          </Typography>
         </ScrollReveal>
 
         {/* Audience Cards */}
@@ -38,23 +39,23 @@ export function TargetAudienceSection() {
               distance={40}
               className="h-full"
             >
-              <div
+              <Stack
                 className="p-6 rounded-2xl border border-transparent hover:border-border/40 bg-card/10 hover:bg-card/30 transition-all duration-300 h-full"
               >
-                <div className="mb-4 block">
+                <Stack className="mb-4">
                   <Icon className="w-8 h-8 text-accent-gold" />
-                </div>
-                <h3 className="text-base font-semibold text-foreground block mb-2">
+                </Stack>
+                <Typography variant="h3" as="h3" className="text-base font-semibold text-foreground block mb-2">
                   {t(`landing.audience.types.${key}.title`)}
-                </h3>
-                <p className="text-sm text-muted-foreground block">
+                </Typography>
+                <Typography variant="body-sm" as="p" className="text-sm text-muted-foreground block">
                   {t(`landing.audience.types.${key}.description`)}
-                </p>
-              </div>
+                </Typography>
+              </Stack>
             </ScrollReveal>
           ))}
         </div>
-      </div>
+      </Stack>
     </section>
   )
 }

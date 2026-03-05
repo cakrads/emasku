@@ -6,6 +6,7 @@ import { HowItWorksSection } from './components/how-it-works-section'
 import { WhySection } from './components/why-section'
 import { TargetAudienceSection } from './components/target-audience-section'
 import { CtaSection } from './components/cta-section'
+import { ErrorBoundary } from '@/frontend/components/fragments/admin/error-boundary'
 /**
  * LandingView - Main orchestrator for the public landing page
  *
@@ -16,14 +17,16 @@ import { CtaSection } from './components/cta-section'
  */
 export function LandingView() {
   return (
-    <main className="min-h-screen">
-      <HeroSection />
-      <PriceSection />
-      <HowItWorksSection />
-      <WhySection />
-      <TargetAudienceSection />
-      <CtaSection />
-    </main>
+    <ErrorBoundary>
+      <main className="min-h-screen">
+        <HeroSection />
+        <PriceSection />
+        <HowItWorksSection />
+        <WhySection />
+        <TargetAudienceSection />
+        <CtaSection />
+      </main>
+    </ErrorBoundary>
   )
 }
 

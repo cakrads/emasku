@@ -9,6 +9,8 @@ import { fetchTodayPrices } from '@/frontend/services/prices/prices.api'
 import Link from 'next/link'
 import { ROUTES } from '@/frontend/config/routes'
 import { PricesTodayResponse } from '@/shared/contracts/prices.contract'
+import { Typography } from '@/frontend/components/ui/typography'
+import { Stack } from '@/frontend/components/ui/layout'
 
 export function PriceSection() {
   const { t, language } = useLanguage()
@@ -48,27 +50,27 @@ export function PriceSection() {
       {/* Background Radial Gradient */}
       <div className="absolute inset-0 bg-radial-gradient-bottom opacity-50 pointer-events-none" />
 
-      <div className="max-w-3xl mx-auto relative z-10">
+      <Stack className="max-w-3xl mx-auto relative z-10">
         <ScrollReveal direction="up" duration={800}>
-          <div className="bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md rounded-[2.5rem] p-8 md:p-10 shadow-card border border-border/50">
+          <Stack className="bg-white/50 dark:bg-zinc-900/50 backdrop-blur-md rounded-[2.5rem] p-8 md:p-10 shadow-card border border-border/50">
 
             {/* Header */}
             <ScrollReveal delay={100}>
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
-                <div>
-                  <h2 className="text-3xl font-bold text-foreground mb-2">
+              <Stack className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
+                <Stack gap="xs">
+                  <Typography variant="h2" as="h2" className="text-3xl font-bold text-foreground">
                     {t('landing.price.title')}
-                  </h2>
-                  <p className="text-muted-foreground text-sm">
+                  </Typography>
+                  <Typography variant="body-sm" as="p" className="text-muted-foreground text-sm">
                     {t('landing.price.subtitle')}
-                  </p>
-                </div>
+                  </Typography>
+                </Stack>
 
-                <div className="flex items-center gap-2 text-sm text-muted-foreground bg-secondary/80 px-4 py-2 rounded-full border border-border/50">
+                <Stack direction="horizontal" className="items-center gap-2 text-sm text-muted-foreground bg-secondary/80 px-4 py-2 rounded-full border border-border/50">
                   <Clock className="w-4 h-4 text-accent-gold" />
-                  <span>{t('landing.price.lastUpdate').replace('{time}', updateTime)}</span>
-                </div>
-              </div>
+                  <Typography variant="body-sm" as="span">{t('landing.price.lastUpdate').replace('{time}', updateTime)}</Typography>
+                </Stack>
+              </Stack>
             </ScrollReveal>
 
             {/* Price List */}
@@ -76,43 +78,42 @@ export function PriceSection() {
               {isLoading ? (
                 // Skeleton loading state
                 [...Array(4)].map((_, i) => (
-                  <div key={i} className="flex items-center justify-between p-6 bg-secondary/30 rounded-[1.5rem] border border-border/50">
-                    <div className="flex items-center gap-4">
+                  <Stack key={i} direction="horizontal" className="items-center justify-between p-6 bg-secondary/30 rounded-[1.5rem] border border-border/50">
+                    <Stack direction="horizontal" className="items-center gap-4">
                       <Skeleton className="w-12 h-12 rounded-2xl" />
                       <Skeleton className="h-6 w-24" />
-                    </div>
-                    <div className="flex items-center gap-4">
+                    </Stack>
+                    <Stack direction="horizontal" className="items-center gap-4">
                       <Skeleton className="h-8 w-32" />
                       <Skeleton className="h-6 w-16 rounded-full" />
-                    </div>
-                  </div>
+                    </Stack>
+                  </Stack>
                 ))
               ) : error ? (
-                <div className="text-center py-8 text-muted-foreground">
-                  {t('landing.price.error')}
-                </div>
+                <Stack className="text-center py-8 text-muted-foreground">
+                  <Typography variant="body" as="p">{t('landing.price.error')}</Typography>
+                </Stack>
               ) : (
                 prices.map((item, index) => (
                   <ScrollReveal key={item.provider} delay={200 + index * 100} direction="left">
-                    <div
+                    <Stack
                       className="p-6 bg-secondary/30 rounded-[1.5rem] border border-border/50 hover:border-accent-gold/30 transition-all duration-300 group hover:bg-secondary/50"
                     >
-                      {/* Mobile Layout: Logo Top Center, then Title & Price Row */}
                       {/* Mobile Layout: Logo Left, Title & Price Right Column */}
-                      <div className="md:hidden flex items-center gap-4 relative">
+                      <Stack direction="horizontal" className="md:hidden items-center gap-4 relative">
                         {/* Logo Left */}
-                        <div className="w-12 h-12 rounded-2xl bg-accent-gold/10 flex items-center justify-center shadow-inner group-hover:bg-accent-gold/20 transition-colors shrink-0">
-                          <span className="font-bold text-accent-gold text-lg">{item.provider?.charAt(0) ?? '?'}</span>
-                        </div>
+                        <Stack className="w-12 h-12 rounded-2xl bg-accent-gold/10 items-center justify-center shadow-inner group-hover:bg-accent-gold/20 transition-colors shrink-0">
+                          <Typography variant="body" as="span" className="font-bold text-accent-gold text-lg">{item.provider?.charAt(0) ?? '?'}</Typography>
+                        </Stack>
 
                         {/* Content Column */}
-                        <div className="flex flex-col flex-1 gap-0.5 justify-center">
+                        <Stack className="flex-1 gap-0.5 justify-center">
                           {/* Title + PnL Row */}
-                          <div className="flex items-center justify-between w-full">
-                            <span className="text-xl font-medium text-foreground translate-y-[2px]">{item.provider}</span>
+                          <Stack direction="horizontal" className="items-center justify-between w-full">
+                            <Typography variant="body" as="span" className="text-xl font-medium text-foreground translate-y-[2px]">{item.provider}</Typography>
 
                             {/* PnL Badge Top Right */}
-                            <div className={`flex items-center justify-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${item.trend === 'up' ? 'bg-emerald-500/10 text-emerald-500 dark:text-emerald-400' :
+                            <Stack direction="horizontal" className={`items-center justify-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${item.trend === 'up' ? 'bg-emerald-500/10 text-emerald-500 dark:text-emerald-400' :
                               item.trend === 'down' ? 'bg-red-500/10 text-red-500 dark:text-red-400' :
                                 'bg-slate-500/10 text-slate-400'
                               }`}>
@@ -120,41 +121,41 @@ export function PriceSection() {
                                 item.trend === 'down' ? <TrendingDown className="w-3 h-3" /> :
                                   <Minus className="w-3 h-3" />}
                               {item.changePercent}
-                            </div>
-                          </div>
+                            </Stack>
+                          </Stack>
 
                           {/* Price Row */}
-                          <div className="flex items-center gap-3">
-                            <div className="flex items-baseline gap-1">
-                              <span className="text-lg font-bold text-foreground tracking-tight">
+                          <Stack direction="horizontal" className="items-center gap-3">
+                            <Stack direction="horizontal" className="items-baseline gap-1">
+                              <Typography variant="body" as="span" className="text-lg font-bold text-foreground tracking-tight">
                                 {item.priceFormatted}
-                              </span>
-                              <span className="text-xs text-muted-foreground font-normal">/gram</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                              </Typography>
+                              <Typography variant="caption" as="span" className="text-xs text-muted-foreground font-normal">/gram</Typography>
+                            </Stack>
+                          </Stack>
+                        </Stack>
+                      </Stack>
 
                       {/* Desktop Layout: Standard Row */}
-                      <div className="hidden md:flex items-center justify-between">
+                      <Stack direction="horizontal" className="hidden md:flex items-center justify-between">
                         {/* Brand Info */}
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-2xl bg-accent-gold/10 flex items-center justify-center shadow-inner group-hover:bg-accent-gold/20 transition-colors">
-                            <span className="font-bold text-accent-gold text-lg">{item.provider?.charAt(0) ?? '?'}</span>
-                          </div>
-                          <span className="text-xl font-medium text-foreground">{item.provider}</span>
-                        </div>
+                        <Stack direction="horizontal" className="items-center gap-4">
+                          <Stack className="w-12 h-12 rounded-2xl bg-accent-gold/10 items-center justify-center shadow-inner group-hover:bg-accent-gold/20 transition-colors">
+                            <Typography variant="body" as="span" className="font-bold text-accent-gold text-lg">{item.provider?.charAt(0) ?? '?'}</Typography>
+                          </Stack>
+                          <Typography variant="body" as="span" className="text-xl font-medium text-foreground">{item.provider}</Typography>
+                        </Stack>
 
                         {/* Price Info */}
-                        <div className="text-right flex items-center gap-6">
-                          <div className="flex items-baseline justify-end gap-1.5">
-                            <span className="text-2xl font-bold text-foreground tracking-tight">
+                        <Stack direction="horizontal" className="text-right items-center gap-6">
+                          <Stack direction="horizontal" className="items-baseline justify-end gap-1.5">
+                            <Typography variant="body" as="span" className="text-2xl font-bold text-foreground tracking-tight">
                               {item.priceFormatted}
-                            </span>
-                            <span className="text-sm text-muted-foreground font-normal">/gram</span>
-                          </div>
+                            </Typography>
+                            <Typography variant="body-sm" as="span" className="text-sm text-muted-foreground font-normal">/gram</Typography>
+                          </Stack>
 
-                          <div className={`flex items-center justify-end gap-1 px-2.5 py-1 rounded-full text-sm font-medium w-fit ${item.trend === 'up' ? 'bg-emerald-500/10 text-emerald-500 dark:text-emerald-400' :
+                          <Stack direction="horizontal" className={`items-center justify-end gap-1 px-2.5 py-1 rounded-full text-sm font-medium w-fit ${item.trend === 'up' ? 'bg-emerald-500/10 text-emerald-500 dark:text-emerald-400' :
                             item.trend === 'down' ? 'bg-red-500/10 text-red-500 dark:text-red-400' :
                               'bg-slate-500/10 text-slate-400'
                             }`}>
@@ -162,10 +163,10 @@ export function PriceSection() {
                               item.trend === 'down' ? <TrendingDown className="w-3.5 h-3.5" /> :
                                 <Minus className="w-3.5 h-3.5" />}
                             {item.changePercent}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
+                          </Stack>
+                        </Stack>
+                      </Stack>
+                    </Stack>
                   </ScrollReveal>
                 ))
               )}
@@ -173,23 +174,23 @@ export function PriceSection() {
 
             {/* Link to full price list */}
             <ScrollReveal delay={400}>
-              <div className="mt-8 text-center space-y-4">
+              <Stack className="mt-8 text-center space-y-4">
                 <Link
                   href={ROUTES.PRICES}
                   className="inline-flex items-center gap-2 text-accent-gold hover:text-accent-gold/80 font-medium transition-colors group"
                 >
-                  <span>{t('landing.price.viewAll')}</span>
+                  <Typography variant="body" as="span">{t('landing.price.viewAll')}</Typography>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Link>
-                <p className="text-sm text-muted-foreground">
+                <Typography variant="body-sm" as="p" className="text-sm text-muted-foreground">
                   {t('landing.price.disclaimer')}
-                </p>
-              </div>
+                </Typography>
+              </Stack>
             </ScrollReveal>
 
-          </div>
+          </Stack>
         </ScrollReveal>
-      </div>
+      </Stack>
     </section>
   )
 }

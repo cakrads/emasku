@@ -3,7 +3,7 @@
  */
 
 import { Skeleton } from '@/frontend/components/ui/skeleton'
-import { PageWrapper, Container, Stack, Section } from '@/frontend/components/ui/layout'
+import { PageWrapper, Container, Stack, Section, Divider } from '@/frontend/components/ui/layout'
 
 export function HoldingDetailSkeleton() {
   return (
@@ -11,7 +11,7 @@ export function HoldingDetailSkeleton() {
       <Container className="w-full max-w-xl mx-auto pb-24 px-4 md:px-8 py-8 sm:min-w-[500px]">
         <Stack gap="xl">
           {/* Header / Breadcrumbs placeholder */}
-          <div className="h-6 w-48 bg-muted/40 rounded animate-pulse mb-4" />
+          <Skeleton className="h-6 w-48 bg-muted/40 rounded mb-4" />
 
           {/* Hero / Current Value */}
           <Section className="px-6 text-center mb-4">
@@ -23,28 +23,28 @@ export function HoldingDetailSkeleton() {
           </Section>
 
           {/* Purchase Details Card */}
-          <div className="border border-border rounded-xl p-5 space-y-4">
+          <Stack className="border border-border rounded-xl p-5" gap="md">
             <Skeleton className="h-5 w-32" />
-            <div className="space-y-3">
-              <div className="flex justify-between"><Skeleton className="h-4 w-24" /><Skeleton className="h-4 w-32" /></div>
-              <div className="flex justify-between"><Skeleton className="h-4 w-24" /><Skeleton className="h-4 w-16" /></div>
-              <div className="flex justify-between"><Skeleton className="h-4 w-24" /><Skeleton className="h-4 w-24" /></div>
-              <div className="h-px bg-muted" />
-              <div className="flex justify-between"><Skeleton className="h-6 w-32" /><Skeleton className="h-6 w-32" /></div>
-            </div>
-          </div>
+            <Stack gap="md">
+              <Stack direction="horizontal" className="justify-between"><Skeleton className="h-4 w-24" /><Skeleton className="h-4 w-32" /></Stack>
+              <Stack direction="horizontal" className="justify-between"><Skeleton className="h-4 w-24" /><Skeleton className="h-4 w-16" /></Stack>
+              <Stack direction="horizontal" className="justify-between"><Skeleton className="h-4 w-24" /><Skeleton className="h-4 w-24" /></Stack>
+              <Divider />
+              <Stack direction="horizontal" className="justify-between"><Skeleton className="h-6 w-32" /><Skeleton className="h-6 w-32" /></Stack>
+            </Stack>
+          </Stack>
 
           {/* Current Valuation Card */}
-          <div className="border border-border rounded-xl p-5 space-y-4">
+          <Stack className="border border-border rounded-xl p-5" gap="md">
             <Skeleton className="h-5 w-40" />
-            <div className="space-y-3">
-              <div className="flex justify-between"><Skeleton className="h-4 w-32" /><Skeleton className="h-4 w-24" /></div>
-              <div className="flex justify-between"><Skeleton className="h-4 w-24" /><Skeleton className="h-4 w-16" /></div>
-              <div className="h-px bg-muted" />
-              <div className="flex justify-between"><Skeleton className="h-6 w-40" /><Skeleton className="h-6 w-32" /></div>
-              <div className="flex justify-between"><Skeleton className="h-4 w-24" /><Skeleton className="h-4 w-24" /></div>
-            </div>
-          </div>
+            <Stack gap="md">
+              <Stack direction="horizontal" className="justify-between"><Skeleton className="h-4 w-32" /><Skeleton className="h-4 w-24" /></Stack>
+              <Stack direction="horizontal" className="justify-between"><Skeleton className="h-4 w-24" /><Skeleton className="h-4 w-16" /></Stack>
+              <Divider />
+              <Stack direction="horizontal" className="justify-between"><Skeleton className="h-6 w-40" /><Skeleton className="h-6 w-32" /></Stack>
+              <Stack direction="horizontal" className="justify-between"><Skeleton className="h-4 w-24" /><Skeleton className="h-4 w-24" /></Stack>
+            </Stack>
+          </Stack>
         </Stack>
       </Container>
     </PageWrapper>

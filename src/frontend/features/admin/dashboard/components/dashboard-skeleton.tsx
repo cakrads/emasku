@@ -11,27 +11,27 @@ export function DashboardSkeleton() {
       {/* Top Section */}
       <Stack gap="md">
         {/* Price Freshness Placeholder */}
-        <div className="flex justify-end mb-4 lg:mb-0">
-          <div className="flex items-center gap-2">
+        <Stack className="justify-end mb-4 lg:mb-0">
+          <Stack direction="horizontal" gap="sm" className="items-center">
             <Skeleton className="h-2 w-2 rounded-full" />
             <Skeleton className="h-4 w-32" />
-          </div>
-        </div>
+          </Stack>
+        </Stack>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Hero */}
-          <div className="lg:col-span-2 min-h-auto md:min-h-[190px]">
+          <Stack className="lg:col-span-2 min-h-auto md:min-h-[190px]">
             <PortfolioSummarySkeleton />
-          </div>
+          </Stack>
 
           {/* Market Cards Wrapper - Matches DashboardView */}
-          <div className="lg:col-span-1 lg:relative min-w-0">
+          <Stack className="lg:col-span-1 lg:relative min-w-0">
             <div className="flex flex-col h-full lg:absolute lg:inset-0 w-full">
-              <div className="flex-1 overflow-hidden min-h-0">
+              <Stack className="flex-1 overflow-hidden min-h-0">
                 <PricesOverviewSkeleton />
-              </div>
+              </Stack>
             </div>
-          </div>
+          </Stack>
         </div>
       </Stack>
 

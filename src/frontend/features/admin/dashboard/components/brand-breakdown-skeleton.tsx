@@ -13,26 +13,27 @@ export function BrandBreakdownSkeleton() {
         <Typography variant="body-sm">{t('dashboard.byBrand')}</Typography>
       </Stack>
       <ScrollArea>
-        <div className="flex gap-4 pb-2">
+        <Stack direction="horizontal" gap="md" className="pb-2">
           {[1, 2, 3].map(i => (
-            <div
+            <Stack
               key={i}
-              className="shrink-0 w-[280px] h-[184px] bg-(--surface-elevated) border border-(--border) rounded-xl p-4 flex flex-col gap-4"
+              gap="md"
+              className="shrink-0 w-[280px] h-[184px] bg-(--surface-elevated) border border-(--border) rounded-xl p-4"
             >
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
+              <Stack gap="sm">
+                <Stack direction="horizontal" gap="sm" className="items-center">
                   <Skeleton className="h-6 w-32" />
-                </div>
+                </Stack>
                 <Skeleton className="h-4 w-16" />
-              </div>
-              <div className="mt-auto space-y-3">
+              </Stack>
+              <Stack gap="sm" className="mt-auto">
                 <Skeleton className="h-8 w-40" />
                 <Skeleton className="h-6 w-24 rounded-md" />
-              </div>
-            </div>
+              </Stack>
+            </Stack>
           ))}
           <div className="w-2 shrink-0" />
-        </div>
+        </Stack>
       </ScrollArea>
     </Stack>
   )

@@ -127,7 +127,7 @@ function AddHoldingContent() {
   }
 
   return (
-    <div className="flex flex-col relative w-full max-w-lg mx-auto sm:min-w-[500px]">
+    <Stack className="relative w-full max-w-lg mx-auto sm:min-w-[500px]">
       <StepHeader
         title={t('addHolding.title')}
         currentStep={step}
@@ -138,12 +138,12 @@ function AddHoldingContent() {
 
       {/* Progress Bar */}
       <Section className="px-0 py-2 mb-4">
-        <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-          <div
+        <Stack className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+          <Stack
             className="h-full bg-accent-gold transition-all duration-300 ease-out"
             style={{ width: `${(step / 4) * 100}%` }}
           />
-        </div>
+        </Stack>
       </Section>
 
       {/* Step Content */}
@@ -189,7 +189,7 @@ function AddHoldingContent() {
         nextLabel={step === 4 ? (createMutation.isPending ? t('addHolding.actions.saving') : t('addHolding.actions.save')) : t('addHolding.actions.continue')}
         disabled={!canProceed() || createMutation.isPending}
       />
-    </div>
+    </Stack>
   )
 }
 

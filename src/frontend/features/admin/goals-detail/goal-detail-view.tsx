@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent } from '@/frontend/components/ui/card'
-import { Stack, Section } from '@/frontend/components/ui/layout'
+import { Stack, Section, Divider } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { Button, buttonVariants } from '@/frontend/components/ui/button'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
@@ -93,10 +93,10 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                 title={t('goals.detail.title')}
                 breadcrumbs={breadcrumbs}
                 action={
-                    <div className="flex gap-2">
+                    <Stack direction="horizontal" gap="sm">
                         <Skeleton className="h-11 w-9 sm:w-36" />
                         <Skeleton className="h-11 w-9 sm:w-20" />
-                    </div>
+                    </Stack>
                 }
             >
                 <GoalDetailSkeleton />
@@ -120,7 +120,7 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
             title={t('goals.detail.title')}
             breadcrumbs={breadcrumbs}
             action={
-                <div className="flex gap-2">
+                <Stack direction="horizontal" gap="sm">
                     {data.lifecycleStatus === 'ACTIVE' && (
                         <Button variant="solid" color="primary" className="gap-2" onClick={() => setShowCompleteDialog(true)}>
                             <CheckCircle2 className="h-4 w-4" />
@@ -139,29 +139,29 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                             <span className="hidden sm:inline">{t('goals.detail.edit')}</span>
                         </Button>
                     </Link>
-                </div>
+                </Stack>
             }
         >
             <div className="w-full max-w-xl mx-auto pb-24 sm:min-w-[500px]">
 
                 {/* HERO: Goal Name, Status, Date */}
                 <Section className="py-6 px-6 text-center mb-6">
-                    <div className="flex flex-col items-center gap-2">
+                    <Stack direction="vertical" className="items-center gap-2">
                         <Typography variant="h2" className="text-4xl font-bold tracking-tight">
                             {data.name}
                         </Typography>
-                        <div className="flex flex-col items-center gap-1">
-                            <span className={cn('text-base font-semibold', statusConfig.className)}>
+                        <Stack direction="vertical" className="items-center gap-1">
+                            <Typography variant="body" className={cn('text-base font-semibold', statusConfig.className)}>
                                 {statusConfig.label}
-                            </span>
+                            </Typography>
                             {data.targetDate && (
-                                <div className="flex items-center gap-1.5 text-muted-foreground mt-1">
+                                <Stack direction="horizontal" className="items-center gap-1.5 text-muted-foreground mt-1">
                                     <Calendar className="w-4 h-4" />
-                                    <span className="text-sm font-medium">{formattedDate}</span>
-                                </div>
+                                    <Typography variant="body-sm" className="font-medium">{formattedDate}</Typography>
+                                </Stack>
                             )}
-                        </div>
-                    </div>
+                        </Stack>
+                    </Stack>
                 </Section>
 
                 {/* SUMMARY CARD */}
@@ -195,12 +195,12 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                         <Typography variant="body-sm" className="pt-1">
                                             {data.lifecycleStatus === 'COMPLETED' ? t('goals.detail.finishedWithValue') : t('goals.detail.currentValue')}
                                         </Typography>
-                                        <div className="text-right flex flex-col items-end">
+                                        <Stack direction="vertical" className="text-right items-end">
                                             <Typography variant="body" className="font-medium financial-value text-lg">
                                                 {formatCurrency(displayValue, locale)}
                                             </Typography>
                                             {invested > 0 && (
-                                                <div className="flex items-center justify-end gap-1 mt-1">
+                                                <Stack direction="horizontal" className="items-center justify-end gap-1 mt-1">
                                                     {isPositive
                                                         ? <TrendingUp className="w-3 h-3 text-green-600 dark:text-green-400" />
                                                         : <TrendingDown className="w-3 h-3 text-red-600 dark:text-red-400" />
@@ -211,17 +211,17 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                                     )}>
                                                         {formatCurrency(profit, locale)} ({isPositive ? '+' : ''}{profitPercent.toFixed(2)}%)
                                                     </Typography>
-                                                </div>
+                                                </Stack>
                                             )}
                                             {data.lifecycleStatus === 'COMPLETED' && (
                                                 <Typography variant="caption" className="text-muted-foreground mt-0.5 max-w-[200px] leading-tight">
                                                     {t('goals.detail.finishedValueDisclaimer')}
                                                 </Typography>
                                             )}
-                                        </div>
+                                        </Stack>
                                     </Stack>
 
-                                    <div className="h-px bg-border w-full mt-2" />
+                                    <Divider className="mt-2" />
 
                                     <Stack direction="horizontal" className="justify-between items-center">
                                         <Typography variant="body-sm">{t('goals.detail.targetAmount')}</Typography>
@@ -276,14 +276,14 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                 </Typography>
 
                                 {data.holdings.length === 0 ? (
-                                    <div className="py-8 text-center border border-dashed border-border rounded-xl bg-surface/50">
+                                    <Stack direction="vertical" className="py-8 text-center border border-dashed border-border rounded-xl bg-surface/50">
                                         <Typography variant="body" className="text-muted-foreground">
                                             {t('goals.detail.noHoldings')}
                                         </Typography>
                                         <Typography variant="body-sm" className="text-muted-foreground mt-1">
                                             {t('goals.detail.noHoldingsDesc')}
                                         </Typography>
-                                    </div>
+                                    </Stack>
                                 ) : (
                                     <div className="overflow-x-auto">
                                         <table className="w-full border-collapse">

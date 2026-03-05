@@ -10,7 +10,7 @@
 import { useEffect, createContext, useContext, type ReactNode } from 'react'
 import { useAuthStore } from './auth.store'
 import { getSession, onAuthStateChange } from '@/frontend/services/auth/auth.api'
-import type { AuthSession } from '@/applications/shared/auth'
+import type { AuthSession } from '@/shared/contracts/auth.contract'
 
 interface AuthContextValue {
   isInitialized: boolean

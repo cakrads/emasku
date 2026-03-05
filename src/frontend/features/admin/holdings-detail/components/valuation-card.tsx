@@ -1,6 +1,6 @@
 import { Info } from 'lucide-react'
 import { Card, CardContent } from '@/frontend/components/ui/card'
-import { Stack } from '@/frontend/components/ui/layout'
+import { Stack, Divider } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { cn } from '@/frontend/utils/cn'
 import { Alert, AlertDescription, AlertTitle } from '@/frontend/components/ui/alert'
@@ -39,7 +39,7 @@ export function ValuationCard({ holding, hasMissingValue, t }: ValuationCardProp
                             <Typography variant="body" className="font-medium">{holding.weight}</Typography>
                         </Stack>
 
-                        <div className="h-px bg-border w-full" />
+                        <Divider />
 
                         <Stack direction="horizontal" className="justify-between items-center">
                             <Typography variant="h3" className="text-sm">{t('holdingDetail.valuation.totalCurrentValue')}</Typography>

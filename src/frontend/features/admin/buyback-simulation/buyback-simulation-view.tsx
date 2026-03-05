@@ -3,6 +3,8 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
+import { Stack } from '@/frontend/components/ui/layout'
+import { Typography } from '@/frontend/components/ui/typography'
 import { fetchPortfolioList } from '@/frontend/services/portfolio/portfolio.api'
 import { transformHoldingItem } from '@/frontend/view-model/portfolio.vm'
 import { useLanguage } from '@/frontend/hooks/use-language'
@@ -121,10 +123,10 @@ function BuybackSimulationContent() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           {/* Selector Table */}
-          <div className="space-y-2">
-            <h2 className="text-lg font-semibold tracking-tight">
+          <Stack gap="xs">
+            <Typography as="h2" variant="h3" className="tracking-tight">
               {t('buybackSimulation.table.select')}
-            </h2>
+            </Typography>
 
             {/* Desktop Table */}
             <div className="hidden md:block">
@@ -159,17 +161,17 @@ function BuybackSimulationContent() {
                 isLoading={isLoading}
               />
             </div>
-          </div>
+          </Stack>
         </div>
 
         <div className="lg:col-span-1">
-          <div className="sticky top-40 space-y-4">
+          <Stack gap="md" className="sticky top-40">
             <SimulationBreakdown
               selectedItems={selectedItems}
               quantityOverrides={quantityOverrides}
               priceMap={priceMap}
             />
-          </div>
+          </Stack>
         </div>
       </div>
 

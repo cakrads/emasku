@@ -1,15 +1,16 @@
 import { Section, Stack } from '@/frontend/components/ui/layout'
+import { Typography } from '@/frontend/components/ui/typography'
 import { Skeleton } from '@/frontend/components/ui/skeleton'
 
 export function GoalsListSkeleton() {
     return (
         <Stack gap="sm">
             {/* Filter Tabs Skeleton */}
-            <div className="flex flex-wrap items-center gap-2">
+            <Stack direction="horizontal" className="flex-wrap items-center gap-2">
                 {[1, 2, 3, 4].map((i) => (
                     <Skeleton key={i} className="h-8 w-24 rounded-lg" />
                 ))}
-            </div>
+            </Stack>
 
             {/* Goals Table Skeleton */}
             <Section>
@@ -26,7 +27,7 @@ export function GoalsListSkeleton() {
                                     <Skeleton className="h-4 w-16" />
                                 </th>
                                 <th className="py-3 px-4 text-right whitespace-nowrap font-medium">
-                                    Actions
+                                    <Typography variant="caption" className="font-semibold text-muted-foreground">Actions</Typography>
                                 </th>
                             </tr>
                         </thead>
@@ -43,10 +44,10 @@ export function GoalsListSkeleton() {
                                         <Skeleton className="h-5 w-28 ml-auto" />
                                     </td>
                                     <td className="py-4 px-4 text-right hidden md:table-cell">
-                                        <div className="flex flex-col items-end gap-2">
+                                        <Stack direction="vertical" className="items-end gap-2">
                                             <Skeleton className="h-5 w-12" />
                                             <Skeleton className="h-1.5 w-16 rounded-full" />
-                                        </div>
+                                        </Stack>
                                     </td>
                                     <td className="py-4 px-4 text-right hidden lg:table-cell">
                                         <Skeleton className="h-5 w-28 ml-auto" />

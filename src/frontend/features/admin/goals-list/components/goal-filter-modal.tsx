@@ -65,7 +65,7 @@ export default function GoalFilterModal({
                     <Typography variant="body-sm" className="font-medium">
                         Status
                     </Typography>
-                    <div className="flex flex-wrap gap-2">
+                    <Stack direction="horizontal" className="flex-wrap gap-2">
                         {filters.map((f) => (
                             <Button
                                 key={f.key}
@@ -88,7 +88,7 @@ export default function GoalFilterModal({
                                 )}
                             </Button>
                         ))}
-                    </div>
+                    </Stack>
                 </Stack>
 
                 {/* Actions */}

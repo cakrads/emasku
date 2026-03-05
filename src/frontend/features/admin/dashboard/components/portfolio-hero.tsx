@@ -1,6 +1,6 @@
 'use client'
 
-import { Stack } from '@/frontend/components/ui/layout'
+import { Stack, Divider } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { Popover, PopoverContent, PopoverTrigger } from '@/frontend/components/ui/popover'
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/frontend/components/ui/tooltip'
@@ -83,39 +83,39 @@ export default function PortfolioHero({
 
   // Shared trigger content
   const ExcludedInfoTrigger = (
-    <div className="flex items-center gap-1.5 text-muted-foreground/60 cursor-pointer w-fit hover:text-muted-foreground transition-colors">
+    <Stack direction="horizontal" gap="xs" className="text-muted-foreground/60 cursor-pointer w-fit hover:text-muted-foreground transition-colors items-center">
       <Info className="w-3 h-3" />
       <Typography variant="caption">
         {excludedCount} {t('dashboard.excludedHoldings')}
       </Typography>
-    </div>
+    </Stack>
   )
 
   return (
-    <div className="bg-linear-to-r from-teal-50/80 via-white to-white dark:from-teal-950/20 dark:via-background dark:to-background rounded-2xl p-6 md:p-8 border border-teal-100 dark:border-teal-900/50">
+    <Stack gap="none" className="bg-linear-to-r from-teal-50/80 via-white to-white dark:from-teal-950/20 dark:via-background dark:to-background rounded-2xl p-6 md:p-8 border border-teal-100 dark:border-teal-900/50">
       {/* Header */}
-      <div className="mb-6">
-        <div className="flex flex-col gap-1 mb-2">
-          <div className="flex items-center gap-2">
+      <Stack gap="md" className="mb-6">
+        <Stack gap="xs" className="mb-2">
+          <Stack direction="horizontal" gap="sm" className="items-center">
             <Typography variant="caption" className="text-muted-foreground uppercase tracking-wider font-semibold">
               {t('dashboard.portfolioValue')}
             </Typography>
             <PrivacyToggle className="h-4 w-4 text-muted-foreground/70" iconClassName="h-3 w-3" />
-          </div>
+          </Stack>
 
           <Typography className="text-4xl md:text-5xl font-bold text-foreground financial-value tracking-tight">
             {isVisible ? (totalValue || '—') : '••••••••'}
           </Typography>
-        </div>
+        </Stack>
 
         {/* PnL Row */}
         {pnlColor !== 'neutral' && (
-          <div className="flex items-center gap-3 mb-1">
-            <div className={cn("flex items-center gap-1 font-semibold", isGainPositive ? "text-positive" : "text-negative")}>
+          <Stack direction="horizontal" gap="sm" className="items-center mb-1">
+            <Stack direction="horizontal" gap="xs" className={cn("items-center font-semibold", isGainPositive ? "text-positive" : "text-negative")}>
               <TrendingUp className="w-4 h-4" />
               <span>{isVisible ? gainLossPercentage : '•••%'}</span>
-            </div>
-            <div className="h-4 w-px bg-border" />
+            </Stack>
+            <Divider direction="vertical" className="h-4" />
             <Typography variant="body" className="text-muted-foreground font-medium">
               {isVisible ? (
                 <>
@@ -125,26 +125,26 @@ export default function PortfolioHero({
                 '••••••••'
               )}
             </Typography>
-          </div>
+          </Stack>
         )}
 
         <Typography variant="caption" className="text-muted-foreground text-xs">
           {t('dashboard.estimationContext')}
         </Typography>
-      </div>
+      </Stack>
 
       {/* Periodic Metrics - Horizontal scroll on mobile, grid on desktop */}
       {totalValue && (
         <div className="flex md:grid md:grid-cols-5 gap-3 overflow-x-auto pb-2 md:pb-0 -mx-2 px-2 md:mx-0 md:px-0 scrollbar-hide">
           {visiblePeriods.map((period) => (
-            <div
+            <Stack
               key={period.key}
               className="bg-white/80 dark:bg-gray-900/80 rounded-xl p-3 md:p-4 border border-teal-100 dark:border-teal-900 backdrop-blur-sm min-w-[120px] md:min-w-0 shrink-0 md:shrink"
             >
               <Typography variant="caption" className="text-muted-foreground uppercase text-xs font-semibold mb-1 block">
                 {period.label}
               </Typography>
-              <div className="flex flex-col gap-0.5">
+              <Stack gap="xs">
                 <Typography
                   variant="body-sm"
                   className={cn("font-bold whitespace-nowrap", getColorClass(period.color))}
@@ -156,29 +156,29 @@ export default function PortfolioHero({
                     {isVisible ? `(${period.percentage})` : '(•••%)'}
                   </Typography>
                 )}
-              </div>
-            </div>
+              </Stack>
+            </Stack>
           ))}
         </div>
       )}
 
       {/* Excluded holdings info */}
       {(excludedCount ?? 0) > 0 && (
-        <div className="mt-4">
+        <Stack className="mt-4">
           {/* Desktop: Tooltip (hover) */}
-          <div className="hidden md:block">
+          <Stack className="hidden md:flex">
             <Tooltip>
               <TooltipTrigger asChild>
                 {ExcludedInfoTrigger}
               </TooltipTrigger>
               <TooltipContent className="max-w-xs" sideOffset={8}>
-                <p>{t('dashboard.excludedHoldingsTooltip')}</p>
+                <Typography variant="caption">{t('dashboard.excludedHoldingsTooltip')}</Typography>
               </TooltipContent>
             </Tooltip>
-          </div>
+          </Stack>
 
           {/* Mobile: Popover (click) */}
-          <div className="block md:hidden">
+          <Stack className="flex md:hidden">
             <Popover>
               <PopoverTrigger asChild>
                 <button className="flex items-center gap-1.5 text-muted-foreground/60 cursor-pointer w-fit hover:text-muted-foreground transition-colors">
@@ -189,12 +189,12 @@ export default function PortfolioHero({
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-72 mx-4" sideOffset={8} collisionPadding={16}>
-                <p className="text-sm text-muted-foreground">{t('dashboard.excludedHoldingsTooltip')}</p>
+                <Typography variant="body-sm" className="text-muted-foreground">{t('dashboard.excludedHoldingsTooltip')}</Typography>
               </PopoverContent>
             </Popover>
-          </div>
-        </div>
+          </Stack>
+        </Stack>
       )}
-    </div>
+    </Stack>
   )
 }

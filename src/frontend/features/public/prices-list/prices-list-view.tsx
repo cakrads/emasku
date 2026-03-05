@@ -9,6 +9,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { Typography } from '@/frontend/components/ui/typography'
+import { Stack } from '@/frontend/components/ui/layout'
 import { Skeleton } from '@/frontend/components/ui/skeleton'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
 import { ROUTES } from '@/frontend/config/routes'
@@ -27,13 +28,13 @@ import { LineChart } from 'lucide-react'
 function BrandPriceSection({ brandName, prices }: BrandPriceGroupVM) {
   const { t } = useLanguage()
   return (
-    <div className="mb-8 last:mb-0">
+    <Stack direction="vertical" gap="none" className="mb-8 last:mb-0">
       {/* Brand Header */}
-      <div className="bg-accent-gold/10 border border-accent-gold/20 px-6 py-3 rounded-t-lg">
+      <Stack direction="horizontal" className="bg-accent-gold/10 border border-accent-gold/20 px-6 py-3 rounded-t-lg items-center justify-center">
         <Typography variant="h3" className="text-center">
           {brandName} Prices
         </Typography>
-      </div>
+      </Stack>
 
       {/* Price Table */}
       <div className="border border-border border-t-0 rounded-b-lg overflow-x-auto">
@@ -85,7 +86,7 @@ function BrandPriceSection({ brandName, prices }: BrandPriceGroupVM) {
           </tbody>
         </table>
       </div>
-    </div>
+    </Stack>
   )
 }
 
@@ -106,33 +107,33 @@ function PricesListViewContent({ initialData }: { initialData?: any }) {
 
   if (isLoading) {
     return (
-      <div className="flex flex-col gap-8">
+      <Stack direction="vertical" gap="xl">
         {/* Responsive Header Actions Skeleton */}
-        <div className="flex justify-between items-center -mb-4">
+        <Stack direction="horizontal" className="justify-between items-center -mb-4">
           {/* Desktop: View History Button (Left) */}
           <Skeleton className="hidden md:flex h-9 w-36 rounded-md" />
 
           {/* Mobile: Last Updated (Left) */}
-          <div className="flex md:hidden items-center gap-2">
+          <Stack direction="horizontal" gap="sm" className="flex md:hidden items-center">
             <Skeleton className="w-2 h-2 rounded-full" />
             <Skeleton className="h-4 w-40" />
-          </div>
+          </Stack>
 
           {/* Mobile: Chart Button (Right) */}
           <Skeleton className="md:hidden h-8 w-8 rounded-md" />
 
           {/* Desktop: Last Updated (Right) */}
-          <div className="hidden md:flex items-center gap-2">
+          <Stack direction="horizontal" gap="sm" className="hidden md:flex items-center">
             <Skeleton className="w-2 h-2 rounded-full" />
             <Skeleton className="h-4 w-48" />
-          </div>
-        </div>
+          </Stack>
+        </Stack>
 
         {/* Skeleton for 4 brand sections */}
         {[1, 2, 3, 4].map((index) => (
           <BrandPriceSkeletonSection key={index} />
         ))}
-      </div>
+      </Stack>
     )
   }
 
@@ -164,8 +165,8 @@ function PricesListViewContent({ initialData }: { initialData?: any }) {
   // Inner content just renders the list.
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex justify-between items-center -mb-4">
+    <Stack direction="vertical" gap="xl">
+      <Stack direction="horizontal" className="justify-between items-center -mb-4">
         {/* Desktop: View History Button (Left) */}
         <Button variant="outline" size="sm" asChild className="hidden md:flex">
           <Link href={ROUTES.PRICES_HISTORY} className="flex items-center gap-2">
@@ -175,12 +176,12 @@ function PricesListViewContent({ initialData }: { initialData?: any }) {
         </Button>
 
         {/* Mobile: Last Updated (Left) */}
-        <div className="flex md:hidden items-center gap-2 text-muted-foreground/60">
-          <div className="w-2 h-2 rounded-full bg-positive animate-pulse" />
+        <Stack direction="horizontal" gap="sm" className="flex md:hidden items-center text-muted-foreground/60">
+          <Stack direction="horizontal" className="w-2 h-2 rounded-full bg-positive animate-pulse" />
           <Typography variant="caption" className="text-xs">
             {t('dashboard.lastUpdated')}: {viewModel.lastUpdated}
           </Typography>
-        </div>
+        </Stack>
 
         {/* Mobile: Chart Button (Right) */}
         <Button variant="outline" size="icon" className="md:hidden h-8 w-8" asChild>
@@ -190,11 +191,11 @@ function PricesListViewContent({ initialData }: { initialData?: any }) {
         </Button>
 
         {/* Desktop: Last Updated (Right) */}
-        <div className="hidden md:flex items-center gap-2 text-sm text-muted-foreground text-right">
-          <div className="w-2 h-2 rounded-full bg-positive animate-pulse" />
+        <Stack direction="horizontal" gap="sm" className="hidden md:flex items-center text-sm text-muted-foreground text-right">
+          <Stack direction="horizontal" className="w-2 h-2 rounded-full bg-positive animate-pulse" />
           <span>{t('dashboard.lastUpdated')}: {viewModel.lastUpdated}</span>
-        </div>
-      </div>
+        </Stack>
+      </Stack>
 
       {/* Brand Sections */}
       {viewModel.brands.map((brandData) => (
@@ -204,7 +205,7 @@ function PricesListViewContent({ initialData }: { initialData?: any }) {
           prices={brandData.prices}
         />
       ))}
-    </div>
+    </Stack>
   )
 }
 

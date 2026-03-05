@@ -92,14 +92,14 @@ export default function HoldingsPreview() {
         </Stack>
 
         {/* CTA to view all */}
-        <div className="mt-4 pt-3 border-t border-border">
+        <Stack className="mt-4 pt-3 border-t border-border">
           <Link href={ROUTES.HOLDINGS_LIST}>
             <Button variant="ghost" size="sm" className="w-full justify-center gap-2 text-muted-foreground hover:text-foreground">
               <span>{t('dashboard.viewAllHoldings')}</span>
               <ArrowRight className="w-4 h-4" />
             </Button>
           </Link>
-        </div>
+        </Stack>
       </Card>
     </Stack>
   )
@@ -123,8 +123,8 @@ function HoldingPreviewItem({
   const isNegative = holding.pnlColor === 'negative'
 
   return (
-    <div className={`py-3 ${!isLast ? 'border-b border-border/50' : ''}`}>
-      <div className="flex flex-col gap-1">
+    <Stack className={`py-3 ${!isLast ? 'border-b border-border/50' : ''}`}>
+      <Stack gap="xs">
 
         {/* Row 1: Brand · Weight (xN) */}
         <Typography variant="body-sm" className="font-medium block">
@@ -142,7 +142,7 @@ function HoldingPreviewItem({
         </Typography>
 
         {/* Row 3: Estimated Sell & PnL */}
-        <div className="flex items-center gap-1.5 text-xs mt-0.5">
+        <Stack direction="horizontal" gap="xs" className="items-center text-xs mt-0.5">
           {hasValuation ? (
             <>
               <span className="text-muted-foreground">
@@ -153,8 +153,8 @@ function HoldingPreviewItem({
               </span>
 
               {/* PnL Indicator */}
-              <div className={cn(
-                "flex items-center gap-0.5 ml-1 font-medium",
+              <Stack direction="horizontal" gap="xs" className={cn(
+                "items-center ml-1 font-medium",
                 isPositive && "text-positive",
                 isNegative && "text-negative",
                 !isPositive && !isNegative && "text-muted-foreground"
@@ -164,16 +164,16 @@ function HoldingPreviewItem({
                   isNegative && "rotate-180" // Down arrow for loss
                 )} />
                 <span>{isVisible ? `${holding.pnl} (${holding.pnlPercentage})` : '••••••'}</span>
-              </div>
+              </Stack>
             </>
           ) : (
             <span className="text-muted-foreground italic">
               {t('dashboard.valuationUnavailable')}
             </span>
           )}
-        </div>
-      </div>
-    </div>
+        </Stack>
+      </Stack>
+    </Stack>
   )
 }
 
@@ -188,7 +188,7 @@ function HoldingsPreviewEmpty() {
       <Typography variant="h3">{t('dashboard.recentHoldings')}</Typography>
 
       <Card className="bg-linear-to-r from-teal-50/80 via-white to-white dark:from-teal-950/20 dark:via-background dark:to-background rounded-2xl p-6 md:p-8 border border-teal-100 dark:border-teal-900/50">
-        <div className="flex flex-col items-center justify-center text-center gap-4 py-4">
+        <Stack gap="md" className="items-center justify-center text-center py-4">
           <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center">
             <Coins className="w-6 h-6 text-muted-foreground" />
           </div>
@@ -208,7 +208,7 @@ function HoldingsPreviewEmpty() {
               <span>{t('dashboard.addFirstHolding')}</span>
             </Button>
           </Link>
-        </div>
+        </Stack>
       </Card>
     </Stack>
   )
@@ -224,15 +224,15 @@ function HoldingsPreviewSkeleton() {
       <Card className="bg-linear-to-r from-teal-50/80 via-white to-white dark:from-teal-950/20 dark:via-background dark:to-background rounded-2xl p-6 md:p-8 border border-teal-100 dark:border-teal-900/50">
         <Stack gap="none">
           {[1, 2, 3].map((i) => (
-            <div key={i} className={`py-3 ${i < 3 ? 'border-b border-(--border)/50' : ''}`}>
+            <Stack key={i} className={`py-3 ${i < 3 ? 'border-b border-(--border)/50' : ''}`}>
               <Skeleton className="h-4 w-32 mb-1" />
               <Skeleton className="h-3 w-48" />
-            </div>
+            </Stack>
           ))}
         </Stack>
-        <div className="mt-4 pt-3 border-t border-(--border)">
+        <Stack className="mt-4 pt-3 border-t border-(--border)">
           <Skeleton className="h-8 w-full" />
-        </div>
+        </Stack>
       </Card>
     </Stack>
   )

@@ -199,7 +199,7 @@ export function GoalCreateForm({ onSuccess, onCancel, mode = 'dialog' }: GoalCre
         <form onSubmit={handleSave}>
             {content}
             {/* Actions */}
-            <div className="flex gap-3 pt-4 justify-end">
+            <Stack direction="horizontal" gap="sm" className="pt-4 justify-end">
                 <Button
                     type="button"
                     variant="ghost"
@@ -215,7 +215,7 @@ export function GoalCreateForm({ onSuccess, onCancel, mode = 'dialog' }: GoalCre
                 >
                     {mutation.isPending ? t('common.saving') : t('goals.form.create')}
                 </Button>
-            </div>
+            </Stack>
         </form>
     )
 }

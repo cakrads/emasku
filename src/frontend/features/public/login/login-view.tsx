@@ -13,7 +13,7 @@ import { User, Chrome, AlertCircle, Shield } from 'lucide-react'
 import { Button } from '@/frontend/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/frontend/components/ui/card'
 import { Typography } from '@/frontend/components/ui/typography'
-import { Stack } from '@/frontend/components/ui/layout'
+import { Stack, Section } from '@/frontend/components/ui/layout'
 import { loginWithGoogle, recordConsent } from '@/frontend/services/auth/auth.api'
 import { useAuthStore } from '@/frontend/providers/auth.store'
 import { ROUTES } from '@/frontend/config/routes'
@@ -22,6 +22,7 @@ import { Label } from '@/frontend/components/ui/label'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { cn } from '@/frontend/utils/cn'
 import { toast } from 'sonner'
+import { ErrorBoundary } from '@/frontend/components/fragments/admin/error-boundary'
 
 export function LoginView() {
   const router = useRouter()
@@ -95,12 +96,13 @@ export function LoginView() {
   const isLoading = isLoadingGoogle
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-background via-background to-accent-gold/5">
+    <ErrorBoundary>
+    <Stack direction="horizontal" className="min-h-screen items-center justify-center p-4 bg-linear-to-br from-background via-background to-accent-gold/5">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center space-y-2">
-          <div className="mx-auto w-16 h-16 bg-accent-gold/10 rounded-full flex items-center justify-center mb-4">
-            <div className="w-8 h-8 bg-accent-gold rounded-full" />
-          </div>
+          <Stack direction="horizontal" className="mx-auto w-16 h-16 bg-accent-gold/10 rounded-full items-center justify-center mb-4">
+            <Stack direction="horizontal" className="w-8 h-8 bg-accent-gold rounded-full" />
+          </Stack>
           <CardTitle>
             <Typography variant="h2">{t('login.title')}</Typography>
           </CardTitle>
@@ -114,31 +116,31 @@ export function LoginView() {
         <CardContent>
           <Stack gap="md">
             {error && (
-              <div className="flex items-start gap-3 p-4 rounded-lg bg-destructive/10 text-destructive">
+              <Stack direction="horizontal" gap="sm" className="items-start p-4 rounded-lg bg-destructive/10 text-destructive">
                 <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
-                <div className="space-y-1">
+                <Stack direction="vertical" gap="xs">
                   <Typography variant="body" className="font-medium text-sm">
                     {error.userMessage}
                   </Typography>
-                </div>
-              </div>
+                </Stack>
+              </Stack>
             )}
 
-            <div className="flex items-start space-x-3 p-4 rounded-lg bg-muted/50 border border-muted ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 transition-all cursor-pointer">
+            <Stack direction="horizontal" gap="sm" className="items-start p-4 rounded-lg bg-muted/50 border border-muted ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 transition-all cursor-pointer">
               <Checkbox
                 id="consent"
                 checked={hasConsented}
                 onCheckedChange={(checked) => setHasConsented(checked as boolean)}
                 className="mt-0.5"
               />
-              <div className="grid gap-1.5 leading-none">
+              <Stack direction="vertical" gap="xs" className="leading-none">
                 <Label
                   htmlFor="consent"
                   className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                 >
                   {t('login.privacyConsent')}
                 </Label>
-                <p className="text-xs text-muted-foreground">
+                <Typography variant="caption" className="text-muted-foreground" as="span">
                   {t('login.privacyDescription').split('{link}').map((part, i, arr) => (
                     <React.Fragment key={i}>
                       {part}
@@ -149,9 +151,9 @@ export function LoginView() {
                       )}
                     </React.Fragment>
                   ))}
-                </p>
-              </div>
-            </div>
+                </Typography>
+              </Stack>
+            </Stack>
 
             <Button
               variant="solid"
@@ -161,22 +163,22 @@ export function LoginView() {
               disabled={isLoading}
             >
               {isLoadingGoogle ? (
-                <div className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                <Stack direction="horizontal" className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
               ) : (
                 <Chrome className="h-5 w-5 mr-2" />
               )}
               {t('login.googleLogin')}
             </Button>
 
-            <div className="mt-4 p-4 rounded-xl bg-accent-gold/10 border border-accent-gold/20 flex gap-3 text-sm text-yellow-800 dark:text-yellow-200">
+            <Stack direction="horizontal" gap="sm" className="mt-4 p-4 rounded-xl bg-accent-gold/10 border border-accent-gold/20 text-sm text-yellow-800 dark:text-yellow-200">
               <Shield className="h-5 w-5 shrink-0 mt-0.5" />
-              <div className="space-y-1">
-                <p className="font-bold">{t('login.securityTitle')}</p>
-                <p className="text-xs leading-relaxed opacity-90">
+              <Stack direction="vertical" gap="xs">
+                <Typography variant="body" className="font-bold">{t('login.securityTitle')}</Typography>
+                <Typography variant="caption" className="leading-relaxed opacity-90">
                   {t('login.securityDesc')}
-                </p>
-              </div>
-            </div>
+                </Typography>
+              </Stack>
+            </Stack>
 
             <Typography variant="caption" className="text-center text-muted-foreground mt-4 italic">
               {t('login.tagline')}
@@ -185,6 +187,7 @@ export function LoginView() {
         </CardContent>
       </Card>
 
-    </div>
+    </Stack>
+    </ErrorBoundary>
   )
 }

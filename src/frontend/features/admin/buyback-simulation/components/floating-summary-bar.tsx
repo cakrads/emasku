@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/frontend/components/ui/button'
+import { Stack } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { SimulationSummary } from '../hooks/use-buyback-simulation'
@@ -56,42 +57,42 @@ export function FloatingSummaryBar({ summary, onReset, onSell }: FloatingSummary
             <div className="bg-background/95 backdrop-blur-lg border border-border shadow-2xl rounded-2xl p-4 w-full max-w-3xl flex flex-col md:flex-row items-center justify-between gap-4 pointer-events-auto ring-1 ring-black/5 dark:ring-white/10">
 
                 {/* Left: Summary Info */}
-                <div className="flex items-center gap-6 w-full md:w-auto justify-between md:justify-start">
-                    <div className="flex items-center gap-3">
+                <Stack direction="horizontal" className="items-center gap-6 w-full md:w-auto justify-between md:justify-start">
+                    <Stack direction="horizontal" gap="sm" className="items-center">
                         <div className="relative">
-                            <div className="bg-primary/10 p-2 rounded-full text-primary">
+                            <Stack className="bg-primary/10 p-2 rounded-full text-primary">
                                 <Wallet className="w-5 h-5" />
-                            </div>
+                            </Stack>
                             <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center border-2 border-background">
                                 {summary.selectedCount}
                             </span>
                         </div>
-                        <div>
+                        <Stack gap="xs">
                             <Typography as="div" variant="caption" className="text-muted-foreground uppercase tracking-wider font-semibold">
                                 {t('buybackSimulation.headerSummary.totalBuyback')}
                             </Typography>
                             <Typography variant="h4" className="financial-value text-lg">
                                 {formatIDR(summary.totalBuybackValue)}
                             </Typography>
-                        </div>
-                    </div>
+                        </Stack>
+                    </Stack>
 
                     {/* PnL Mini (Visible on mobile/desktop) */}
-                    <div className="text-right">
+                    <Stack className="text-right" gap="xs">
                         <Typography as="div" variant="caption" className="text-muted-foreground uppercase tracking-wider font-semibold">
                             {t('buybackSimulation.headerSummary.totalPnL')}
                         </Typography>
-                        <div className={cn("flex items-center justify-end gap-1.5", pnlColor)}>
+                        <Stack direction="horizontal" className={cn("items-center justify-end gap-1.5", pnlColor)}>
                             {summary.totalPnL > 0 ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
-                            <span className="font-semibold text-sm">
+                            <Typography as="span" variant="body-sm" className="font-semibold">
                                 {summary.totalPnL > 0 ? '+' : ''}{formatIDR(summary.totalPnL)}
-                            </span>
-                        </div>
-                    </div>
-                </div>
+                            </Typography>
+                        </Stack>
+                    </Stack>
+                </Stack>
 
                 {/* Right: Actions */}
-                <div className="flex items-center gap-3 w-full md:w-auto">
+                <Stack direction="horizontal" gap="sm" className="items-center w-full md:w-auto">
                     <Button
                         variant="outline"
                         size="sm"
@@ -109,7 +110,7 @@ export function FloatingSummaryBar({ summary, onReset, onSell }: FloatingSummary
                     >
                         {t('buybackSimulation.headerSummary.sellSelected')}
                     </Button>
-                </div>
+                </Stack>
             </div>
         </div>
     )

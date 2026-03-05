@@ -1,16 +1,18 @@
 'use client'
 
-import React from 'react'
+import React, { ReactNode } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Shield, Lock, Eye, FileText, Server, Mail, Calendar, TriangleAlert } from 'lucide-react'
 import { Button } from '@/frontend/components/ui/button'
 import { Card, CardContent } from '@/frontend/components/ui/card'
 import { Typography } from '@/frontend/components/ui/typography'
+import { Stack, Section } from '@/frontend/components/ui/layout'
 import { Alert, AlertTitle, AlertDescription } from '@/frontend/components/ui/alert'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { cn } from '@/frontend/utils/cn'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
 import { ROUTES } from '@/frontend/config/routes'
+import { ErrorBoundary } from '@/frontend/components/fragments/admin/error-boundary'
 
 export function PrivacyView() {
   const { t, language, setLanguage } = useLanguage()
@@ -26,6 +28,7 @@ export function PrivacyView() {
   const safePurposeItems = Array.isArray(purposeItems) ? purposeItems : []
 
   return (
+    <ErrorBoundary>
     <StandardPageLayout
       title={t('privacy.title')}
       description={t('privacy.subtitle')}
@@ -34,11 +37,11 @@ export function PrivacyView() {
         { label: t('privacy.title') }
       ]}
     >
-      <div className="space-y-16 py-8">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground -mt-12 mb-8">
+      <Stack direction="vertical" gap="xl" className="py-8">
+        <Stack direction="horizontal" gap="sm" className="items-center text-sm text-muted-foreground -mt-12 mb-8">
           <Calendar className="h-4 w-4" />
           <span>{t('privacy.lastUpdated').replace('{date}', localizedLastUpdated)}</span>
-        </div>
+        </Stack>
 
         {/* Education Disclaimer */}
         <Alert variant="destructive" className="bg-destructive/5 border-destructive/20 text-destructive dark:text-red-400">
@@ -50,152 +53,199 @@ export function PrivacyView() {
         </Alert>
 
         {/* Introduction */}
-        <section className="space-y-6">
+        <Section className="space-y-6 py-0">
           <Typography variant="body" className="text-lg leading-relaxed text-foreground/80">
             {t('privacy.intro')}
           </Typography>
-          <div className="mt-8 bg-accent-gold/5 border border-accent-gold/20 rounded-xl p-6 flex gap-4 text-sm text-yellow-800 dark:text-yellow-200 shadow-sm">
+          <Stack direction="horizontal" gap="md" className="mt-8 bg-accent-gold/5 border border-accent-gold/20 rounded-xl p-6 text-sm text-yellow-800 dark:text-yellow-200 shadow-sm">
             <Shield className="h-6 w-6 shrink-0 mt-0.5" />
-            <div className="space-y-2">
-              <p className="font-bold text-lg">{t('privacy.securityGuarantee.title')}</p>
-              <p className="leading-relaxed opacity-90 text-base">
+            <Stack direction="vertical" gap="sm">
+              <Typography variant="body" className="font-bold text-lg">{t('privacy.securityGuarantee.title')}</Typography>
+              <Typography variant="body" className="leading-relaxed opacity-90">
                 {t('privacy.securityGuarantee.description')}
-              </p>
-            </div>
-          </div>
-        </section>
+              </Typography>
+            </Stack>
+          </Stack>
+        </Section>
 
         {/* 1. Data Collection */}
-        <section className="space-y-6">
-          <h2 className="text-2xl font-bold flex items-center gap-3">
-            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm">1</span>
-            {t('privacy.sections.collectedData.title')}
-          </h2>
+        <Section className="space-y-6 py-0">
+          <Stack direction="horizontal" gap="sm" className="items-center">
+            <Stack direction="horizontal" className="items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm shrink-0">
+              <Typography variant="body-sm">1</Typography>
+            </Stack>
+            <Typography variant="h2" className="text-2xl font-bold">
+              {t('privacy.sections.collectedData.title')}
+            </Typography>
+          </Stack>
           <Card className="overflow-hidden border-muted/60">
             <CardContent className="p-0 grid md:grid-cols-3 divide-y md:divide-y-0 md:divide-x">
-              <div className="p-8 space-y-4">
-                <div className="flex items-center gap-2 font-semibold text-blue-600 dark:text-blue-400">
+              <Stack direction="vertical" gap="md" className="p-8">
+                <Stack direction="horizontal" gap="sm" className="items-center font-semibold text-blue-600 dark:text-blue-400">
                   <UserIcon className="h-5 w-5" />
-                  <h3>{t('privacy.sections.collectedData.identity.title')}</h3>
-                </div>
-                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <Typography variant="body" as="span" className="font-semibold">{t('privacy.sections.collectedData.identity.title')}</Typography>
+                </Stack>
+                <Stack direction="vertical" gap="sm" className="text-sm text-muted-foreground" as="ul">
                   {safeIdentityItems.map((item, i) => (
-                    <li key={i} className="flex items-center gap-2">• {item}</li>
+                    <Stack key={i} direction="horizontal" gap="sm" className="items-center" as="li">
+                      <span>•</span>
+                      <Typography variant="body-sm">{item}</Typography>
+                    </Stack>
                   ))}
-                </ul>
-              </div>
-              <div className="p-8 space-y-4">
-                <div className="flex items-center gap-2 font-semibold text-green-600 dark:text-green-400">
+                </Stack>
+              </Stack>
+              <Stack direction="vertical" gap="md" className="p-8">
+                <Stack direction="horizontal" gap="sm" className="items-center font-semibold text-green-600 dark:text-green-400">
                   <WalletIcon className="h-5 w-5" />
-                  <h3>{t('privacy.sections.collectedData.financial.title')}</h3>
-                </div>
-                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <Typography variant="body" as="span" className="font-semibold">{t('privacy.sections.collectedData.financial.title')}</Typography>
+                </Stack>
+                <Stack direction="vertical" gap="sm" className="text-sm text-muted-foreground" as="ul">
                   {safeFinancialItems.map((item, i) => (
-                    <li key={i} className="flex items-center gap-2">• {item}</li>
+                    <Stack key={i} direction="horizontal" gap="sm" className="items-center" as="li">
+                      <span>•</span>
+                      <Typography variant="body-sm">{item}</Typography>
+                    </Stack>
                   ))}
-                </ul>
-              </div>
-              <div className="p-8 space-y-4">
-                <div className="flex items-center gap-2 font-semibold text-purple-600 dark:text-purple-400">
+                </Stack>
+              </Stack>
+              <Stack direction="vertical" gap="md" className="p-8">
+                <Stack direction="horizontal" gap="sm" className="items-center font-semibold text-purple-600 dark:text-purple-400">
                   <Server className="h-5 w-5" />
-                  <h3>{t('privacy.sections.collectedData.technical.title')}</h3>
-                </div>
-                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <Typography variant="body" as="span" className="font-semibold">{t('privacy.sections.collectedData.technical.title')}</Typography>
+                </Stack>
+                <Stack direction="vertical" gap="sm" className="text-sm text-muted-foreground" as="ul">
                   {safeTechnicalItems.map((item, i) => (
-                    <li key={i} className="flex items-center gap-2">• {item}</li>
+                    <Stack key={i} direction="horizontal" gap="sm" className="items-center" as="li">
+                      <span>•</span>
+                      <Typography variant="body-sm">{item}</Typography>
+                    </Stack>
                   ))}
-                </ul>
-              </div>
+                </Stack>
+              </Stack>
             </CardContent>
           </Card>
-        </section>
+        </Section>
 
         {/* 2. Purpose */}
-        <section className="space-y-6">
-          <h2 className="text-2xl font-bold flex items-center gap-3">
-            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm">2</span>
-            {t('privacy.sections.purpose.title')}
-          </h2>
+        <Section className="space-y-6 py-0">
+          <Stack direction="horizontal" gap="sm" className="items-center">
+            <Stack direction="horizontal" className="items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm shrink-0">
+              <Typography variant="body-sm">2</Typography>
+            </Stack>
+            <Typography variant="h2" className="text-2xl font-bold">
+              {t('privacy.sections.purpose.title')}
+            </Typography>
+          </Stack>
           <div className="grid sm:grid-cols-2 gap-4">
             {safePurposeItems.map((item, i) => (
-              <div key={i} className="flex items-center gap-3 p-4 rounded-lg bg-muted/30 border border-muted/50">
-                <div className="w-1.5 h-1.5 rounded-full bg-accent-gold shadow-[0_0_8px_rgba(212,175,55,0.5)]" />
-                <span className="text-sm font-medium">{item}</span>
-              </div>
+              <Stack key={i} direction="horizontal" gap="sm" className="items-center p-4 rounded-lg bg-muted/30 border border-muted/50">
+                <Stack direction="horizontal" className="w-1.5 h-1.5 rounded-full bg-accent-gold shadow-[0_0_8px_rgba(212,175,55,0.5)] shrink-0" />
+                <Typography variant="body-sm" className="font-medium">{item}</Typography>
+              </Stack>
             ))}
           </div>
-        </section>
+        </Section>
 
         {/* 3. User Rights (UU PDP) */}
-        <section className="space-y-6">
-          <h2 className="text-2xl font-bold flex items-center gap-3">
-            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm">3</span>
-            {t('privacy.sections.rights.title')}
-          </h2>
+        <Section className="space-y-6 py-0">
+          <Stack direction="horizontal" gap="sm" className="items-center">
+            <Stack direction="horizontal" className="items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm shrink-0">
+              <Typography variant="body-sm">3</Typography>
+            </Stack>
+            <Typography variant="h2" className="text-2xl font-bold">
+              {t('privacy.sections.rights.title')}
+            </Typography>
+          </Stack>
           <div className="grid md:grid-cols-2 gap-4">
             <RightCard icon={Eye} title={t('privacy.sections.rights.access.title')} desc={t('privacy.sections.rights.access.description')} />
             <RightCard icon={FileText} title={t('privacy.sections.rights.correction.title')} desc={t('privacy.sections.rights.correction.description')} />
             <RightCard icon={Lock} title={t('privacy.sections.rights.deletion.title')} desc={t('privacy.sections.rights.deletion.description')} />
             <RightCard icon={Shield} title={t('privacy.sections.rights.withdrawal.title')} desc={t('privacy.sections.rights.withdrawal.description')} />
           </div>
-          <p className="text-sm text-muted-foreground p-4 rounded-lg bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-900/20 italic"
-            dangerouslySetInnerHTML={{ __html: t('privacy.sections.rights.note').replace('Profil > Privasi & Data', '<strong>Profil > Privasi & Data</strong>') }} />
-        </section>
+          <Typography variant="body-sm" className="text-muted-foreground p-4 rounded-lg bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-900/20 italic">
+            {renderWithBold(String(t('privacy.sections.rights.note')), ['Profil > Privasi & Data', 'Profile > Privacy & Data'])}
+          </Typography>
+        </Section>
 
         {/* 4. Data Retention */}
-        <section className="space-y-6">
-          <h2 className="text-2xl font-bold flex items-center gap-3">
-            <span className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm">4</span>
-            {t('privacy.sections.retention.title')}
-          </h2>
-          <Typography variant="body" className="leading-relaxed text-muted-foreground"
-            dangerouslySetInnerHTML={{ __html: t('privacy.sections.retention.description').replace('5 tahun', '<strong>5 tahun</strong>').replace('AES-256', '<strong>AES-256</strong>').replace('TLS 1.3', '<strong>TLS 1.3</strong>') }} />
-        </section>
+        <Section className="space-y-6 py-0">
+          <Stack direction="horizontal" gap="sm" className="items-center">
+            <Stack direction="horizontal" className="items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary text-sm shrink-0">
+              <Typography variant="body-sm">4</Typography>
+            </Stack>
+            <Typography variant="h2" className="text-2xl font-bold">
+              {t('privacy.sections.retention.title')}
+            </Typography>
+          </Stack>
+          <Typography variant="body" className="leading-relaxed text-muted-foreground">
+            {renderWithBold(String(t('privacy.sections.retention.description')), ['5 tahun', '5 years', 'AES-256', 'TLS 1.3'])}
+          </Typography>
+        </Section>
 
         {/* 5. Contact */}
-        <section className="space-y-6 pt-12 border-t">
-          <h2 className="text-xl font-bold">{t('privacy.sections.contact.title')}</h2>
+        <Section className="space-y-6 pt-12 border-t py-0">
+          <Typography variant="h2" className="text-xl font-bold">{t('privacy.sections.contact.title')}</Typography>
           <div className="grid md:grid-cols-2 gap-8">
             <address className="not-italic space-y-4">
-              <div className="space-y-1">
-                <p className="text-xs uppercase tracking-widest text-muted-foreground font-bold">{t('privacy.sections.contact.privacyTeam')}</p>
-                <p className="text-lg font-semibold">{t('privacy.sections.contact.dpo')}</p>
-              </div>
-              <div className="space-y-2 text-sm text-foreground/80">
-                <div className="flex items-center gap-2">
+              <Stack direction="vertical" gap="xs">
+                <Typography variant="caption" className="text-xs uppercase tracking-widest text-muted-foreground font-bold">{t('privacy.sections.contact.privacyTeam')}</Typography>
+                <Typography variant="body" className="text-lg font-semibold">{t('privacy.sections.contact.dpo')}</Typography>
+              </Stack>
+              <Stack direction="vertical" gap="sm" className="text-sm text-foreground/80">
+                <Stack direction="horizontal" gap="sm" className="items-center">
                   <Mail className="h-4 w-4 text-accent-gold" />
                   <a href="mailto:privacy@emasku.com" className="hover:text-accent-gold transition-colors">privacy@emasku.com</a>
-                </div>
-                <div className="flex items-center gap-2">
+                </Stack>
+                <Stack direction="horizontal" gap="sm" className="items-center">
                   <FileText className="h-4 w-4 text-accent-gold" />
                   <span>{t('privacy.sections.contact.location')}</span>
-                </div>
-              </div>
+                </Stack>
+              </Stack>
             </address>
-            <div className="bg-muted/30 p-6 rounded-xl border border-muted/50 text-xs text-muted-foreground leading-relaxed">
-              <p>
+            <Stack direction="vertical" className="bg-muted/30 p-6 rounded-xl border border-muted/50 text-xs text-muted-foreground leading-relaxed">
+              <Typography variant="caption" className="leading-relaxed">
                 {t('privacy.sections.contact.processingTime')}
-              </p>
-            </div>
+              </Typography>
+            </Stack>
           </div>
-        </section>
-      </div>
+        </Section>
+      </Stack>
     </StandardPageLayout>
+    </ErrorBoundary>
   )
 }
 
 
+/** Bolds specific patterns in a plain-text string, returning JSX. */
+function renderWithBold(text: string, patterns: string[]): ReactNode {
+  type Part = string | React.ReactElement
+  let parts: Part[] = [text]
+  patterns.forEach((pattern, pi) => {
+    const next: Part[] = []
+    parts.forEach((part, i) => {
+      if (typeof part !== 'string') { next.push(part); return }
+      const segments = part.split(pattern)
+      segments.forEach((seg, si) => {
+        if (seg) next.push(seg)
+        if (si < segments.length - 1) next.push(<strong key={`${pi}-${i}-${si}`}>{pattern}</strong>)
+      })
+    })
+    parts = next
+  })
+  return <>{parts}</>
+}
+
 function RightCard({ icon: Icon, title, desc }: { icon: React.ElementType, title: string, desc: string }) {
   return (
-    <div className="border rounded-lg p-4 flex gap-3 items-start hover:bg-accent/5 transition-colors">
-      <div className="bg-primary/10 p-2 rounded-full shrink-0">
+    <Stack direction="horizontal" gap="sm" className="border rounded-lg p-4 items-start hover:bg-accent/5 transition-colors">
+      <Stack direction="horizontal" className="bg-primary/10 p-2 rounded-full shrink-0 items-center justify-center">
         <Icon className="h-4 w-4 text-primary" />
-      </div>
-      <div>
-        <h4 className="font-medium text-sm">{title}</h4>
-        <p className="text-xs text-muted-foreground mt-1">{desc}</p>
-      </div>
-    </div>
+      </Stack>
+      <Stack direction="vertical" gap="xs">
+        <Typography variant="body-sm" className="font-medium">{title}</Typography>
+        <Typography variant="caption" className="text-muted-foreground mt-1">{desc}</Typography>
+      </Stack>
+    </Stack>
   )
 }
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { cn } from '@/frontend/utils/cn'
+import { Typography } from '@/frontend/components/ui/typography'
 
 interface PhoneMockProps {
   activeStep: number
@@ -28,8 +29,8 @@ export function PhoneMock({ activeStep, className }: PhoneMockProps) {
             >
               <div className="space-y-4">
                 <div className="text-center mb-6">
-                  <h3 className="text-lg font-semibold">Tambah Emas</h3>
-                  <p className="text-xs text-muted-foreground">Catat pembelian baru</p>
+                  <Typography variant="h3" as="h3" className="text-lg font-semibold">Tambah Emas</Typography>
+                  <Typography variant="caption" as="p" className="text-xs text-muted-foreground">Catat pembelian baru</Typography>
                 </div>
 
                 <div className="space-y-3">
@@ -69,8 +70,8 @@ export function PhoneMock({ activeStep, className }: PhoneMockProps) {
             >
               <div className="space-y-4">
                 <div className="text-center mb-6">
-                  <h3 className="text-lg font-semibold">Portofolio</h3>
-                  <p className="text-xs text-muted-foreground">Total kepemilikan</p>
+                  <Typography variant="h3" as="h3" className="text-lg font-semibold">Portofolio</Typography>
+                  <Typography variant="caption" as="p" className="text-xs text-muted-foreground">Total kepemilikan</Typography>
                 </div>
 
                 <div className="bg-muted/50 backdrop-blur-sm rounded-2xl p-4 space-y-4 border border-border/50">
@@ -101,7 +102,7 @@ export function PhoneMock({ activeStep, className }: PhoneMockProps) {
                 </div>
 
                 <div className="text-center">
-                  <p className="text-xs text-muted-foreground">Harga market diperbarui otomatis</p>
+                  <Typography variant="caption" as="p" className="text-xs text-muted-foreground">Harga market diperbarui otomatis</Typography>
                 </div>
               </div>
             </div>
@@ -115,8 +116,8 @@ export function PhoneMock({ activeStep, className }: PhoneMockProps) {
             >
               <div className="space-y-4">
                 <div className="text-center mb-6">
-                  <h3 className="text-lg font-semibold">Riwayat</h3>
-                  <p className="text-xs text-muted-foreground">Catatan lengkap</p>
+                  <Typography variant="h3" as="h3" className="text-lg font-semibold">Riwayat</Typography>
+                  <Typography variant="caption" as="p" className="text-xs text-muted-foreground">Catatan lengkap</Typography>
                 </div>
 
                 <div className="space-y-3">

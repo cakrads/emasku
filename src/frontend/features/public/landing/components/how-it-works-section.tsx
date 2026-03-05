@@ -9,6 +9,8 @@ import { useIsMobile } from '@/frontend/hooks/use-mobile'
 import { Button } from '@/frontend/components/ui/button'
 import Link from 'next/link'
 import { ROUTES } from '@/frontend/config/routes'
+import { Typography } from '@/frontend/components/ui/typography'
+import { Stack } from '@/frontend/components/ui/layout'
 
 const steps = [
   { key: 'record', Icon: FileText, color: 'text-accent-gold', bg: 'bg-accent-gold/10', gradientBg: 'from-accent-gold to-amber-600' },
@@ -74,27 +76,27 @@ export function HowItWorksSection() {
         {/* Background grid pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] opacity-40" />
 
-        <div className="container relative z-10">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold tracking-tight">
+        <Stack className="container relative z-10">
+          <Stack className="text-center mb-8">
+            <Typography variant="h2" className="text-2xl font-bold tracking-tight">
               {t('landing.howItWorks.title') || 'Cara Kerja Emasku'}
-            </h2>
-            <p className="text-muted-foreground mt-2">
+            </Typography>
+            <Typography variant="body" className="text-muted-foreground mt-2">
               {t('landing.howItWorks.subtitle') || 'Sederhana. Transparan. Aman.'}
-            </p>
-          </div>
+            </Typography>
+          </Stack>
 
           {/* Mobile phone mock with swipe */}
-          <div
+          <Stack
             className="flex justify-center mb-8"
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
             <PhoneMock activeStep={mobileActiveStep} className="scale-90" />
-          </div>
+          </Stack>
 
           {/* Step indicators */}
-          <div className="flex justify-center gap-2 mb-6">
+          <Stack direction="horizontal" className="flex justify-center gap-2 mb-6">
             {steps.map((_, index) => (
               <button
                 key={index}
@@ -107,41 +109,41 @@ export function HowItWorksSection() {
                 )}
               />
             ))}
-          </div>
+          </Stack>
 
           {/* Active step content */}
-          <div className="text-center max-w-sm mx-auto">
+          <Stack className="text-center max-w-sm mx-auto">
             <div className={cn(
               "inline-flex w-10 h-10 rounded-xl items-center justify-center font-bold text-sm mb-4 bg-gradient-to-br text-white shadow-lg",
               steps[mobileActiveStep].gradientBg
             )}>
               0{mobileActiveStep + 1}
             </div>
-            <h3 className="text-xl font-bold mb-3">
+            <Typography variant="h3" className="text-xl font-bold mb-3">
               {t(`landing.howItWorks.steps.${steps[mobileActiveStep].key}.title`)}
-            </h3>
-            <p className="text-muted-foreground mb-2">
+            </Typography>
+            <Typography variant="body" className="text-muted-foreground mb-2">
               {t(`landing.howItWorks.steps.${steps[mobileActiveStep].key}.description`)}
-            </p>
-          </div>
+            </Typography>
+          </Stack>
 
           {/* Exit CTA */}
-          <div className="text-center mt-12 pt-8 border-t border-border/30">
-            <p className="text-muted-foreground mb-4">
+          <Stack className="text-center mt-12 pt-8 border-t border-border/30">
+            <Typography variant="body" className="text-muted-foreground mb-4">
               {t('landing.cta.description').split('\n').map((line: string, i: number) => (
                 <React.Fragment key={i}>
                   {line}
                   {i < t('landing.cta.description').split('\n').length - 1 && <br />}
                 </React.Fragment>
               ))}
-            </p>
+            </Typography>
             <Button size="lg" asChild className="bg-gradient-to-r from-accent-gold to-amber-600 hover:from-amber-600 hover:to-accent-gold text-white shadow-lg shadow-accent-gold/30">
               <Link href={ROUTES.LOGIN}>
                 {t('landing.cta.buttonAlt')}
               </Link>
             </Button>
-          </div>
-        </div>
+          </Stack>
+        </Stack>
       </section>
     )
   }
@@ -157,23 +159,23 @@ export function HowItWorksSection() {
 
       {/* Sticky viewport that stays fixed while scrolling through section */}
       <div className="sticky top-0 h-screen flex items-center bg-gray-50 dark:bg-black">
-        <div className="max-w-6xl mx-auto px-6 relative z-10 w-full">
+        <Stack className="max-w-6xl mx-auto px-6 relative z-10 w-full">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left Column: Phone Mockup */}
-            <div className="hidden lg:flex justify-center">
+            <Stack className="hidden lg:flex justify-center">
               <PhoneMock activeStep={activeStep} />
-            </div>
+            </Stack>
 
             {/* Right Column: Step Content */}
-            <div className="space-y-8">
-              <div className="mb-8">
-                <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+            <Stack className="space-y-8">
+              <Stack className="mb-8">
+                <Typography variant="h2" className="text-3xl md:text-4xl font-bold text-foreground mb-4">
                   {t('landing.howItWorks.title') || 'Cara Kerja Emasku'}
-                </h2>
-                <p className="text-lg text-muted-foreground">
+                </Typography>
+                <Typography variant="body" className="text-lg text-muted-foreground">
                   {t('landing.howItWorks.subtitle') || 'Sederhana. Transparan. Aman.'}
-                </p>
-              </div>
+                </Typography>
+              </Stack>
 
               {steps.map((step, index) => (
                 <div
@@ -187,7 +189,7 @@ export function HowItWorksSection() {
                       : "border-transparent opacity-40"
                   )}
                 >
-                  <div className="flex items-start gap-4">
+                  <Stack direction="horizontal" className="flex items-start gap-4">
                     <div className={cn(
                       "flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm transition-all duration-300",
                       activeStep === index
@@ -196,43 +198,43 @@ export function HowItWorksSection() {
                     )}>
                       0{index + 1}
                     </div>
-                    <div className="flex-1">
-                      <h3 className={cn(
+                    <Stack className="flex-1">
+                      <Typography variant="h3" className={cn(
                         "text-xl font-bold mb-2 transition-colors duration-300",
                         activeStep === index ? step.color : ""
                       )}>
                         {t(`landing.howItWorks.steps.${step.key}.title`)}
-                      </h3>
-                      <p className="text-muted-foreground">
+                      </Typography>
+                      <Typography variant="body" className="text-muted-foreground">
                         {t(`landing.howItWorks.steps.${step.key}.description`)}
-                      </p>
-                    </div>
-                  </div>
+                      </Typography>
+                    </Stack>
+                  </Stack>
                 </div>
               ))}
 
               {/* Exit CTA (visible when on last step) */}
-              <div className={cn(
+              <Stack className={cn(
                 "pt-8 border-t border-border/30 transition-all duration-500",
                 activeStep === 2 ? "opacity-100" : "opacity-0 pointer-events-none"
               )}>
-                <p className="text-muted-foreground mb-4">
+                <Typography variant="body" className="text-muted-foreground mb-4">
                   {t('landing.cta.description').split('\n').map((line: string, i: number) => (
                     <React.Fragment key={i}>
                       {line}
                       {i < t('landing.cta.description').split('\n').length - 1 && <br />}
                     </React.Fragment>
                   ))}
-                </p>
+                </Typography>
                 <Button size="lg" asChild className="bg-gradient-to-r from-accent-gold to-amber-600 hover:from-amber-600 hover:to-accent-gold text-white shadow-lg shadow-accent-gold/30">
                   <Link href={ROUTES.LOGIN}>
                     {t('landing.cta.buttonAlt')}
                   </Link>
                 </Button>
-              </div>
-            </div>
+              </Stack>
+            </Stack>
           </div>
-        </div>
+        </Stack>
       </div>
 
       {/* Invisible scroll triggers */}

@@ -9,6 +9,8 @@ import { ROUTES } from '@/frontend/config/routes'
 import { useScrollParallax, useScrollAnimation } from '@/frontend/hooks/use-scroll-animation'
 import { HeroBackground } from './hero-background'
 import { cn } from '@/frontend/utils/cn'
+import { Typography } from '@/frontend/components/ui/typography'
+import { Stack } from '@/frontend/components/ui/layout'
 
 export function HeroSection() {
   const { t } = useLanguage()
@@ -50,7 +52,7 @@ export function HeroSection() {
         >
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/50 dark:bg-zinc-900/50 border border-border backdrop-blur-md shadow-sm">
             <span className="text-accent-gold">✨</span>
-            <span className="text-muted-foreground text-sm font-medium">{t('landing.hero.tagline')}</span>
+            <Typography variant="body-sm" as="span" className="text-muted-foreground text-sm font-medium">{t('landing.hero.tagline')}</Typography>
           </div>
         </div>
 

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { Check, Info } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { Typography } from '@/frontend/components/ui/typography'
@@ -57,7 +57,9 @@ export function BrandSelector({ selected, onSelect }: BrandSelectorProps) {
         <Section className="p-4 rounded-xl border border-border bg-surface-elevated py-4">
           <Stack direction="horizontal" gap="md" className="items-start text-text-secondary">
             <Info className="h-5 w-5 shrink-0 mt-0.5 text-foreground" />
-            <Typography variant="caption" className="text-text-secondary leading-relaxed" dangerouslySetInnerHTML={{ __html: t('addHolding.brandSelection.customBrand.warning') }} />
+            <Typography variant="caption" className="text-text-secondary leading-relaxed">
+              {parseBoldMarkup(String(t('addHolding.brandSelection.customBrand.warning')))}
+            </Typography>
           </Stack>
         </Section>
 
@@ -143,5 +145,13 @@ function BrandSelectorSkeleton() {
         <Skeleton className="h-[60px] w-full rounded-xl border-dashed" />
       </Stack>
     </Stack>
+  )
+}
+
+/** Parses `<strong>...</strong>` tags from a string and renders them as JSX. */
+function parseBoldMarkup(text: string): React.ReactNode {
+  const parts = text.split(/<strong>(.*?)<\/strong>/)
+  return parts.map((part, i) =>
+    i % 2 === 1 ? <strong key={i}>{part}</strong> : part
   )
 }

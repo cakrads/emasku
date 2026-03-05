@@ -132,7 +132,7 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
 
   if (isLoading) {
     return (
-      <div className="w-full max-w-lg mx-auto pb-44 sm:min-w-[500px]">
+      <Stack className="w-full max-w-lg mx-auto pb-44 sm:min-w-[500px]">
         <Section className="py-6 w-full min-w-0 px-0">
           <Stack gap="xl" className="px-4 sm:px-6">
             {/* Brand (disabled input + caption) */}
@@ -177,11 +177,11 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
         </Section>
 
         {/* Action Buttons */}
-        <div className="flex gap-3 mt-8 px-4 sm:px-6">
+        <Stack direction="horizontal" gap="md" className="mt-8 px-4 sm:px-6">
           <Skeleton className="h-12 flex-1 rounded-xl" />
           <Skeleton className="h-12 flex-1 rounded-xl" />
-        </div>
-      </div>
+        </Stack>
+      </Stack>
     )
   }
 
@@ -190,7 +190,7 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
   }
 
   return (
-    <div className="w-full max-w-lg mx-auto pb-44 sm:min-w-[500px]">
+    <Stack className="w-full max-w-lg mx-auto pb-44 sm:min-w-[500px]">
       {/* Form */}
       <Section className="px-0">
         <Stack gap="xl">
@@ -268,7 +268,7 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
         ]}
       />
 
-    </div>
+    </Stack>
   )
 }
 

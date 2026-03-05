@@ -1,16 +1,17 @@
 import { Skeleton } from '@/frontend/components/ui/skeleton'
+import { Stack } from '@/frontend/components/ui/layout'
 
 export function PortfolioChartSkeleton() {
   return (
-    <div className="w-full">
+    <Stack className="w-full">
       {/* Chart Header */}
-      <div className="flex items-center justify-between mb-6">
+      <Stack direction="horizontal" gap="md" className="items-center justify-between mb-6">
         <Skeleton className="h-7 w-48" />
         <Skeleton className="h-9 w-32" />
-      </div>
+      </Stack>
 
       {/* Chart Area */}
       <Skeleton className="h-[300px] w-full rounded-xl" />
-    </div>
+    </Stack>
   )
 }

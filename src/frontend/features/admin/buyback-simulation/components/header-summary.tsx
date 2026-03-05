@@ -2,6 +2,8 @@ import { SimulationSummary } from '../hooks/use-buyback-simulation'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { Button } from '@/frontend/components/ui/button'
 import { Card } from '@/frontend/components/ui/card'
+import { Stack } from '@/frontend/components/ui/layout'
+import { Typography } from '@/frontend/components/ui/typography'
 import { RotateCcw } from 'lucide-react'
 
 interface HeaderSummaryProps {
@@ -37,9 +39,9 @@ export function HeaderSummary({ summary, onReset, onSell }: HeaderSummaryProps) 
 
         {/* Selection Count */}
         <div className="flex items-center justify-between md:justify-start gap-4">
-          <div className="text-sm font-medium text-muted-foreground">
+          <Typography as="div" variant="body-sm" className="font-medium text-muted-foreground">
             {t('buybackSimulation.headerSummary.selectedCount', { count: summary.selectedCount })}
-          </div>
+          </Typography>
           {summary.selectedCount > 0 && (
             <Button
               variant="ghost"
@@ -58,37 +60,37 @@ export function HeaderSummary({ summary, onReset, onSell }: HeaderSummaryProps) 
 
           {/* Est. Buyback Value */}
           <div className="text-left md:text-right md:order-3">
-            <div className="text-[10px] md:text-xs text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
+            <Typography as="div" variant="detail" className="text-[10px] md:text-xs text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
               {t('buybackSimulation.headerSummary.totalBuyback')}
-            </div>
-            <div className="text-2xl md:text-4xl font-extrabold text-amber-500 dark:text-amber-400 leading-none md:leading-tight">
+            </Typography>
+            <Typography as="div" variant="body" className="text-2xl md:text-4xl font-extrabold text-amber-500 dark:text-amber-400 leading-none md:leading-tight">
               {formatIDR(summary.totalBuybackValue)}
-            </div>
+            </Typography>
           </div>
 
           {/* Cost Basis */}
           <div className="text-right md:order-1">
-            <div className="text-[10px] md:text-xs text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
+            <Typography as="div" variant="detail" className="text-[10px] md:text-xs text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
               {t('buybackSimulation.headerSummary.totalCost')}
-            </div>
-            <div className="text-base md:text-lg font-semibold text-foreground leading-snug">
+            </Typography>
+            <Typography as="div" variant="body" className="text-base md:text-lg font-semibold text-foreground leading-snug">
               {formatIDR(summary.totalCostBasis)}
-            </div>
+            </Typography>
           </div>
 
           {/* PnL */}
           <div className="text-left md:text-right col-span-2 md:col-span-1 pt-2 md:pt-0 border-t md:border-t-0 border-border/50 md:border-none flex flex-row md:block items-center justify-between md:order-2">
-            <div className="text-[10px] md:text-xs text-muted-foreground font-medium uppercase tracking-wider mb-0.5 md:mb-0.5">
+            <Typography as="div" variant="detail" className="text-[10px] md:text-xs text-muted-foreground font-medium uppercase tracking-wider mb-0.5 md:mb-0.5">
               {t('buybackSimulation.headerSummary.totalPnL')}
-            </div>
-            <div className="flex items-center justify-end gap-2">
-              <span className={`text-base md:text-lg font-semibold leading-snug ${pnlColor}`}>
+            </Typography>
+            <Stack direction="horizontal" className="items-center justify-end gap-2">
+              <Typography as="span" variant="body" className={`text-base md:text-lg font-semibold leading-snug ${pnlColor}`}>
                 {pnlSign}{formatIDR(summary.totalPnL)}
-              </span>
-              <span className={`text-xs md:text-sm font-medium opacity-80 ${pnlColor}`}>
+              </Typography>
+              <Typography as="span" variant="body-sm" className={`text-xs md:text-sm font-medium opacity-80 ${pnlColor}`}>
                 ({pnlSign}{summary.pnlPercentage.toFixed(2)}%)
-              </span>
-            </div>
+              </Typography>
+            </Stack>
           </div>
         </div>
       </div>

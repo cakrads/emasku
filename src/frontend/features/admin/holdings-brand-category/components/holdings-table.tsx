@@ -65,9 +65,9 @@ export default function HoldingsTable({
           const dateStr = getValue() as string
           if (dateStr === '—') {
             return (
-              <div className="flex flex-col">
+              <Stack>
                 <Typography variant="body-sm">{dateStr}</Typography>
-              </div>
+              </Stack>
             )
           }
           const buyDate = new Date(dateStr)
@@ -96,14 +96,14 @@ export default function HoldingsTable({
           }
 
           return (
-            <div className="flex flex-col">
+            <Stack>
               <Typography variant="body-sm">{dateStr}</Typography>
               {durationLabel && (
                 <Typography variant="caption" className="text-muted-foreground text-xs">
                   {durationLabel}
                 </Typography>
               )}
-            </div>
+            </Stack>
           )
         },
       },
@@ -116,7 +116,7 @@ export default function HoldingsTable({
         ),
         cell: ({ row }) => (
           <Stack gap="xs">
-            <div className="flex flex-wrap items-center gap-2">
+            <Stack direction="horizontal" className="flex-wrap items-center gap-2">
               <Typography variant="body-sm" className="font-medium">
                 {row.original.brandName} {row.original.weight}
               </Typography>
@@ -125,7 +125,7 @@ export default function HoldingsTable({
                   {t('holdings.filters.options.sold').toUpperCase()}
                 </span>
               )}
-            </div>
+            </Stack>
             {row.original.goalId && (
               <Typography variant="caption" className="text-primary font-medium flex items-center gap-1">
                 <span className="text-muted-foreground font-normal">{t('goals.title')}:</span>
@@ -138,45 +138,45 @@ export default function HoldingsTable({
       {
         accessorKey: 'avgBuyPrice',
         header: () => ( // Align Right
-          <div className="text-right">
+          <Stack className="text-right">
             <Typography variant="caption" className="font-semibold text-muted-foreground">
               {t('holdings.table.buyPrice')}
             </Typography>
-          </div>
+          </Stack>
         ),
         cell: ({ getValue }) => (
-          <div className="text-right">
+          <Stack className="text-right">
             <Typography variant="body-sm" className="financial-value">
               {isVisible ? (getValue() as string) : '••••••••'}
             </Typography>
-          </div>
+          </Stack>
         ),
       },
       {
         accessorKey: 'totalValue',
         header: () => ( // Align Right
-          <div className="text-right">
+          <Stack className="text-right">
             <Typography variant="caption" className="font-semibold text-muted-foreground">
               {t('holdings.table.currentValue')}
             </Typography>
-          </div>
+          </Stack>
         ),
         cell: ({ getValue }) => (
-          <div className="text-right">
+          <Stack className="text-right">
             <Typography variant="body-sm" className="financial-value font-medium">
               {isVisible ? (getValue() as string) : '••••••••'}
             </Typography>
-          </div>
+          </Stack>
         ),
       },
       { // PnL Column
         id: 'pnl',
         header: () => ( // Align Right
-          <div className="text-right">
+          <Stack className="text-right">
             <Typography variant="caption" className="font-semibold text-muted-foreground">
               {t('holdings.table.pnl')}
             </Typography>
-          </div>
+          </Stack>
         ),
         cell: ({ row }) => {
           const holding = row.original
@@ -239,9 +239,9 @@ export default function HoldingsTable({
 
   if (holdings.length === 0 && !isLoading) {
     return (
-      <div className="text-center py-12 text-foreground-muted">
+      <Stack className="text-center py-12 text-foreground-muted">
         <Typography variant="body">{t('holdings.table.empty')}</Typography>
-      </div>
+      </Stack>
     )
   }
 
@@ -253,7 +253,7 @@ export default function HoldingsTable({
   const to = Math.min((pageIndex + 1) * pageSize, currentTotal)
 
   return (
-    <div className="space-y-4">
+    <Stack gap="md">
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
@@ -298,11 +298,11 @@ export default function HoldingsTable({
                       cell.column.id === 'avgBuyPrice' || cell.column.id === 'totalValue' || cell.column.id === 'pnl' ? "text-right" : "text-left"
                     )}>
                       {cell.column.id === 'pnl' && isSold && (
-                        <div className="flex justify-end mb-0.5">
+                        <Stack direction="horizontal" className="justify-end mb-0.5">
                           <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground bg-muted px-1 rounded-sm">
                             {t('holdingDetail.sellInfo.realized')}
                           </span>
-                        </div>
+                        </Stack>
                       )}
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
@@ -315,15 +315,15 @@ export default function HoldingsTable({
       </div>
 
       {/* Pagination Controls */}
-      <div className="flex items-center justify-between px-2">
-        <div className="flex-1 text-sm text-muted-foreground">
+      <Stack direction="horizontal" className="items-center justify-between px-2">
+        <Typography variant="body-sm" className="flex-1 text-muted-foreground">
           {t('holdings.pagination.showing')
             .replace('{from}', from.toString())
             .replace('{to}', to.toString())
             .replace('{total}', currentTotal.toString())
           }
-        </div>
-        <div className="flex items-center space-x-2">
+        </Typography>
+        <Stack direction="horizontal" gap="sm" className="items-center">
           <Button
             variant="outline"
             size="sm"
@@ -340,8 +340,8 @@ export default function HoldingsTable({
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
-        </div>
-      </div>
-    </div>
+        </Stack>
+      </Stack>
+    </Stack>
   )
 }

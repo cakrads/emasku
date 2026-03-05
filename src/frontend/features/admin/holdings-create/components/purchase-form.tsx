@@ -58,7 +58,7 @@ export function PurchaseForm({ brand, weight, pricesData, purchaseDate, purchase
               className="p-4 rounded-xl bg-surface-elevated border-border text-foreground text-lg font-semibold h-14"
               placeholder="e.g. 1.300.000"
             />
-            <div className="flex justify-between items-center">
+            <Stack direction="horizontal" className="justify-between items-center">
               <Typography variant="caption" className="text-text-secondary">
                 {t('addHolding.details.priceHelp')}
               </Typography>
@@ -71,7 +71,7 @@ export function PurchaseForm({ brand, weight, pricesData, purchaseDate, purchase
                   {t('common.useToday')}: {formatCurrency(currentSellPrice)}
                 </button>
               )}
-            </div>
+            </Stack>
           </Stack>
 
           {/* Purchase Date */}
