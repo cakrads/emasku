@@ -1,13 +1,13 @@
-import { PriceType, PrismaClient } from '@prisma/client'
+import { PriceType } from '@/applications/shared/domain/price.contract'
 import { Decimal } from 'decimal.js'
-import { PrismaGoldDailyCloseRepository } from '../repository/prisma-gold-daily-close.repository'
+import { IPriceRepository } from '../repository/price-repository.interface'
+import { IGoldDailyCloseRepository } from '../repository/daily-close-repository.interface'
 
 export class ComputeDailyCloseUsecase {
-  private repo: PrismaGoldDailyCloseRepository
-
-  constructor(private readonly prisma: PrismaClient) {
-    this.repo = new PrismaGoldDailyCloseRepository(this.prisma)
-  }
+  constructor(
+    private readonly priceRepo: IPriceRepository,
+    private readonly dailyCloseRepo: IGoldDailyCloseRepository
+  ) { }
 
   /**
    * Execute daily close computation for a specific date (WIB).
@@ -21,9 +21,7 @@ export class ComputeDailyCloseUsecase {
     const boundaries = this.getDateBoundaries(dateStr)
 
     // 1. Identify all active brand/gram combinations
-    const baseMarkets = await this.prisma.goldPrice.groupBy({
-      by: ['brandCode', 'denominationGram'],
-    })
+    const baseMarkets = await this.priceRepo.getActiveBrandGramCombinations()
 
     console.log(`[ComputeDailyClose] Found ${baseMarkets.length} base market combinations.`)
 
@@ -62,32 +60,27 @@ export class ComputeDailyCloseUsecase {
       ? [PriceType.SELL, PriceType.RETAIL]
       : [PriceType.BUYBACK]
 
-    const latestPrice = await this.prisma.goldPrice.findFirst({
-      where: {
-        brandCode,
-        priceType: { in: candidateTypes },
-        denominationGram: gram,
-        priceAt: {
-          gte: boundaries.start,
-          lt: boundaries.end
-        }
-      },
-      orderBy: { priceAt: 'desc' }
-    })
+    const latestPrice = await this.priceRepo.findLatestPriceForTypes(
+      brandCode,
+      gram,
+      candidateTypes,
+      boundaries.start,
+      boundaries.end
+    )
 
     let priceToUse: bigint | null = null
     let derivedFrom: Date | null = null
     let source = 'SYSTEM_DAILY_CLOSE'
 
     if (latestPrice) {
-      priceToUse = latestPrice.price
+      priceToUse = BigInt(Math.round(latestPrice.price))
       derivedFrom = latestPrice.priceAt
     } else {
       // 2. Carry Forward from PREVIOUS DAY'S Close
       const prevDate = new Date(closeDate)
       prevDate.setDate(prevDate.getDate() - 1)
 
-      const prevClose = await this.repo.getByDate(brandCode, role, gram, prevDate)
+      const prevClose = await this.dailyCloseRepo.getByDate(brandCode, role as any, gram, prevDate)
 
       if (prevClose) {
         priceToUse = prevClose.price
@@ -97,9 +90,9 @@ export class ComputeDailyCloseUsecase {
     }
 
     if (priceToUse !== null && derivedFrom !== null) {
-      await this.repo.upsert({
+      await this.dailyCloseRepo.upsert({
         brandCode,
-        priceType: role,
+        priceType: role as any,
         denominationGram: gram,
         price: priceToUse,
         closeDate,

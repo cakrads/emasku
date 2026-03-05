@@ -1,4 +1,6 @@
 import { ComputeDailyCloseUsecase } from '../src/applications/modules/prices/v1/usecases/compute-daily-close.usecase'
+import { PrismaPriceRepository } from '../src/applications/modules/prices/v1/repository/prisma-price-repository'
+import { PrismaGoldDailyCloseRepository } from '../src/applications/modules/prices/v1/repository/prisma-gold-daily-close.repository'
 import { prisma } from '../src/applications/shared/persistence/prisma-client'
 
 /**
@@ -8,7 +10,9 @@ import { prisma } from '../src/applications/shared/persistence/prisma-client'
  * npx ts-node scripts/backfill-daily-close.ts --days 30
  */
 async function backfill(days: number) {
-  const usecase = new ComputeDailyCloseUsecase(prisma)
+  const priceRepo = new PrismaPriceRepository(prisma)
+  const dailyCloseRepo = new PrismaGoldDailyCloseRepository(prisma)
+  const usecase = new ComputeDailyCloseUsecase(priceRepo, dailyCloseRepo)
   const now = new Date()
   // Adjust to WIB (UTC+7)
   const wibNow = new Date(now.getTime() + 7 * 60 * 60 * 1000)

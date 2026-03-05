@@ -48,10 +48,12 @@ export function PurchaseForm({ brand, weight, pricesData, purchaseDate, purchase
         <Stack gap="lg">
           {/* Purchase Price per Gram */}
           <Stack gap="sm">
-            <Label className="uppercase text-text-secondary font-medium tracking-wider">
-              {t('addHolding.details.purchasePrice')} <span className="text-red-500">*</span>
+            <Label htmlFor="purchase-price" className="uppercase text-text-secondary font-medium tracking-wider">
+              {t('addHolding.details.purchasePrice')} <span className="text-red-500" aria-hidden="true">*</span>
             </Label>
             <CurrencyInput
+              id="purchase-price"
+              aria-required="true"
               autoFocus
               value={purchasePrice}
               onChange={(val) => onChange({ purchasePrice: val })}
@@ -76,10 +78,11 @@ export function PurchaseForm({ brand, weight, pricesData, purchaseDate, purchase
 
           {/* Purchase Date */}
           <Stack gap="sm">
-            <Label className="uppercase text-text-secondary font-medium tracking-wider">
+            <Label htmlFor="purchase-date" className="uppercase text-text-secondary font-medium tracking-wider">
               {t('addHolding.details.purchaseDate')} <span className="text-xs normal-case font-normal">(Optional)</span>
             </Label>
             <DatePicker
+              id="purchase-date"
               value={purchaseDate}
               onChange={(date) => onChange({ purchaseDate: date })}
               disabled={(date) => date > new Date()}
@@ -88,10 +91,11 @@ export function PurchaseForm({ brand, weight, pricesData, purchaseDate, purchase
 
           {/* Notes */}
           <Stack gap="sm">
-            <Label className="uppercase text-text-secondary font-medium tracking-wider">
+            <Label htmlFor="purchase-notes" className="uppercase text-text-secondary font-medium tracking-wider">
               {t('addHolding.details.notes')} <span className="text-xs normal-case font-normal">(Optional)</span>
             </Label>
             <Input
+              id="purchase-notes"
               value={notes}
               onChange={(e) => onChange({ notes: e.target.value })}
               className="p-4 rounded-xl bg-surface-elevated border-border text-foreground text-lg font-semibold h-14"

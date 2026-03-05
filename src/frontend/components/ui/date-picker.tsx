@@ -16,7 +16,7 @@ import {
 import { id, enUS } from "date-fns/locale"
 import { useLanguage } from "@/frontend/hooks/use-language"
 
-interface DatePickerProps {
+interface DatePickerProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, "onChange" | "value" | "disabled" | "color"> {
   value?: Date
   onChange?: (date: Date | undefined) => void
   placeholder?: string
@@ -34,6 +34,7 @@ export function DatePicker({
   disabled,
   fromYear,
   toYear,
+  ...props
 }: DatePickerProps) {
   const [open, setOpen] = React.useState(false)
   const { language, t } = useLanguage()
@@ -50,6 +51,7 @@ export function DatePicker({
             !value && "text-muted-foreground",
             className
           )}
+          {...props}
         >
           <CalendarIcon className="mr-2 h-4 w-4 opacity-50" />
           {value ? format(value, "PPP", { locale }) : <span>{displayPlaceholder}</span>}

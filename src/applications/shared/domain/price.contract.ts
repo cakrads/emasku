@@ -2,6 +2,12 @@
  * Shared Price Domain Contracts
  */
 
+export enum PriceType {
+    SELL = 'SELL',
+    BUYBACK = 'BUYBACK',
+    RETAIL = 'RETAIL'
+}
+
 export interface PriceResult {
     price: number
     priceAt: Date

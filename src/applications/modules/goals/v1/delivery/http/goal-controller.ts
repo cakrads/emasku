@@ -12,7 +12,6 @@ import { CreateGoalRequestSchema, UpdateGoalRequestSchema } from '@/shared/contr
 
 import { IGoalRepository } from '@/applications/modules/goals/v1/domain/goal.repository'
 import { IPriceRepository } from '@/applications/shared/domain/price.contract'
-import { PrismaClient } from '@prisma/client'
 
 import { CreateGoalUsecase } from '../../usecases/create-goal.usecase'
 import { UpdateGoalUsecase } from '../../usecases/update-goal.usecase'
@@ -25,8 +24,7 @@ import { toGoalResponse, toGoalSummaryResponse, toGoalDetailResponse } from './g
 export class GoalController {
     constructor(
         private readonly goalRepo: IGoalRepository,
-        private readonly priceRepo: IPriceRepository,
-        private readonly prisma: PrismaClient
+        private readonly priceRepo: IPriceRepository
     ) { }
 
     /**
@@ -106,7 +104,7 @@ export class GoalController {
             throw new ValidationError('Validation failed', { errors: fieldErrors })
         }
 
-        const usecase = new UpdateGoalUsecase(this.goalRepo, this.priceRepo, this.prisma)
+        const usecase = new UpdateGoalUsecase(this.goalRepo, this.priceRepo)
         const goal = await usecase.execute(userId, id, parsed.data)
 
         const response = toGoalResponse(goal)

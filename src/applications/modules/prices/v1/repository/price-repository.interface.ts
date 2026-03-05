@@ -45,4 +45,20 @@ export interface IPriceRepository {
     inserted: number
     skipped: number
   }>
+
+  /**
+   * Get all active brand/gram combinations
+   */
+  getActiveBrandGramCombinations(): Promise<Array<{ brandCode: string, denominationGram: Decimal }>>
+
+  /**
+   * Get the latest price for specific types within a date range
+   */
+  findLatestPriceForTypes(
+    brandCode: string,
+    denominationGram: Decimal,
+    candidateTypes: string[],
+    start: Date,
+    end: Date
+  ): Promise<{ price: number, priceAt: Date } | null>
 }

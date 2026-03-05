@@ -15,8 +15,10 @@ Pass 2 of the backend review. Focus on **database query efficiency and data flow
 - [ ] **Missing indexes** — Check `schema.prisma` for columns used in `where`/`orderBy` without `@@index`
 - [ ] **Pagination** — Any endpoint returning unbounded lists (no `take`/`skip`)
 - [ ] **BigInt/Decimal serialization** — Ensure prices (BigInt) and weights (Decimal) are correctly converted before JSON serialization (no `TypeError: Do not know how to serialize a BigInt`)
+- [ ] **BigInt/Decimal consistency** — Verify no silent type coercion between BigInt (prices) and Decimal (weights)
 - [ ] **Duplicate queries per request** — Same data fetched multiple times in the same request lifecycle
 - [ ] **Gold price fetch pattern** — Confirm `GoldPrice` latest-price lookup is not doing a table scan
+- [ ] **Price immutability enforcement** — Is there code that could accidentally update/delete `GoldPrice` or `GoldDailyClose` records?
 
 ## Files to Review
 

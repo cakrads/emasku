@@ -1,4 +1,4 @@
-import { PriceType } from '@prisma/client'
+import { PriceType } from '@/applications/shared/domain/price.contract'
 import { IPriceRepository } from '../repository/price-repository.interface'
 import { Galeri24Scraper, RawPriceData } from '@/applications/shared/scrapers/galeri24.scraper'
 import { CreatePriceInput } from '../domain/gold-price'

@@ -93,10 +93,13 @@ export function GoalCreateForm({ onSuccess, onCancel, mode = 'dialog' }: GoalCre
         <Stack gap={isPage ? 'xl' : 'md'} className={isPage ? '' : 'max-w-lg'}>
             {/* Name */}
             <Stack gap="sm">
-                <Label className={labelClassName}>
-                    {t('goals.form.name')} <span className="text-destructive">*</span>
+                <Label htmlFor="goal-name" className={labelClassName}>
+                    {t('goals.form.name')} <span className="text-destructive" aria-hidden="true">*</span>
                 </Label>
                 <Input
+                    id="goal-name"
+                    aria-required="true"
+                    aria-describedby={errors.name ? 'goal-name-error' : undefined}
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g., Emergency Fund"
@@ -104,16 +107,18 @@ export function GoalCreateForm({ onSuccess, onCancel, mode = 'dialog' }: GoalCre
                     className={inputClassName}
                 />
                 {errors.name && (
-                    <Typography variant="body-sm" className="text-destructive">{errors.name}</Typography>
+                    <Typography id="goal-name-error" variant="body-sm" className="text-destructive" role="alert">{errors.name}</Typography>
                 )}
             </Stack>
 
             {/* Description */}
             <Stack gap="sm">
-                <Label className={labelClassName}>
+                <Label htmlFor="goal-description" className={labelClassName}>
                     {t('goals.form.description')}
                 </Label>
                 <Input
+                    id="goal-description"
+                    aria-describedby={errors.description ? 'goal-description-error' : undefined}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     placeholder={t('goals.form.optional')}
@@ -121,23 +126,25 @@ export function GoalCreateForm({ onSuccess, onCancel, mode = 'dialog' }: GoalCre
                     className={inputClassName}
                 />
                 {errors.description && (
-                    <Typography variant="body-sm" className="text-destructive">{errors.description}</Typography>
+                    <Typography id="goal-description-error" variant="body-sm" className="text-destructive" role="alert">{errors.description}</Typography>
                 )}
             </Stack>
 
             {/* Target Amount */}
             <Stack gap="sm">
-                <Label className={labelClassName}>
+                <Label htmlFor="goal-target-amount" className={labelClassName}>
                     {t('goals.form.targetAmount')}
                 </Label>
                 <CurrencyInput
+                    id="goal-target-amount"
+                    aria-describedby={errors.targetAmount ? 'goal-target-amount-error' : undefined}
                     value={targetAmount}
                     onChange={setTargetAmount}
                     className={inputClassName}
                     placeholder={t('goals.form.optional')}
                 />
                 {errors.targetAmount && (
-                    <Typography variant="body-sm" className="text-destructive">{errors.targetAmount}</Typography>
+                    <Typography id="goal-target-amount-error" variant="body-sm" className="text-destructive" role="alert">{errors.targetAmount}</Typography>
                 )}
                 {!isPage && (
                     <Typography variant="body-sm" className="text-muted-foreground">
@@ -148,16 +155,18 @@ export function GoalCreateForm({ onSuccess, onCancel, mode = 'dialog' }: GoalCre
 
             {/* Target Date */}
             <Stack gap="sm">
-                <Label className={labelClassName}>
+                <Label htmlFor="goal-target-date" className={labelClassName}>
                     {t('goals.form.targetDate')}
                 </Label>
                 <DatePicker
+                    id="goal-target-date"
+                    aria-describedby={errors.targetDate ? 'goal-target-date-error' : undefined}
                     value={targetDate}
                     onChange={setTargetDate}
                     disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                 />
                 {errors.targetDate && (
-                    <Typography variant="body-sm" className="text-destructive">{errors.targetDate}</Typography>
+                    <Typography id="goal-target-date-error" variant="body-sm" className="text-destructive" role="alert">{errors.targetDate}</Typography>
                 )}
                 {!isPage && (
                     <Typography variant="body-sm" className="text-muted-foreground">

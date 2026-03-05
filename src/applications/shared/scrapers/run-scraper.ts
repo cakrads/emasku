@@ -4,6 +4,7 @@ import { PrismaPg } from '@prisma/adapter-pg'
 import pg from 'pg'
 // Architects Components
 import { PrismaPriceRepository } from '../../modules/prices/v1/repository/prisma-price-repository'
+import { PrismaGoldDailyCloseRepository } from '../../modules/prices/v1/repository/prisma-gold-daily-close.repository'
 import { ScrapeAndPersistPrices } from '../../modules/prices/v1/usecases/scrape-and-persist-prices'
 import { ComputeDailyCloseUsecase } from '../../modules/prices/v1/usecases/compute-daily-close.usecase'
 import { DIRECT_URL, SCRAPER_SOURCE_URL } from '../lib/env'
@@ -29,9 +30,10 @@ async function main() {
   console.log(`Scraper source: ${SCRAPER_SOURCE_URL}\n`)
 
   // Dependency Injection
-  const priceRepository = new PrismaPriceRepository(prisma)
-  const computeDailyClose = new ComputeDailyCloseUsecase(prisma)
-  const usecase = new ScrapeAndPersistPrices(priceRepository, computeDailyClose)
+  const priceRepo = new PrismaPriceRepository(prisma)
+  const dailyCloseRepo = new PrismaGoldDailyCloseRepository(prisma)
+  const computeDailyClose = new ComputeDailyCloseUsecase(priceRepo, dailyCloseRepo)
+  const usecase = new ScrapeAndPersistPrices(priceRepo, computeDailyClose)
 
   try {
     const result = await usecase.execute()

@@ -18,6 +18,9 @@ Review all backend modules in `src/applications/modules/` for:
 - [ ] Controller patterns — all controllers must use `wrapController()` from `controller-wrapper.ts`
 - [ ] Shared contracts usage — response/request types should reference `src/shared/contracts/`, not inline types
 - [ ] Missing or misused error classes — check that controllers throw `ValidationError`, `NotFoundError`, etc. from `src/applications/shared/lib/errors.ts`
+- [ ] Repository pattern consistency — Are all repos using interfaces? Is dependency injection consistent?
+- [ ] Input validation — Are all user inputs validated at the controller level before reaching use cases?
+- [ ] Rate limiting — Are public API endpoints rate-limited?
 - [ ] Dead code — unused exports, unreachable branches, stale TODO comments
 
 ## Files to Review

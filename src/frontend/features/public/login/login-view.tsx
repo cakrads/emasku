@@ -116,8 +116,8 @@ export function LoginView() {
         <CardContent>
           <Stack gap="md">
             {error && (
-              <Stack direction="horizontal" gap="sm" className="items-start p-4 rounded-lg bg-destructive/10 text-destructive">
-                <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
+              <Stack direction="horizontal" gap="sm" className="items-start p-4 rounded-lg bg-destructive/10 text-destructive" role="alert" aria-live="assertive">
+                <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" aria-hidden="true" />
                 <Stack direction="vertical" gap="xs">
                   <Typography variant="body" className="font-medium text-sm">
                     {error.userMessage}
@@ -161,11 +161,12 @@ export function LoginView() {
               className="w-full"
               onClick={handleGoogleLogin}
               disabled={isLoading}
+              aria-label={t('login.googleLogin')}
             >
               {isLoadingGoogle ? (
                 <Stack direction="horizontal" className="h-5 w-5 animate-spin rounded-full border-2 border-current border-t-transparent" />
               ) : (
-                <Chrome className="h-5 w-5 mr-2" />
+                <Chrome className="h-5 w-5 mr-2" aria-hidden="true" />
               )}
               {t('login.googleLogin')}
             </Button>

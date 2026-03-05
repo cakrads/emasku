@@ -255,7 +255,7 @@ export default function HoldingsTable({
   return (
     <Stack gap="md">
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse">
+        <table className="w-full border-collapse" aria-label="Holdings Table">
           <thead>
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id} className="border-b border-border">
@@ -286,6 +286,15 @@ export default function HoldingsTable({
                     const target = ROUTES.HOLDING_DETAIL(holdingId) + (backUrl ? `?backUrl=${encodeURIComponent(backUrl)}` : '')
                     router.push(target)
                   }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      const holdingId = row.original.id;
+                      const target = ROUTES.HOLDING_DETAIL(holdingId) + (backUrl ? `?backUrl=${encodeURIComponent(backUrl)}` : '')
+                      router.push(target)
+                    }
+                  }}
+                  tabIndex={0}
                   className={cn(
                     "border-b border-border hover:bg-muted/50 cursor-pointer transition-colors group",
                     isSold && "bg-muted/20 hover:bg-muted/40"

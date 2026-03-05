@@ -38,4 +38,5 @@ export interface IGoalRepository {
         sellPrice?: number | bigint
         sellDate?: Date
     }>>>
+    executeInTransaction<T>(callback: (tx: any) => Promise<T>): Promise<T>
 }

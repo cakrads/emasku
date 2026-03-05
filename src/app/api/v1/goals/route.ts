@@ -11,7 +11,7 @@ import { prisma } from '@/applications/shared/persistence/prisma-client'
 
 const goalRepo = new PrismaGoalRepository(prisma)
 const priceRepo = new PrismaPriceRepository(prisma)
-const controller = new GoalController(goalRepo, priceRepo, prisma)
+const controller = new GoalController(goalRepo, priceRepo)
 
 export const GET = wrapController(async (req) => {
     return controller.listGoals(req)

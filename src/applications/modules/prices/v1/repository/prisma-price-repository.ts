@@ -69,7 +69,7 @@ export class PrismaPriceRepository implements IPriceRepository {
     return prices.map((p) => ({
       id: p.id,
       brandCode: p.brandCode,
-      priceType: p.priceType,
+      priceType: p.priceType as unknown as import('@/applications/shared/domain/price.contract').PriceType,
       denominationGram: p.denominationGram,
       price: Number(p.price),
       priceAt: p.closeDate,
@@ -197,11 +197,49 @@ export class PrismaPriceRepository implements IPriceRepository {
     return {
       id: price.id,
       brandCode: price.brandCode,
-      priceType: price.priceType,
+      priceType: price.priceType as unknown as import('@/applications/shared/domain/price.contract').PriceType,
       denominationGram: price.denominationGram,
       price: Number(price.price), // BigInt → number
       priceAt: price.priceAt,
       source: price.source,
+    }
+  }
+
+  async getActiveBrandGramCombinations(): Promise<Array<{ brandCode: string, denominationGram: Decimal }>> {
+    const baseMarkets = await this.prisma.goldPrice.groupBy({
+      by: ['brandCode', 'denominationGram'],
+    })
+    return baseMarkets.map(m => ({
+      brandCode: m.brandCode,
+      denominationGram: new Decimal(m.denominationGram)
+    }))
+  }
+
+  async findLatestPriceForTypes(
+    brandCode: string,
+    denominationGram: Decimal,
+    candidateTypes: string[],
+    start: Date,
+    end: Date
+  ): Promise<{ price: number, priceAt: Date } | null> {
+    const latestPrice = await this.prisma.goldPrice.findFirst({
+      where: {
+        brandCode,
+        priceType: { in: candidateTypes as PriceType[] }, // Enforce Prisma PriceType here if needed
+        denominationGram,
+        priceAt: {
+          gte: start,
+          lt: end
+        }
+      },
+      orderBy: { priceAt: 'desc' }
+    })
+
+    if (!latestPrice) return null
+
+    return {
+      price: Number(latestPrice.price),
+      priceAt: latestPrice.priceAt
     }
   }
 }

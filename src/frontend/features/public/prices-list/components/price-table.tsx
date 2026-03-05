@@ -41,7 +41,7 @@ function formatWeight(grams: number): string {
 export function PriceTable({ rows }: PriceTableProps) {
   return (
     <div className="w-full overflow-x-auto">
-      <table className="w-full border-collapse">
+      <table className="w-full border-collapse" aria-label="Gold Prices Table">
         <thead>
           <tr className="border-b border-border">
             <th className="px-4 py-3 text-left">

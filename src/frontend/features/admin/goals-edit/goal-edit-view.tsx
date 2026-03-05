@@ -159,10 +159,13 @@ function GoalEditContent({ goalId }: { goalId: string }) {
                 <Stack gap="xl">
                     {/* Name */}
                     <Stack gap="sm">
-                        <Label className="text-text-secondary font-medium uppercase tracking-wider">
-                            {t('goals.form.name')} <span className="text-destructive">*</span>
+                        <Label htmlFor="goal-name-edit" className="text-text-secondary font-medium uppercase tracking-wider">
+                            {t('goals.form.name')} <span className="text-destructive" aria-hidden="true">*</span>
                         </Label>
                         <Input
+                            id="goal-name-edit"
+                            aria-required="true"
+                            aria-describedby={errors.name ? 'goal-name-edit-error' : undefined}
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="e.g., Emergency Fund"
@@ -170,16 +173,18 @@ function GoalEditContent({ goalId }: { goalId: string }) {
                             className="p-4 rounded-xl bg-surface-elevated border-border text-foreground text-lg font-semibold h-14"
                         />
                         {errors.name && (
-                            <Typography variant="body-sm" className="text-destructive">{errors.name}</Typography>
+                            <Typography id="goal-name-edit-error" variant="body-sm" className="text-destructive" role="alert">{errors.name}</Typography>
                         )}
                     </Stack>
 
                     {/* Description */}
                     <Stack gap="sm">
-                        <Label className="text-text-secondary font-medium uppercase tracking-wider">
+                        <Label htmlFor="goal-description-edit" className="text-text-secondary font-medium uppercase tracking-wider">
                             {t('goals.form.description')}
                         </Label>
                         <Input
+                            id="goal-description-edit"
+                            aria-describedby={errors.description ? 'goal-description-edit-error' : undefined}
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
                             placeholder={t('goals.form.optional')}
@@ -187,38 +192,42 @@ function GoalEditContent({ goalId }: { goalId: string }) {
                             className="p-4 rounded-xl bg-surface-elevated border-border text-foreground text-lg font-semibold h-14"
                         />
                         {errors.description && (
-                            <Typography variant="body-sm" className="text-destructive">{errors.description}</Typography>
+                            <Typography id="goal-description-edit-error" variant="body-sm" className="text-destructive" role="alert">{errors.description}</Typography>
                         )}
                     </Stack>
 
                     {/* Target Amount */}
                     <Stack gap="sm">
-                        <Label className="text-text-secondary font-medium uppercase tracking-wider">
+                        <Label htmlFor="goal-amount-edit" className="text-text-secondary font-medium uppercase tracking-wider">
                             {t('goals.form.targetAmount')}
                         </Label>
                         <CurrencyInput
+                            id="goal-amount-edit"
+                            aria-describedby={errors.targetAmount ? 'goal-amount-edit-error' : undefined}
                             value={targetAmount}
                             onChange={setTargetAmount}
                             className="p-4 rounded-xl bg-surface-elevated border-border text-foreground text-lg font-semibold h-14"
                             placeholder={t('goals.form.targetHelp')}
                         />
                         {errors.targetAmount && (
-                            <Typography variant="body-sm" className="text-destructive">{errors.targetAmount}</Typography>
+                            <Typography id="goal-amount-edit-error" variant="body-sm" className="text-destructive" role="alert">{errors.targetAmount}</Typography>
                         )}
                     </Stack>
 
                     {/* Target Date */}
                     <Stack gap="sm">
-                        <Label className="text-text-secondary font-medium uppercase tracking-wider">
+                        <Label htmlFor="goal-date-edit" className="text-text-secondary font-medium uppercase tracking-wider">
                             {t('goals.form.targetDate')}
                         </Label>
                         <DatePicker
+                            id="goal-date-edit"
+                            aria-describedby={errors.targetDate ? 'goal-date-edit-error' : undefined}
                             value={targetDate}
                             onChange={setTargetDate}
                             disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                         />
                         {errors.targetDate && (
-                            <Typography variant="body-sm" className="text-destructive">{errors.targetDate}</Typography>
+                            <Typography id="goal-date-edit-error" variant="body-sm" className="text-destructive" role="alert">{errors.targetDate}</Typography>
                         )}
                     </Stack>
                 </Stack>

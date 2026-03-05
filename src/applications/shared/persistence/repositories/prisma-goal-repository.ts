@@ -260,4 +260,11 @@ export class PrismaGoalRepository implements IGoalRepository {
             goal.updatedAt
         )
     }
+
+    /**
+     * Executes the given callback inside a Prisma transaction.
+     */
+    async executeInTransaction<T>(callback: (tx: any) => Promise<T>): Promise<T> {
+        return this.prisma.$transaction(callback)
+    }
 }

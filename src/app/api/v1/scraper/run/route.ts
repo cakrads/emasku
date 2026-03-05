@@ -13,6 +13,7 @@ import { DATABASE_URL, SCRAPER_SECRET } from '@/applications/shared/lib/env'
 import { PrismaPriceRepository } from '@/applications/modules/prices/v1/repository/prisma-price-repository'
 import { ScrapeAndPersistPrices } from '@/applications/modules/prices/v1/usecases/scrape-and-persist-prices'
 import { ComputeDailyCloseUsecase } from '@/applications/modules/prices/v1/usecases/compute-daily-close.usecase'
+import { PrismaGoldDailyCloseRepository } from '@/applications/modules/prices/v1/repository/prisma-gold-daily-close.repository'
 import { wrapController } from '@/applications/shared/lib/controller-wrapper'
 import { UnauthorizedError } from '@/applications/shared/lib/errors'
 import { successResponse } from '@/applications/shared/lib/response'
@@ -24,7 +25,8 @@ async function runScraper() {
 
   try {
     const priceRepository = new PrismaPriceRepository(prisma)
-    const computeDailyClose = new ComputeDailyCloseUsecase(prisma)
+    const dailyCloseRepo = new PrismaGoldDailyCloseRepository(prisma)
+    const computeDailyClose = new ComputeDailyCloseUsecase(priceRepository, dailyCloseRepo)
     const usecase = new ScrapeAndPersistPrices(priceRepository, computeDailyClose)
     const logs = await usecase.execute()
     return logs

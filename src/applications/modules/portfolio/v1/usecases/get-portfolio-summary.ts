@@ -10,7 +10,7 @@ import { IPortfolioRepository } from '../domain/repository'
 import { IPriceRepository } from '@/applications/shared/domain/price.contract'
 import { IGoldDailyCloseRepository } from '@/applications/modules/prices/v1/repository/daily-close-repository.interface'
 import { PortfolioSummaryDomain, BrandAllocationDomain, PortfolioHoldingDomain } from '../domain/portfolio.domain'
-import { PriceType } from '@prisma/client'
+import { PriceType } from '@/applications/shared/domain/price.contract'
 import { logger } from '@/applications/shared/lib/logger'
 import { ValidationError } from '@/applications/shared/lib/errors'
 

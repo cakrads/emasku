@@ -5,7 +5,7 @@
  * converted to domain-friendly types (BigInt → number).
  */
 
-import { PriceType } from '@prisma/client'
+import { PriceType } from '@/applications/shared/domain/price.contract'
 import { Decimal } from 'decimal.js'
 
 export interface GoldPriceRecord {

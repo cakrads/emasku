@@ -33,8 +33,16 @@ export default function RootLayout({
           >
             <AuthProvider>
               <LanguageProvider>
-                <div className="bg-background min-h-screen">
-                  {children}
+                <div className="bg-background min-h-screen flex flex-col">
+                  <a 
+                    href="#main-content" 
+                    className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:p-4 focus:bg-background focus:text-foreground top-0 left-0"
+                  >
+                    Skip to main content
+                  </a>
+                  <main id="main-content" className="flex-1 flex flex-col min-w-0">
+                    {children}
+                  </main>
                 </div>
                 <Toaster position="top-right" />
               </LanguageProvider>

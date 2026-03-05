@@ -4,7 +4,6 @@
  * Business logic for updating existing goals.
  */
 
-import { PrismaClient } from '@prisma/client'
 import { Decimal } from 'decimal.js'
 import { NotFoundError, ValidationError } from '@/applications/shared/lib/errors'
 import { logger } from '@/applications/shared/lib/logger'
@@ -16,8 +15,7 @@ import { GoalDomain } from '../domain/goal.domain'
 export class UpdateGoalUsecase {
     constructor(
         private readonly goalRepo: IGoalRepository,
-        private readonly priceRepo: IPriceRepository,
-        private readonly prisma: PrismaClient,
+        private readonly priceRepo: IPriceRepository
     ) { }
 
     async execute(userId: string, goalId: string, request: UpdateGoalRequest): Promise<GoalDomain> {
@@ -34,7 +32,7 @@ export class UpdateGoalUsecase {
 
         if (request.lifecycleStatus === 'COMPLETED' && existing.lifecycleStatus !== 'COMPLETED') {
             // [0095] Wrap completion in transaction to prevent race conditions
-            return await this.prisma.$transaction(async (tx) => {
+            return await this.goalRepo.executeInTransaction(async (tx) => {
                 // Re-fetch goal within transaction to ensure it hasn't changed
                 const goalInTx = await this.goalRepo.findById(goalId, tx)
                 if (!goalInTx || goalInTx.userId !== userId) {

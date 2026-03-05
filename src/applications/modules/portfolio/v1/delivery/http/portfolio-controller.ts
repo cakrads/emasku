@@ -25,18 +25,17 @@ import { SellHoldingUsecase } from '../../usecases/sell-holding.usecase'
 import { BulkSellHoldingUsecase } from '../../usecases/bulk-sell-holding.usecase'
 import { getBrandName } from '@/applications/modules/brands/v1/domain/brands.const'
 import { verifyUser } from '@/applications/shared/auth/auth.utils'
-import { PrismaGoldDailyCloseRepository } from '@/applications/modules/prices/v1/repository/prisma-gold-daily-close.repository'
+import { IGoldDailyCloseRepository } from '@/applications/modules/prices/v1/repository/daily-close-repository.interface'
 import { IPortfolioRepository } from '../../domain/repository'
 import { IGoalRepository } from '@/applications/modules/goals/v1/domain/goal.repository'
 import { IPriceRepository } from '@/applications/shared/domain/price.contract'
-import { PrismaClient } from '@prisma/client'
 
 export class PortfolioController {
   constructor(
     private readonly portfolioRepo: IPortfolioRepository,
     private readonly goalRepo: IGoalRepository,
     private readonly priceRepo: IPriceRepository,
-    private readonly prisma: PrismaClient
+    private readonly dailyCloseRepo: IGoldDailyCloseRepository
   ) { }
 
 
@@ -63,7 +62,7 @@ export class PortfolioController {
       dateTo,
     }
 
-    const usecase = new GetPortfolioSummaryUsecase(this.portfolioRepo, this.priceRepo, new PrismaGoldDailyCloseRepository(this.prisma))
+    const usecase = new GetPortfolioSummaryUsecase(this.portfolioRepo, this.priceRepo, this.dailyCloseRepo)
     const domain = await usecase.execute(userId, filter)
     const dto = PortfolioMapper.toPortfolioSummaryResponse(domain)
     const validated = PortfolioSummarySchema.parse(dto)
