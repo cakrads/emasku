@@ -52,3 +52,5 @@ next-env.d.ts
 
 # data
 # prisma/data
+
+.project/images-reference
