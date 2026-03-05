@@ -13,6 +13,9 @@ import { DATABASE_URL, SCRAPER_SECRET } from '@/applications/shared/lib/env'
 import { PrismaPriceRepository } from '@/applications/modules/prices/v1/repository/prisma-price-repository'
 import { ScrapeAndPersistPrices } from '@/applications/modules/prices/v1/usecases/scrape-and-persist-prices'
 import { ComputeDailyCloseUsecase } from '@/applications/modules/prices/v1/usecases/compute-daily-close.usecase'
+import { wrapController } from '@/applications/shared/lib/controller-wrapper'
+import { UnauthorizedError } from '@/applications/shared/lib/errors'
+import { successResponse } from '@/applications/shared/lib/response'
 
 async function runScraper() {
   const pool = new pg.Pool({ connectionString: DATABASE_URL })
@@ -48,59 +51,15 @@ function isAuthorized(request: Request) {
   return false
 }
 
-export async function POST(request: NextRequest) {
+async function handleScraper(request: NextRequest): Promise<NextResponse> {
   if (!isAuthorized(request)) {
-    return NextResponse.json({
-      code: 401,
-      status: 'Unauthorized',
-      message: 'Invalid or missing Authorization header'
-    }, { status: 401 })
+    throw new UnauthorizedError('Invalid or missing Authorization header')
   }
-
-  try {
-    const logs = await runScraper()
-    return NextResponse.json({
-      code: 200,
-      status: 'OK',
-      message: 'Scraper executed successfully',
-      data: { status: 'Completed', logs }
-    })
-  } catch (error) {
-    console.error('[Scraper API] Error:', error)
-    return NextResponse.json({
-      code: 500,
-      success: false,
-      message: 'Scraper execution failed',
-      details: { error: error instanceof Error ? error.message : 'Unknown error' }
-    }, { status: 500 })
-  }
+  const logs = await runScraper()
+  return successResponse({ status: 'Completed', logs }, 'Scraper executed successfully')
 }
+
+export const POST = wrapController(handleScraper)
 
 // GET trigger (secured by SCRAPER_SECRET)
-export async function GET(request: NextRequest) {
-  if (!isAuthorized(request)) {
-    return NextResponse.json({
-      code: 401,
-      status: 'Unauthorized',
-      message: 'Invalid or missing Authorization header'
-    }, { status: 401 })
-  }
-
-  try {
-    const logs = await runScraper()
-    return NextResponse.json({
-      code: 200,
-      status: 'OK',
-      message: 'Scraper executed successfully',
-      data: { status: 'Completed', logs }
-    })
-  } catch (error) {
-    console.error('[Scraper API] Error:', error)
-    return NextResponse.json({
-      code: 500,
-      success: false,
-      message: 'Cron job execution failed',
-      details: { error: error instanceof Error ? error.message : 'Unknown error' }
-    }, { status: 500 })
-  }
-}
+export const GET = wrapController(handleScraper)
