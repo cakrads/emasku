@@ -1,7 +1,7 @@
 reviews:
   path_filters:
     - "prisma/schema.prisma"
-    # - "src/applications/**"
+    - "src/applications/**"
     - "src/frontend/**"
     - "src/i18n/**"
     - "src/lib/**"
