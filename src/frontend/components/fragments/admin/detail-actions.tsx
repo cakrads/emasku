@@ -5,7 +5,7 @@ import { cn } from "@/frontend/utils/cn"
 interface Action {
   label: string
   onClick: () => void
-  variant?: "default" | "outline" | "ghost" | "link" | "destructive" | "secondary" | "solid" | "cta" | "glass"
+  variant?: "default" | "outline" | "ghost" | "link" | "destructive" | "secondary" | "solid"
   color?: "default" | "primary" | "warning" | "error"
   disabled?: boolean
 }
