@@ -3,9 +3,18 @@ import { Typography } from "@/frontend/components/ui/typography"
 import { Stack, Section, Divider } from "@/frontend/components/ui/layout"
 import { cn } from "@/frontend/utils/cn"
 
+type BadgeVariant = "neutral" | "success" | "warning" | "danger"
+
+const BADGE_VARIANT_CLASSES: Record<BadgeVariant, string> = {
+  neutral: "bg-muted text-muted-foreground",
+  success: "bg-positive-bg text-positive",
+  warning: "bg-accent-gold/10 text-accent-gold",
+  danger: "bg-destructive/10 text-destructive",
+}
+
 interface DetailHeaderProps {
   badgeLabel?: string
-  badgeColor?: string
+  badgeVariant?: BadgeVariant
   title: string
   subtitle: string
   value: string
@@ -15,7 +24,7 @@ interface DetailHeaderProps {
 
 export function DetailHeader({
   badgeLabel,
-  badgeColor,
+  badgeVariant = "neutral",
   title,
   subtitle,
   value,
@@ -29,7 +38,7 @@ export function DetailHeader({
           {badgeLabel && (
             <span className={cn(
               "inline-block px-2.5 py-0.5 rounded-full text-2xs font-bold uppercase tracking-wider mb-1",
-              badgeColor
+              BADGE_VARIANT_CLASSES[badgeVariant]
             )}>
               {badgeLabel}
             </span>

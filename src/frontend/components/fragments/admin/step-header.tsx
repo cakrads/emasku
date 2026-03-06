@@ -29,7 +29,7 @@ export function StepHeader({
     )}>
       <Stack direction="horizontal" gap="sm" className="items-center mb-3">
         {showBack && (
-          <Button variant="ghost" size="icon" onClick={onBack} className="-ml-2 h-9 w-9">
+          <Button variant="ghost" size="icon" onClick={onBack} className="-ml-2 h-9 w-9" aria-label="Back">
             <ChevronLeft className="h-5 w-5" />
           </Button>
         )}

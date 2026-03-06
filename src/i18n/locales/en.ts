@@ -2,6 +2,9 @@ export default {
   common: {
     language: 'Language',
     darkMode: 'Dark Mode',
+    lightMode: 'Light Mode',
+    languageEnglish: 'English',
+    languageBahasa: 'Bahasa Indonesia',
     profile: 'Profile',
     logout: 'Log Out',
     login: 'Login',

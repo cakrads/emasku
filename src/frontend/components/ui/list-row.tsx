@@ -35,7 +35,10 @@ export function ListRow({
         onClick={onClick}
         role={onClick ? "button" : undefined}
         tabIndex={onClick ? 0 : undefined}
-        onKeyDown={onClick ? (e) => e.key === "Enter" && onClick() : undefined}
+        onKeyDown={onClick ? (e) => {
+          if (e.key === "Enter") onClick()
+          if (e.key === " " || e.key === "Spacebar") { e.preventDefault(); onClick() }
+        } : undefined}
       >
         {leading && <div className="shrink-0">{leading}</div>}
         <div className="flex-1 min-w-0">
