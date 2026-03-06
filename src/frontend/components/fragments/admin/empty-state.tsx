@@ -1,5 +1,6 @@
 'use client'
 
+import * as React from 'react'
 import { Stack } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { Button } from '@/frontend/components/ui/button'
@@ -31,21 +32,21 @@ export function EmptyState({
     <Stack
       gap="md"
       className={cn(
-        "items-center justify-center text-center py-8 px-4",
+        "items-center justify-center text-center py-16 px-4",
         className
       )}
     >
       {icon && (
-        <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center text-muted-foreground">
+        <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
           {icon}
         </div>
       )}
 
-      <Stack gap="xs" className="items-center max-w-md">
-        <Typography variant="h4" className="text-foreground">
+      <Stack gap="xs" className="items-center max-w-sm">
+        <Typography as="h2" variant="h3">
           {title}
         </Typography>
-        <Typography variant="body-sm" className="text-muted-foreground">
+        <Typography variant="body-sm">
           {description}
         </Typography>
       </Stack>
