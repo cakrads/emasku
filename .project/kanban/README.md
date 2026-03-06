@@ -21,6 +21,7 @@ This folder manages the task lifecycle for the EmasKu project development.
 2. **Prioritization**: Human reviews backlog and moves ready tasks to `0 to do`.
 3. **Execution**: AI agent picks a task from `0 to do` and moves it to `1 in-progress`.
 4. **Completion**: Once implemented and verified (lint/build), AI moves the task to `1.5 in-progress-done`.
-5. **Review**: Tasks move to `2 PR` when code review is initiated.
-6. **Validation**: Human testing occurs in stage `3 testing by human`.
-7. **Closing**: Finalized tasks are moved to `4 task done`.
+5. as agent, you move the task from `0 backlog` or `0 to do` to `1.5 in-progress-done` not to 4 task done
+6. **Review**: Tasks move to `2 PR` when code review is initiated.
+7. **Validation**: Human testing occurs in stage `3 testing by human`.
+8. **Closing**: Finalized tasks are moved to `4 task done`.
