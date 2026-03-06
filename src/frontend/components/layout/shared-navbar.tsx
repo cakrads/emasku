@@ -369,7 +369,7 @@ export function SharedNavbar() {
                     className="flex flex-col items-center justify-end relative h-full group"
                   >
                     <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-accent-gold rounded-full p-4 shadow-gold border-4 border-background flex items-center justify-center transition-all active:scale-95">
-                      <Plus className="h-6 w-6 text-white" strokeWidth={3} />
+                      <Plus className="h-6 w-6 text-accent-foreground" strokeWidth={3} />
                     </div>
                     <span className="text-2xs opacity-0 mt-1">+</span>
                   </Link>
