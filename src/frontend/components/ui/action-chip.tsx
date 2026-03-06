@@ -1,0 +1,39 @@
+import * as React from "react"
+import { cva, type VariantProps } from "class-variance-authority"
+
+import { cn } from "@/frontend/utils/cn"
+
+const actionChipVariants = cva(
+  "inline-flex items-center gap-1.5 h-9 px-4 rounded-full text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 cursor-pointer",
+  {
+    variants: {
+      variant: {
+        primary: "bg-accent-gold text-white hover:brightness-110",
+        outline: "border border-border text-foreground bg-background hover:bg-surface",
+      },
+    },
+    defaultVariants: {
+      variant: "outline",
+    },
+  }
+)
+
+export interface ActionChipProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof actionChipVariants> {
+  icon?: React.ReactNode
+  label: string
+}
+
+export function ActionChip({ icon, label, variant, className, ...props }: ActionChipProps) {
+  return (
+    <button
+      type="button"
+      className={cn(actionChipVariants({ variant }), className)}
+      {...props}
+    >
+      {icon}
+      <span>{label}</span>
+    </button>
+  )
+}

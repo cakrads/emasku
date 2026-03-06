@@ -21,7 +21,8 @@
 
   /* Borders and surfaces */
   --border: oklch(0.92 0.004 286.32);
-  --surface: #F9FAFB;
+  --surface: #F5F5F5;
+  --surface-hover: #F0F0F0;
   --surface-elevated: #FFFFFF;
 
   /* Shadows - minimal and subtle */
@@ -77,11 +78,14 @@
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.552 0.016 285.938);
 
-  /* Missing surface variables overrides for dark mode */
-  --surface: oklch(0.141 0.005 285.823);
-  /* Same as background */
-  --surface-elevated: oklch(0.21 0.006 285.885);
-  /* Same as card */
+  /* Text color overrides for dark mode */
+  --text-secondary: #9CA3AF;
+  --text-muted: #6B7280;
+
+  /* Surface overrides for dark mode */
+  --surface: oklch(0.21 0.006 285.885);
+  --surface-hover: oklch(0.274 0.006 286.033);
+  --surface-elevated: oklch(0.274 0.006 286.033);
 
   /* Gold accent overrides for dark mode */
   --accent-gold: #F5C518;
@@ -111,6 +115,7 @@
   --color-accent-gold: var(--accent-gold);
   --color-accent-gold-light: var(--accent-gold-light);
   --color-surface: var(--surface);
+  --color-surface-hover: var(--surface-hover);
   --color-surface-elevated: var(--surface-elevated);
   --color-positive: var(--positive);
   --color-negative: var(--negative);
@@ -181,6 +186,10 @@
 
   /* Scroll-reveal animations */
   /* slide-up removed as unused */
+
+  /* Custom font size: 10px for detail/badge text */
+  --font-size-2xs: 0.625rem;
+  --font-size-2xs--line-height: 0.875rem;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
