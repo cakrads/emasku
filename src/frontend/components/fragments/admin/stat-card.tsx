@@ -16,7 +16,7 @@ export function StatCard({ label, value, trend, className }: StatCardProps) {
     <Card variant="surface" className={cn("p-4", className)}>
       <Typography as="p" variant="caption" className="mb-1">{label}</Typography>
       <Typography as="p" variant="value">{value}</Typography>
-      {trend && <div className="mt-1">{trend}</div>}
+      {trend != null && <div className="mt-1">{trend}</div>}
     </Card>
   )
 }

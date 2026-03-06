@@ -244,7 +244,7 @@ export function SharedNavbar() {
                             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                           >
                             {theme === 'dark' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-                            <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
+                            <span>{theme === 'dark' ? t('common.lightMode') : t('common.darkMode')}</span>
                           </Button>
                           <Button
                             variant="ghost"
@@ -252,7 +252,7 @@ export function SharedNavbar() {
                             onClick={() => setLanguage(language === 'id' ? 'en' : 'id')}
                           >
                             <Globe className="h-5 w-5" />
-                            <span>{language === 'id' ? 'English' : 'Bahasa Indonesia'}</span>
+                            <span>{language === 'id' ? t('common.languageEnglish') : t('common.languageBahasa')}</span>
                           </Button>
                         </div>
                       )}
@@ -329,7 +329,7 @@ export function SharedNavbar() {
                           ? <Moon className="mr-2 h-4 w-4" />
                           : <Sun className="mr-2 h-4 w-4" />
                         }
-                        <span>{theme === 'dark' ? 'Light mode' : 'Dark mode'}</span>
+                        <span>{theme === 'dark' ? t('common.lightMode') : t('common.darkMode')}</span>
                       </DropdownMenuItem>
                     )}
                     <DropdownMenuItem
@@ -337,7 +337,7 @@ export function SharedNavbar() {
                       className="cursor-pointer"
                     >
                       <Globe className="mr-2 h-4 w-4" />
-                      <span>{language === 'id' ? 'English' : 'Bahasa Indonesia'}</span>
+                      <span>{language === 'id' ? t('common.languageEnglish') : t('common.languageBahasa')}</span>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
@@ -365,6 +365,7 @@ export function SharedNavbar() {
                   <Link
                     key={item.id}
                     href={item.href}
+                    aria-label={item.label}
                     className="flex flex-col items-center justify-end relative h-full group"
                   >
                     <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-accent-gold rounded-full p-4 shadow-gold border-4 border-background flex items-center justify-center transition-all active:scale-95">

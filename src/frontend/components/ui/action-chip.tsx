@@ -8,7 +8,7 @@ const actionChipVariants = cva(
   {
     variants: {
       variant: {
-        primary: "bg-accent-gold text-white hover:brightness-110",
+        primary: "bg-accent-gold text-accent-foreground hover:brightness-110",
         outline: "border border-border text-foreground bg-background hover:bg-surface",
       },
     },
@@ -32,7 +32,7 @@ export function ActionChip({ icon, label, variant, className, ...props }: Action
       className={cn(actionChipVariants({ variant }), className)}
       {...props}
     >
-      {icon}
+      {icon && <span aria-hidden="true">{icon}</span>}
       <span>{label}</span>
     </button>
   )

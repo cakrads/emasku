@@ -15,7 +15,7 @@ export function SectionHeader({ title, actionLabel, onAction, href, className }:
   return (
     <div className={cn("flex items-center justify-between", className)}>
       <Typography as="h2" variant="h3">{title}</Typography>
-      {actionLabel && (
+      {actionLabel && (href || onAction) && (
         href ? (
           <a
             href={href}

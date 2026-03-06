@@ -44,6 +44,7 @@ export function DetailActions({ actions, className }: DetailActionsProps) {
             if (action.color === "error") color = "destructive"
             else if (action.color === "warning") color = "warning"
             else if (action.color === "primary") color = "primary"
+            else if (action.color === "default") color = "default"
           }
 
           return (
