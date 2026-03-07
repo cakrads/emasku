@@ -137,7 +137,7 @@ export default function BrandCard({
               <button
                 type="button"
                 aria-label={tooltipText}
-                className="absolute top-4 right-4 z-10"
+                className="absolute top-4 right-4 z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:rounded-sm"
               >
                 <Info className="w-3 h-3 text-muted-foreground/50 shrink-0" />
               </button>

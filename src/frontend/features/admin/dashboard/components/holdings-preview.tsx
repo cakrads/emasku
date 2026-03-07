@@ -1,6 +1,7 @@
 'use client'
 
 import { useQuery } from '@tanstack/react-query'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Stack } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
@@ -23,7 +24,10 @@ interface GroupedHoldingItem extends HoldingItemVM {
 export default function HoldingsPreview() {
   const { t, language } = useLanguage()
   const locale = language === 'id' ? 'id-ID' : 'en-US'
+  const [hydrated, setHydrated] = useState(false)
   const { isVisible } = usePortfolioPrivacy()
+
+  useEffect(() => { setHydrated(true) }, [])
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['portfolio', 'list', 'preview'],
@@ -75,7 +79,7 @@ export default function HoldingsPreview() {
           const isPositive = holding.pnlColor === 'positive'
           const isNegative = holding.pnlColor === 'negative'
           const label = `${holding.brandName} · ${holding.weight}${holding.count > 1 ? ` (x${holding.count})` : ''}`
-          const subtitle = `${t('dashboard.purchasedOn')} ${holding.buyDate} · ${isVisible ? holding.totalBuyValue : '••••••'}`
+          const subtitle = `${t('dashboard.purchasedOn')} ${holding.buyDate} · ${hydrated && isVisible ? holding.totalBuyValue : '••••••'}`
 
           return (
             <ListRow
@@ -92,7 +96,7 @@ export default function HoldingsPreview() {
               trailing={
                 hasValuation ? (
                   <Typography variant="body-sm" className="font-medium text-foreground">
-                    {isVisible ? holding.totalValue : '••••••'}
+                    {hydrated && isVisible ? holding.totalValue : '••••••'}
                   </Typography>
                 ) : undefined
               }
@@ -107,7 +111,7 @@ export default function HoldingsPreview() {
                       !isPositive && !isNegative && 'text-muted-foreground'
                     )}
                   >
-                    {isVisible ? `${holding.pnl} (${holding.pnlPercentage})` : '••••••'}
+                    {hydrated && isVisible ? `${holding.pnl} (${holding.pnlPercentage})` : '••••••'}
                   </Typography>
                 ) : (
                   <Typography variant="caption" className="text-muted-foreground italic">
