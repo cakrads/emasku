@@ -19,6 +19,11 @@ const actionChipVariants = cva(
   }
 )
 
+/**
+ * When `href` is supplied, ActionChip renders as a Next.js Link with link
+ * semantics (prefetching, right-click support). Button-specific props such as
+ * `onClick` and `disabled` are ignored in that case.
+ */
 export interface ActionChipProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof actionChipVariants> {

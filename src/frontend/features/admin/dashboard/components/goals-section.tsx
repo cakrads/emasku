@@ -20,6 +20,7 @@ export default function GoalsSection() {
     const { data, isLoading } = useQuery({
         queryKey: ['goals', 'list'], // Match key used in list view
         queryFn: fetchGoals,
+        throwOnError: true,
     })
 
     // If no goals, don't show section? Or show empty state?

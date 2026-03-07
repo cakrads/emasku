@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Stack } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { Popover, PopoverContent, PopoverTrigger } from '@/frontend/components/ui/popover'
@@ -58,8 +58,11 @@ export default function PortfolioHero({
   yearlyColor = 'neutral',
 }: PortfolioHeroProps) {
   const [activePeriod, setActivePeriod] = useState<PeriodKey>('today')
+  const [hydrated, setHydrated] = useState(false)
   const { t } = useLanguage()
   const { isVisible } = usePortfolioPrivacy()
+
+  useEffect(() => { setHydrated(true) }, [])
 
   const periods: PeriodData[] = [
     { key: 'today', label: t('dashboard.today'), value: todayChange ?? null, percentage: todayChangePercentage ?? null, color: todayColor },
@@ -89,13 +92,13 @@ export default function PortfolioHero({
     <Stack gap="sm">
       {/* Total Value - Hero */}
       <Typography className="text-4xl md:text-5xl font-bold text-foreground financial-value tracking-tight">
-        {isVisible ? (totalValue || '—') : '••••••••'}
+        {hydrated && isVisible ? (totalValue || '—') : '••••••••'}
       </Typography>
 
       {/* Period PnL */}
       {activePeriodData.value ? (
         <Typography variant="body-sm" className={cn('font-medium', getColorClass(activePeriodData.color))}>
-          {isVisible
+          {hydrated && isVisible
             ? `${activePeriodData.value}${activePeriodData.percentage ? ` (${activePeriodData.percentage})` : ''}`
             : '•••••••• (•••%)'
           }
@@ -109,6 +112,7 @@ export default function PortfolioHero({
         {periods.map((period) => (
           <button
             key={period.key}
+            type="button"
             onClick={() => setActivePeriod(period.key)}
             aria-pressed={activePeriod === period.key}
             className={cn(
@@ -149,7 +153,7 @@ export default function PortfolioHero({
           <Stack className="flex md:hidden">
             <Popover>
               <PopoverTrigger asChild>
-                <button className="flex items-center gap-1.5 text-muted-foreground/60 cursor-pointer w-fit hover:text-muted-foreground transition-colors">
+                <button type="button" className="flex items-center gap-1.5 text-muted-foreground/60 cursor-pointer w-fit hover:text-muted-foreground transition-colors">
                   {ExcludedInfoContent}
                 </button>
               </PopoverTrigger>

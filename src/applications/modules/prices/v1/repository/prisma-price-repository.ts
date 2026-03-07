@@ -87,10 +87,10 @@ export class PrismaPriceRepository implements IPriceRepository {
     // (comparing today's price to yesterday's, not to an earlier same-day scrape)
     const now = new Date()
     const yesterday = new Date(now)
-    yesterday.setDate(yesterday.getDate() - 1)
-    yesterday.setHours(0, 0, 0, 0)
+    yesterday.setUTCDate(yesterday.getUTCDate() - 1)
+    yesterday.setUTCHours(0, 0, 0, 0)
     const endOfDay = new Date(now)
-    endOfDay.setHours(23, 59, 59, 999)
+    endOfDay.setUTCHours(23, 59, 59, 999)
 
     const prices = await this.prisma.goldPrice.findMany({
       where: {
