@@ -1,4 +1,5 @@
 import * as React from "react"
+import Link from "next/link"
 
 import { cn } from "@/frontend/utils/cn"
 import { Typography } from "@/frontend/components/ui/typography"
@@ -17,12 +18,12 @@ export function SectionHeader({ title, actionLabel, onAction, href, className }:
       <Typography as="h2" variant="h3">{title}</Typography>
       {actionLabel && (href || onAction) && (
         href ? (
-          <a
+          <Link
             href={href}
             className="text-sm font-medium text-accent-gold hover:underline"
           >
             {actionLabel}
-          </a>
+          </Link>
         ) : (
           <button
             type="button"

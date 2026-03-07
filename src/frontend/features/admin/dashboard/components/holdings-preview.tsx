@@ -142,12 +142,12 @@ function HoldingsPreviewEmpty() {
             {t('dashboard.addFirstHoldingPrompt')}
           </Typography>
         </Stack>
-        <Link href={ROUTES.ADD_HOLDING}>
-          <Button variant="outline" size="sm" className="gap-2">
+        <Button asChild variant="outline" size="sm" className="gap-2">
+          <Link href={ROUTES.ADD_HOLDING}>
             <Plus className="w-4 h-4" />
             <span>{t('dashboard.addFirstHolding')}</span>
-          </Button>
-        </Link>
+          </Link>
+        </Button>
       </Stack>
     </Stack>
   )

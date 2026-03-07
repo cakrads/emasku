@@ -41,7 +41,7 @@ function DashboardContent() {
             {t('dashboard.portfolio')}
           </Typography>
           <Stack direction="horizontal" gap="sm" className="items-center">
-            <PrivacyToggle className="h-5 w-5 text-muted-foreground/70" iconClassName="h-4 w-4" />
+            <PrivacyToggle className="text-muted-foreground/70" iconClassName="h-4 w-4" />
             <PriceFreshness lastUpdated={lastUpdated} isLoading={isLoading} />
           </Stack>
         </Stack>

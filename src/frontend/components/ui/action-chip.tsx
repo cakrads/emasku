@@ -1,4 +1,5 @@
 import * as React from "react"
+import Link from "next/link"
 import { cva, type VariantProps } from "class-variance-authority"
 
 import { cn } from "@/frontend/utils/cn"
@@ -23,17 +24,29 @@ export interface ActionChipProps
     VariantProps<typeof actionChipVariants> {
   icon?: React.ReactNode
   label: string
+  href?: string
 }
 
-export function ActionChip({ icon, label, variant, className, ...props }: ActionChipProps) {
-  return (
-    <button
-      type="button"
-      className={cn(actionChipVariants({ variant }), className)}
-      {...props}
-    >
+export function ActionChip({ icon, label, variant, className, href, ...props }: ActionChipProps) {
+  const chipClass = cn(actionChipVariants({ variant }), className)
+  const content = (
+    <>
       {icon && <span aria-hidden="true">{icon}</span>}
       <span>{label}</span>
+    </>
+  )
+
+  if (href) {
+    return (
+      <Link href={href} className={chipClass}>
+        {content}
+      </Link>
+    )
+  }
+
+  return (
+    <button type="button" className={chipClass} {...props}>
+      {content}
     </button>
   )
 }
