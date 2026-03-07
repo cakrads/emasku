@@ -83,12 +83,12 @@ export class PrismaPriceRepository implements IPriceRepository {
   ): Promise<TodayPriceGroup[]> {
     const startTime = Date.now()
 
-    // Get latest prices for each brand/denomination combination
-    // We'll fetch all SELL and BUYBACK prices and group them
-    // Bound to today's temporal window (00:00:00–23:59:59) to prevent stale data
+    // Fetch the last 2 days so we can compute a proper daily delta
+    // (comparing today's price to yesterday's, not to an earlier same-day scrape)
     const now = new Date()
-    const startOfDay = new Date(now)
-    startOfDay.setHours(0, 0, 0, 0)
+    const yesterday = new Date(now)
+    yesterday.setDate(yesterday.getDate() - 1)
+    yesterday.setHours(0, 0, 0, 0)
     const endOfDay = new Date(now)
     endOfDay.setHours(23, 59, 59, 999)
 
@@ -97,9 +97,9 @@ export class PrismaPriceRepository implements IPriceRepository {
         ...(brandCode && { brandCode }),
         ...(denominationGram && { denominationGram }),
         priceType: { in: [PriceType.SELL, PriceType.BUYBACK] },
-        recordedAt: { gte: startOfDay, lte: endOfDay },
+        recordedAt: { gte: yesterday, lte: endOfDay },
       },
-      orderBy: [{ brandCode: 'asc' }, { denominationGram: 'asc' }, { priceAt: 'desc' }, { recordedAt: 'desc' }],
+      orderBy: [{ brandCode: 'asc' }, { denominationGram: 'asc' }, { recordedAt: 'desc' }],
     })
 
     logQuery('getTodayPrices', Date.now() - startTime, {
@@ -109,9 +109,12 @@ export class PrismaPriceRepository implements IPriceRepository {
 
     // Group by brand + denomination and track trends
     const grouped = new Map<string, TodayPriceGroup>()
+    // Track which calendar day the primary price belongs to, for cross-day delta
+    const primaryDays = new Map<string, { sell: string | null, buyback: string | null }>()
 
     for (const price of prices) {
       const key = `${price.brandCode}_${price.denominationGram.toString()}`
+      const priceDay = price.recordedAt.toISOString().split('T')[0]
 
       if (!grouped.has(key)) {
         grouped.set(key, {
@@ -123,9 +126,12 @@ export class PrismaPriceRepository implements IPriceRepository {
           buybackDelta: null,
           lastUpdated: price.priceAt,
         })
+        primaryDays.set(key, { sell: null, buyback: null })
       }
 
       const group = grouped.get(key)!
+      const days = primaryDays.get(key)!
+
       // Keep the latest timestamp found for this group
       if (price.priceAt > group.lastUpdated) {
         group.lastUpdated = price.priceAt
@@ -136,15 +142,17 @@ export class PrismaPriceRepository implements IPriceRepository {
       if (price.priceType === PriceType.SELL) {
         if (group.sellPrice === null) {
           group.sellPrice = priceVal
-        } else if (group.sellDelta === null) {
-          // Immediate previous record — compute delta regardless of value match
+          days.sell = priceDay
+        } else if (group.sellDelta === null && days.sell !== priceDay) {
+          // Only compute delta when comparing prices from different calendar days
+          // This gives a meaningful daily change (today vs yesterday)
           group.sellDelta = group.sellPrice - priceVal
         }
       } else if (price.priceType === PriceType.BUYBACK) {
         if (group.buybackPrice === null) {
           group.buybackPrice = priceVal
-        } else if (group.buybackDelta === null) {
-          // Immediate previous record — compute delta regardless of value match
+          days.buyback = priceDay
+        } else if (group.buybackDelta === null && days.buyback !== priceDay) {
           group.buybackDelta = group.buybackPrice - priceVal
         }
       }

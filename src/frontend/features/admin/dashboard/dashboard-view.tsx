@@ -3,14 +3,15 @@
 import { useQuery } from '@tanstack/react-query'
 import { PageWrapper, Container, Stack, Section } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
+import { PrivacyToggle } from '@/frontend/components/ui/privacy-toggle'
 import PortfolioHero from './components/portfolio-hero'
 import PriceFreshness from './components/price-freshness'
 import BrandBreakdown from './components/brand-breakdown'
 import HoldingsPreview from './components/holdings-preview'
-import AddHoldingButton from './components/add-holding-button'
 import PortfolioHeroEmpty from './components/portfolio-hero-empty'
 import BrandBreakdownEmpty from './components/brand-breakdown-empty'
 import { PricesTodayCards } from './components/prices-today-cards'
+import { QuickActions } from './components/quick-actions'
 import { fetchPortfolioSummary } from '@/frontend/services/portfolio/portfolio.api'
 import { transformPortfolioSummary } from '@/frontend/view-model/portfolio.vm'
 import { PortfolioSummarySkeleton } from './components/portfolio-summary-skeleton'
@@ -28,23 +29,24 @@ function DashboardContent() {
 
   const viewModel = data ? transformPortfolioSummary(data, t, language === 'id' ? 'id-ID' : 'en-US') : null
   const lastUpdated = viewModel?.lastUpdated
-
-  // Empty state detection
   const hasHoldings = viewModel && viewModel.brandAllocation.length > 0
 
   return (
     <Stack gap="xl" className="animate-fade-in">
-      {/* Top Section: Date + Hero + Market Today */}
-      <Stack gap="md">
-        {/* Portfolio Header */}
-        <Stack gap="xs">
-          <Typography as="h1" variant="body" className="text-xl font-semibold text-foreground">{t('dashboard.portfolio')}</Typography>
+
+      {/* 1. Greeting + Privacy Toggle row */}
+      <Stack gap="sm">
+        <Stack direction="horizontal" gap="sm" className="items-center justify-between">
+          <Typography as="h1" variant="body" className="text-xl font-semibold text-foreground">
+            {t('dashboard.portfolio')}
+          </Typography>
           <Stack direction="horizontal" gap="sm" className="items-center">
+            <PrivacyToggle className="h-5 w-5 text-muted-foreground/70" iconClassName="h-4 w-4" />
             <PriceFreshness lastUpdated={lastUpdated} isLoading={isLoading} />
           </Stack>
         </Stack>
 
-        {/* Portfolio Summary - Full Width Row */}
+        {/* 2. Hero Value */}
         <ErrorBoundary>
           {isLoading ? (
             <PortfolioSummarySkeleton />
@@ -73,20 +75,17 @@ function DashboardContent() {
             <PortfolioHeroEmpty />
           )}
         </ErrorBoundary>
-
       </Stack>
 
-      {/* Goals Section */}
-      <ErrorBoundary>
-        <GoalsSection />
-      </ErrorBoundary>
+      {/* 3. Quick Actions */}
+      <QuickActions />
 
-      {/* Market Today - Full Width Row */}
+      {/* 4. Market Today */}
       <ErrorBoundary>
         <PricesTodayCards />
       </ErrorBoundary>
 
-      {/* Brand Breakdown - Granular Loading */}
+      {/* 5. Brand Breakdown - 2-col grid */}
       <ErrorBoundary>
         {isLoading ? (
           <BrandBreakdownSkeleton />
@@ -97,15 +96,17 @@ function DashboardContent() {
         )}
       </ErrorBoundary>
 
-      {/* Holdings Preview - Recent 5 holdings */}
+      {/* 6. Recent Holdings */}
       <ErrorBoundary>
         <HoldingsPreview />
       </ErrorBoundary>
 
-      {/* Primary action FAB */}
-      <AddHoldingButton onClick={() => console.log('Add button clicked')} />
+      {/* 7. Goals */}
+      <ErrorBoundary>
+        <GoalsSection />
+      </ErrorBoundary>
 
-      {/* Bottom spacing for mobile */}
+      {/* Bottom spacing for mobile nav */}
       <Section className="md:h-12" />
     </Stack>
   )

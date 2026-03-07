@@ -209,6 +209,8 @@ export default {
     priceNotAvailable: 'Price not available',
     addGoldHoldingSimple: 'Add Gold',
     addGoldHolding: 'Add Gold',
+    sell: 'Sell',
+    priceHistory: 'Price History',
     goals: {
       totalSaved: 'Total Saved',
       activeCount: '{count} active',

@@ -210,6 +210,8 @@ export default {
     priceNotAvailable: 'Harga belum tersedia',
     addGoldHoldingSimple: 'Tambah Emas',
     addGoldHolding: 'Tambah Emas',
+    sell: 'Jual',
+    priceHistory: 'Riwayat Harga',
     goals: {
       totalSaved: 'Total Tabungan',
       activeCount: '{count} tujuan',

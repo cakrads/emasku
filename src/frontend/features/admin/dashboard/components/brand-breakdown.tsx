@@ -1,9 +1,10 @@
 'use client'
 
-import { Stack, ScrollArea } from '@/frontend/components/ui/layout'
-import { Typography } from '@/frontend/components/ui/typography'
+import { Stack } from '@/frontend/components/ui/layout'
+import { SectionHeader } from '@/frontend/components/ui/section-header'
 import BrandCard from './brand-card'
 import { useLanguage } from '@/frontend/hooks/use-language'
+import { ROUTES } from '@/frontend/config/routes'
 
 interface BrandData {
   brandCode: string
@@ -23,30 +24,25 @@ export default function BrandBreakdown({ brands }: BrandBreakdownProps) {
   const { t } = useLanguage()
   return (
     <Stack gap="md">
-      <Stack gap="none">
-        <Typography as="h2" variant="h3">{t('dashboard.holdings')}</Typography>
-        <Typography variant="body-sm">{t('dashboard.byBrand')}</Typography>
-      </Stack>
-
-      <ScrollArea>
-        <Stack direction="horizontal" gap="sm" className="pb-2">
-          {brands.filter(b => b.brandCode).map((brand, index) => (
-            <BrandCard
-              key={index}
-              brandCode={brand.brandCode}
-              brandName={brand.brandName}
-              totalGrams={brand.totalGrams}
-              currentValue={brand.currentValue}
-              deltaValue={brand.deltaValue}
-              deltaPercentage={brand.deltaPercentage}
-              valuationSource={brand.valuationSource}
-            />
-          ))}
-          {/* Spacer for right horizontal scroll padding */}
-          <div className="w-2 shrink-0" />
-
-        </Stack>
-      </ScrollArea>
+      <SectionHeader
+        title={t('dashboard.holdings')}
+        actionLabel={t('common.viewAll')}
+        href={ROUTES.HOLDINGS_LIST}
+      />
+      <div className="grid grid-cols-2 gap-3">
+        {brands.filter(b => b.brandCode).map((brand, index) => (
+          <BrandCard
+            key={index}
+            brandCode={brand.brandCode}
+            brandName={brand.brandName}
+            totalGrams={brand.totalGrams}
+            currentValue={brand.currentValue}
+            deltaValue={brand.deltaValue}
+            deltaPercentage={brand.deltaPercentage}
+            valuationSource={brand.valuationSource}
+          />
+        ))}
+      </div>
     </Stack>
   )
 }
