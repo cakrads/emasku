@@ -107,7 +107,7 @@ function DashboardContent() {
       </ErrorBoundary>
 
       {/* Bottom spacing for mobile nav */}
-      <Section className="md:h-12" />
+      <Section className="h-12" />
     </Stack>
   )
 }
