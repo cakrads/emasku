@@ -106,7 +106,7 @@ export function transformTodayPrices(apiData: PricesTodayResponse, locale: strin
   return {
     lastUpdated: formatDate(apiData.date, locale),
     brands: apiData.brands.map((brandGroup) => ({
-      brandName: brandGroup.brand,
+      brandName: brandGroup.displayName || brandGroup.brand,
       prices: brandGroup.prices
         .map((price) => {
           const spread = (price.sellPrice !== null && price.buybackPrice !== null)

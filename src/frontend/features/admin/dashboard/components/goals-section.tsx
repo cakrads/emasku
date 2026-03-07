@@ -4,12 +4,13 @@ import { useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { Stack, Section } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
+import { SectionHeader } from '@/frontend/components/ui/section-header'
 import { fetchGoals } from '@/frontend/services/goals/goals.api'
 import { formatCurrency } from '@/frontend/utils/format'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import Link from 'next/link'
 import { ROUTES } from '@/frontend/config/routes'
-import { ArrowRight, Target } from 'lucide-react'
+import { Target } from 'lucide-react'
 import { Skeleton } from '@/frontend/components/ui/skeleton'
 
 export default function GoalsSection() {
@@ -62,18 +63,11 @@ export default function GoalsSection() {
 
     return (
         <Stack gap="md">
-            <Stack direction="horizontal" gap="md" className="items-center justify-between">
-                <Stack direction="horizontal" gap="sm" className="items-baseline">
-                    <Typography variant="h3">{t('goals.title')}</Typography>
-                    <Stack direction="horizontal" gap="sm" className="hidden sm:flex items-baseline text-sm text-muted-foreground">
-                        <span className="w-1 h-1 rounded-full bg-border" />
-                        <span>{t('dashboard.goals.activeCount', { count: activeGoalsCount })}</span>
-                    </Stack>
-                </Stack>
-                <Link href={ROUTES.GOALS_LIST} className="text-sm text-accent-gold hover:text-accent-gold/80 transition-colors flex items-center gap-1">
-                    {t('common.viewAll') || 'View All'} <ArrowRight className="h-4 w-4" />
-                </Link>
-            </Stack>
+            <SectionHeader
+                title={t('goals.title')}
+                actionLabel={t('common.viewAll')}
+                href={ROUTES.GOALS_LIST}
+            />
 
             {/* Mobile-only summary line */}
 
@@ -128,14 +122,8 @@ function GoalsSectionSkeleton() {
         <Stack gap="md">
             {/* Header Skeleton */}
             <Stack direction="horizontal" gap="md" className="items-center justify-between">
-                <Stack direction="horizontal" gap="sm" className="items-baseline">
-                    <Skeleton className="h-8 w-24" />
-                    <Stack direction="horizontal" gap="sm" className="hidden sm:flex items-baseline">
-                        <Skeleton className="w-1 h-1 rounded-full opacity-50" />
-                        <Skeleton className="h-4 w-24 opacity-60" />
-                    </Stack>
-                </Stack>
-                <Skeleton className="h-5 w-20 opacity-80" />
+                <Skeleton className="h-6 w-24" />
+                <Skeleton className="h-4 w-20" />
             </Stack>
 
             {/* Cards Grid Skeleton */}

@@ -1,12 +1,12 @@
 'use client'
 
-import Link from 'next/link'
 import { useQuery } from '@tanstack/react-query'
 import { Stack } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
+import { SectionHeader } from '@/frontend/components/ui/section-header'
 import { fetchTodayPrices } from '@/frontend/services/prices/prices.api'
 import { transformTodayPrices } from '@/frontend/view-model/prices.vm'
-import { ArrowRight, Info } from 'lucide-react'
+import { Info } from 'lucide-react'
 import { ROUTES } from '@/frontend/config/routes'
 import { ErrorBoundary } from '@/frontend/components/fragments/admin/error-boundary'
 import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from '@/frontend/components/ui/tooltip'
@@ -48,18 +48,11 @@ function PricesTodayContent() {
   return (
     <Stack className="min-h-[240px] md:min-h-[220px]">
       {/* Header */}
-      <Stack direction="horizontal" gap="md" className="items-center justify-between mb-4">
-        <Stack gap="xs">
-          <Typography as="h2" variant="body" className="font-semibold">{t('dashboard.marketToday')}</Typography>
-          <Typography variant="caption" className="text-muted-foreground text-xs">
-            {t('dashboard.marketTodaySubtitle')}
-          </Typography>
-        </Stack>
-        <Link href={ROUTES.PRICES} className="group flex items-center gap-1 text-sm font-medium text-accent-gold hover:text-accent-gold/80 transition-colors">
-          <span className="hidden md:inline">{t('dashboard.viewAllPrices')}</span>
-          <ArrowRight className="w-4 h-4" />
-        </Link>
-      </Stack>
+      <SectionHeader
+        title={t('dashboard.marketToday')}
+        actionLabel={t('dashboard.viewAllPrices')}
+        href={ROUTES.PRICES}
+      />
 
       {/* Horizontal Scroll on Mobile, Grid on Desktop */}
       <div className="flex overflow-x-auto snap-x snap-mandatory gap-4 pb-4 -mx-4 px-4 md:mx-0 md:px-0 md:pb-0 md:grid md:grid-cols-2 lg:grid-cols-4 hide-scrollbar">
