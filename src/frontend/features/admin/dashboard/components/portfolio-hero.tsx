@@ -110,6 +110,7 @@ export default function PortfolioHero({
           <button
             key={period.key}
             onClick={() => setActivePeriod(period.key)}
+            aria-pressed={activePeriod === period.key}
             className={cn(
               'text-xs font-medium pb-0.5 transition-colors border-b-2',
               activePeriod === period.key
@@ -134,9 +135,9 @@ export default function PortfolioHero({
           <Stack className="hidden md:flex">
             <Tooltip>
               <TooltipTrigger asChild>
-                <Stack direction="horizontal" gap="xs" className="text-muted-foreground/60 cursor-pointer w-fit hover:text-muted-foreground transition-colors items-center">
+                <button type="button" className="flex items-center gap-1.5 text-muted-foreground/60 cursor-pointer w-fit hover:text-muted-foreground transition-colors">
                   {ExcludedInfoContent}
-                </Stack>
+                </button>
               </TooltipTrigger>
               <TooltipContent className="max-w-xs" sideOffset={8}>
                 <Typography variant="caption">{t('dashboard.excludedHoldingsTooltip')}</Typography>

@@ -97,9 +97,9 @@ export class PrismaPriceRepository implements IPriceRepository {
         ...(brandCode && { brandCode }),
         ...(denominationGram && { denominationGram }),
         priceType: { in: [PriceType.SELL, PriceType.BUYBACK] },
-        recordedAt: { gte: yesterday, lte: endOfDay },
+        priceAt: { gte: yesterday, lte: endOfDay },
       },
-      orderBy: [{ brandCode: 'asc' }, { denominationGram: 'asc' }, { recordedAt: 'desc' }],
+      orderBy: [{ brandCode: 'asc' }, { denominationGram: 'asc' }, { priceAt: 'desc' }],
     })
 
     logQuery('getTodayPrices', Date.now() - startTime, {
@@ -114,7 +114,7 @@ export class PrismaPriceRepository implements IPriceRepository {
 
     for (const price of prices) {
       const key = `${price.brandCode}_${price.denominationGram.toString()}`
-      const priceDay = price.recordedAt.toISOString().split('T')[0]
+      const priceDay = price.priceAt.toISOString().split('T')[0]
 
       if (!grouped.has(key)) {
         grouped.set(key, {

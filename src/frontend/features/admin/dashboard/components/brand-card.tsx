@@ -68,39 +68,26 @@ export default function BrandCard({
   const tooltipText = getValuationTooltip()
 
   return (
-    <Link href={ROUTES.BRAND_DETAIL(brandCode)} className="block outline-none group">
-      <Stack
-        className="bg-surface border border-border rounded-xl p-4 transition-all group-hover:border-accent-gold/50 group-hover:bg-accent-gold/5 group-hover:shadow-sm h-full"
-        gap="sm"
-      >
-        {/* Brand Avatar + Name */}
-        <Stack direction="horizontal" gap="sm" className="items-center">
-          <div className="w-8 h-8 rounded-full bg-accent-gold/15 flex items-center justify-center shrink-0">
-            <Typography variant="caption" className="font-bold text-accent-gold uppercase text-xs">
-              {brandName.charAt(0)}
-            </Typography>
-          </div>
-          <Stack direction="horizontal" gap="xs" className="items-center min-w-0">
+    <div className="relative group">
+      <Link href={ROUTES.BRAND_DETAIL(brandCode)} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xl group">
+        <Stack
+          className="bg-surface border border-border rounded-xl p-4 transition-all group-hover:border-accent-gold/50 group-hover:bg-accent-gold/5 group-hover:shadow-sm h-full"
+          gap="sm"
+        >
+          {/* Brand Avatar + Name */}
+          <Stack direction="horizontal" gap="sm" className="items-center">
+            <div className="w-8 h-8 rounded-full bg-accent-gold/15 flex items-center justify-center shrink-0">
+              <Typography variant="caption" className="font-bold text-accent-gold uppercase text-xs">
+                {brandName.charAt(0)}
+              </Typography>
+            </div>
             <Typography
               variant="caption"
-              className="font-medium text-muted-foreground truncate group-hover:text-accent-gold transition-colors text-xs"
+              className="font-medium text-muted-foreground truncate group-hover:text-accent-gold transition-colors text-xs min-w-0"
             >
               {brandName}
             </Typography>
-            {tooltipText && (
-              <TooltipProvider delayDuration={200}>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="w-3 h-3 text-muted-foreground/50 shrink-0" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <Typography variant="caption">{tooltipText}</Typography>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            )}
           </Stack>
-        </Stack>
 
         {/* Weight - main value */}
         <Stack gap="xs">
@@ -142,6 +129,25 @@ export default function BrandCard({
           </Typography>
         )}
       </Stack>
-    </Link>
+      </Link>
+      {tooltipText && (
+        <TooltipProvider delayDuration={200}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                aria-label={tooltipText}
+                className="absolute top-4 right-4 z-10"
+              >
+                <Info className="w-3 h-3 text-muted-foreground/50 shrink-0" />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <Typography variant="caption">{tooltipText}</Typography>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
+    </div>
   )
 }
