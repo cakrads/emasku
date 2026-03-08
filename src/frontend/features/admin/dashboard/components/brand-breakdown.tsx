@@ -7,7 +7,7 @@ import { useLanguage } from '@/frontend/hooks/use-language'
 import { ROUTES } from '@/frontend/config/routes'
 
 interface BrandData {
-  brandCode: string
+  brandCode?: string
   brandName: string
   totalGrams: number
   currentValue: number
@@ -30,9 +30,9 @@ export default function BrandBreakdown({ brands }: BrandBreakdownProps) {
         href={ROUTES.HOLDINGS_LIST}
       />
       <div className="grid grid-cols-2 gap-3">
-        {brands.filter(b => b.brandCode).map((brand) => (
+        {brands.map((brand, index) => (
           <BrandCard
-            key={brand.brandCode}
+            key={brand.brandCode ?? `${brand.brandName}-${index}`}
             brandCode={brand.brandCode}
             brandName={brand.brandName}
             totalGrams={brand.totalGrams}
