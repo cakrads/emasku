@@ -78,7 +78,7 @@ export default function BrandCard({
           <Stack direction="horizontal" gap="sm" className="items-center">
             <div className="w-8 h-8 rounded-full bg-accent-gold/15 flex items-center justify-center shrink-0">
               <Typography variant="caption" className="font-bold text-accent-gold uppercase text-xs">
-                {brandName.charAt(0)}
+                {brandName.charAt(0).toUpperCase()}
               </Typography>
             </div>
             <Typography
