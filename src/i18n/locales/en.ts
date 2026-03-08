@@ -207,6 +207,7 @@ const en = {
     valuationUnavailable: 'Valuation not available',
     emptyPortfolio: 'You don\'t have any gold in your portfolio yet',
     emptyPortfolioDesc: 'Add your first gold to start monitoring its value and movement',
+    checkGoldPrice: 'View Today\'s Gold Price',
     brandBreakdownEmptyDesc: 'Every gold you input will be automatically grouped by brand',
     lastUpdated: 'Last updated',
     lastUpdatedTooltip: 'Time when the market source last updated the price.',
