@@ -10,17 +10,16 @@ import { formatCurrency } from '@/frontend/utils/format'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import Link from 'next/link'
 import { ROUTES } from '@/frontend/config/routes'
-import { Target } from 'lucide-react'
+import { Target, AlertCircle } from 'lucide-react'
 import { Skeleton } from '@/frontend/components/ui/skeleton'
 
 export default function GoalsSection() {
     const { t, language } = useLanguage()
     const locale = language === 'id' ? 'id-ID' : 'en-US'
 
-    const { data, isLoading } = useQuery({
+    const { data, isLoading, isError, refetch } = useQuery({
         queryKey: ['goals', 'list'], // Match key used in list view
         queryFn: fetchGoals,
-        throwOnError: true,
     })
 
     // If no goals, don't show section? Or show empty state?
@@ -40,6 +39,26 @@ export default function GoalsSection() {
 
     if (isLoading) {
         return <GoalsSectionSkeleton />
+    }
+
+    if (isError) {
+        return (
+            <Section title={t('goals.title')}>
+                <Stack className="rounded-xl border border-dashed border-border bg-surface/50 p-6 text-center items-center gap-3">
+                    <AlertCircle className="h-8 w-8 text-negative/60" aria-hidden="true" />
+                    <Typography variant="body-sm" className="text-muted-foreground">
+                        {t('common.error')}
+                    </Typography>
+                    <button
+                        type="button"
+                        onClick={() => refetch()}
+                        className="text-sm font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:rounded-sm"
+                    >
+                        {t('common.retry')}
+                    </button>
+                </Stack>
+            </Section>
+        )
     }
 
     if (goals.length === 0) {
