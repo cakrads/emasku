@@ -162,7 +162,9 @@ export class PrismaPriceRepository implements IPriceRepository {
       }
     }
 
-    return Array.from(grouped.values())
+    return Array.from(grouped.values()).filter(
+      g => g.sellPrice !== null || g.buybackPrice !== null
+    )
   }
 
   async saveBatch(prices: import('../domain/gold-price').CreatePriceInput[]): Promise<{

@@ -100,7 +100,7 @@ function PricesTodayContent() {
                       <Stack className="flex md:hidden">
                         <Popover>
                           <PopoverTrigger asChild>
-                            <button className="outline-none">
+                            <button className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:rounded-sm">
                               <DeltaIndicator delta={price1g.sellDelta} deltaPercentage={price1g.sellDeltaPercentage} />
                             </button>
                           </PopoverTrigger>
@@ -142,7 +142,7 @@ function PricesTodayContent() {
                       <Stack className="flex md:hidden">
                         <Popover>
                           <PopoverTrigger asChild>
-                            <button className="outline-none">
+                            <button className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:rounded-sm">
                               <DeltaIndicator delta={price1g.buybackDelta} deltaPercentage={price1g.buybackDeltaPercentage} />
                             </button>
                           </PopoverTrigger>
