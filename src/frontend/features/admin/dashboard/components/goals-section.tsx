@@ -17,7 +17,7 @@ export default function GoalsSection() {
     const { t, language } = useLanguage()
     const locale = language === 'id' ? 'id-ID' : 'en-US'
 
-    const { data, isLoading, isError, refetch } = useQuery({
+    const { data, isLoading, isError, isRefetchError, refetch } = useQuery({
         queryKey: ['goals', 'list'], // Match key used in list view
         queryFn: fetchGoals,
     })
@@ -41,7 +41,7 @@ export default function GoalsSection() {
         return <GoalsSectionSkeleton />
     }
 
-    if (isError) {
+    if (isError && !data) {
         return (
             <Section title={t('goals.title')}>
                 <Stack className="rounded-xl border border-dashed border-border bg-surface/50 p-6 text-center items-center gap-3">
@@ -88,6 +88,21 @@ export default function GoalsSection() {
                 actionLabel={t('common.viewAll')}
                 href={ROUTES.GOALS_LIST}
             />
+            {isRefetchError && (
+                <Stack direction="horizontal" gap="xs" className="items-center">
+                    <AlertCircle className="h-4 w-4 text-negative/60 shrink-0" aria-hidden="true" />
+                    <Typography variant="caption" className="text-muted-foreground">
+                        {t('common.error')}
+                    </Typography>
+                    <button
+                        type="button"
+                        onClick={() => refetch()}
+                        className="text-xs font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:rounded-sm"
+                    >
+                        {t('common.retry')}
+                    </button>
+                </Stack>
+            )}
 
             {/* Mobile-only summary line */}
 
