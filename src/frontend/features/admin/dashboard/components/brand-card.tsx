@@ -18,7 +18,7 @@ import {
 import { usePortfolioPrivacy } from '@/frontend/hooks/use-portfolio-privacy'
 
 interface BrandCardProps {
-  brandCode?: string
+  brandCode: string
   brandName: string
   totalGrams: number
   currentValue: number
@@ -136,15 +136,9 @@ export default function BrandCard({
 
   return (
     <div className="relative group">
-      {brandCode ? (
-        <Link href={ROUTES.BRAND_DETAIL(brandCode)} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xl group">
-          {cardContent}
-        </Link>
-      ) : (
-        <div className="block rounded-xl">
-          {cardContent}
-        </div>
-      )}
+      <Link href={ROUTES.BRAND_DETAIL(brandCode)} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xl group">
+        {cardContent}
+      </Link>
       {tooltipText && (
         <TooltipProvider delayDuration={200}>
           <Tooltip>

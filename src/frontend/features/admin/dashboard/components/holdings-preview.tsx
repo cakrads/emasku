@@ -32,7 +32,7 @@ export default function HoldingsPreview() {
 
   useEffect(() => { setHydrated(true) }, [])
 
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isLoading, error, isRefetchError, refetch } = useQuery({
     queryKey: ['portfolio', 'list', 'preview'],
     queryFn: () => fetchPortfolioList({ status: 'active' }, { page: 1, pageSize: 5 }),
   })
@@ -45,53 +45,50 @@ export default function HoldingsPreview() {
     : []
 
   const apiItems = data?.items ?? []
-  const groupedHoldings: GroupedHoldingItem[] = []
+  const groupMap = new Map<string, GroupedHoldingItem>()
+  const groupOrder: string[] = []
   rawHoldings.forEach((item, idx) => {
     const apiItem = apiItems[idx]
-    const last = groupedHoldings[groupedHoldings.length - 1]
-    const isSameGroup = last &&
-      last.brand === item.brand &&
-      last.weight === item.weight &&
-      last.avgBuyPrice === item.avgBuyPrice &&
-      last.buyDate === item.buyDate
-
-    if (isSameGroup) {
-      last.count += 1
-      last._rawTotalBuyValue += apiItem?.totalBuyValue ?? 0
-      last._rawTotalValue = last._rawTotalValue !== null && apiItem?.currentValue != null
-        ? last._rawTotalValue + apiItem.currentValue
-        : last._rawTotalValue
-      last._rawPnl = last._rawPnl !== null && apiItem?.unrealizedPnL != null
-        ? last._rawPnl + apiItem.unrealizedPnL
-        : last._rawPnl
-      // Re-format aggregated display strings
-      last.totalBuyValue = fmtCurrency(last._rawTotalBuyValue)
-      last.totalValue = last._rawTotalValue != null ? fmtCurrency(last._rawTotalValue) : '-'
-      last.pnl = last._rawPnl != null ? fmtCurrency(Math.abs(last._rawPnl)) : '-'
-      const pnlPct = last._rawTotalBuyValue > 0 && last._rawPnl != null
-        ? (last._rawPnl / last._rawTotalBuyValue) * 100
+    const key = `${item.brand}|${item.weight}|${item.avgBuyPrice}|${item.buyDate}`
+    const existing = groupMap.get(key)
+    if (existing) {
+      existing.count += 1
+      existing._rawTotalBuyValue += apiItem?.totalBuyValue ?? 0
+      existing._rawTotalValue = existing._rawTotalValue !== null && apiItem?.currentValue != null
+        ? existing._rawTotalValue + apiItem.currentValue
+        : existing._rawTotalValue
+      existing._rawPnl = existing._rawPnl !== null && apiItem?.unrealizedPnL != null
+        ? existing._rawPnl + apiItem.unrealizedPnL
+        : existing._rawPnl
+      existing.totalBuyValue = fmtCurrency(existing._rawTotalBuyValue)
+      existing.totalValue = existing._rawTotalValue != null ? fmtCurrency(existing._rawTotalValue) : '-'
+      existing.pnl = existing._rawPnl != null ? fmtCurrency(Math.abs(existing._rawPnl)) : '-'
+      const pnlPct = existing._rawTotalBuyValue > 0 && existing._rawPnl != null
+        ? (existing._rawPnl / existing._rawTotalBuyValue) * 100
         : null
       const sign = pnlPct != null && pnlPct > 0 ? '+' : ''
-      last.pnlPercentage = pnlPct != null ? `${sign}${pnlPct.toFixed(2)}%` : last.pnlPercentage
-      last.pnlColor = last._rawPnl != null
-        ? (last._rawPnl > 0 ? 'positive' : last._rawPnl < 0 ? 'negative' : 'neutral')
+      existing.pnlPercentage = pnlPct != null ? `${sign}${pnlPct.toFixed(2)}%` : existing.pnlPercentage
+      existing.pnlColor = existing._rawPnl != null
+        ? (existing._rawPnl > 0 ? 'positive' : existing._rawPnl < 0 ? 'negative' : 'neutral')
         : 'neutral'
     } else {
-      groupedHoldings.push({
+      groupMap.set(key, {
         ...item,
         count: 1,
         _rawTotalBuyValue: apiItem?.totalBuyValue ?? 0,
         _rawTotalValue: apiItem?.currentValue ?? null,
         _rawPnl: apiItem?.unrealizedPnL ?? null,
       })
+      groupOrder.push(key)
     }
   })
+  const groupedHoldings = groupOrder.map(k => groupMap.get(k)!)
 
   if (isLoading) {
     return <HoldingsPreviewSkeleton />
   }
 
-  if (error) {
+  if (error && !data) {
     return (
       <Stack gap="md" role="alert">
         <SectionHeader title={t('dashboard.recentHoldings')} />
@@ -123,6 +120,21 @@ export default function HoldingsPreview() {
         actionLabel={t('common.viewAll')}
         href={ROUTES.HOLDINGS_LIST}
       />
+      {isRefetchError && (
+        <Stack direction="horizontal" gap="xs" className="items-center">
+          <AlertCircle className="h-4 w-4 text-negative/60 shrink-0" aria-hidden="true" />
+          <Typography variant="caption" className="text-muted-foreground">
+            {t('common.error')}
+          </Typography>
+          <button
+            type="button"
+            onClick={() => refetch()}
+            className="text-xs font-medium text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:rounded-sm"
+          >
+            {t('common.retry')}
+          </button>
+        </Stack>
+      )}
       <Stack gap="none">
         {groupedHoldings.map((holding, index) => {
           const hasValuation = holding.totalValue !== '-'

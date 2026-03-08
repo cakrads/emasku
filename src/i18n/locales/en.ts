@@ -213,6 +213,8 @@ const en = {
     lastUpdated: 'Last updated',
     lastUpdatedTooltip: 'Time when the market source last updated the price.',
     priceNotAvailable: 'Price not available',
+    hiddenPortfolioValue: 'Hidden portfolio value',
+    hiddenPeriodChange: 'Hidden period change',
     addGoldHoldingSimple: 'Add Gold',
     addGoldHolding: 'Add Gold',
     sell: 'Sell',
