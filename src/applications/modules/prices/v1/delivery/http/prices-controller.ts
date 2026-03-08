@@ -19,7 +19,7 @@ import { DATABASE_URL } from '@/applications/shared/lib/env'
 import { successResponse } from '@/applications/shared/lib/response'
 import { PrismaPriceRepository } from '../../repository/prisma-price-repository'
 import { z } from 'zod'
-import { ValidationError } from '@/applications/shared/lib/errors'
+import { ValidationError, NotFoundError } from '@/applications/shared/lib/errors'
 import { GetSpotPriceSeriesUsecase } from '../../usecases/get-spot-price-series'
 import { GetTodayPricesUsecase } from '../../usecases/get-today-prices'
 
@@ -175,6 +175,10 @@ export class PricesController {
         brandCode: brand,
         denominationGram: denomination,
       })
+
+      if (prices.length === 0) {
+        throw new NotFoundError('No price data available for today')
+      }
 
       // Group by brandCode (to prevent collisions between brands with same display name)
       const brandGroups = new Map<string, { brand: string, displayName: string, prices: PriceEntry[] }>()

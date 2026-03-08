@@ -1,4 +1,4 @@
-import type { Locale } from './en'
+import type { Locale } from '@/i18n/locales/en'
 
 const id = {
   common: {
