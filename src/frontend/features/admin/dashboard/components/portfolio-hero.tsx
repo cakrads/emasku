@@ -22,8 +22,6 @@ interface PeriodData {
 
 interface PortfolioHeroProps {
   totalValue: string
-  totalPnL: string
-  gainLossPercentage: string
   todayChange?: string | null
   todayChangePercentage?: string | null
   weeklyChange?: string | null
@@ -32,9 +30,7 @@ interface PortfolioHeroProps {
   monthlyChangePercentage?: string | null
   yearlyChange?: string | null
   yearlyChangePercentage?: string | null
-  disclaimer?: string
   excludedCount?: number
-  pnlColor?: 'positive' | 'negative' | 'neutral'
   todayColor?: 'positive' | 'negative' | 'neutral'
   weeklyColor?: 'positive' | 'negative' | 'neutral'
   monthlyColor?: 'positive' | 'negative' | 'neutral'

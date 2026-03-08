@@ -53,8 +53,6 @@ function DashboardContent() {
           ) : hasHoldings && viewModel ? (
             <PortfolioHero
               totalValue={viewModel.totalCurrentValue}
-              totalPnL={viewModel.totalPnL}
-              gainLossPercentage={viewModel.pnlPercentage}
               todayChange={viewModel.todayPnL}
               todayChangePercentage={viewModel.todayPnLPercentage}
               weeklyChange={viewModel.weeklyPnL}
@@ -63,12 +61,10 @@ function DashboardContent() {
               monthlyChangePercentage={viewModel.monthlyPnLPercentage}
               yearlyChange={viewModel.yearlyPnL}
               yearlyChangePercentage={viewModel.yearlyPnLPercentage}
-              pnlColor={viewModel.pnlColor}
               todayColor={viewModel.todayPnLColor}
               weeklyColor={viewModel.weeklyPnLColor}
               monthlyColor={viewModel.monthlyPnLColor}
               yearlyColor={viewModel.yearlyPnLColor}
-              disclaimer={viewModel.disclaimer}
               excludedCount={viewModel.excludedCount}
             />
           ) : (

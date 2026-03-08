@@ -86,9 +86,10 @@ export class PrismaPriceRepository implements IPriceRepository {
     // Fetch the last 2 days so we can compute a proper daily delta
     // (comparing today's price to yesterday's, not to an earlier same-day scrape)
     const now = new Date()
-    const yesterday = new Date(now)
+    const startOfToday = new Date(now)
+    startOfToday.setUTCHours(0, 0, 0, 0)
+    const yesterday = new Date(startOfToday)
     yesterday.setUTCDate(yesterday.getUTCDate() - 1)
-    yesterday.setUTCHours(0, 0, 0, 0)
     const endOfDay = new Date(now)
     endOfDay.setUTCHours(23, 59, 59, 999)
 
@@ -138,22 +139,25 @@ export class PrismaPriceRepository implements IPriceRepository {
       }
 
       const priceVal = Number(price.price)
+      const isTodayPrice = price.priceAt >= startOfToday
 
       if (price.priceType === PriceType.SELL) {
-        if (group.sellPrice === null) {
+        if (group.sellPrice === null && isTodayPrice) {
+          // Only promote today's price as the primary quote
           group.sellPrice = priceVal
           days.sell = priceDay
-        } else if (group.sellDelta === null && days.sell !== priceDay) {
-          // Only compute delta when comparing prices from different calendar days
-          // This gives a meaningful daily change (today vs yesterday)
-          group.sellDelta = group.sellPrice - priceVal
+        } else if (group.sellDelta === null && days.sell !== null && days.sell !== priceDay) {
+          // Yesterday's row: use only to compute the daily delta
+          group.sellDelta = group.sellPrice! - priceVal
         }
       } else if (price.priceType === PriceType.BUYBACK) {
-        if (group.buybackPrice === null) {
+        if (group.buybackPrice === null && isTodayPrice) {
+          // Only promote today's price as the primary quote
           group.buybackPrice = priceVal
           days.buyback = priceDay
-        } else if (group.buybackDelta === null && days.buyback !== priceDay) {
-          group.buybackDelta = group.buybackPrice - priceVal
+        } else if (group.buybackDelta === null && days.buyback !== null && days.buyback !== priceDay) {
+          // Yesterday's row: use only to compute the daily delta
+          group.buybackDelta = group.buybackPrice! - priceVal
         }
       }
     }
