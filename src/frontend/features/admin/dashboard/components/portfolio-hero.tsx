@@ -88,7 +88,12 @@ export default function PortfolioHero({
     <Stack gap="sm">
       {/* Total Value - Hero */}
       <Typography className="text-4xl md:text-5xl font-bold text-foreground financial-value tracking-tight">
-        {hydrated && isVisible ? (totalValue || '—') : '••••••••'}
+        {hydrated && isVisible ? (totalValue || '—') : (
+          <>
+            <span aria-hidden="true">••••••••</span>
+            <span className="sr-only">Hidden portfolio value</span>
+          </>
+        )}
       </Typography>
 
       {/* Period PnL */}
@@ -96,7 +101,12 @@ export default function PortfolioHero({
         <Typography variant="body-sm" className={cn('font-medium', getColorClass(activePeriodData.color))}>
           {hydrated && isVisible
             ? `${activePeriodData.value}${activePeriodData.percentage ? ` (${activePeriodData.percentage})` : ''}`
-            : '•••••••• (•••%)'
+            : (
+              <>
+                <span aria-hidden="true">•••••••• (•••%)</span>
+                <span className="sr-only">Hidden period change</span>
+              </>
+            )
           }
         </Typography>
       ) : (
