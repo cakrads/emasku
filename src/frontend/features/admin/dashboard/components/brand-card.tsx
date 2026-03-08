@@ -18,7 +18,7 @@ import {
 import { usePortfolioPrivacy } from '@/frontend/hooks/use-portfolio-privacy'
 
 interface BrandCardProps {
-  brandCode: string
+  brandCode?: string
   brandName: string
   totalGrams: number
   currentValue: number
@@ -72,69 +72,79 @@ export default function BrandCard({
 
   const tooltipText = getValuationTooltip()
 
-  return (
-    <div className="relative group">
-      <Link href={ROUTES.BRAND_DETAIL(brandCode)} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xl group">
-        <Stack
-          className="bg-surface border border-border rounded-xl p-4 transition-all group-hover:border-accent-gold/50 group-hover:bg-accent-gold/5 group-hover:shadow-sm h-full"
-          gap="sm"
-        >
-          {/* Brand Avatar + Name */}
-          <Stack direction="horizontal" gap="sm" className="items-center">
-            <div className="w-8 h-8 rounded-full bg-accent-gold/15 flex items-center justify-center shrink-0">
-              <Typography variant="caption" className="font-bold text-accent-gold uppercase text-xs">
-                {brandName.charAt(0).toUpperCase()}
-              </Typography>
-            </div>
-            <Typography
-              variant="caption"
-              className="font-medium text-muted-foreground truncate group-hover:text-accent-gold transition-colors text-xs min-w-0"
-            >
-              {brandName}
-            </Typography>
-          </Stack>
-
-        {/* Weight - main value */}
-        <Stack gap="xs">
-          <Typography variant="h3" className="font-bold text-foreground financial-value">
-            {hydrated && isVisible ? formatWeight(totalGrams) : '•••• g'}
+  const cardContent = (
+    <Stack
+      className="bg-surface border border-border rounded-xl p-4 transition-all group-hover:border-accent-gold/50 group-hover:bg-accent-gold/5 group-hover:shadow-sm h-full"
+      gap="sm"
+    >
+      {/* Brand Avatar + Name */}
+      <Stack direction="horizontal" gap="sm" className="items-center">
+        <div className="w-8 h-8 rounded-full bg-accent-gold/15 flex items-center justify-center shrink-0">
+          <Typography variant="caption" className="font-bold text-accent-gold uppercase text-xs">
+            {brandName.charAt(0).toUpperCase()}
           </Typography>
-          {/* Current value - subtitle */}
-          <Typography variant="caption" className="text-muted-foreground text-xs">
-            {isUnvalued
-              ? t('dashboard.brandCard.priceNotAvailable')
-              : hydrated && isVisible ? formatCurrency(currentValue) : '••••••••'
-            }
+        </div>
+        <Typography
+          variant="caption"
+          className="font-medium text-muted-foreground truncate group-hover:text-accent-gold transition-colors text-xs min-w-0"
+        >
+          {brandName}
+        </Typography>
+      </Stack>
+
+      {/* Weight - main value */}
+      <Stack gap="xs">
+        <Typography variant="h3" className="font-bold text-foreground financial-value">
+          {hydrated && isVisible ? formatWeight(totalGrams) : '•••• g'}
+        </Typography>
+        {/* Current value - subtitle */}
+        <Typography variant="caption" className="text-muted-foreground text-xs">
+          {isUnvalued
+            ? t('dashboard.brandCard.priceNotAvailable')
+            : hydrated && isVisible ? formatCurrency(currentValue) : '••••••••'
+          }
+        </Typography>
+      </Stack>
+
+      {/* Delta chip */}
+      {!isUnvalued && deltaValue !== 0 && (
+        <Stack
+          direction="horizontal"
+          gap="xs"
+          className={cn(
+            'items-center w-fit px-2 py-1 rounded-md',
+            isPositive ? 'bg-positive/10' : 'bg-negative/10'
+          )}
+        >
+          <TrendingUp className={cn('w-3 h-3', isPositive ? 'text-positive' : 'rotate-180 text-negative')} />
+          <Typography
+            variant="caption"
+            className={cn('font-semibold text-xs', isPositive ? 'text-positive' : 'text-negative')}
+          >
+            {hydrated && isVisible ? `${isPositive ? '+' : ''}${deltaPercentage.toFixed(2)}%` : '****%'}
           </Typography>
         </Stack>
+      )}
 
-        {/* Delta chip */}
-        {!isUnvalued && deltaValue !== 0 && (
-          <Stack
-            direction="horizontal"
-            gap="xs"
-            className={cn(
-              'items-center w-fit px-2 py-1 rounded-md',
-              isPositive ? 'bg-positive/10' : 'bg-negative/10'
-            )}
-          >
-            <TrendingUp className={cn('w-3 h-3', isPositive ? 'text-positive' : 'rotate-180 text-negative')} />
-            <Typography
-              variant="caption"
-              className={cn('font-semibold text-xs', isPositive ? 'text-positive' : 'text-negative')}
-            >
-              {hydrated && isVisible ? `${isPositive ? '+' : ''}${deltaPercentage.toFixed(2)}%` : '****%'}
-            </Typography>
-          </Stack>
-        )}
+      {isUnvalued && (
+        <Typography variant="caption" className="text-muted-foreground italic text-xs">
+          {t('dashboard.valuationTooltip.none')}
+        </Typography>
+      )}
+    </Stack>
+  )
 
-        {isUnvalued && (
-          <Typography variant="caption" className="text-muted-foreground italic text-xs">
-            {t('dashboard.valuationTooltip.none')}
-          </Typography>
-        )}
-      </Stack>
-      </Link>
+  return (
+    <div className="relative group">
+      {brandCode ? (
+        <Link href={ROUTES.BRAND_DETAIL(brandCode)} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-xl group">
+          {cardContent}
+        </Link>
+      ) : (
+        <div className="block rounded-xl">
+          {cardContent}
+        </div>
+      )}
       {tooltipText && (
         <TooltipProvider delayDuration={200}>
           <Tooltip>
