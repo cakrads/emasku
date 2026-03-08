@@ -1,4 +1,5 @@
 'use client'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 import { Stack } from '@/frontend/components/ui/layout'
@@ -36,7 +37,11 @@ export default function BrandCard({
   valuationSource,
 }: BrandCardProps) {
   const { t, language } = useLanguage()
+  const [hydrated, setHydrated] = useState(false)
   const { isVisible } = usePortfolioPrivacy()
+
+  useEffect(() => { setHydrated(true) }, [])
+
   const isPositive = deltaValue >= 0
   const isUnvalued = valuationSource === 'NONE'
 
@@ -92,13 +97,13 @@ export default function BrandCard({
         {/* Weight - main value */}
         <Stack gap="xs">
           <Typography variant="h3" className="font-bold text-foreground financial-value">
-            {isVisible ? formatWeight(totalGrams) : '•••• g'}
+            {hydrated && isVisible ? formatWeight(totalGrams) : '•••• g'}
           </Typography>
           {/* Current value - subtitle */}
           <Typography variant="caption" className="text-muted-foreground text-xs">
             {isUnvalued
               ? t('dashboard.brandCard.priceNotAvailable')
-              : isVisible ? formatCurrency(currentValue) : '••••••••'
+              : hydrated && isVisible ? formatCurrency(currentValue) : '••••••••'
             }
           </Typography>
         </Stack>
@@ -118,7 +123,7 @@ export default function BrandCard({
               variant="caption"
               className={cn('font-semibold text-xs', isPositive ? 'text-positive' : 'text-negative')}
             >
-              {isVisible ? `${isPositive ? '+' : ''}${deltaPercentage.toFixed(2)}%` : '****%'}
+              {hydrated && isVisible ? `${isPositive ? '+' : ''}${deltaPercentage.toFixed(2)}%` : '****%'}
             </Typography>
           </Stack>
         )}
