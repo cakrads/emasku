@@ -1,4 +1,8 @@
-export default {
+// Maps all leaf string values to `string` so sibling locales can use `satisfies Locale`
+// without requiring value equality (only key-structure equality is enforced).
+type _DeepString<T> = T extends string ? string : { [K in keyof T]: _DeepString<T[K]> }
+
+const en = {
   common: {
     language: 'Language',
     darkMode: 'Dark Mode',
@@ -732,4 +736,7 @@ export default {
       },
     },
   },
-} as const;
+} as const
+
+export type Locale = _DeepString<typeof en>
+export default en

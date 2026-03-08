@@ -1,4 +1,6 @@
-export default {
+import type { Locale } from './en'
+
+const id = {
   common: {
     language: 'Bahasa',
     darkMode: 'Mode Gelap',
@@ -733,4 +735,6 @@ export default {
       },
     },
   },
-} as const;
+} satisfies Locale
+
+export default id
