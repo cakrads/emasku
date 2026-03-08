@@ -32,6 +32,7 @@ const en = {
     default: 'Default',
     viewAll: 'View All',
     none: 'None',
+    retry: 'Try Again',
     duration: {
       year: 'yr',
       years: 'yrs',

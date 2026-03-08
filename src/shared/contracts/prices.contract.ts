@@ -31,7 +31,7 @@ export type PriceEntry = z.infer<typeof PriceEntrySchema>
  */
 export const BrandPriceGroupSchema = z.object({
   brand: z.string().min(1),
-  displayName: z.string().min(1).optional(),
+  displayName: z.string().trim().min(1).optional(),
   prices: z.array(PriceEntrySchema).min(1),
 })
 

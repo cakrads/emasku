@@ -19,20 +19,26 @@ const actionChipVariants = cva(
   }
 )
 
-/**
- * When `href` is supplied, ActionChip renders as a Next.js Link with link
- * semantics (prefetching, right-click support). Button-specific props such as
- * `onClick` and `disabled` are ignored in that case.
- */
-export interface ActionChipProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof actionChipVariants> {
+type SharedProps = VariantProps<typeof actionChipVariants> & {
   icon?: React.ReactNode
   label: string
-  href?: string
+  className?: string
 }
 
-export function ActionChip({ icon, label, variant, className, href, ...props }: ActionChipProps) {
+type ActionChipLinkProps = SharedProps &
+  Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> & {
+    href: string
+  }
+
+type ActionChipButtonProps = SharedProps &
+  React.ButtonHTMLAttributes<HTMLButtonElement> & {
+    href?: undefined
+  }
+
+export type ActionChipProps = ActionChipLinkProps | ActionChipButtonProps
+
+export function ActionChip(props: ActionChipProps) {
+  const { icon, label, variant, className, href, ...rest } = props
   const chipClass = cn(actionChipVariants({ variant }), className)
   const content = (
     <>
@@ -41,16 +47,16 @@ export function ActionChip({ icon, label, variant, className, href, ...props }: 
     </>
   )
 
-  if (href) {
+  if (href !== undefined) {
     return (
-      <Link href={href} className={chipClass}>
+      <Link href={href} className={chipClass} {...(rest as React.AnchorHTMLAttributes<HTMLAnchorElement>)}>
         {content}
       </Link>
     )
   }
 
   return (
-    <button type="button" className={chipClass} {...props}>
+    <button type="button" className={chipClass} {...(rest as React.ButtonHTMLAttributes<HTMLButtonElement>)}>
       {content}
     </button>
   )

@@ -25,6 +25,7 @@ function DashboardContent() {
   const { data, isLoading } = useQuery({
     queryKey: ['portfolio', 'summary'],
     queryFn: () => fetchPortfolioSummary(),
+    throwOnError: true,
   })
 
   const viewModel = data ? transformPortfolioSummary(data, t, language === 'id' ? 'id-ID' : 'en-US') : null

@@ -30,6 +30,7 @@ const id = {
     default: 'Otomatis',
     viewAll: 'Lihat Semua',
     none: 'Tidak ada',
+    retry: 'Coba Lagi',
     duration: {
       year: 'thn',
       years: 'thn',
