@@ -211,6 +211,8 @@ const id = {
     lastUpdated: 'Diperbarui',
     lastUpdatedTooltip: 'Waktu terakhir harga diperbarui oleh sumber pasar.',
     priceNotAvailable: 'Harga belum tersedia',
+    hiddenPortfolioValue: 'Nilai portofolio disembunyikan',
+    hiddenPeriodChange: 'Perubahan periode disembunyikan',
     addGoldHoldingSimple: 'Tambah Emas',
     addGoldHolding: 'Tambah Emas',
     sell: 'Jual',

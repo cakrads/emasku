@@ -26,9 +26,7 @@ type SharedProps = VariantProps<typeof actionChipVariants> & {
 }
 
 type ActionChipLinkProps = SharedProps &
-  Omit<React.AnchorHTMLAttributes<HTMLAnchorElement>, 'href'> & {
-    href: string
-  }
+  React.ComponentProps<typeof Link>
 
 type ActionChipButtonProps = SharedProps &
   React.ButtonHTMLAttributes<HTMLButtonElement> & {

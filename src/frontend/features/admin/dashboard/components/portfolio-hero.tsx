@@ -77,7 +77,7 @@ export default function PortfolioHero({
 
   const ExcludedInfoContent = (
     <>
-      <Info className="w-3 h-3" />
+      <Info className="w-3 h-3" aria-hidden="true" />
       <Typography variant="caption">
         {excludedCount} {t('dashboard.excludedHoldings')}
       </Typography>
@@ -91,7 +91,7 @@ export default function PortfolioHero({
         {hydrated && isVisible ? (totalValue || '—') : (
           <>
             <span aria-hidden="true">••••••••</span>
-            <span className="sr-only">Hidden portfolio value</span>
+            <span className="sr-only">{t('dashboard.hiddenPortfolioValue')}</span>
           </>
         )}
       </Typography>
@@ -104,7 +104,7 @@ export default function PortfolioHero({
             : (
               <>
                 <span aria-hidden="true">•••••••• (•••%)</span>
-                <span className="sr-only">Hidden period change</span>
+                <span className="sr-only">{t('dashboard.hiddenPeriodChange')}</span>
               </>
             )
           }
