@@ -299,6 +299,8 @@ const id = {
         value: 'Nilai',
         newest: 'Terbaru',
         oldest: 'Terlama',
+        value_high_to_low: 'Nilai: tinggi → rendah',
+        value_low_to_high: 'Nilai: rendah → tinggi',
       }
     },
     brandSummary: {
@@ -310,6 +312,8 @@ const id = {
     noItemsFound: 'Tidak ada item yang cocok dengan filter Anda',
     pagination: {
       showing: 'Menampilkan {from} - {to} dari {total} item',
+      previous: 'Halaman sebelumnya',
+      next: 'Halaman berikutnya',
     },
     table: {
       date: 'Tanggal',

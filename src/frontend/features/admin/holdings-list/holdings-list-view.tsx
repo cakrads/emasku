@@ -5,7 +5,7 @@ import { useQuery } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { Stack, Section } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
-import { Button } from '@/frontend/components/ui/button'
+import { Button, buttonVariants } from '@/frontend/components/ui/button'
 import { ActionChip } from '@/frontend/components/ui/action-chip'
 import { ListRow } from '@/frontend/components/ui/list-row'
 import { fetchPortfolioList, fetchPortfolioSummary } from '@/frontend/services/portfolio/portfolio.api'
@@ -33,7 +33,8 @@ import { HoldingsFilterRow } from './components/holdings-filter-row'
 const BrandSummaryModal = dynamic(() => import('./components/brand-summary-modal'), { ssr: false })
 
 function BrandCircle({ name }: { name: string }) {
-  const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
+  const raw = name.split(' ').filter(Boolean).map(w => w.charAt(0)).join('').slice(0, 2).toUpperCase()
+  const initials = raw || name.slice(0, 2).toUpperCase() || '?'
   return (
     <div className="w-10 h-10 rounded-full bg-accent-gold/15 flex items-center justify-center shrink-0">
       <Typography variant="caption" className="font-bold text-accent-gold text-sm">{initials}</Typography>
@@ -52,11 +53,12 @@ export default function HoldingsListView() {
         { label: t('navbar.holdings') }
       ]}
       action={
-        <Link href={ROUTES.ADD_HOLDING}>
-          <Button variant="solid" color="primary" size="sm" className="hidden md:flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            <span>{t('holdings.addHolding')}</span>
-          </Button>
+        <Link
+          href={ROUTES.ADD_HOLDING}
+          className={cn(buttonVariants({ variant: 'solid', color: 'primary', size: 'sm' }), 'hidden md:flex items-center gap-2')}
+        >
+          <Plus className="h-4 w-4" />
+          <span>{t('holdings.addHolding')}</span>
         </Link>
       }
     >
@@ -268,6 +270,7 @@ function HoldingsListContent() {
                     size="sm"
                     onClick={() => setPagination(pageIndex - 1, pageSize)}
                     disabled={pageIndex === 0}
+                    aria-label={t('holdings.pagination.previous')}
                   >
                     <ChevronLeft className="h-4 w-4" />
                   </Button>
@@ -276,6 +279,7 @@ function HoldingsListContent() {
                     size="sm"
                     onClick={() => setPagination(pageIndex + 1, pageSize)}
                     disabled={pageIndex >= pageCount - 1}
+                    aria-label={t('holdings.pagination.next')}
                   >
                     <ChevronRight className="h-4 w-4" />
                   </Button>

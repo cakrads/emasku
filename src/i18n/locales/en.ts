@@ -301,6 +301,8 @@ const en = {
         value: 'Value',
         newest: 'Newest',
         oldest: 'Oldest',
+        value_high_to_low: 'Value: high → low',
+        value_low_to_high: 'Value: low → high',
       }
     },
     brandSummary: {
@@ -312,6 +314,8 @@ const en = {
     noItemsFound: 'No items match your filters',
     pagination: {
       showing: 'Showing {from} - {to} of {total} items',
+      previous: 'Previous page',
+      next: 'Next page',
     },
     table: {
       date: 'Date',
