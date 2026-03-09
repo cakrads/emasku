@@ -154,7 +154,7 @@ export default function GoalsSection() {
 
 function GoalsSectionSkeleton() {
     return (
-        <Stack gap="md">
+        <Stack gap="md" aria-hidden="true">
             {/* Header Skeleton */}
             <Stack direction="horizontal" gap="md" className="items-center justify-between">
                 <Skeleton className="h-6 w-24" />

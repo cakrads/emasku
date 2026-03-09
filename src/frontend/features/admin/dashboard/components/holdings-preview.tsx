@@ -49,7 +49,7 @@ export default function HoldingsPreview() {
   const groupOrder: string[] = []
   rawHoldings.forEach((item, idx) => {
     const apiItem = apiItems[idx]
-    const key = `${item.brand}|${item.weight}|${item.avgBuyPrice}|${item.buyDate}`
+    const key = `${item.brand}|${item.rawWeight}|${item.rawAvgBuyPrice}|${apiItem?.buyDate ?? item.buyDate}`
     const existing = groupMap.get(key)
     if (existing) {
       existing.count += 1
@@ -221,7 +221,7 @@ function HoldingsPreviewEmpty() {
 
 function HoldingsPreviewSkeleton() {
   return (
-    <Stack gap="md">
+    <Stack gap="md" aria-hidden="true">
       <Stack direction="horizontal" gap="md" className="items-center justify-between">
         <Skeleton className="h-6 w-40" />
         <Skeleton className="h-4 w-20" />

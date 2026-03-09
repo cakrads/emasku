@@ -3,7 +3,7 @@ import { Stack } from '@/frontend/components/ui/layout'
 
 export function BrandBreakdownSkeleton() {
   return (
-    <Stack gap="md">
+    <Stack gap="md" aria-hidden="true">
       {/* SectionHeader skeleton */}
       <Stack direction="horizontal" gap="md" className="items-center justify-between">
         <Skeleton className="h-6 w-28" />

@@ -47,7 +47,7 @@ export function ActionChip(props: ActionChipProps) {
 
   if (href !== undefined) {
     return (
-      <Link href={href} className={chipClass} {...(rest as React.AnchorHTMLAttributes<HTMLAnchorElement>)}>
+      <Link href={href} className={chipClass} {...(rest as React.ComponentProps<typeof Link>)}>
         {content}
       </Link>
     )

@@ -10,7 +10,8 @@ import { useLanguage } from '@/frontend/hooks/use-language'
 import { cn } from '@/frontend/utils/cn'
 import { usePortfolioPrivacy } from '@/frontend/hooks/use-portfolio-privacy'
 
-type PeriodKey = 'today' | 'weekly' | 'monthly' | 'yearly'
+export const PERIOD_KEYS = ['today', 'weekly', 'monthly', 'yearly'] as const
+type PeriodKey = typeof PERIOD_KEYS[number]
 
 interface PeriodData {
   key: PeriodKey
