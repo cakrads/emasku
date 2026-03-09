@@ -38,7 +38,7 @@ export function HoldingsFilterRow({
     { value: 'all', label: t('holdings.filters.options.all') },
   ]
 
-  const selectClass = 'h-9 px-3 rounded-full text-sm border border-border bg-background text-foreground focus:outline-none shrink-0 cursor-pointer'
+  const selectClass = 'h-9 px-3 rounded-full text-sm border border-border bg-background text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 shrink-0 cursor-pointer'
 
   return (
     <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-4 px-4 md:mx-0 md:px-0">
@@ -113,8 +113,8 @@ export function HoldingsFilterRow({
       >
         <option value="date-desc">{t('holdings.filters.options.newest')}</option>
         <option value="date-asc">{t('holdings.filters.options.oldest')}</option>
-        <option value="value-desc">{t('holdings.filters.sort')} ↑</option>
-        <option value="value-asc">{t('holdings.filters.sort')} ↓</option>
+        <option value="value-desc">{t('holdings.filters.options.value_high_to_low')}</option>
+        <option value="value-asc">{t('holdings.filters.options.value_low_to_high')}</option>
       </select>
     </div>
   )
