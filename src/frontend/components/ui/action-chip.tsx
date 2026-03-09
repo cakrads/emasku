@@ -57,7 +57,7 @@ export function ActionChip(props: ActionChipProps) {
         className={linkClass}
         aria-disabled={disabled ? true : undefined}
         tabIndex={disabled ? -1 : undefined}
-        {...(rest as React.ComponentProps<typeof Link>)}
+        {...(rest as Omit<React.ComponentProps<typeof Link>, 'href'>)}
       >
         {content}
       </Link>
