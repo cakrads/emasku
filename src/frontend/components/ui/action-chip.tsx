@@ -23,6 +23,7 @@ type SharedProps = VariantProps<typeof actionChipVariants> & {
   icon?: React.ReactNode
   label: string
   className?: string
+  disabled?: boolean
 }
 
 type ActionChipLinkProps = SharedProps &
@@ -36,8 +37,7 @@ type ActionChipButtonProps = SharedProps &
 export type ActionChipProps = ActionChipLinkProps | ActionChipButtonProps
 
 export function ActionChip(props: ActionChipProps) {
-  const { icon, label, variant, className, href, ...rest } = props
-  const chipClass = cn(actionChipVariants({ variant }), className)
+  const { icon, label, variant, className, href, disabled, ...rest } = props
   const content = (
     <>
       {icon && <span aria-hidden="true">{icon}</span>}
@@ -46,15 +46,27 @@ export function ActionChip(props: ActionChipProps) {
   )
 
   if (href !== undefined) {
+    const linkClass = cn(
+      actionChipVariants({ variant }),
+      className,
+      disabled && 'pointer-events-none opacity-50'
+    )
     return (
-      <Link href={href} className={chipClass} {...(rest as React.ComponentProps<typeof Link>)}>
+      <Link
+        href={href}
+        className={linkClass}
+        aria-disabled={disabled ? true : undefined}
+        tabIndex={disabled ? -1 : undefined}
+        {...(rest as React.ComponentProps<typeof Link>)}
+      >
         {content}
       </Link>
     )
   }
 
+  const chipClass = cn(actionChipVariants({ variant }), className)
   return (
-    <button type="button" className={chipClass} {...(rest as React.ButtonHTMLAttributes<HTMLButtonElement>)}>
+    <button type="button" disabled={disabled} className={chipClass} {...(rest as React.ButtonHTMLAttributes<HTMLButtonElement>)}>
       {content}
     </button>
   )

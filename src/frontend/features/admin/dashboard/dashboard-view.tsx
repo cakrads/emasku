@@ -75,7 +75,9 @@ function DashboardContent() {
       </Stack>
 
       {/* 3. Quick Actions */}
-      <QuickActions />
+      <ErrorBoundary>
+        <QuickActions />
+      </ErrorBoundary>
 
       {/* 4. Market Today */}
       <ErrorBoundary>

@@ -11,7 +11,6 @@ import { useLanguage } from '@/frontend/hooks/use-language'
 import {
   Tooltip,
   TooltipContent,
-  TooltipProvider,
   TooltipTrigger,
 } from '@/frontend/components/ui/tooltip'
 
@@ -140,22 +139,21 @@ export default function BrandCard({
         {cardContent}
       </Link>
       {tooltipText && (
-        <TooltipProvider delayDuration={200}>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                type="button"
-                aria-label={tooltipText}
-                className="absolute top-4 right-4 z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:rounded-sm"
-              >
-                <Info className="w-3 h-3 text-muted-foreground/50 shrink-0" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <Typography variant="caption">{tooltipText}</Typography>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              aria-label={tooltipText}
+              className="absolute top-4 right-4 z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:rounded-sm"
+              onClick={e => { e.stopPropagation(); e.preventDefault() }}
+            >
+              <Info className="w-3 h-3 text-muted-foreground/50 shrink-0" />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <Typography variant="caption">{tooltipText}</Typography>
+          </TooltipContent>
+        </Tooltip>
       )}
     </div>
   )
