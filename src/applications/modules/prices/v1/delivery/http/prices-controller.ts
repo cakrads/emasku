@@ -24,6 +24,7 @@ import { GetSpotPriceSeriesUsecase } from '../../usecases/get-spot-price-series'
 import { GetTodayPricesUsecase } from '../../usecases/get-today-prices'
 
 import { getBrandName } from '@/applications/modules/brands/v1/domain/brands.const'
+import { PricesTodayResponseSchema } from '@/shared/contracts/prices.contract'
 
 interface PriceEntry {
   denominationGram: number
@@ -217,8 +218,11 @@ export class PricesController {
         brands: Array.from(brandGroups.values()),
       }
 
+      // Validate DTO against contract schema before responding
+      const validatedDto = PricesTodayResponseSchema.parse(dto)
+
       // Create response with cache headers
-      const response = successResponse(dto, 'Current prices retrieved', {
+      const response = successResponse(validatedDto, 'Current prices retrieved', {
         source: 'Galeri 24 Scraper',
         fetchedAt: new Date().toISOString(),
       })

@@ -13,7 +13,7 @@ export function PricesOverviewSkeleton() {
   const { t } = useLanguage()
 
   return (
-    <Stack className="min-h-[240px] md:min-h-[220px]">
+    <Stack className="min-h-[240px] md:min-h-[220px]" aria-hidden="true">
       {/* Header - matches prices-today-cards header */}
       <Stack direction="horizontal" gap="md" className="items-center justify-between mb-4">
         <Stack gap="xs">
