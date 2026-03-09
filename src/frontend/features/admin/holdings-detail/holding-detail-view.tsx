@@ -105,7 +105,12 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
             </>
           ) : (
             <>
-              <Typography variant="h4">{t('holdingDetail.currentValue.title')}</Typography>
+              <span className="inline-flex items-center rounded-full bg-positive/10 px-3 py-1 text-xs font-semibold text-positive">
+                {t('holdingDetail.status.active')}
+              </span>
+              <Typography variant="caption" className="text-muted-foreground mt-1">
+                {t('holdingDetail.currentValue.title')}
+              </Typography>
               <Typography variant="h1" className="text-4xl financial-value">
                 {holding.totalValue}
               </Typography>
@@ -142,27 +147,34 @@ function HoldingDetailContent({ holdingId }: HoldingDetailViewProps) {
 
       {/* Actions */}
       <Section className="px-0 mt-8">
-        <Stack gap="md">
+        <Stack direction="horizontal" gap="sm" className="flex-wrap">
+          <Link
+            href={ROUTES.EDIT_HOLDING(holdingId)}
+            className={cn(buttonVariants({ variant: 'outline', size: 'sm', rounded: 'full' }))}
+          >
+            <Pencil className="w-4 h-4" />
+            {t('holdingDetail.actions.edit')}
+          </Link>
           {!isSold && (
             <Button
               variant="outline"
-              color="primary"
-              size="lg"
-              className="w-full rounded-xl h-14"
+              color="warning"
+              size="sm"
+              rounded="full"
               onClick={() => setShowSellModal(true)}
             >
-              <CheckCircle className="w-5 h-5 mr-2" />
+              <CheckCircle className="w-4 h-4" />
               {t('holdingDetail.actions.markAsSold')}
             </Button>
           )}
           <Button
-            variant="outline"
+            variant="ghost"
             color="destructive"
-            size="lg"
-            className="w-full rounded-xl h-14"
+            size="sm"
+            rounded="full"
             onClick={() => setShowHardDeleteDialog(true)}
           >
-            <Trash2 className="w-5 h-5 mr-2" />
+            <Trash2 className="w-4 h-4" />
             {t('holdingDetail.actions.deletePermanent')}
           </Button>
         </Stack>
@@ -205,14 +217,6 @@ export default function HoldingDetailView(props: HoldingDetailViewProps) {
         { label: t('navbar.holdings'), href: ROUTES.HOLDINGS_LIST },
         { label: t('holdingDetail.breadcrumbs.detail') }
       ]}
-      action={
-        <Link href={ROUTES.EDIT_HOLDING(props.holdingId)}>
-          <Button variant="outline" size="sm">
-            <Pencil className="w-4 h-4 mr-2" />
-            {t('holdingDetail.actions.edit')}
-          </Button>
-        </Link>
-      }
     >
       <ErrorBoundary>
         <HoldingDetailContent {...props} />

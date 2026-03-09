@@ -30,43 +30,72 @@ export function HoldingsListSkeleton() {
 
   return (
     <Stack gap="sm">
-      {/* 1. Action Bar Skeleton */}
-      <div className="flex gap-2">
-        <Skeleton className="h-9 w-24 rounded-md" />
-        <Skeleton className="h-9 w-32 rounded-md" />
+      {/* 1. Quick Action Chips Skeleton */}
+      <div className="flex items-center gap-2">
+        <Skeleton className="h-9 w-9 rounded-full" />
+        <Skeleton className="h-9 w-32 rounded-full" />
+        <Skeleton className="h-9 w-40 rounded-full" />
       </div>
 
-      {/* 2. Portfolio Summary Skeleton (Single Wide Card) */}
+      {/* 2. Filter Row Skeleton */}
+      <div className="flex items-center gap-2">
+        <Skeleton className="h-9 w-20 rounded-full" />
+        <Skeleton className="h-9 w-16 rounded-full" />
+        <Skeleton className="h-9 w-12 rounded-full" />
+        <div className="h-6 w-px bg-border mx-1" />
+        <Skeleton className="h-9 w-28 rounded-full" />
+        <Skeleton className="h-9 w-24 rounded-full" />
+      </div>
+
+      {/* 3. Portfolio Summary Card */}
       <HoldingCardSkeleton />
-      {/* 3. Table Skeleton (Holdings List) */}
-      <div className="py-6">
+
+      {/* 4. Holdings List Skeleton – Mobile */}
+      <div className="md:hidden">
+        {[1, 2, 3, 4, 5].map((i) => (
+          <div key={i} className="flex items-center gap-3 py-3 border-b border-border last:border-0">
+            <Skeleton className="w-10 h-10 rounded-full shrink-0" />
+            <div className="flex-1 space-y-1.5">
+              <Skeleton className="h-4 w-40" />
+              <Skeleton className="h-3 w-24" />
+            </div>
+            <div className="text-right space-y-1.5">
+              <Skeleton className="h-4 w-24 ml-auto" />
+              <Skeleton className="h-3 w-16 ml-auto" />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* 4. Holdings List Skeleton – Desktop */}
+      <div className="hidden md:block py-6">
         <div className="space-y-4">
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
                 <tr className="border-b border-border">
                   <th className="py-3 px-4 text-left whitespace-nowrap">
-                    <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
+                    <Typography variant="caption" className="font-semibold text-muted-foreground">
                       {t('holdings.table.date')}
                     </Typography>
                   </th>
                   <th className="py-3 px-4 text-left whitespace-nowrap">
-                    <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
+                    <Typography variant="caption" className="font-semibold text-muted-foreground">
                       {t('holdings.table.weight')}
                     </Typography>
                   </th>
                   <th className="py-3 px-4 text-right whitespace-nowrap">
-                    <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
+                    <Typography variant="caption" className="font-semibold text-muted-foreground">
                       {t('holdings.table.buyPrice')}
                     </Typography>
                   </th>
                   <th className="py-3 px-4 text-right whitespace-nowrap">
-                    <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
+                    <Typography variant="caption" className="font-semibold text-muted-foreground">
                       {t('holdings.table.currentValue')}
                     </Typography>
                   </th>
                   <th className="py-3 px-4 text-right whitespace-nowrap">
-                    <Typography variant="caption" className="font-semibold text-(--foreground-muted)">
+                    <Typography variant="caption" className="font-semibold text-muted-foreground">
                       {t('holdings.table.pnl')}
                     </Typography>
                   </th>
@@ -75,33 +104,24 @@ export function HoldingsListSkeleton() {
               <tbody>
                 {[1, 2, 3, 4, 5].map((i) => (
                   <tr key={i} className="border-b border-border">
-                    {/* Date Column */}
                     <td className="py-4 px-4 whitespace-nowrap">
-                      <div className="flex flex-col gap-1.5 text-left">
+                      <div className="flex flex-col gap-1.5">
                         <Skeleton className="h-4 w-28" />
                         <Skeleton className="h-3 w-16 opacity-60" />
                       </div>
                     </td>
-
-                    {/* Weight + Brand Column */}
                     <td className="py-4 px-4 whitespace-nowrap">
-                      <div className="flex flex-col gap-1.5 text-left">
+                      <div className="flex flex-col gap-1.5">
                         <Skeleton className="h-4 w-12" />
                         <Skeleton className="h-3 w-24 opacity-60" />
                       </div>
                     </td>
-
-                    {/* Buy Price Column */}
                     <td className="py-4 px-4 text-right whitespace-nowrap">
                       <Skeleton className="h-5 w-28 ml-auto" />
                     </td>
-
-                    {/* Current Value Column */}
                     <td className="py-4 px-4 text-right whitespace-nowrap">
                       <Skeleton className="h-5 w-32 ml-auto" />
                     </td>
-
-                    {/* PnL Column */}
                     <td className="py-4 px-4 text-right whitespace-nowrap">
                       <div className="flex flex-col items-end gap-1.5">
                         <div className="flex items-center gap-1.5">

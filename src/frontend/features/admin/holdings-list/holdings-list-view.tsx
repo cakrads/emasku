@@ -2,8 +2,12 @@
 
 import { useState, useMemo } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import { useRouter } from 'next/navigation'
 import { Stack, Section } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
+import { Button } from '@/frontend/components/ui/button'
+import { ActionChip } from '@/frontend/components/ui/action-chip'
+import { ListRow } from '@/frontend/components/ui/list-row'
 import { fetchPortfolioList, fetchPortfolioSummary } from '@/frontend/services/portfolio/portfolio.api'
 import { transformHoldingItem, transformPortfolioSummary } from '@/frontend/view-model/portfolio.vm'
 import HoldingsTable from '../holdings-brand-category/components/holdings-table'
@@ -11,8 +15,7 @@ import { HoldingsListSkeleton } from './components/holdings-list-skeleton'
 import HoldingsListEmpty from './components/holdings-list-empty'
 import { ErrorBoundary } from '@/frontend/components/fragments/admin/error-boundary'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
-import { Button } from '@/frontend/components/ui/button'
-import { Plus, Filter, LayoutGrid, Calculator } from 'lucide-react'
+import { Plus, Calculator, LayoutGrid, ChevronLeft, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 import { ROUTES } from '@/frontend/config/routes'
 import { fetchBrands } from '@/frontend/services/brands/brands.api'
@@ -21,15 +24,22 @@ import { useLanguage } from '@/frontend/hooks/use-language'
 import { useUrlFilters } from '@/frontend/hooks/use-url-filters'
 import { useSortedHoldings } from '@/frontend/hooks/use-sorted-holdings'
 import { PrivacyToggle } from '@/frontend/components/ui/privacy-toggle'
-
-// New components
+import { usePortfolioPrivacy } from '@/frontend/hooks/use-portfolio-privacy'
+import { cn } from '@/frontend/utils/cn'
 import dynamic from 'next/dynamic'
 import PortfolioSummarySection from './components/portfolio-summary-section'
-import { Wrench } from 'lucide-react'
+import { HoldingsFilterRow } from './components/holdings-filter-row'
 
-const FilterModal = dynamic(() => import('./components/filter-modal'), { ssr: false })
 const BrandSummaryModal = dynamic(() => import('./components/brand-summary-modal'), { ssr: false })
-const ToolsModal = dynamic(() => import('./components/tools-modal'), { ssr: false })
+
+function BrandCircle({ name }: { name: string }) {
+  const initials = name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
+  return (
+    <div className="w-10 h-10 rounded-full bg-accent-gold/15 flex items-center justify-center shrink-0">
+      <Typography variant="caption" className="font-bold text-accent-gold text-sm">{initials}</Typography>
+    </div>
+  )
+}
 
 export default function HoldingsListView() {
   const { t } = useLanguage()
@@ -43,7 +53,7 @@ export default function HoldingsListView() {
       ]}
       action={
         <Link href={ROUTES.ADD_HOLDING}>
-          <Button variant="solid" color="primary" className="hidden md:flex items-center gap-2">
+          <Button variant="solid" color="primary" size="sm" className="hidden md:flex items-center gap-2">
             <Plus className="h-4 w-4" />
             <span>{t('holdings.addHolding')}</span>
           </Button>
@@ -59,251 +69,141 @@ export default function HoldingsListView() {
 
 function HoldingsListContent() {
   const { language, t } = useLanguage()
+  const router = useRouter()
+  const { isVisible } = usePortfolioPrivacy()
 
-  // URL-synced filter state
-  const {
-    filters,
-    setPagination,
-    updateUrl
-  } = useUrlFilters({
+  const { filters, setPagination, updateUrl } = useUrlFilters({
     pageIndex: 0,
     pageSize: 10
   })
 
-  // Destructure for easy access
-  const {
-    brand: brandFilter,
-    status: statusFilter,
-    goalId,
-    sortBy,
-    sortOrder,
-    pageIndex,
-    pageSize
-  } = filters
+  const { brand: brandFilter, status: statusFilter, goalId, sortBy, sortOrder, pageIndex, pageSize } = filters
 
-  // Modal state
-  const [isFilterOpen, setIsFilterOpen] = useState(false)
   const [isBrandSummaryOpen, setIsBrandSummaryOpen] = useState(false)
-  const [isToolsOpen, setIsToolsOpen] = useState(false)
 
-  // Build filter object for API calls
   const apiFilter = {
     status: statusFilter,
     brandCodes: brandFilter ? [brandFilter] : undefined,
     goalId: goalId || undefined,
   }
 
-  // Fetch holdings (filtered)
   const { data: filteredData, isLoading: isLoadingFiltered, error } = useQuery({
     queryKey: ['portfolio', 'list', statusFilter, brandFilter, goalId, sortBy, sortOrder, pageIndex, pageSize],
-    queryFn: () => fetchPortfolioList(apiFilter, {
-      page: pageIndex + 1, // API is 1-indexed
-      pageSize: pageSize
-    }),
+    queryFn: () => fetchPortfolioList(apiFilter, { page: pageIndex + 1, pageSize }),
   })
 
-  // Fetch all holdings to check for total data presence (no filters) for empty state check
   const { data: allData, isLoading: isLoadingAll } = useQuery({
     queryKey: ['portfolio', 'list', 'all-count'],
     queryFn: () => fetchPortfolioList({ status: 'all' }),
   })
 
-  // Fetch Portfolio Summary with same filters for consistency
   const { data: summaryData, isLoading: isLoadingSummary } = useQuery({
     queryKey: ['portfolio', 'summary', statusFilter, brandFilter, goalId],
     queryFn: () => fetchPortfolioSummary(apiFilter),
   })
 
-  // Fetch all brands for the filter
-  const { data: brandsData } = useQuery({
-    queryKey: ['brands'],
-    queryFn: fetchBrands,
-  })
-
-  // Fetch all goals for the filter
-  const { data: goalsData } = useQuery({
-    queryKey: ['goals'],
-    queryFn: fetchGoals,
-  })
+  const { data: brandsData } = useQuery({ queryKey: ['brands'], queryFn: fetchBrands })
+  const { data: goalsData } = useQuery({ queryKey: ['goals'], queryFn: fetchGoals })
 
   const allHoldings = filteredData?.items ?? []
-
-  // Sort holdings (client-side sorting of current page, API doesn't support it yet)
-  // Must be called unconditionally before any early returns (Rules of Hooks)
   const sortedHoldings = useSortedHoldings(allHoldings, sortBy, sortOrder)
 
-  // Memoized computations — placed before early returns to satisfy Rules of Hooks
   const viewModels = useMemo(
     () => sortedHoldings.map(item => transformHoldingItem(item, language === 'id' ? 'id-ID' : 'en-US')),
     [sortedHoldings, language]
   )
+
   const summaryViewModel = useMemo(
     () => summaryData ? transformPortfolioSummary(summaryData, t, language === 'id' ? 'id-ID' : 'en-US') : null,
     [summaryData, t, language]
   )
+
   const isFiltered = useMemo(
     () => brandFilter !== null || statusFilter !== 'active' || goalId !== null || sortBy !== 'date' || sortOrder !== 'desc',
     [brandFilter, statusFilter, goalId, sortBy, sortOrder]
   )
-  const activeFilterCount = useMemo(
-    () => [statusFilter !== 'active', brandFilter !== null, goalId !== null, sortBy !== 'date', sortOrder !== 'desc'].filter(Boolean).length,
-    [statusFilter, brandFilter, goalId, sortBy, sortOrder]
-  )
 
-  // Handle loading and error
-  if (isLoadingFiltered || isLoadingAll) return (
-    <HoldingsListSkeleton />
-  )
+  if (isLoadingFiltered || isLoadingAll) return <HoldingsListSkeleton />
 
   if (error || !filteredData || !allData) {
     throw error || new Error('Failed to load holdings')
   }
 
-  const totalHoldingsCount = allData.pagination.totalItems // Total items in DB (for empty state check)
-
-  // Pagination info from current query
+  const totalHoldingsCount = allData.pagination.totalItems
   const totalFilteredItems = filteredData.pagination.totalItems
   const pageCount = filteredData.pagination.totalPages
 
-  // Handle filter apply
-  const handleFilterApply = (newFilters: {
-    brand: string | null
-    status: 'active' | 'sold' | 'all'
-    goalId: string | null
-    sortBy: 'date' | 'value'
-    sortOrder: 'asc' | 'desc'
+  const handleFilterChange = (newFilters: {
+    status?: 'active' | 'sold' | 'all'
+    brand?: string | null
+    goalId?: string | null
+    sortBy?: 'date' | 'value'
+    sortOrder?: 'asc' | 'desc'
   }) => {
     updateUrl({
-      ...newFilters,
-      pageIndex: 0 // Reset to first page on filter change
+      brand: newFilters.brand !== undefined ? newFilters.brand : brandFilter,
+      status: newFilters.status || statusFilter,
+      goalId: newFilters.goalId !== undefined ? newFilters.goalId : goalId,
+      sortBy: newFilters.sortBy || sortBy,
+      sortOrder: newFilters.sortOrder || sortOrder,
+      pageIndex: 0,
     })
   }
 
-  // Global empty state: User has absolutely no data (and no filters active to cause it)
   if (totalHoldingsCount === 0 && !isFiltered) {
     return <HoldingsListEmpty />
   }
 
+  const from = totalFilteredItems > 0 ? pageIndex * pageSize + 1 : 0
+  const to = Math.min((pageIndex + 1) * pageSize, totalFilteredItems)
+
   return (
     <Stack gap="sm">
-      {/* Action Bar - Filter button + Brand Summary */}
-      {/* Action Bar - Mobile: 3 Modal Triggers | Desktop: Original layout */}
-      <div className="flex flex-wrap items-center gap-2">
-        {/* Desktop View */}
-        <div className="hidden md:flex flex-wrap items-center gap-2 flex-1">
-          <PrivacyToggle className="border border-border/50" />
+      {/* Quick Action Chips */}
+      <div className="flex items-center gap-2 overflow-x-auto pb-1">
+        <PrivacyToggle className="h-9 w-9 border border-border/50 shrink-0" iconClassName="h-4 w-4" />
 
-          <Button
+        {/* Add Holding – mobile only (desktop has it in page header) */}
+        <ActionChip
+          variant="primary"
+          label={t('holdings.addHolding')}
+          icon={<Plus className="w-4 h-4" />}
+          href={ROUTES.ADD_HOLDING}
+          className="md:hidden shrink-0"
+        />
+
+        <ActionChip
+          variant="outline"
+          label={t('buybackSimulation.cta')}
+          icon={<Calculator className="w-4 h-4" />}
+          href={ROUTES.BUYBACK_SIMULATION}
+          className="shrink-0"
+        />
+
+        {summaryViewModel?.brandAllocation && summaryViewModel.brandAllocation.length > 0 && (
+          <ActionChip
             variant="outline"
-            size="sm"
-            onClick={() => setIsFilterOpen(true)}
-            className="gap-2"
-          >
-            <Filter className="w-4 h-4" />
-            <span>{t('holdings.filters.title')}</span>
-            {activeFilterCount > 0 && (
-              <span className="ml-1 px-1.5 py-0.5 text-xs rounded-full bg-primary text-primary-foreground">
-                {activeFilterCount}
-              </span>
-            )}
-          </Button>
-
-          <Link href={ROUTES.BUYBACK_SIMULATION}>
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-2"
-            >
-              <Calculator className="w-4 h-4" />
-              <span>{t('buybackSimulation.cta')}</span>
-            </Button>
-          </Link>
-
-          {summaryViewModel?.brandAllocation && summaryViewModel.brandAllocation.length > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsBrandSummaryOpen(true)}
-              className="gap-2"
-            >
-              <LayoutGrid className="w-4 h-4" />
-              <span className="hidden sm:inline">{t('holdings.brandSummary.title')}</span>
-            </Button>
-          )}
-
-          <div className="h-6 w-px bg-border/50 mx-1" />
-
-          <div className="flex items-center bg-muted/50 p-1 rounded-lg border border-border/50 cursor-pointer">
-            <button
-              onClick={() => handleFilterApply({
-                brand: filters.brand,
-                status: 'active',
-                goalId: filters.goalId,
-                sortBy: filters.sortBy,
-                sortOrder: filters.sortOrder
-              })}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${statusFilter === 'active'
-                ? 'bg-background shadow-sm text-foreground ring-1 ring-border/50'
-                : 'text-muted-foreground hover:text-foreground'
-                }`}
-            >
-              {t('holdings.filters.options.active')}
-            </button>
-            <button
-              onClick={() => handleFilterApply({
-                brand: filters.brand,
-                status: 'sold',
-                goalId: filters.goalId,
-                sortBy: filters.sortBy,
-                sortOrder: filters.sortOrder
-              })}
-              className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${statusFilter === 'sold'
-                ? 'bg-background shadow-sm text-foreground ring-1 ring-border/50'
-                : 'text-muted-foreground hover:text-foreground'
-                }`}
-            >
-              {t('holdings.filters.options.sold')}
-            </button>
-          </div>
-        </div>
-
-        {/* Mobile View - 2 Consolidate Modals + Privacy Icon */}
-        <div className="flex md:hidden items-center gap-2 w-full">
-          {/* Privacy Icon Toggle */}
-          <PrivacyToggle className="h-10 w-10 border border-border/50 bg-background" iconClassName="h-5 w-5" />
-
-          {/* 1. Filter */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsFilterOpen(true)}
-            className="flex-1 gap-2 h-10 border-border/50"
-          >
-            <div className="relative">
-              <Filter className="w-4 h-4 text-muted-foreground" />
-              {activeFilterCount > 0 && (
-                <div className="absolute -top-2 -right-2 w-4 h-4 bg-accent-gold text-white text-[10px] flex items-center justify-center rounded-full border-2 border-background">
-                  {activeFilterCount}
-                </div>
-              )}
-            </div>
-            <span className="text-xs">{t('holdings.filters.title')}</span>
-          </Button>
-
-          {/* 2. Tools */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsToolsOpen(true)}
-            className="flex-1 gap-2 h-10 border-border/50"
-          >
-            <Wrench className="w-4 h-4 text-muted-foreground" />
-            <span className="text-xs">{t('holdings.tools.title')}</span>
-          </Button>
-        </div>
+            label={t('holdings.brandSummary.title')}
+            icon={<LayoutGrid className="w-4 h-4" />}
+            onClick={() => setIsBrandSummaryOpen(true)}
+            className="shrink-0"
+          />
+        )}
       </div>
 
-      {/* Portfolio Summary Section */}
+      {/* Inline Filter Row */}
+      <HoldingsFilterRow
+        statusFilter={statusFilter}
+        brandFilter={brandFilter}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        goalId={goalId}
+        brands={brandsData?.items || []}
+        goals={goalsData?.goals || []}
+        onChange={handleFilterChange}
+      />
+
+      {/* Portfolio Summary */}
       <PortfolioSummarySection
         totalWeightGram={summaryData?.totalWeightGram || 0}
         totalBuyValue={summaryData?.totalBuyValue || 0}
@@ -315,17 +215,86 @@ function HoldingsListContent() {
         statusFilter={statusFilter}
       />
 
-      {/* Holdings Table or Filtered Empty Message */}
+      {/* Holdings List */}
       <Section>
         {viewModels.length > 0 ? (
-          <HoldingsTable
-            holdings={viewModels}
-            pageCount={pageCount}
-            totalItems={totalFilteredItems}
-            pagination={{ pageIndex, pageSize }}
-            onPaginationChange={(p) => setPagination(p.pageIndex, p.pageSize)}
-            isLoading={isLoadingFiltered}
-          />
+          <>
+            {/* Mobile: ListRow view */}
+            <div className="md:hidden">
+              {viewModels.map((holding, index) => (
+                <ListRow
+                  key={holding.id}
+                  leading={<BrandCircle name={holding.brandName} />}
+                  title={`${holding.brandName} · ${holding.weight}`}
+                  subtitle={holding.buyDate}
+                  trailing={
+                    <Typography
+                      variant="body"
+                      className={cn('font-semibold', holding.isSold && 'text-muted-foreground')}
+                    >
+                      {isVisible ? holding.totalValue : '••••••••'}
+                    </Typography>
+                  }
+                  trailingSubtitle={
+                    <Typography
+                      variant="caption"
+                      className={cn(
+                        holding.pnlColor === 'positive'
+                          ? 'text-positive'
+                          : holding.pnlColor === 'negative'
+                          ? 'text-negative'
+                          : 'text-muted-foreground'
+                      )}
+                    >
+                      {isVisible ? `${holding.pnl} (${holding.pnlPercentage})` : '•••%'}
+                    </Typography>
+                  }
+                  onClick={() => router.push(ROUTES.HOLDING_DETAIL(holding.id))}
+                  showDivider={index < viewModels.length - 1}
+                />
+              ))}
+
+              {/* Mobile Pagination */}
+              <Stack direction="horizontal" className="items-center justify-between pt-4">
+                <Typography variant="body-sm" className="text-muted-foreground">
+                  {t('holdings.pagination.showing')
+                    .replace('{from}', from.toString())
+                    .replace('{to}', to.toString())
+                    .replace('{total}', totalFilteredItems.toString())}
+                </Typography>
+                <Stack direction="horizontal" gap="sm">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPagination(pageIndex - 1, pageSize)}
+                    disabled={pageIndex === 0}
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPagination(pageIndex + 1, pageSize)}
+                    disabled={pageIndex >= pageCount - 1}
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </Stack>
+              </Stack>
+            </div>
+
+            {/* Desktop: Table view */}
+            <div className="hidden md:block">
+              <HoldingsTable
+                holdings={viewModels}
+                pageCount={pageCount}
+                totalItems={totalFilteredItems}
+                pagination={{ pageIndex, pageSize }}
+                onPaginationChange={(p) => setPagination(p.pageIndex, p.pageSize)}
+                isLoading={isLoadingFiltered}
+              />
+            </div>
+          </>
         ) : (
           <div className="py-16 text-center border border-dashed border-border rounded-xl bg-surface/50">
             <Typography variant="body" className="text-muted-foreground uppercase tracking-widest text-xs font-semibold">
@@ -335,30 +304,9 @@ function HoldingsListContent() {
         )}
       </Section>
 
-      {/* Bottom spacing */}
       <div className="h-8" />
 
-      {/* Filter Modal */}
-      <FilterModal
-        open={isFilterOpen}
-        onOpenChange={setIsFilterOpen}
-        brands={brandsData?.items || []}
-        goals={goalsData?.goals || []}
-        brandFilter={brandFilter}
-        statusFilter={statusFilter}
-        goalIdFilter={goalId}
-        sortBy={sortBy}
-        sortOrder={sortOrder}
-        onApply={handleFilterApply}
-      />
-
-      <ToolsModal
-        open={isToolsOpen}
-        onOpenChange={setIsToolsOpen}
-        onShowBrandSummary={() => setIsBrandSummaryOpen(true)}
-      />
-
-      {/* Brand Summary Modal - no click functionality */}
+      {/* Brand Summary Modal */}
       <BrandSummaryModal
         open={isBrandSummaryOpen}
         onOpenChange={setIsBrandSummaryOpen}

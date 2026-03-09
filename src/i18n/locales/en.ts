@@ -456,6 +456,7 @@ const en = {
       notes: 'Notes',
     },
     status: {
+      active: 'ACTIVE',
       sold: 'SOLD',
     },
     valuation: {
