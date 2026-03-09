@@ -13,6 +13,8 @@ export function PricesOverviewSkeleton() {
   const { t } = useLanguage()
 
   return (
+    <>
+      <div className="sr-only" role="status">{t('common.loading')}</div>
     <Stack className="min-h-[240px] md:min-h-[220px]" aria-hidden="true">
       {/* Header - matches prices-today-cards header */}
       <Stack direction="horizontal" gap="md" className="items-center justify-between mb-4">
@@ -64,5 +66,6 @@ export function PricesOverviewSkeleton() {
 
       </div>
     </Stack>
+    </>
   )
 }
