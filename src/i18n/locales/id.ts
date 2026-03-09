@@ -454,6 +454,7 @@ const id = {
       notes: 'Catatan',
     },
     status: {
+      active: 'AKTIF',
       sold: 'TERJUAL',
     },
     valuation: {
