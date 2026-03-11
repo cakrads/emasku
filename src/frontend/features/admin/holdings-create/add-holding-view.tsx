@@ -134,17 +134,13 @@ function AddHoldingContent() {
         totalSteps={4}
         onBack={step > 1 ? prevStep : () => router.push(ROUTES.HOLDINGS_LIST)}
         className="px-0 pt-0 static bg-transparent"
+        stepLabels={[
+          t('addHolding.steps.brand'),
+          t('addHolding.steps.weight'),
+          t('addHolding.steps.details'),
+          t('addHolding.steps.review'),
+        ]}
       />
-
-      {/* Progress Bar */}
-      <Section className="px-0 py-2 mb-4">
-        <Stack className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-          <Stack
-            className="h-full bg-accent-gold transition-all duration-300 ease-out"
-            style={{ width: `${(step / 4) * 100}%` }}
-          />
-        </Stack>
-      </Section>
 
       {/* Step Content */}
       <Section as="main" className="flex-1 px-0 pb-44 overflow-y-auto pt-0">
