@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Check, Info } from 'lucide-react'
+import { Info } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { Typography } from '@/frontend/components/ui/typography'
 import { Button } from '@/frontend/components/ui/button'
@@ -98,35 +98,50 @@ export function BrandSelector({ selected, onSelect }: BrandSelectorProps) {
         <Typography variant="body-sm">{t('addHolding.brandSelection.subtitle')}</Typography>
       </Stack>
 
-      <Stack gap="sm">
-        {brands.map(brand => (
-          <Button
-            variant="ghost"
-            key={brand.id}
-            onClick={() => onSelect(brand, true)} // Auto-advance on selection
-            className={cn(
-              "w-full text-left p-4 rounded-xl border transition-all flex items-center justify-between h-auto hover:bg-transparent",
-              selected?.id === brand.id && !selected?.isCustom
-                ? "bg-surface-elevated border-foreground ring-1 ring-foreground"
-                : "bg-surface-elevated border-border hover:border-text-secondary"
-            )}
-          >
-            <Typography variant="body" className="font-semibold">{brand.name}</Typography>
-            {selected?.id === brand.id && !selected?.isCustom && <Check className="h-5 w-5 text-foreground" />}
-          </Button>
-        ))}
+      <div className="grid grid-cols-2 gap-3">
+        {brands.map(brand => {
+          const isSelected = selected?.id === brand.id && !selected?.isCustom
+          const initials = brand.name.slice(0, 2).toUpperCase()
+          return (
+            <Button
+              variant="ghost"
+              key={brand.id}
+              onClick={() => onSelect(brand, true)}
+              className={cn(
+                "flex flex-col items-center gap-2 py-4 px-3 rounded-xl border transition-all h-auto min-h-[5.5rem] hover:bg-transparent",
+                isSelected
+                  ? "bg-accent-gold/10 border-accent-gold ring-1 ring-accent-gold"
+                  : "bg-surface-elevated border-border hover:border-text-secondary"
+              )}
+            >
+              <Stack
+                className={cn(
+                  "h-12 w-12 rounded-full flex items-center justify-center shrink-0",
+                  isSelected ? "bg-accent-gold/20" : "bg-surface"
+                )}
+              >
+                <Typography variant="h3" className={cn("font-bold", isSelected ? "text-accent-gold" : "text-foreground")}>
+                  {initials}
+                </Typography>
+              </Stack>
+              <Typography variant="body-sm" className="font-semibold text-center leading-tight">
+                {brand.name}
+              </Typography>
+            </Button>
+          )
+        })}
 
         <Button
           variant="ghost"
           onClick={() => setIsCustomMode(true)}
-          className="w-full text-left p-4 rounded-xl border border-dashed border-border hover:bg-surface-elevated hover:border-text-secondary transition-all flex items-center gap-3 text-text-secondary mt-2 h-auto justify-start"
+          className="col-span-2 text-left p-4 rounded-xl border border-dashed border-border hover:bg-surface-elevated hover:border-text-secondary transition-all flex items-center gap-3 text-text-secondary mt-1 h-auto justify-start"
         >
-          <div className="h-8 w-8 rounded-full bg-surface flex items-center justify-center">
+          <Stack className="h-8 w-8 rounded-full bg-surface flex items-center justify-center shrink-0">
             <Typography variant="h3" className="font-light">+</Typography>
-          </div>
+          </Stack>
           <Typography variant="body" className="font-medium">{t('addHolding.brandSelection.customBrand.button')}</Typography>
         </Button>
-      </Stack>
+      </div>
     </Stack>
   )
 }

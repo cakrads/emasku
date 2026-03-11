@@ -379,7 +379,8 @@ const id = {
     },
     steps: {
       brand: 'Pilih Brand',
-      details: 'Detail Emas',
+      weight: 'Berat',
+      details: 'Detail',
       review: 'Tinjauan',
     },
     brandSelection: {

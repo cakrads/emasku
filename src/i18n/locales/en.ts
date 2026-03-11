@@ -381,7 +381,8 @@ const en = {
     },
     steps: {
       brand: 'Select Brand',
-      details: 'Gold Details',
+      weight: 'Weight',
+      details: 'Details',
       review: 'Review',
     },
     brandSelection: {

@@ -42,7 +42,15 @@ export function WeightSelector({ brand, selectedWeight, onSelect, data, isLoadin
     ?.prices.map(p => ({
       gram: p.denominationGram,
       label: p.weightLabel,
+      sellPrice: p.sellPrice ?? 0,
     })) || []
+
+  const formatPrice = (val: number) =>
+    new Intl.NumberFormat(language === 'id' ? 'id-ID' : 'en-US', {
+      style: 'currency',
+      currency: 'IDR',
+      maximumFractionDigits: 0,
+    }).format(val)
 
   const handleInputChange = (val: string) => {
     // Only allow positive numbers (decimals allowed)
@@ -101,21 +109,31 @@ export function WeightSelector({ brand, selectedWeight, onSelect, data, isLoadin
       </Stack>
 
       <div className="grid grid-cols-2 gap-3">
-        {denominations.map(denom => (
-          <Button
-            variant="ghost"
-            key={denom.gram}
-            onClick={() => onSelect(denom.gram.toString(), true)}
-            className={cn(
-              "flex flex-col items-center justify-center p-4 rounded-xl border transition-all h-auto hover:bg-transparent",
-              selectedWeight === denom.gram.toString()
-                ? "bg-surface-elevated border-foreground ring-1 ring-foreground"
-                : "bg-surface-elevated border-border hover:border-text-secondary"
-            )}
-          >
-            <Typography variant="body" className="font-bold text-lg">{denom.label}</Typography>
-          </Button>
-        ))}
+        {denominations.map(denom => {
+          const isSelected = selectedWeight === denom.gram.toString()
+          return (
+            <Button
+              variant="ghost"
+              key={denom.gram}
+              onClick={() => onSelect(denom.gram.toString(), true)}
+              className={cn(
+                "flex flex-col items-center justify-center p-4 rounded-xl border transition-all h-auto min-h-[5rem] gap-1 hover:bg-transparent",
+                isSelected
+                  ? "bg-accent-gold/10 border-accent-gold ring-1 ring-accent-gold"
+                  : "bg-surface-elevated border-border hover:border-text-secondary"
+              )}
+            >
+              <Typography variant="body" className={cn("font-bold text-base", isSelected && "text-accent-gold")}>
+                {denom.label}
+              </Typography>
+              {denom.sellPrice > 0 && (
+                <Typography variant="caption" className="text-text-secondary tabular-nums">
+                  {formatPrice(denom.sellPrice)}
+                </Typography>
+              )}
+            </Button>
+          )
+        })}
 
         {/* Other Weight Option */}
         <Button
