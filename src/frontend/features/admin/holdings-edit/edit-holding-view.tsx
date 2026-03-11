@@ -193,10 +193,12 @@ function EditHoldingContent({ holdingId }: EditHoldingViewProps) {
     <Stack className="w-full max-w-lg mx-auto pb-44 sm:min-w-[500px]">
       {/* Form */}
       <Section className="px-0">
-        <Stack gap="xl">
+        <Stack gap="xl" className="px-4 sm:px-6">
           <Stack gap="sm">
-            <Label className="text-text-secondary font-medium uppercase tracking-wider">{t('editHolding.brand.label')}</Label>
-            <Input value={holding.brandName} disabled className="p-4 rounded-xl bg-muted border-border text-foreground text-lg font-semibold h-14 opacity-100" />
+            <Label className="uppercase text-text-secondary font-medium tracking-wider">{t('editHolding.brand.label')}</Label>
+            <div className="flex items-center px-4 h-14 rounded-xl bg-muted border border-border">
+              <Typography variant="body" className="font-semibold text-lg text-foreground/70">{holding.brandName}</Typography>
+            </div>
             <Typography variant="caption" className="text-muted-foreground">{t('editHolding.brand.locked')}</Typography>
           </Stack>
 
