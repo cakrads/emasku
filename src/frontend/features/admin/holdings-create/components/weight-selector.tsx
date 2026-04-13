@@ -1,10 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Info } from 'lucide-react'
 import { Typography } from '@/frontend/components/ui/typography'
 import { Button } from '@/frontend/components/ui/button'
-import { Stack, Section } from '@/frontend/components/ui/layout'
+import { Stack, Section, Grid } from '@/frontend/components/ui/layout'
 import { Label } from '@/frontend/components/ui/label'
 import { Input } from '@/frontend/components/ui/input'
 import { Skeleton } from '@/frontend/components/ui/skeleton'
@@ -101,7 +100,7 @@ export function WeightSelector({ brand, selectedWeight, onSelect, data, isLoadin
         </Typography>
       </Stack>
 
-      <div className="grid grid-cols-2 gap-3">
+      <Grid className="grid-cols-2 gap-3">
         {denominations.map(denom => {
           const isSelected = selectedWeight === denom.gram.toString()
           return (
@@ -138,7 +137,7 @@ export function WeightSelector({ brand, selectedWeight, onSelect, data, isLoadin
             {t('addHolding.details.otherWeight')}
           </Typography>
         </Button>
-      </div>
+      </Grid>
     </Stack>
   )
 }
@@ -150,11 +149,11 @@ function WeightSelectorSkeleton() {
         <Skeleton className="h-10 w-48" />
         <Skeleton className="h-4 w-64" />
       </Stack>
-      <div className="grid grid-cols-2 gap-3">
+      <Grid className="grid-cols-2 gap-3">
         {[1, 2, 3, 4, 5, 6].map(i => (
           <Skeleton key={i} className="h-20 w-full rounded-xl" />
         ))}
-      </div>
+      </Grid>
     </Stack>
   )
 }
