@@ -5,7 +5,7 @@ import { Info } from 'lucide-react'
 import { useQuery } from '@tanstack/react-query'
 import { Typography } from '@/frontend/components/ui/typography'
 import { Button } from '@/frontend/components/ui/button'
-import { Stack, Section } from '@/frontend/components/ui/layout'
+import { Stack, Section, Grid } from '@/frontend/components/ui/layout'
 import { Label } from '@/frontend/components/ui/label'
 import { Input } from '@/frontend/components/ui/input'
 import { Skeleton } from '@/frontend/components/ui/skeleton'
@@ -98,7 +98,7 @@ export function BrandSelector({ selected, onSelect }: BrandSelectorProps) {
         <Typography variant="body-sm">{t('addHolding.brandSelection.subtitle')}</Typography>
       </Stack>
 
-      <div className="grid grid-cols-2 gap-3">
+      <Grid className="grid-cols-2 gap-3">
         {brands.map(brand => {
           const isSelected = selected?.id === brand.id && !selected?.isCustom
           const initials = brand.name.slice(0, 2).toUpperCase()
@@ -141,7 +141,7 @@ export function BrandSelector({ selected, onSelect }: BrandSelectorProps) {
           </Stack>
           <Typography variant="body" className="font-medium">{t('addHolding.brandSelection.customBrand.button')}</Typography>
         </Button>
-      </div>
+      </Grid>
     </Stack>
   )
 }
@@ -153,12 +153,12 @@ function BrandSelectorSkeleton() {
         <Skeleton className="h-10 w-48" />
         <Skeleton className="h-4 w-64" />
       </Stack>
-      <div className="grid grid-cols-2 gap-3">
+      <Grid className="grid-cols-2 gap-3">
         {[1, 2, 3, 4].map(i => (
           <Skeleton key={i} className="min-h-22 w-full rounded-xl" />
         ))}
         <Skeleton className="col-span-2 h-14 w-full rounded-xl" />
-      </div>
+      </Grid>
     </Stack>
   )
 }

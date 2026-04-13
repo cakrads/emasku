@@ -51,6 +51,15 @@ export function Stack({
   )
 }
 
+export function Grid({ className, ...props }: LayoutProps) {
+  return (
+    <div
+      className={cn("grid", className)}
+      {...props}
+    />
+  )
+}
+
 export function Section({ className, ...props }: LayoutProps) {
   return (
     <section
