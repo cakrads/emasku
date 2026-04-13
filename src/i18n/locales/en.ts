@@ -376,6 +376,7 @@ const en = {
   },
   addHolding: {
     title: 'Add Gold',
+    stepProgress: 'Step {current} of {total}',
     breadcrumbs: {
       add: 'Add'
     },
@@ -403,6 +404,7 @@ const en = {
       subtitle: 'Enter your gold weight.',
       weight: 'Weight (grams)',
       otherWeight: 'Use Other Weight',
+      backToStandardWeights: '← Back to standard weights',
       quantity: 'Quantity',
       weightHelp: '“Manual weight input for custom brands”',
       marketWeightHelp: 'Choose the weight that matches your gold.',

@@ -13,6 +13,7 @@ interface StepHeaderProps {
   showBack?: boolean
   className?: string
   stepLabels?: string[]
+  stepProgressLabel?: string
 }
 
 export function StepHeader({
@@ -23,6 +24,7 @@ export function StepHeader({
   showBack = true,
   className,
   stepLabels,
+  stepProgressLabel,
 }: StepHeaderProps) {
   return (
     <header className={cn(
@@ -37,9 +39,9 @@ export function StepHeader({
         )}
         <Stack gap="none" className="flex-1">
           <Typography as="h1" variant="h3">{title}</Typography>
-          <Typography variant="caption">
-            Step {currentStep} of {totalSteps}
-          </Typography>
+          {stepProgressLabel && (
+            <Typography variant="caption">{stepProgressLabel}</Typography>
+          )}
         </Stack>
       </Stack>
 
@@ -71,7 +73,7 @@ export function StepHeader({
                   </Typography>
                 </Stack>
                 {i < stepLabels.length - 1 && (
-                  <Stack className={cn("h-px flex-1 mx-2 mt-[-10px]", i < currentStep - 1 ? "bg-accent-gold" : "bg-border")} />
+                  <Stack className={cn("h-px flex-1 mx-2 -mt-2.5", i < currentStep - 1 ? "bg-accent-gold" : "bg-border")} />
                 )}
               </React.Fragment>
             )
@@ -80,9 +82,9 @@ export function StepHeader({
       )}
 
       {/* Mobile: segmented progress bars */}
-      <div className={cn("flex gap-1 pb-0", stepLabels && stepLabels.length > 0 ? "md:hidden" : "")}>
+      <Stack direction="horizontal" gap="xs" className={cn("pb-0", stepLabels && stepLabels.length > 0 ? "md:hidden" : "")}>
         {Array.from({ length: totalSteps }).map((_, i) => (
-          <div
+          <Stack
             key={i}
             className={cn(
               "h-1 flex-1 rounded-full transition-colors duration-300",
@@ -90,7 +92,7 @@ export function StepHeader({
             )}
           />
         ))}
-      </div>
+      </Stack>
     </header>
   )
 }

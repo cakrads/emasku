@@ -134,6 +134,7 @@ function AddHoldingContent() {
         totalSteps={4}
         onBack={step > 1 ? prevStep : () => router.push(ROUTES.HOLDINGS_LIST)}
         className="px-0 pt-0 static bg-transparent"
+        stepProgressLabel={t('addHolding.stepProgress').replace('{current}', String(step)).replace('{total}', '4')}
         stepLabels={[
           t('addHolding.steps.brand'),
           t('addHolding.steps.weight'),

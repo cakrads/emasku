@@ -374,6 +374,7 @@ const id = {
   },
   addHolding: {
     title: 'Tambah Emas',
+    stepProgress: 'Langkah {current} dari {total}',
     breadcrumbs: {
       add: 'Tambah'
     },
@@ -401,6 +402,7 @@ const id = {
       subtitle: 'Masukkan berat emas Anda.',
       weight: 'Berat (gram)',
       otherWeight: 'Gunakan Berat Lainnya',
+      backToStandardWeights: '← Kembali ke pilihan berat standar',
       quantity: 'Jumlah',
       weightHelp: '“Berat dimasukkan manual karena merek tidak tersedia”',
       marketWeightHelp: 'Pilih berat yang sesuai dengan emas Anda.',

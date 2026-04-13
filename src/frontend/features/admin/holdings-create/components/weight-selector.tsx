@@ -1,8 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useQuery } from '@tanstack/react-query'
-import { Check, Info } from 'lucide-react'
+import { Info } from 'lucide-react'
 import { Typography } from '@/frontend/components/ui/typography'
 import { Button } from '@/frontend/components/ui/button'
 import { Stack, Section } from '@/frontend/components/ui/layout'
@@ -10,7 +9,7 @@ import { Label } from '@/frontend/components/ui/label'
 import { Input } from '@/frontend/components/ui/input'
 import { Skeleton } from '@/frontend/components/ui/skeleton'
 import { cn } from '@/frontend/utils/cn'
-import { fetchTodayPrices } from '@/frontend/services/prices/prices.api'
+import { PricesTodayResponse } from '@/frontend/services/prices/prices.api'
 import { transformTodayPrices } from '@/frontend/view-model/prices.vm'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { Brand } from './brand-selector'
@@ -19,12 +18,12 @@ interface WeightSelectorProps {
   brand: Brand
   selectedWeight: string
   onSelect: (weight: string, autoAdvance?: boolean) => void
-  data?: any
+  data?: PricesTodayResponse
   isLoading?: boolean
 }
 
 export function WeightSelector({ brand, selectedWeight, onSelect, data, isLoading }: WeightSelectorProps) {
-  const { t, language } = useLanguage()
+  const { t } = useLanguage()
   const [showManual, setShowManual] = useState(brand.isCustom)
 
   // Remove internal query - now passed from parent
@@ -34,7 +33,7 @@ export function WeightSelector({ brand, selectedWeight, onSelect, data, isLoadin
     setShowManual(brand.isCustom)
   }, [brand.id, brand.isCustom])
 
-  const viewModel = data ? transformTodayPrices(data, language === 'id' ? 'id-ID' : 'en-US') : null
+  const viewModel = data ? transformTodayPrices(data) : null
 
   // Extract denominations for the selected brand
   const denominations = viewModel?.brands
@@ -42,15 +41,9 @@ export function WeightSelector({ brand, selectedWeight, onSelect, data, isLoadin
     ?.prices.map(p => ({
       gram: p.denominationGram,
       label: p.weightLabel,
-      sellPrice: p.sellPrice ?? 0,
+      sellPrice: p.sellPrice,
+      sellPriceFormatted: p.sellPriceFormatted,
     })) || []
-
-  const formatPrice = (val: number) =>
-    new Intl.NumberFormat(language === 'id' ? 'id-ID' : 'en-US', {
-      style: 'currency',
-      currency: 'IDR',
-      maximumFractionDigits: 0,
-    }).format(val)
 
   const handleInputChange = (val: string) => {
     // Only allow positive numbers (decimals allowed)
@@ -66,7 +59,7 @@ export function WeightSelector({ brand, selectedWeight, onSelect, data, isLoadin
       <Stack gap="lg" className="animate-in fade-in slide-in-from-right-4 duration-300">
         <Stack gap="xs">
           <Typography as="h2" variant="h1">{t('addHolding.details.steps.weight')}</Typography>
-          <Typography variant="body-sm" className={brand.isCustom ? "text-amber-500 font-medium" : "text-muted-foreground"}>
+          <Typography variant="body-sm" className={brand.isCustom ? "text-accent-gold font-medium" : "text-muted-foreground"}>
             {brand.isCustom ? t('addHolding.details.weightHelp') : t('addHolding.details.marketWeightHelp')}
           </Typography>
         </Stack>
@@ -91,7 +84,7 @@ export function WeightSelector({ brand, selectedWeight, onSelect, data, isLoadin
               onClick={() => setShowManual(false)}
               className="px-0 h-auto text-text-secondary justify-start font-normal"
             >
-              ← Kembali ke pilihan berat standar
+              {t('addHolding.details.backToStandardWeights')}
             </Button>
           )}
         </Stack>
@@ -117,7 +110,7 @@ export function WeightSelector({ brand, selectedWeight, onSelect, data, isLoadin
               key={denom.gram}
               onClick={() => onSelect(denom.gram.toString(), true)}
               className={cn(
-                "flex flex-col items-center justify-center p-4 rounded-xl border transition-all h-auto min-h-[5rem] gap-1 hover:bg-transparent",
+                "flex flex-col items-center justify-center p-4 rounded-xl border transition-all h-auto min-h-20 gap-1 hover:bg-transparent",
                 isSelected
                   ? "bg-accent-gold/10 border-accent-gold ring-1 ring-accent-gold"
                   : "bg-surface-elevated border-border hover:border-text-secondary"
@@ -126,9 +119,9 @@ export function WeightSelector({ brand, selectedWeight, onSelect, data, isLoadin
               <Typography variant="body" className={cn("font-bold text-base", isSelected && "text-accent-gold")}>
                 {denom.label}
               </Typography>
-              {denom.sellPrice > 0 && (
+              {denom.sellPrice !== null && denom.sellPrice > 0 && (
                 <Typography variant="caption" className="text-text-secondary tabular-nums">
-                  {formatPrice(denom.sellPrice)}
+                  {denom.sellPriceFormatted}
                 </Typography>
               )}
             </Button>

@@ -108,7 +108,7 @@ export function BrandSelector({ selected, onSelect }: BrandSelectorProps) {
               key={brand.id}
               onClick={() => onSelect(brand, true)}
               className={cn(
-                "flex flex-col items-center gap-2 py-4 px-3 rounded-xl border transition-all h-auto min-h-[5.5rem] hover:bg-transparent",
+                "flex flex-col items-center gap-2 py-4 px-3 rounded-xl border transition-all h-auto min-h-22 hover:bg-transparent",
                 isSelected
                   ? "bg-accent-gold/10 border-accent-gold ring-1 ring-accent-gold"
                   : "bg-surface-elevated border-border hover:border-text-secondary"
@@ -153,12 +153,12 @@ function BrandSelectorSkeleton() {
         <Skeleton className="h-10 w-48" />
         <Skeleton className="h-4 w-64" />
       </Stack>
-      <Stack gap="sm">
+      <div className="grid grid-cols-2 gap-3">
         {[1, 2, 3, 4].map(i => (
-          <Skeleton key={i} className="h-[60px] w-full rounded-xl" />
+          <Skeleton key={i} className="min-h-22 w-full rounded-xl" />
         ))}
-        <Skeleton className="h-[60px] w-full rounded-xl border-dashed" />
-      </Stack>
+        <Skeleton className="col-span-2 h-14 w-full rounded-xl" />
+      </div>
     </Stack>
   )
 }
