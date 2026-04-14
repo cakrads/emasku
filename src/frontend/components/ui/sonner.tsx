@@ -21,18 +21,18 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast: 'sm:max-w-md',
-          success: 'bg-green-50 dark:bg-green-950 border-green-200 dark:border-green-800',
-          error: 'bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800',
+          success: 'bg-positive/5 border-positive/20',
+          error: 'bg-negative/5 border-negative/20',
           title: 'text-sm font-semibold',
           description: 'text-sm opacity-90',
         },
       }}
       icons={{
-        success: <CircleCheckIcon className="size-4 text-green-600 dark:text-green-400" />,
-        info: <InfoIcon className="size-4 text-blue-600 dark:text-blue-400" />,
-        warning: <TriangleAlertIcon className="size-4 text-amber-600 dark:text-amber-400" />,
-        error: <OctagonXIcon className="size-4 text-red-600 dark:text-red-400" />,
-        loading: <Loader2Icon className="size-4 animate-spin text-gray-600 dark:text-gray-400" />,
+        success: <CircleCheckIcon className="size-4 text-positive" />,
+        info: <InfoIcon className="size-4 text-primary" />,
+        warning: <TriangleAlertIcon className="size-4 text-accent-gold" />,
+        error: <OctagonXIcon className="size-4 text-negative" />,
+        loading: <Loader2Icon className="size-4 animate-spin text-muted-foreground" />,
       }}
       style={
         {

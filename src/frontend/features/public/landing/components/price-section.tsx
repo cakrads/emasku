@@ -114,7 +114,7 @@ export function PriceSection() {
 
                             {/* PnL Badge Top Right */}
                             <Stack direction="horizontal" className={`items-center justify-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${item.trend === 'up' ? 'bg-emerald-500/10 text-emerald-500 dark:text-emerald-400' :
-                              item.trend === 'down' ? 'bg-red-500/10 text-red-500 dark:text-red-400' :
+                              item.trend === 'down' ? 'bg-negative/10 text-negative' :
                                 'bg-slate-500/10 text-slate-400'
                               }`}>
                               {item.trend === 'up' ? <TrendingUp className="w-3 h-3" /> :
@@ -156,7 +156,7 @@ export function PriceSection() {
                           </Stack>
 
                           <Stack direction="horizontal" className={`items-center justify-end gap-1 px-2.5 py-1 rounded-full text-sm font-medium w-fit ${item.trend === 'up' ? 'bg-emerald-500/10 text-emerald-500 dark:text-emerald-400' :
-                            item.trend === 'down' ? 'bg-red-500/10 text-red-500 dark:text-red-400' :
+                            item.trend === 'down' ? 'bg-negative/10 text-negative' :
                               'bg-slate-500/10 text-slate-400'
                             }`}>
                             {item.trend === 'up' ? <TrendingUp className="w-3.5 h-3.5" /> :

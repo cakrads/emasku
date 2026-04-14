@@ -16,7 +16,7 @@ export function WhySection() {
   const { t } = useLanguage()
 
   return (
-    <section className="py-24 bg-gray-50 dark:bg-zinc-900/80">
+    <section className="py-24 bg-surface">
       <Stack className="max-w-5xl mx-auto px-6">
         {/* Section Header */}
         <ScrollReveal direction="up" duration={800} threshold={0.2} className="text-center mb-16">

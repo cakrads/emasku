@@ -321,7 +321,7 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                                                     {holding.currentValue != null ? formatCurrency(holding.currentValue, locale) : '—'}
                                                                 </Typography>
                                                                 {(holding.status === 'SOLD' || holding.isSold) ? (
-                                                                    <Typography variant="caption" className="text-muted-foreground/70 text-[10px] flex gap-1 items-center">
+                                                                    <Typography variant="caption" className="text-muted-foreground/70 text-2xs flex gap-1 items-center">
                                                                         {holding.soldDate
                                                                             ? t('goals.detail.soldValueWithDate', {
                                                                                 date: new Date(holding.soldDate).toLocaleDateString(locale, {
@@ -332,7 +332,7 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                                                         }
                                                                     </Typography>
                                                                 ) : (
-                                                                    <Typography variant="caption" className="text-muted-foreground/70 text-[10px]">
+                                                                    <Typography variant="caption" className="text-muted-foreground/70 text-2xs">
                                                                         {t('goals.detail.currentValue')}
                                                                     </Typography>
                                                                 )}

@@ -89,7 +89,7 @@ function CustomTooltip({ active, payload, label, labelFormatter, formatter }: Cu
   if (active && payload && payload.length) {
     return (
       <div className="bg-popover/95 backdrop-blur-sm border border-border px-4 py-3 rounded-xl shadow-xl animate-in fade-in zoom-in duration-200">
-        <p className="text-muted-foreground text-[10px] uppercase font-bold tracking-widest mb-1">
+        <p className="text-muted-foreground text-2xs uppercase font-bold tracking-widest mb-1">
           {labelFormatter ? labelFormatter(label) : String(label)}
         </p>
         <p className="font-bold text-lg text-foreground tracking-tight">

@@ -37,7 +37,7 @@ function PricesTodayContent() {
 
   const DeltaIndicator = ({ delta, deltaPercentage }: { delta: number, deltaPercentage: number | null }) => (
     <Stack direction="horizontal" gap="xs" className="items-center cursor-help w-fit">
-      <span className={delta > 0 ? "text-[10px] text-positive font-semibold" : delta < 0 ? "text-[10px] text-negative font-semibold" : "text-[10px] text-muted-foreground/60 font-semibold"}>
+      <span className={delta > 0 ? "text-2xs text-positive font-semibold" : delta < 0 ? "text-2xs text-negative font-semibold" : "text-2xs text-muted-foreground/60 font-semibold"}>
         {delta > 0 ? '↑' : delta < 0 ? '↓' : '→'} Rp {Math.abs(delta).toLocaleString(language === 'id' ? 'id-ID' : 'en-US')}
         {deltaPercentage !== null && ` (${deltaPercentage > 0 ? '+' : ''}${deltaPercentage.toFixed(2)}%)`}
       </span>
@@ -73,12 +73,12 @@ function PricesTodayContent() {
               <Stack gap="md">
                 {/* Harga Beli Section */}
                 <Stack gap="xs">
-                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{t('dashboard.brandCard.buyPrice')}</span>
+                  <span className="text-2xs font-semibold text-muted-foreground uppercase tracking-wider">{t('dashboard.brandCard.buyPrice')}</span>
                   <Stack direction="horizontal" gap="xs" className="items-baseline">
                     <span className="text-lg font-bold tracking-tight">
                       {price1g?.sellPriceFormatted || '—'}
                     </span>
-                    <span className="text-[10px] text-muted-foreground">/gram</span>
+                    <span className="text-2xs text-muted-foreground">/gram</span>
                   </Stack>
 
                   {price1g?.sellDelta !== null && price1g?.sellDelta !== undefined && (
@@ -115,12 +115,12 @@ function PricesTodayContent() {
 
                 {/* Harga Jual Section */}
                 <Stack gap="xs">
-                  <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">{t('dashboard.brandCard.sellPrice')}</span>
+                  <span className="text-2xs font-semibold text-muted-foreground uppercase tracking-wider">{t('dashboard.brandCard.sellPrice')}</span>
                   <Stack direction="horizontal" gap="xs" className="items-baseline">
                     <span className="text-lg font-bold tracking-tight">
                       {price1g?.buybackPriceFormatted || '—'}
                     </span>
-                    <span className="text-[10px] text-muted-foreground">/gram</span>
+                    <span className="text-2xs text-muted-foreground">/gram</span>
                   </Stack>
 
                   {price1g?.buybackDelta !== null && price1g?.buybackDelta !== undefined && (
