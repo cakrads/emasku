@@ -40,9 +40,9 @@ export function FloatingSummaryBar({ summary, onReset, onSell }: FloatingSummary
     }
 
     const pnlColor = summary.totalPnL > 0
-        ? 'text-green-600 dark:text-green-400'
+        ? 'text-positive'
         : summary.totalPnL < 0
-            ? 'text-red-600 dark:text-red-400'
+            ? 'text-negative'
             : 'text-muted-foreground'
 
     if (!isVisible && !show) return null
@@ -106,7 +106,8 @@ export function FloatingSummaryBar({ summary, onReset, onSell }: FloatingSummary
                         variant="solid"
                         size="sm"
                         onClick={onSell}
-                        className="flex-1 md:flex-none bg-orange-600 hover:bg-orange-700 text-white rounded-xl shadow-lg shadow-orange-600/20"
+                        color="warning"
+                        className="flex-1 md:flex-none rounded-xl"
                     >
                         {t('buybackSimulation.headerSummary.sellSelected')}
                     </Button>

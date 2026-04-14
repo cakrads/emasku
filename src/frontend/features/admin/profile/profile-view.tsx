@@ -12,7 +12,7 @@ import { StandardPageLayout } from '@/frontend/components/layout/standard-page-l
 import { ErrorBoundary } from '@/frontend/components/fragments/admin/error-boundary'
 import { Switch } from "@/frontend/components/ui/switch"
 import { Avatar, AvatarFallback, AvatarImage } from '@/frontend/components/ui/avatar'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/frontend/components/ui/card'
+import { Card, CardContent } from '@/frontend/components/ui/card'
 import { Stack } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import dynamic from 'next/dynamic'
@@ -93,7 +93,7 @@ export function ProfileView() {
   }
 
   if (!user) {
-    return null // Or loading skeleton
+    return null
   }
 
   return (
@@ -104,76 +104,83 @@ export function ProfileView() {
         { label: t('common.profile') }
       ]}
     >
-      <Stack gap="lg" className="max-w-lg mx-auto pb-24 md:pb-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center gap-4">
-            <Avatar className="h-16 w-16">
-              <AvatarImage src={user?.avatarUrl || ''} alt={user?.displayName || 'User'} />
-              <AvatarFallback className="bg-accent-gold/20 text-accent-gold text-xl font-bold">
-                {user?.displayName?.charAt(0).toUpperCase() || 'U'}
-              </AvatarFallback>
-            </Avatar>
-            <Stack>
-              <CardTitle className="text-xl">
-                {user?.displayName}
-              </CardTitle>
-              <CardDescription>
-                {user?.email}
-              </CardDescription>
-            </Stack>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Stack gap="sm">
-              {user?.email && (
-                <Stack direction="horizontal" gap="sm" className="items-center text-sm text-muted-foreground p-2 rounded-md bg-muted/50">
-                  <Mail className="h-4 w-4" />
-                  <Typography variant="body-sm">{user.email}</Typography>
-                </Stack>
-              )}
-              <Stack direction="horizontal" gap="sm" className="items-center text-sm text-muted-foreground p-2 rounded-md bg-muted/50">
-                <Calendar className="h-4 w-4" />
-                <Typography variant="body-sm">{t('profile.joined')} {user?.createdAt ? new Date(user.createdAt).toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', { dateStyle: 'long' }) : t('profile.justNow')}</Typography>
-              </Stack>
-            </Stack>
-          </CardContent>
-        </Card>
+      <ErrorBoundary>
+        <Stack gap="lg" className="max-w-lg mx-auto pb-24 md:pb-4">
 
-        <Stack gap="sm" className="md:hidden">
-          <Typography variant="body-sm" className="font-medium text-muted-foreground ml-1">{t('profile.preferences')}</Typography>
+          {/* User Info Card */}
           <Card>
-            <CardContent className="p-4 space-y-4">
-              <Stack direction="horizontal" className="items-center justify-between">
-                <Stack direction="horizontal" gap="md" className="items-center">
-                  {theme === 'dark' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-                  <Typography variant="body" className="font-medium">{t('common.darkMode')}</Typography>
+            <CardContent className="p-6">
+              <Stack direction="horizontal" gap="md" className="items-center mb-4">
+                <Avatar className="h-16 w-16 shrink-0">
+                  <AvatarImage src={user?.avatarUrl || ''} alt={user?.displayName || 'User'} />
+                  <AvatarFallback className="bg-accent-gold/20 text-accent-gold text-xl font-bold">
+                    {user?.displayName?.charAt(0).toUpperCase() || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <Stack gap="xs">
+                  <Typography variant="h3">{user?.displayName}</Typography>
+                  <Typography variant="body-sm" className="text-muted-foreground">{user?.email}</Typography>
                 </Stack>
-                {mounted && (
-                  <Switch
-                    checked={theme === 'dark'}
-                    onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
-                  />
-                )}
               </Stack>
-              <Stack direction="horizontal" className="items-center justify-between">
-                <Stack direction="horizontal" gap="md" className="items-center">
-                  <Globe className="h-5 w-5" />
-                  <Typography variant="body" className="font-medium">{t('common.language')}</Typography>
-                </Stack>
-                <Stack direction="horizontal" gap="sm" className="items-center">
-                  <Button variant={language === 'id' ? 'solid' : 'outline'} size="sm" onClick={() => setLanguage('id')} className="h-7 px-2 text-xs">ID</Button>
-                  <Button variant={language === 'en' ? 'solid' : 'outline'} size="sm" onClick={() => setLanguage('en')} className="h-7 px-2 text-xs">EN</Button>
+              <Stack gap="sm">
+                {user?.email && (
+                  <Stack direction="horizontal" gap="sm" className="items-center p-2 rounded-md bg-muted/50">
+                    <Mail className="h-4 w-4 text-muted-foreground shrink-0" />
+                    <Typography variant="body-sm" className="text-muted-foreground">{user.email}</Typography>
+                  </Stack>
+                )}
+                <Stack direction="horizontal" gap="sm" className="items-center p-2 rounded-md bg-muted/50">
+                  <Calendar className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <Typography variant="body-sm" className="text-muted-foreground">
+                    {t('profile.joined')} {user?.createdAt
+                      ? new Date(user.createdAt).toLocaleDateString(language === 'id' ? 'id-ID' : 'en-US', { dateStyle: 'long' })
+                      : t('profile.justNow')}
+                  </Typography>
                 </Stack>
               </Stack>
             </CardContent>
           </Card>
-        </Stack>
 
-        <Stack gap="sm">
-          <Typography variant="body-sm" className="font-medium text-muted-foreground ml-1">{t('profile.privacy')}</Typography>
-          <Card>
-            <CardContent className="p-0 divide-y">
-              <Stack className="p-4 gap-1">
-                <Stack direction="horizontal" className="items-center justify-between">
+          {/* Preferences Card */}
+          <Stack gap="sm">
+            <Typography variant="body-sm" className="font-medium text-muted-foreground ml-1">{t('profile.preferences')}</Typography>
+            <Card>
+              <CardContent className="p-0 divide-y divide-border">
+                {/* Dark Mode */}
+                <Stack direction="horizontal" className="items-center justify-between p-4">
+                  <Stack direction="horizontal" gap="md" className="items-center">
+                    {mounted && theme === 'dark' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+                    <Typography variant="body" className="font-medium">{t('common.darkMode')}</Typography>
+                  </Stack>
+                  {mounted && (
+                    <Switch
+                      checked={theme === 'dark'}
+                      onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
+                    />
+                  )}
+                </Stack>
+                {/* Language */}
+                <Stack direction="horizontal" className="items-center justify-between p-4">
+                  <Stack direction="horizontal" gap="md" className="items-center">
+                    <Globe className="h-5 w-5" />
+                    <Typography variant="body" className="font-medium">{t('common.language')}</Typography>
+                  </Stack>
+                  <Stack direction="horizontal" gap="sm" className="items-center">
+                    <Button variant={language === 'id' ? 'solid' : 'outline'} size="sm" onClick={() => setLanguage('id')} className="h-7 px-2 text-xs">ID</Button>
+                    <Button variant={language === 'en' ? 'solid' : 'outline'} size="sm" onClick={() => setLanguage('en')} className="h-7 px-2 text-xs">EN</Button>
+                  </Stack>
+                </Stack>
+              </CardContent>
+            </Card>
+          </Stack>
+
+          {/* Privacy & Data Card */}
+          <Stack gap="sm">
+            <Typography variant="body-sm" className="font-medium text-muted-foreground ml-1">{t('profile.privacy')}</Typography>
+            <Card>
+              <CardContent className="p-0 divide-y divide-border">
+                {/* Export Data */}
+                <Stack direction="horizontal" className="items-center justify-between p-4">
                   <Stack direction="horizontal" gap="md" className="items-center">
                     <Download className="h-5 w-5 text-primary" />
                     <Stack gap="xs">
@@ -190,10 +197,8 @@ export function ProfileView() {
                     {isExporting ? t('common.exporting') : t('common.export')}
                   </Button>
                 </Stack>
-              </Stack>
-
-              <Stack className="p-4 gap-1">
-                <Stack direction="horizontal" className="items-center justify-between">
+                {/* Privacy Policy */}
+                <Stack direction="horizontal" className="items-center justify-between p-4">
                   <Stack direction="horizontal" gap="md" className="items-center">
                     <Shield className="h-5 w-5 text-accent-gold" />
                     <Stack gap="xs">
@@ -207,10 +212,8 @@ export function ProfileView() {
                     </Link>
                   </Button>
                 </Stack>
-              </Stack>
-
-              <Stack className="p-4 gap-1">
-                <Stack direction="horizontal" className="items-center justify-between">
+                {/* Delete Account */}
+                <Stack direction="horizontal" className="items-center justify-between p-4">
                   <Stack direction="horizontal" gap="md" className="items-center">
                     <Trash2 className="h-5 w-5 text-destructive" />
                     <Stack gap="xs">
@@ -228,51 +231,55 @@ export function ProfileView() {
                     {t('common.delete')}
                   </Button>
                 </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </Stack>
+
+          {/* Account Card */}
+          <Stack gap="sm">
+            <Typography variant="body-sm" className="font-medium text-muted-foreground ml-1">{t('common.account')}</Typography>
+            <Card>
+              <CardContent className="p-0">
+                <Stack
+                  direction="horizontal"
+                  className="items-center gap-3 p-4 cursor-pointer hover:bg-muted/50 transition-colors rounded-lg"
+                  onClick={() => setShowLogoutDialog(true)}
+                >
+                  <LogOut className="h-5 w-5 text-muted-foreground" />
+                  <Typography variant="body" className="font-medium">{t('common.logout')}</Typography>
+                </Stack>
+              </CardContent>
+            </Card>
+          </Stack>
+
         </Stack>
+      </ErrorBoundary>
 
-        <Stack gap="sm">
-          <Typography variant="body-sm" className="font-medium text-muted-foreground ml-1">{t('common.account')}</Typography>
+      <LogoutDialog
+        open={showLogoutDialog}
+        onOpenChange={setShowLogoutDialog}
+        onConfirm={handleLogout}
+      />
 
-          <Button
-            variant="solid"
-            color="subtle"
-            className="w-full justify-start gap-2"
-            onClick={() => setShowLogoutDialog(true)}
-          >
-            <LogOut className="h-4 w-4" />
-            {t('common.logout')}
-          </Button>
-        </Stack>
-
-        <LogoutDialog
-          open={showLogoutDialog}
-          onOpenChange={setShowLogoutDialog}
-          onConfirm={handleLogout}
-        />
-
-        <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>{t('profile.deleteDialogTitle')}</AlertDialogTitle>
-              <AlertDialogDescription>
-                {t('profile.deleteDialogDesc')}
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleDeleteAccount}
-                className={buttonVariants({ variant: 'solid', color: 'destructive' })}
-              >
-                {t('profile.deleteConfirm')}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </Stack>
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t('profile.deleteDialogTitle')}</AlertDialogTitle>
+            <AlertDialogDescription>
+              {t('profile.deleteDialogDesc')}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteAccount}
+              className={buttonVariants({ variant: 'solid', color: 'destructive' })}
+            >
+              {t('profile.deleteConfirm')}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </StandardPageLayout>
   )
 }
