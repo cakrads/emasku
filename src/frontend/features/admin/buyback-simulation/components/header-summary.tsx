@@ -2,7 +2,7 @@ import { SimulationSummary } from '../hooks/use-buyback-simulation'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { Button } from '@/frontend/components/ui/button'
 import { Card } from '@/frontend/components/ui/card'
-import { Stack } from '@/frontend/components/ui/layout'
+import { Grid, Stack } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { RotateCcw } from 'lucide-react'
 import { cn } from '@/frontend/utils/cn'
@@ -55,7 +55,7 @@ export function HeaderSummary({ summary, onReset, onSell }: HeaderSummaryProps) 
         </Stack>
 
         {/* Metrics Grid */}
-        <Stack direction="horizontal" className="grid grid-cols-2 gap-3 w-full md:w-auto md:flex md:gap-10 md:items-end">
+        <Grid className="grid-cols-2 gap-3 w-full md:w-auto md:flex md:gap-10 md:items-end">
 
           {/* Est. Buyback Value */}
           <Stack className="text-left md:text-right md:order-3">
@@ -91,7 +91,7 @@ export function HeaderSummary({ summary, onReset, onSell }: HeaderSummaryProps) 
               </Typography>
             </Stack>
           </Stack>
-        </Stack>
+        </Grid>
       </Stack>
     </Card>
   )

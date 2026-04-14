@@ -240,14 +240,15 @@ export function ProfileView() {
             <Typography variant="body-sm" className="font-medium text-muted-foreground ml-1">{t('common.account')}</Typography>
             <Card>
               <CardContent className="p-0">
-                <Stack
-                  direction="horizontal"
-                  className="items-center gap-3 p-4 cursor-pointer hover:bg-muted/50 transition-colors rounded-lg"
+                <Button
+                  variant="ghost"
+                  fullWidth
+                  className="justify-start gap-3 p-4 h-auto rounded-lg"
                   onClick={() => setShowLogoutDialog(true)}
                 >
                   <LogOut className="h-5 w-5 text-muted-foreground" />
                   <Typography variant="body" className="font-medium">{t('common.logout')}</Typography>
-                </Stack>
+                </Button>
               </CardContent>
             </Card>
           </Stack>
