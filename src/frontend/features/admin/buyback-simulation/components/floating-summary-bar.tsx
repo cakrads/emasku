@@ -63,7 +63,7 @@ export function FloatingSummaryBar({ summary, onReset, onSell }: FloatingSummary
                             <Stack className="bg-primary/10 p-2 rounded-full text-primary">
                                 <Wallet className="w-5 h-5" />
                             </Stack>
-                            <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center border-2 border-background">
+                            <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-2xs font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center border-2 border-background">
                                 {summary.selectedCount}
                             </span>
                         </div>
