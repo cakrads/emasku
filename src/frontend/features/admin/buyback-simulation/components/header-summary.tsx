@@ -59,7 +59,7 @@ export function HeaderSummary({ summary, onReset, onSell }: HeaderSummaryProps) 
 
           {/* Est. Buyback Value */}
           <Stack className="text-left md:text-right md:order-3">
-            <Typography as="div" variant="detail" className="text-[10px] md:text-xs text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
+            <Typography as="div" variant="detail" className="text-2xs md:text-xs text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
               {t('buybackSimulation.headerSummary.totalBuyback')}
             </Typography>
             <Typography as="div" variant="body" className="text-2xl md:text-4xl font-extrabold text-accent-gold leading-none md:leading-tight">
@@ -69,7 +69,7 @@ export function HeaderSummary({ summary, onReset, onSell }: HeaderSummaryProps) 
 
           {/* Cost Basis */}
           <Stack className="text-right md:order-1">
-            <Typography as="div" variant="detail" className="text-[10px] md:text-xs text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
+            <Typography as="div" variant="detail" className="text-2xs md:text-xs text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
               {t('buybackSimulation.headerSummary.totalCost')}
             </Typography>
             <Typography as="div" variant="body" className="text-base md:text-lg font-semibold text-foreground leading-snug">
@@ -79,7 +79,7 @@ export function HeaderSummary({ summary, onReset, onSell }: HeaderSummaryProps) 
 
           {/* PnL */}
           <Stack className="text-left md:text-right col-span-2 md:col-span-1 pt-2 md:pt-0 border-t md:border-t-0 border-border/50 md:border-none md:order-2">
-            <Typography as="div" variant="detail" className="text-[10px] md:text-xs text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
+            <Typography as="div" variant="detail" className="text-2xs md:text-xs text-muted-foreground font-medium uppercase tracking-wider mb-0.5">
               {t('buybackSimulation.headerSummary.totalPnL')}
             </Typography>
             <Stack direction="horizontal" className="items-center justify-between md:justify-end gap-2">
