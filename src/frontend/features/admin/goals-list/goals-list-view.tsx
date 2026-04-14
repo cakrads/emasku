@@ -173,7 +173,7 @@ function GoalsListContent() {
                                                     {goal.name}
                                                 </Typography>
                                                 <span className={cn(
-                                                    'inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset w-fit',
+                                                    'inline-flex items-center rounded-full px-2 py-0.5 text-2xs font-medium ring-1 ring-inset w-fit',
                                                     badge.className
                                                 )}>
                                                     {badge.label}
@@ -342,7 +342,7 @@ function GoalsListContent() {
                                                 </td>
                                                 <td className="py-4 px-4 whitespace-nowrap text-center">
                                                     <span className={cn(
-                                                        'inline-flex items-center rounded-md px-1.5 py-0.5 text-xs font-medium ring-1 ring-inset',
+                                                        'inline-flex items-center rounded-md px-1.5 py-0.5 text-2xs font-medium ring-1 ring-inset',
                                                         badge.className
                                                     )}>
                                                         {badge.label}
