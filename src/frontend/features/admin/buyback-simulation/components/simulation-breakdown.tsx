@@ -77,9 +77,9 @@ export function SimulationBreakdown({ selectedItems, quantityOverrides, priceMap
                 const pnlPct = costBasisD.gt(0) ? pnlD.div(costBasisD).mul(100).toNumber() : 0
 
                 const pnlColor = pnl > 0
-                  ? 'text-green-600 dark:text-green-400'
+                  ? 'text-positive'
                   : pnl < 0
-                    ? 'text-red-600 dark:text-red-400'
+                    ? 'text-negative'
                     : 'text-muted-foreground'
 
                 return (

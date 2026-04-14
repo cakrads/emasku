@@ -94,7 +94,7 @@ export function HoldingsSelectorMobile({
                 <Stack className="text-right" gap="xs">
                   <Typography as="div" variant="body-sm" className="font-medium">{item.weight}</Typography>
                   <Typography as="div" variant="caption" className="text-muted-foreground">
-                    Buy: {formatIDR(item.rawAvgBuyPrice)}
+                    {t('buybackSimulation.table.buyPrice')}: {formatIDR(item.rawAvgBuyPrice)}
                   </Typography>
                 </Stack>
               </Stack>
