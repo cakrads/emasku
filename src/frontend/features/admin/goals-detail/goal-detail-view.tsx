@@ -183,7 +183,7 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                         <div
                                             className={cn(
                                                 'h-full rounded-full transition-all',
-                                                data.lifecycleStatus === 'COMPLETED' || data.isAchieved ? 'bg-green-500' : 'bg-primary'
+                                                data.lifecycleStatus === 'COMPLETED' || data.isAchieved ? 'bg-positive' : 'bg-accent-gold'
                                             )}
                                             style={{ width: `${Math.min(progress, 100)}%` }}
                                         />
@@ -202,12 +202,12 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                             {invested > 0 && (
                                                 <Stack direction="horizontal" className="items-center justify-end gap-1 mt-1">
                                                     {isPositive
-                                                        ? <TrendingUp className="w-3 h-3 text-green-600 dark:text-green-400" />
-                                                        : <TrendingDown className="w-3 h-3 text-red-600 dark:text-red-400" />
+                                                        ? <TrendingUp className="w-3 h-3 text-positive" />
+                                                        : <TrendingDown className="w-3 h-3 text-negative" />
                                                     }
                                                     <Typography variant="caption" className={cn(
                                                         'font-medium',
-                                                        isPositive ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+                                                        isPositive ? 'text-positive' : 'text-negative'
                                                     )}>
                                                         {formatCurrency(profit, locale)} ({isPositive ? '+' : ''}{profitPercent.toFixed(2)}%)
                                                     </Typography>
@@ -234,7 +234,7 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                         <Typography variant="body-sm">{t('goals.detail.remaining')}</Typography>
                                         <Typography variant="body" className={cn(
                                             'font-medium financial-value',
-                                            remaining === 0 ? 'text-green-600 dark:text-green-400' : ''
+                                            remaining === 0 ? 'text-positive' : ''
                                         )}>
                                             {formatCurrency(remaining!, locale)}
                                         </Typography>
@@ -245,7 +245,7 @@ function GoalDetailContent({ goalId }: { goalId: string }) {
                                             <Typography variant="body-sm">{t('goals.detail.timeRemaining')}</Typography>
                                             <Typography variant="body" className={cn(
                                                 'font-medium',
-                                                isPastDue && 'text-red-600 dark:text-red-400 font-semibold'
+                                                isPastDue && 'text-negative font-semibold'
                                             )}>
                                                 {timeRemainingLabel}
                                             </Typography>
