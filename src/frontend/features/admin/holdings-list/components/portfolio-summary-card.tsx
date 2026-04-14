@@ -63,7 +63,7 @@ export default function PortfolioSummaryCard({
 
             <div className="relative z-10 flex flex-col flex-1">
               {/* Row 1: Label */}
-              <Typography variant="caption" className="text-[11px] text-muted-foreground/70 font-medium mb-1 block">
+              <Typography variant="caption" className="text-2xs text-muted-foreground/70 font-medium mb-1 block">
                 {t('dashboard.portfolioValue')}
               </Typography>
 
@@ -78,7 +78,7 @@ export default function PortfolioSummaryCard({
               </Typography>
 
               {/* Row 3: Total Buy Value */}
-              <Typography variant="caption" className="text-[11px] text-muted-foreground/60 mb-auto block">
+              <Typography variant="caption" className="text-2xs text-muted-foreground/60 mb-auto block">
                 {t('holdings.totalBuyValue')}: {formatCurrency(totalBuyValue)}
               </Typography>
 

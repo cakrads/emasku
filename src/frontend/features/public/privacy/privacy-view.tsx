@@ -44,7 +44,7 @@ export function PrivacyView() {
         </Stack>
 
         {/* Education Disclaimer */}
-        <Alert variant="destructive" className="bg-destructive/5 border-destructive/20 text-destructive dark:text-red-400">
+        <Alert variant="destructive" className="bg-destructive/5 border-destructive/20 text-destructive">
           <TriangleAlert className="h-4 w-4" />
           <AlertTitle className="font-bold">{t('privacy.demoAlert.title')}</AlertTitle>
           <AlertDescription className="text-sm opacity-90">
@@ -81,7 +81,7 @@ export function PrivacyView() {
           <Card className="overflow-hidden border-muted/60">
             <CardContent className="p-0 grid md:grid-cols-3 divide-y md:divide-y-0 md:divide-x">
               <Stack direction="vertical" gap="md" className="p-8">
-                <Stack direction="horizontal" gap="sm" className="items-center font-semibold text-blue-600 dark:text-blue-400">
+                <Stack direction="horizontal" gap="sm" className="items-center font-semibold text-primary">
                   <UserIcon className="h-5 w-5" />
                   <Typography variant="body" as="span" className="font-semibold">{t('privacy.sections.collectedData.identity.title')}</Typography>
                 </Stack>
@@ -95,7 +95,7 @@ export function PrivacyView() {
                 </Stack>
               </Stack>
               <Stack direction="vertical" gap="md" className="p-8">
-                <Stack direction="horizontal" gap="sm" className="items-center font-semibold text-green-600 dark:text-green-400">
+                <Stack direction="horizontal" gap="sm" className="items-center font-semibold text-positive">
                   <WalletIcon className="h-5 w-5" />
                   <Typography variant="body" as="span" className="font-semibold">{t('privacy.sections.collectedData.financial.title')}</Typography>
                 </Stack>

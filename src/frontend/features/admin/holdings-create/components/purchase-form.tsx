@@ -49,7 +49,7 @@ export function PurchaseForm({ brand, weight, pricesData, purchaseDate, purchase
           {/* Purchase Price per Gram */}
           <Stack gap="sm">
             <Label htmlFor="purchase-price" className="uppercase text-text-secondary font-medium tracking-wider">
-              {t('addHolding.details.purchasePrice')} <span className="text-red-500" aria-hidden="true">*</span>
+              {t('addHolding.details.purchasePrice')} <span className="text-negative" aria-hidden="true">*</span>
             </Label>
             <CurrencyInput
               id="purchase-price"
@@ -68,7 +68,7 @@ export function PurchaseForm({ brand, weight, pricesData, purchaseDate, purchase
                 <button
                   type="button"
                   onClick={() => onChange({ purchasePrice: currentSellPrice.toString() })}
-                  className="text-[10px] font-medium text-accent-gold hover:underline uppercase tracking-tight"
+                  className="text-2xs font-medium text-accent-gold hover:underline uppercase tracking-tight"
                 >
                   {t('common.useToday')}: {formatCurrency(currentSellPrice)}
                 </button>

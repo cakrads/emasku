@@ -124,9 +124,9 @@ export function BulkSellModal({
 
                     {/* Warning for loss */}
                     {summary.realizedPnL < 0 && (
-                        <Stack direction="horizontal" gap="xs" className="items-start rounded-lg p-3 bg-red-50 border border-red-200 dark:bg-red-950/20 dark:border-red-900/50">
-                            <TrendingDown className="w-5 h-5 text-red-600 dark:text-red-400 mt-0.5 shrink-0" />
-                            <Typography variant="body-sm" className="text-red-800 dark:text-red-200">
+                        <Stack direction="horizontal" gap="xs" className="items-start rounded-lg p-3 bg-negative/5 border border-negative/20">
+                            <TrendingDown className="w-5 h-5 text-negative mt-0.5 shrink-0" />
+                            <Typography variant="body-sm" className="text-negative">
                                 {t('holdingDetail.sellModal.lossWarning')}
                             </Typography>
                         </Stack>

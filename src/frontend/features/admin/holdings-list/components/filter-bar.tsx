@@ -31,18 +31,18 @@ export default function FilterBar({
 }: FilterBarProps) {
   const { t } = useLanguage()
   return (
-    <Section className="bg-[var(--surface-elevated)] border border-[var(--border)] rounded-xl p-4">
+    <Section className="bg-surface-elevated border border-border rounded-xl p-4">
       <Stack direction="horizontal" gap="md" className="flex-wrap items-center">
         {/* Status Filter */}
         <Stack direction="horizontal" gap="sm" className="items-center">
-          <Filter className="w-4 h-4 text-[var(--foreground-muted)]" />
-          <Typography variant="body-sm" className="text-[var(--foreground-muted)]">
+          <Filter className="w-4 h-4 text-muted-foreground" />
+          <Typography variant="body-sm" className="text-muted-foreground">
             {t('holdings.filters.status')}
           </Typography>
           <select
             value={status}
             onChange={(e) => onStatusChange(e.target.value as 'active' | 'sold' | 'all')}
-            className="bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--foreground)]"
+            className="bg-surface border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-foreground"
           >
 
             <option value="active">{t('holdings.filters.options.active')}</option>
@@ -52,17 +52,17 @@ export default function FilterBar({
         </Stack>
 
         {/* Divider */}
-        <div className="h-6 w-px bg-[var(--border)]" />
+        <div className="h-6 w-px bg-border" />
 
         {/* Brand Filter */}
         <Stack direction="horizontal" gap="sm" className="items-center">
-          <Typography variant="body-sm" className="text-[var(--foreground-muted)]">
+          <Typography variant="body-sm" className="text-muted-foreground">
             {t('holdings.filters.brand')}
           </Typography>
           <select
             value={selectedBrand || ''}
             onChange={(e) => onBrandChange(e.target.value || null)}
-            className="bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--foreground)]"
+            className="bg-surface border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-foreground"
           >
             <option value="">{t('holdings.filters.options.allBrands')}</option>
             {brands.map((brand) => (
@@ -84,18 +84,18 @@ export default function FilterBar({
         </Stack>
 
         {/* Divider */}
-        <div className="h-6 w-px bg-[var(--border)]" />
+        <div className="h-6 w-px bg-border" />
 
         {/* Sort By */}
         <Stack direction="horizontal" gap="sm" className="items-center">
-          <ArrowUpDown className="w-4 h-4 text-[var(--foreground-muted)]" />
-          <Typography variant="body-sm" className="text-[var(--foreground-muted)]">
+          <ArrowUpDown className="w-4 h-4 text-muted-foreground" />
+          <Typography variant="body-sm" className="text-muted-foreground">
             {t('holdings.filters.sort')}
           </Typography>
           <select
             value={sortBy}
             onChange={(e) => onSortByChange(e.target.value as 'date' | 'value')}
-            className="bg-[var(--surface)] border border-[var(--border)] rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--foreground)]"
+            className="bg-surface border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-foreground"
           >
             <option value="date">{t('holdings.filters.options.date')}</option>
             <option value="value">{t('holdings.filters.options.value')}</option>

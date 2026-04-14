@@ -20,10 +20,10 @@ export function ValuationCard({ holding, hasMissingValue, t }: ValuationCardProp
                     <Typography variant="h3" className="text-sm">{t('holdingDetail.valuation.title')}</Typography>
 
                     {hasMissingValue && (
-                        <Alert className="bg-zinc-50 border-zinc-200 dark:bg-blue-950/20 dark:border-blue-900/50">
-                            <Info className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                            <AlertTitle className="text-zinc-900 dark:text-blue-100">{t('holdingDetail.valuation.missingTitle')}</AlertTitle>
-                            <AlertDescription className="text-zinc-600 dark:text-blue-300">
+                        <Alert className="bg-muted border-border">
+                            <Info className="h-4 w-4 text-primary" />
+                            <AlertTitle className="text-foreground">{t('holdingDetail.valuation.missingTitle')}</AlertTitle>
+                            <AlertDescription className="text-muted-foreground">
                                 {t('holdingDetail.valuation.missingDesc')}
                             </AlertDescription>
                         </Alert>

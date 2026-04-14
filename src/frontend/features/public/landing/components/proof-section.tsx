@@ -14,7 +14,7 @@ export function ProofSection() {
   ]
 
   return (
-    <section className="py-16 border-y border-gray-200 dark:border-zinc-800/40 bg-gray-50 dark:bg-zinc-900/80">
+    <section className="py-16 border-y border-border bg-surface">
       <Stack className="max-w-5xl mx-auto px-6">
         <div className="grid grid-cols-3 gap-8 text-center">
           {metrics.map((metric) => (

@@ -121,7 +121,7 @@ export default function HoldingsTable({
                 {row.original.brandName} {row.original.weight}
               </Typography>
               {row.original.isSold && (
-                <span className="inline-flex items-center rounded-md bg-orange-100 px-1.5 py-0.5 text-[10px] font-medium text-orange-700 ring-1 ring-inset ring-orange-600/20">
+                <span className="inline-flex items-center rounded-md bg-orange-100 px-1.5 py-0.5 text-2xs font-medium text-orange-700 ring-1 ring-inset ring-orange-600/20">
                   {t('holdings.filters.options.sold').toUpperCase()}
                 </span>
               )}
@@ -308,7 +308,7 @@ export default function HoldingsTable({
                     )}>
                       {cell.column.id === 'pnl' && isSold && (
                         <Stack direction="horizontal" className="justify-end mb-0.5">
-                          <span className="text-[10px] uppercase font-bold tracking-wider text-muted-foreground bg-muted px-1 rounded-sm">
+                          <span className="text-2xs uppercase font-bold tracking-wider text-muted-foreground bg-muted px-1 rounded-sm">
                             {t('holdingDetail.sellInfo.realized')}
                           </span>
                         </Stack>

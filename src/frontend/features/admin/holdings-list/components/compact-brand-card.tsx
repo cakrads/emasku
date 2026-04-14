@@ -96,7 +96,7 @@ export default function CompactBrandCard({
                 </Typography>
 
                 {/* Row 3: Total Buy Value */}
-                <Typography variant="caption" className="text-[11px] text-muted-foreground/60 mb-auto">
+                <Typography variant="caption" className="text-2xs text-muted-foreground/60 mb-auto">
                   {t('holdings.totalBuyValue')}: {formatCurrency(totalBuyValue)}
                 </Typography>
 

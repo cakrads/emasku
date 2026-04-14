@@ -85,12 +85,12 @@ export function useGoalDetailMetrics(
         )
 
         const statusConfig = data.lifecycleStatus === 'COMPLETED'
-            ? { label: t('goals.status.completed'), className: 'text-green-600 dark:text-green-400' }
+            ? { label: t('goals.status.completed'), className: 'text-positive' }
             : data.isAchieved
-                ? { label: t('goals.status.achieved'), className: 'text-green-600 dark:text-green-400' }
+                ? { label: t('goals.status.achieved'), className: 'text-positive' }
                 : hasTarget
-                    ? { label: t('goals.status.inProgress'), className: 'text-blue-600 dark:text-blue-400' }
-                    : { label: t('goals.status.noTarget'), className: 'text-gray-500 dark:text-gray-400' }
+                    ? { label: t('goals.status.inProgress'), className: 'text-primary' }
+                    : { label: t('goals.status.noTarget'), className: 'text-muted-foreground' }
 
         return {
             displayValue, progress, hasTarget, remaining,

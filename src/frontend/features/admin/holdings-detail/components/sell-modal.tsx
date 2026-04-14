@@ -153,8 +153,8 @@ export function SellModal({ open, onOpenChange, holding, onConfirm, isPending }:
                         {preview && (
                             <Stack className={cn(
                                 'rounded-lg p-3 border',
-                                preview.color === 'positive' ? 'bg-green-50 border-green-200 dark:bg-green-950/20 dark:border-green-900/50' :
-                                    preview.color === 'negative' ? 'bg-red-50 border-red-200 dark:bg-red-950/20 dark:border-red-900/50' :
+                                preview.color === 'positive' ? 'bg-positive/5 border-positive/20' :
+                                    preview.color === 'negative' ? 'bg-negative/5 border-negative/20' :
                                         'bg-muted/50 border-border'
                             )}>
                                 <Stack direction="horizontal" className="justify-between items-center">
