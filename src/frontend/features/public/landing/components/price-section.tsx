@@ -113,9 +113,9 @@ export function PriceSection() {
                             <Typography variant="body" as="span" className="text-xl font-medium text-foreground translate-y-[2px]">{item.provider}</Typography>
 
                             {/* PnL Badge Top Right */}
-                            <Stack direction="horizontal" className={`items-center justify-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${item.trend === 'up' ? 'bg-emerald-500/10 text-emerald-500 dark:text-emerald-400' :
+                            <Stack direction="horizontal" className={`items-center justify-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium ${item.trend === 'up' ? 'bg-positive/10 text-positive' :
                               item.trend === 'down' ? 'bg-negative/10 text-negative' :
-                                'bg-slate-500/10 text-slate-400'
+                                'bg-muted/50 text-muted-foreground'
                               }`}>
                               {item.trend === 'up' ? <TrendingUp className="w-3 h-3" /> :
                                 item.trend === 'down' ? <TrendingDown className="w-3 h-3" /> :
@@ -155,9 +155,9 @@ export function PriceSection() {
                             <Typography variant="body-sm" as="span" className="text-sm text-muted-foreground font-normal">/gram</Typography>
                           </Stack>
 
-                          <Stack direction="horizontal" className={`items-center justify-end gap-1 px-2.5 py-1 rounded-full text-sm font-medium w-fit ${item.trend === 'up' ? 'bg-emerald-500/10 text-emerald-500 dark:text-emerald-400' :
+                          <Stack direction="horizontal" className={`items-center justify-end gap-1 px-2.5 py-1 rounded-full text-sm font-medium w-fit ${item.trend === 'up' ? 'bg-positive/10 text-positive' :
                             item.trend === 'down' ? 'bg-negative/10 text-negative' :
-                              'bg-slate-500/10 text-slate-400'
+                              'bg-muted/50 text-muted-foreground'
                             }`}>
                             {item.trend === 'up' ? <TrendingUp className="w-3.5 h-3.5" /> :
                               item.trend === 'down' ? <TrendingDown className="w-3.5 h-3.5" /> :

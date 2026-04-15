@@ -109,7 +109,7 @@ export function PrivacyView() {
                 </Stack>
               </Stack>
               <Stack direction="vertical" gap="md" className="p-8">
-                <Stack direction="horizontal" gap="sm" className="items-center font-semibold text-purple-600 dark:text-purple-400">
+                <Stack direction="horizontal" gap="sm" className="items-center font-semibold text-muted-foreground">
                   <Server className="h-5 w-5" />
                   <Typography variant="body" as="span" className="font-semibold">{t('privacy.sections.collectedData.technical.title')}</Typography>
                 </Stack>
@@ -162,7 +162,7 @@ export function PrivacyView() {
             <RightCard icon={Lock} title={t('privacy.sections.rights.deletion.title')} desc={t('privacy.sections.rights.deletion.description')} />
             <RightCard icon={Shield} title={t('privacy.sections.rights.withdrawal.title')} desc={t('privacy.sections.rights.withdrawal.description')} />
           </div>
-          <Typography variant="body-sm" className="text-muted-foreground p-4 rounded-lg bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100/50 dark:border-blue-900/20 italic">
+          <Typography variant="body-sm" className="text-muted-foreground p-4 rounded-lg bg-primary/5 border border-primary/10 italic">
             {renderWithBold(String(t('privacy.sections.rights.note')), ['Profil > Privasi & Data', 'Profile > Privacy & Data'])}
           </Typography>
         </Section>
