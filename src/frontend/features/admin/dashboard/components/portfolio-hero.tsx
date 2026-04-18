@@ -77,12 +77,12 @@ export default function PortfolioHero({
   }
 
   const ExcludedInfoContent = (
-    <>
-      <Info className="w-3 h-3" aria-hidden="true" />
+    <span className="flex items-center gap-1.5">
+      <Info className="w-3 h-3 shrink-0" aria-hidden="true" />
       <Typography variant="caption">
         {excludedCount} {t('dashboard.excludedHoldings')}
       </Typography>
-    </>
+    </span>
   )
 
   return (
@@ -123,7 +123,7 @@ export default function PortfolioHero({
             onClick={() => setActivePeriod(period.key)}
             aria-pressed={activePeriod === period.key}
             className={cn(
-              'text-xs font-medium pb-0.5 transition-colors border-b-2',
+              'text-xs font-medium pb-0.5 transition-colors border-b-2 cursor-pointer',
               activePeriod === period.key
                 ? 'text-foreground border-foreground'
                 : 'text-muted-foreground hover:text-foreground border-transparent'

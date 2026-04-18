@@ -35,6 +35,7 @@ export default function HoldingsPreview() {
   const { data, isLoading, error, isRefetchError, refetch } = useQuery({
     queryKey: ['portfolio', 'list', 'preview'],
     queryFn: () => fetchPortfolioList({ status: 'active' }, { page: 1, pageSize: 5 }),
+    staleTime: 60_000,
   })
 
   const fmtCurrency = (v: number) =>
@@ -141,7 +142,24 @@ export default function HoldingsPreview() {
           const isPositive = holding.pnlColor === 'positive'
           const isNegative = holding.pnlColor === 'negative'
           const label = `${holding.brandName} · ${holding.weight}${holding.count > 1 ? ` (x${holding.count})` : ''}`
-          const subtitle = `${t('dashboard.purchasedOn')} ${holding.buyDate} · ${hydrated && isVisible ? holding.totalBuyValue : '••••••'}`
+          const buyValue = hydrated && isVisible ? holding.totalBuyValue : '••••••'
+          const subtitle = (
+            <>
+              {/* Mobile: stacked */}
+              <Stack gap="none" className="md:hidden">
+                <Typography as="span" variant="caption" className="text-muted-foreground">
+                  {t('dashboard.purchasedOn')} {holding.buyDate}
+                </Typography>
+                <Typography as="span" variant="caption" className="text-muted-foreground">
+                  {buyValue}
+                </Typography>
+              </Stack>
+              {/* Desktop: inline */}
+              <Typography as="span" variant="caption" className="text-muted-foreground hidden md:block">
+                {t('dashboard.purchasedOn')} {holding.buyDate} · {buyValue}
+              </Typography>
+            </>
+          )
 
           return (
             <ListRow
@@ -157,24 +175,56 @@ export default function HoldingsPreview() {
               subtitle={subtitle}
               trailing={
                 hasValuation ? (
-                  <Typography variant="body-sm" className="font-medium text-foreground">
+                  <Typography variant="body-sm" className="font-medium text-foreground truncate max-w-32">
                     {hydrated && isVisible ? holding.totalValue : '••••••'}
                   </Typography>
                 ) : undefined
               }
               trailingSubtitle={
                 hasValuation ? (
-                  <Typography
-                    variant="caption"
-                    className={cn(
-                      'font-medium',
-                      isPositive && 'text-positive',
-                      isNegative && 'text-negative',
-                      !isPositive && !isNegative && 'text-muted-foreground'
-                    )}
-                  >
-                    {hydrated && isVisible ? `${holding.pnl} (${holding.pnlPercentage})` : '••••••'}
-                  </Typography>
+                  <Stack gap="none" className="items-end">
+                    {/* Desktop: one line */}
+                    <Typography
+                      variant="caption"
+                      className={cn(
+                        'font-medium hidden md:block',
+                        isPositive && 'text-positive',
+                        isNegative && 'text-negative',
+                        !isPositive && !isNegative && 'text-muted-foreground'
+                      )}
+                    >
+                      {hydrated && isVisible
+                        ? `${holding.pnl}${holding.pnlPercentage ? ` (${holding.pnlPercentage})` : ''}`
+                        : '••••••'}
+                    </Typography>
+                    {/* Mobile: stacked */}
+                    <Stack gap="none" className="items-end md:hidden">
+                      <Typography
+                        variant="caption"
+                        className={cn(
+                          'font-medium truncate max-w-32',
+                          isPositive && 'text-positive',
+                          isNegative && 'text-negative',
+                          !isPositive && !isNegative && 'text-muted-foreground'
+                        )}
+                      >
+                        {hydrated && isVisible ? holding.pnl : '••••••'}
+                      </Typography>
+                      {holding.pnlPercentage && (
+                        <Typography
+                          variant="caption"
+                          className={cn(
+                            'font-medium opacity-80',
+                            isPositive && 'text-positive',
+                            isNegative && 'text-negative',
+                            !isPositive && !isNegative && 'text-muted-foreground'
+                          )}
+                        >
+                          {hydrated && isVisible ? `(${holding.pnlPercentage})` : ''}
+                        </Typography>
+                      )}
+                    </Stack>
+                  </Stack>
                 ) : (
                   <Typography variant="caption" className="text-muted-foreground italic">
                     {t('dashboard.valuationUnavailable')}

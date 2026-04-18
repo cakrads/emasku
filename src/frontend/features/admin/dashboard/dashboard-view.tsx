@@ -26,6 +26,7 @@ function DashboardContent() {
     queryKey: ['portfolio', 'summary'],
     queryFn: () => fetchPortfolioSummary(),
     throwOnError: true,
+    staleTime: 60_000,
   })
 
   const viewModel = data ? transformPortfolioSummary(data, t, language === 'id' ? 'id-ID' : 'en-US') : null

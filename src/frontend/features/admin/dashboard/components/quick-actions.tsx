@@ -16,6 +16,7 @@ export function QuickActions() {
         icon={<Plus className="w-4 h-4" />}
         label={t('dashboard.addGoldHolding')}
         href={ROUTES.ADD_HOLDING}
+        className="hidden md:flex"
       />
       <ActionChip
         variant="outline"

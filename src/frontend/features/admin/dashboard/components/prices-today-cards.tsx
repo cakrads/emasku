@@ -19,6 +19,7 @@ function PricesTodayContent() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['prices', 'today'],
     queryFn: fetchTodayPrices,
+    staleTime: 5 * 60_000,
   })
 
   // Transform data if available

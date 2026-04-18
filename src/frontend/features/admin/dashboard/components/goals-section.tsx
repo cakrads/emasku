@@ -18,8 +18,9 @@ export default function GoalsSection() {
     const locale = language === 'id' ? 'id-ID' : 'en-US'
 
     const { data, isLoading, isError, isRefetchError, refetch } = useQuery({
-        queryKey: ['goals', 'list'], // Match key used in list view
+        queryKey: ['goals', 'list'],
         queryFn: fetchGoals,
+        staleTime: 5 * 60_000,
     })
 
     // If no goals, don't show section? Or show empty state?
@@ -121,6 +122,11 @@ export default function GoalsSection() {
                                 <Typography variant="body" className="font-semibold truncate group-hover:text-accent-gold transition-colors">
                                     {goal.name}
                                 </Typography>
+                                {goal.targetAmount != null && goal.targetAmount > 0 && (
+                                    <Typography variant="caption" className="text-muted-foreground">
+                                        Target: {formatCurrency(goal.targetAmount, locale)}
+                                    </Typography>
+                                )}
                                 {/* goal.description && <Typography variant="caption" className="text-muted-foreground line-clamp-1">{goal.description}</Typography> */}
                             </Stack>
 
