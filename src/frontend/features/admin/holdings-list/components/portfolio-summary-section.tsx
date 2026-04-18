@@ -91,9 +91,71 @@ export default function PortfolioSummarySection({
     )
   }
 
+  const metrics = [
+    {
+      icon: <Scale className="w-4 h-4 text-muted-foreground shrink-0" />,
+      label: t('holdings.summary.totalWeight'),
+      value: isVisible ? formatWeight(totalWeightGram) : '••••••',
+      sub: null,
+      color: '',
+      show: true,
+    },
+    {
+      icon: <Wallet className="w-4 h-4 text-muted-foreground shrink-0" />,
+      label: t('holdings.summary.purchaseValue'),
+      value: isVisible ? formatCurrency(totalBuyValue) : '••••••••',
+      sub: null,
+      color: '',
+      show: true,
+    },
+    {
+      icon: <Coins className="w-4 h-4 text-muted-foreground shrink-0" />,
+      label: t('holdings.summary.estimatedValue'),
+      value: isVisible ? formatCurrency(totalCurrentValue) : '••••••••',
+      sub: null,
+      color: 'text-accent-gold',
+      show: showValuation,
+      info: t('holdings.summary.estimatedValueTooltip'),
+    },
+    {
+      icon: <TrendingUp className={cn('w-4 h-4 shrink-0', totalPnL > 0 ? 'text-positive' : totalPnL < 0 ? 'text-negative rotate-180' : 'text-muted-foreground')} />,
+      label: t('holdings.summary.profitLoss'),
+      value: isVisible ? `${totalPnL > 0 ? '+' : ''}${formatCurrency(totalPnL)}` : '••••••••',
+      sub: isVisible ? `(${pnlPercentage > 0 ? '+' : ''}${pnlPercentage.toFixed(2)}%)` : '(•••%)',
+      color: pnlColor,
+      show: showValuation,
+      info: t('holdings.summary.profitLossTooltip'),
+    },
+  ].filter(m => m.show)
+
   return (
-    <Section className="bg-linear-to-r from-teal-50/80 via-white to-white dark:from-teal-950/20 dark:via-background dark:to-background rounded-2xl p-6 md:p-8 border border-teal-100 dark:border-teal-900/50 min-h-[220px] md:min-h-[145px]">
-      <div className={cn('grid gap-4 md:gap-6', showValuation ? 'grid-cols-2 lg:grid-cols-4' : 'grid-cols-2')}>
+    <Section className="bg-linear-to-r from-teal-50/80 via-white to-white dark:from-teal-950/20 dark:via-background dark:to-background rounded-2xl border border-teal-100 dark:border-teal-900/50 min-h-[145px] p-6 md:p-8">
+
+      {/* Mobile: horizontal scroll strip */}
+      <div className="md:hidden -mx-6 px-6 overflow-x-auto flex gap-4 pb-1 scrollbar-hide">
+        {metrics.map((m, i) => (
+          <div key={i} className="shrink-0 w-44 space-y-1">
+            <Stack direction="horizontal" gap="xs" className="items-center">
+              {m.icon}
+              <Typography variant="caption" className="text-muted-foreground text-xs whitespace-nowrap">
+                {m.label}
+              </Typography>
+              {m.info && <Info className="w-3 h-3 text-muted-foreground/60 shrink-0" />}
+            </Stack>
+            <Typography as="div" className={cn('text-lg font-bold financial-value', m.color)}>
+              {m.value}
+            </Typography>
+            {m.sub && (
+              <Typography variant="caption" className={cn('text-xs', m.color)}>
+                {m.sub}
+              </Typography>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {/* Desktop: grid */}
+      <div className={cn('hidden md:grid gap-6', showValuation ? 'grid-cols-2 lg:grid-cols-4' : 'grid-cols-2')}>
         {/* Total Weight */}
         <div className="space-y-1 min-w-0">
           <Stack direction="horizontal" gap="xs" className="items-center">
@@ -103,13 +165,12 @@ export default function PortfolioSummarySection({
             </Typography>
           </Stack>
           <ResponsiveInfoTip content={<p className="font-mono">{formatWeight(totalWeightGram)}</p>}>
-            <Typography as="div" className="text-lg md:text-2xl font-bold truncate cursor-help">
+            <Typography as="div" className="text-2xl font-bold truncate cursor-help">
               {isVisible ? formatWeight(totalWeightGram) : '••••••'}
             </Typography>
           </ResponsiveInfoTip>
         </div>
 
-        {/* Total Purchase Value */}
         <div className="space-y-1 min-w-0">
           <Stack direction="horizontal" gap="xs" className="items-center">
             <Wallet className="w-4 h-4 text-muted-foreground shrink-0" />
@@ -118,13 +179,12 @@ export default function PortfolioSummarySection({
             </Typography>
           </Stack>
           <ResponsiveInfoTip content={<p className="font-mono">{formatCurrency(totalBuyValue)}</p>}>
-            <Typography as="div" className="text-lg md:text-2xl font-bold financial-value truncate cursor-help">
+            <Typography as="div" className="text-2xl font-bold financial-value truncate cursor-help">
               {isVisible ? formatCurrency(totalBuyValue) : '••••••••'}
             </Typography>
           </ResponsiveInfoTip>
         </div>
 
-        {/* Estimated Sell Value with Popover - hidden for sold items */}
         {showValuation && (
           <div className="space-y-1 min-w-0">
             <ResponsiveInfoTip content={<p>{t('holdings.summary.estimatedValueTooltip')}</p>}>
@@ -137,14 +197,13 @@ export default function PortfolioSummarySection({
               </Stack>
             </ResponsiveInfoTip>
             <ResponsiveInfoTip content={<p className="font-mono">{formatCurrency(totalCurrentValue)}</p>}>
-              <Typography as="div" className="text-lg md:text-2xl font-bold financial-value text-accent-gold truncate cursor-help">
+              <Typography as="div" className="text-2xl font-bold financial-value text-accent-gold truncate cursor-help">
                 {isVisible ? formatCurrency(totalCurrentValue) : '••••••••'}
               </Typography>
             </ResponsiveInfoTip>
           </div>
         )}
 
-        {/* Profit/Loss - hidden for sold items */}
         {showValuation && (
           <div className="space-y-1 min-w-0">
             <ResponsiveInfoTip content={
@@ -154,27 +213,17 @@ export default function PortfolioSummarySection({
               </>
             }>
               <Stack direction="horizontal" gap="xs" className="items-center cursor-pointer w-fit">
-                <TrendingUp className={cn(
-                  'w-4 h-4 shrink-0',
-                  totalPnL > 0 ? 'text-positive' : totalPnL < 0 ? 'text-negative rotate-180' : 'text-muted-foreground'
-                )} />
+                <TrendingUp className={cn('w-4 h-4 shrink-0', totalPnL > 0 ? 'text-positive' : totalPnL < 0 ? 'text-negative rotate-180' : 'text-muted-foreground')} />
                 <Typography variant="caption" className="text-muted-foreground text-xs">
                   {t('holdings.summary.profitLoss')}
                 </Typography>
                 <Info className="w-3 h-3 text-muted-foreground/60 shrink-0" />
               </Stack>
             </ResponsiveInfoTip>
-
             <div className={cn('flex flex-col xl:flex-row xl:items-baseline gap-x-2', pnlColor)}>
               <ResponsiveInfoTip content={<p className="font-mono">{totalPnL > 0 ? '+' : ''}{formatCurrency(totalPnL)}</p>}>
-                <Typography as="div" className="text-lg md:text-2xl font-bold truncate cursor-help">
-                  {isVisible ? (
-                    <>
-                      {totalPnL > 0 ? '+' : ''}{formatCurrency(totalPnL)}
-                    </>
-                  ) : (
-                    '••••••••'
-                  )}
+                <Typography as="div" className="text-2xl font-bold truncate cursor-help">
+                  {isVisible ? <>{totalPnL > 0 ? '+' : ''}{formatCurrency(totalPnL)}</> : '••••••••'}
                 </Typography>
               </ResponsiveInfoTip>
               <Typography variant="caption" className="text-xs shrink-0">

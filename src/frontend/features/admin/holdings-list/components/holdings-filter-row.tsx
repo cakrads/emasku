@@ -2,6 +2,7 @@
 
 import { cn } from '@/frontend/utils/cn'
 import { useLanguage } from '@/frontend/hooks/use-language'
+import { AppSelect } from '@/frontend/components/ui/select'
 
 interface HoldingsFilterRowProps {
   statusFilter: 'active' | 'sold' | 'all'
@@ -38,8 +39,6 @@ export function HoldingsFilterRow({
     { value: 'all', label: t('holdings.filters.options.all') },
   ]
 
-  const selectClass = 'h-9 px-3 rounded-full text-sm border border-border bg-background text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 shrink-0 cursor-pointer'
-
   return (
     <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-4 px-4 md:mx-0 md:px-0">
       {/* Status chips */}
@@ -50,7 +49,7 @@ export function HoldingsFilterRow({
           aria-pressed={statusFilter === status.value}
           onClick={() => onChange({ status: status.value })}
           className={cn(
-            'inline-flex items-center h-9 px-4 rounded-full text-sm font-medium transition-colors shrink-0',
+            'inline-flex items-center h-9 px-4 rounded-full text-sm font-medium transition-colors shrink-0 cursor-pointer',
             'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
             statusFilter === status.value
               ? 'bg-foreground text-background'
@@ -66,56 +65,50 @@ export function HoldingsFilterRow({
 
       {/* Brand select */}
       {brands.length > 0 && (
-        <select
-          value={brandFilter || ''}
-          onChange={(e) => onChange({ brand: e.target.value || null })}
-          className={selectClass}
-          aria-label={t('holdings.filters.brand')}
-        >
-          <option value="">{t('holdings.filters.options.allBrands')}</option>
-          {brands.map((brand) => (
-            <option key={brand.code} value={brand.code}>
-              {brand.name}
-            </option>
-          ))}
-        </select>
+        <AppSelect
+          value={brandFilter || '__all__'}
+          shape="pill"
+          size="sm"
+          onValueChange={(val) => onChange({ brand: val === '__all__' ? null : val })}
+          options={[
+            { value: '__all__', label: t('holdings.filters.options.allBrands') },
+            ...brands.map((b) => ({ value: b.code, label: b.name })),
+          ]}
+        />
       )}
 
-      {/* Goal select (only if goals exist) */}
+      {/* Goal select */}
       {goals.length > 0 && (
-        <select
-          value={goalId || ''}
-          onChange={(e) => onChange({ goalId: e.target.value || null })}
-          className={selectClass}
-          aria-label={t('holdings.filters.goal')}
-        >
-          <option value="">{t('holdings.filters.goal')}</option>
-          {goals.map((goal) => (
-            <option key={goal.id} value={goal.id}>
-              {goal.name}
-            </option>
-          ))}
-        </select>
+        <AppSelect
+          value={goalId || '__all__'}
+          shape="pill"
+          size="sm"
+          onValueChange={(val) => onChange({ goalId: val === '__all__' ? null : val })}
+          options={[
+            { value: '__all__', label: t('holdings.filters.goal') },
+            ...goals.map((g) => ({ value: g.id, label: g.name })),
+          ]}
+        />
       )}
 
       {/* Sort select */}
-      <select
+      <AppSelect
         value={`${sortBy}-${sortOrder}`}
-        onChange={(e) => {
-          const val = e.target.value
+        shape="pill"
+        size="sm"
+        onValueChange={(val) => {
           const sep = val.lastIndexOf('-')
           const by = val.substring(0, sep) as 'date' | 'value'
           const order = val.substring(sep + 1) as 'asc' | 'desc'
           onChange({ sortBy: by, sortOrder: order })
         }}
-        className={selectClass}
-        aria-label={t('holdings.filters.sort')}
-      >
-        <option value="date-desc">{t('holdings.filters.options.newest')}</option>
-        <option value="date-asc">{t('holdings.filters.options.oldest')}</option>
-        <option value="value-desc">{t('holdings.filters.options.value_high_to_low')}</option>
-        <option value="value-asc">{t('holdings.filters.options.value_low_to_high')}</option>
-      </select>
+        options={[
+          { value: 'date-desc', label: t('holdings.filters.options.newest') },
+          { value: 'date-asc', label: t('holdings.filters.options.oldest') },
+          { value: 'value-desc', label: t('holdings.filters.options.value_high_to_low') },
+          { value: 'value-asc', label: t('holdings.filters.options.value_low_to_high') },
+        ]}
+      />
     </div>
   )
 }

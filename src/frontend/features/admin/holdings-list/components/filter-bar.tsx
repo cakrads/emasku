@@ -3,7 +3,8 @@
 import { Stack, Section } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { Button } from '@/frontend/components/ui/button'
-import { Filter, ArrowUpDown, X } from 'lucide-react'
+import { AppSelect } from '@/frontend/components/ui/select'
+import { Filter, ArrowUpDown } from 'lucide-react'
 import { useLanguage } from '@/frontend/hooks/use-language'
 
 interface FilterBarProps {
@@ -39,16 +40,16 @@ export default function FilterBar({
           <Typography variant="body-sm" className="text-muted-foreground">
             {t('holdings.filters.status')}
           </Typography>
-          <select
+          <AppSelect
             value={status}
-            onChange={(e) => onStatusChange(e.target.value as 'active' | 'sold' | 'all')}
-            className="bg-surface border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-foreground"
-          >
-
-            <option value="active">{t('holdings.filters.options.active')}</option>
-            <option value="sold">{t('holdings.filters.options.sold')}</option>
-            <option value="all">{t('holdings.filters.options.all')}</option>
-          </select>
+            size="sm"
+            onValueChange={(val) => onStatusChange(val as 'active' | 'sold' | 'all')}
+            options={[
+              { value: 'active', label: t('holdings.filters.options.active') },
+              { value: 'sold', label: t('holdings.filters.options.sold') },
+              { value: 'all', label: t('holdings.filters.options.all') },
+            ]}
+          />
         </Stack>
 
         {/* Divider */}
@@ -59,28 +60,15 @@ export default function FilterBar({
           <Typography variant="body-sm" className="text-muted-foreground">
             {t('holdings.filters.brand')}
           </Typography>
-          <select
-            value={selectedBrand || ''}
-            onChange={(e) => onBrandChange(e.target.value || null)}
-            className="bg-surface border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-foreground"
-          >
-            <option value="">{t('holdings.filters.options.allBrands')}</option>
-            {brands.map((brand) => (
-              <option key={brand.code} value={brand.code}>
-                {brand.name}
-              </option>
-            ))}
-          </select>
-          {selectedBrand && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => onBrandChange(null)}
-              className="h-7 px-2"
-            >
-              <X className="w-3 h-3" />
-            </Button>
-          )}
+          <AppSelect
+            value={selectedBrand || '__all__'}
+            size="sm"
+            onValueChange={(val) => onBrandChange(val === '__all__' ? null : val)}
+            options={[
+              { value: '__all__', label: t('holdings.filters.options.allBrands') },
+              ...brands.map((b) => ({ value: b.code, label: b.name })),
+            ]}
+          />
         </Stack>
 
         {/* Divider */}
@@ -92,14 +80,15 @@ export default function FilterBar({
           <Typography variant="body-sm" className="text-muted-foreground">
             {t('holdings.filters.sort')}
           </Typography>
-          <select
+          <AppSelect
             value={sortBy}
-            onChange={(e) => onSortByChange(e.target.value as 'date' | 'value')}
-            className="bg-surface border border-border rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-foreground"
-          >
-            <option value="date">{t('holdings.filters.options.date')}</option>
-            <option value="value">{t('holdings.filters.options.value')}</option>
-          </select>
+            size="sm"
+            onValueChange={(val) => onSortByChange(val as 'date' | 'value')}
+            options={[
+              { value: 'date', label: t('holdings.filters.options.date') },
+              { value: 'value', label: t('holdings.filters.options.value') },
+            ]}
+          />
         </Stack>
 
         {/* Sort Order */}
