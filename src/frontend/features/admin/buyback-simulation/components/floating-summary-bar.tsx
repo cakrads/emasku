@@ -54,64 +54,54 @@ export function FloatingSummaryBar({ summary, onReset, onSell }: FloatingSummary
                 show ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
             )}
         >
-            <div className="bg-background/95 backdrop-blur-lg border border-border shadow-2xl rounded-2xl p-4 w-full max-w-3xl flex flex-col md:flex-row items-center justify-between gap-4 pointer-events-auto ring-1 ring-black/5 dark:ring-white/10">
+            <div className="bg-background/95 backdrop-blur-lg border border-border shadow-2xl rounded-2xl px-4 py-3 w-full max-w-3xl pointer-events-auto ring-1 ring-black/5 dark:ring-white/10 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
 
-                {/* Left: Summary Info */}
-                <Stack direction="horizontal" className="items-center gap-6 w-full md:w-auto justify-between md:justify-start">
-                    <Stack direction="horizontal" gap="sm" className="items-center">
-                        <div className="relative">
-                            <Stack className="bg-primary/10 p-2 rounded-full text-primary">
-                                <Wallet className="w-5 h-5" />
+                    {/* Info: icon + est. value + PnL (desktop) */}
+                    <Stack direction="horizontal" className="items-center justify-between md:justify-start gap-4 min-w-0">
+                        <Stack direction="horizontal" gap="sm" className="items-center min-w-0">
+                            <div className="relative shrink-0">
+                                <Stack className="bg-primary/10 p-2 rounded-full text-primary">
+                                    <Wallet className="w-4 h-4" />
+                                </Stack>
+                                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-2xs font-medium size-4 rounded-full flex items-center justify-center border border-background leading-none">
+                                    {summary.selectedCount}
+                                </span>
+                            </div>
+                            <Stack gap="none" className="min-w-0">
+                                <Typography as="div" variant="caption" className="text-2xs text-muted-foreground uppercase tracking-wider font-medium">
+                                    {t('buybackSimulation.headerSummary.totalBuyback')}
+                                </Typography>
+                                <Typography variant="h4" className="financial-value text-base font-bold truncate">
+                                    {formatIDR(summary.totalBuybackValue)}
+                                </Typography>
                             </Stack>
-                            <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-2xs font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center border-2 border-background">
-                                {summary.selectedCount}
-                            </span>
-                        </div>
-                        <Stack gap="xs">
-                            <Typography as="div" variant="caption" className="text-muted-foreground uppercase tracking-wider font-semibold">
-                                {t('buybackSimulation.headerSummary.totalBuyback')}
+                        </Stack>
+
+                        {/* PnL — desktop only */}
+                        <Stack className="hidden md:flex text-right shrink-0" gap="none">
+                            <Typography as="div" variant="caption" className="text-xs text-muted-foreground uppercase tracking-wider font-medium">
+                                {t('buybackSimulation.headerSummary.totalPnL')}
                             </Typography>
-                            <Typography variant="h4" className="financial-value text-lg">
-                                {formatIDR(summary.totalBuybackValue)}
-                            </Typography>
+                            <Stack direction="horizontal" className={cn("items-center justify-end gap-1", pnlColor)}>
+                                {summary.totalPnL > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                                <Typography as="span" variant="body-sm" className="font-semibold text-sm">
+                                    {summary.totalPnL > 0 ? '+' : ''}{formatIDR(summary.totalPnL)}
+                                </Typography>
+                            </Stack>
                         </Stack>
                     </Stack>
 
-                    {/* PnL Mini (Visible on mobile/desktop) */}
-                    <Stack className="text-right" gap="xs">
-                        <Typography as="div" variant="caption" className="text-muted-foreground uppercase tracking-wider font-semibold">
-                            {t('buybackSimulation.headerSummary.totalPnL')}
-                        </Typography>
-                        <Stack direction="horizontal" className={cn("items-center justify-end gap-1.5", pnlColor)}>
-                            {summary.totalPnL > 0 ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
-                            <Typography as="span" variant="body-sm" className="font-semibold">
-                                {summary.totalPnL > 0 ? '+' : ''}{formatIDR(summary.totalPnL)}
-                            </Typography>
-                        </Stack>
+                    {/* Buttons — full width on mobile, auto on desktop */}
+                    <Stack direction="horizontal" gap="sm" className="items-center">
+                        <Button variant="outline" size="sm" onClick={onReset} className="flex-1 md:flex-none rounded-xl">
+                            <X className="w-4 h-4 mr-1" />
+                            {t('common.cancel')}
+                        </Button>
+                        <Button variant="solid" size="sm" onClick={onSell} color="warning" className="flex-1 md:flex-none rounded-xl">
+                            {t('buybackSimulation.headerSummary.sellSelected')}
+                        </Button>
                     </Stack>
-                </Stack>
 
-                {/* Right: Actions */}
-                <Stack direction="horizontal" gap="sm" className="items-center w-full md:w-auto">
-                    <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={onReset}
-                        className="flex-1 md:flex-none rounded-xl"
-                    >
-                        <X className="w-4 h-4 mr-2" />
-                        {t('common.cancel')}
-                    </Button>
-                    <Button
-                        variant="solid"
-                        size="sm"
-                        onClick={onSell}
-                        color="warning"
-                        className="flex-1 md:flex-none rounded-xl"
-                    >
-                        {t('buybackSimulation.headerSummary.sellSelected')}
-                    </Button>
-                </Stack>
             </div>
         </div>
     )
