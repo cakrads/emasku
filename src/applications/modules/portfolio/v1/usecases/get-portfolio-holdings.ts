@@ -116,8 +116,8 @@ export class GetPortfolioHoldingsUsecase {
       pagination: {
         page: pagination.page,
         pageSize: pagination.pageSize,
-        totalItems: total,
-        totalPages: Math.ceil(total / pagination.pageSize),
+        totalItems: total ?? 0,
+        totalPages: Math.ceil((total ?? 0) / pagination.pageSize),
       }
     }
   }

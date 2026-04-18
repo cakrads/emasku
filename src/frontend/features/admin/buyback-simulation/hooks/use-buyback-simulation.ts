@@ -10,6 +10,7 @@ export interface SimulationSummary {
   totalCostBasis: number
   totalPnL: number
   pnlPercentage: number
+  remainingValue: number
 }
 
 export function useBuybackSimulation(availableItems: HoldingItemVM[] = []) {
@@ -131,20 +132,27 @@ export function useBuybackSimulation(availableItems: HoldingItemVM[] = []) {
   const summary = useMemo<SimulationSummary>(() => {
     let totalBuybackValue = new Decimal(0)
     let totalCostBasis = new Decimal(0)
+    let remainingValue = new Decimal(0)
 
     selectedItems.forEach(item => {
       const qtyToSell = quantityOverrides[item.id] ?? item.quantity
       if (qtyToSell <= 0) return
 
-      // Cost Basis (Unit Price * Qty)
       totalCostBasis = totalCostBasis.plus(new Decimal(item.rawAvgBuyPrice).mul(qtyToSell))
 
-      // Buyback Value
-      const priceKey = `${item.brand}:${item.rawWeight}`
-      const price = priceMap.get(priceKey)
+      const price = priceMap.get(`${item.brand}:${item.rawWeight}`)
+      if (price) totalBuybackValue = totalBuybackValue.plus(new Decimal(price).mul(qtyToSell))
+    })
 
-      if (price) {
-        totalBuybackValue = totalBuybackValue.plus(new Decimal(price).mul(qtyToSell))
+    availableItems.forEach(item => {
+      let remainingQty = item.quantity
+      if (selectedItems.has(item.id)) {
+        const qtyToSell = quantityOverrides[item.id] ?? item.quantity
+        remainingQty = Math.max(0, item.quantity - qtyToSell)
+      }
+      const price = priceMap.get(`${item.brand}:${item.rawWeight}`)
+      if (price && remainingQty > 0) {
+        remainingValue = remainingValue.plus(new Decimal(price).mul(remainingQty))
       }
     })
 
@@ -156,9 +164,10 @@ export function useBuybackSimulation(availableItems: HoldingItemVM[] = []) {
       totalBuybackValue: totalBuybackValue.toNumber(),
       totalCostBasis: totalCostBasis.toNumber(),
       totalPnL: totalPnL.toNumber(),
-      pnlPercentage
+      pnlPercentage,
+      remainingValue: remainingValue.toNumber()
     }
-  }, [selectedItems, quantityOverrides, priceMap])
+  }, [selectedItems, selectedIds, availableItems, quantityOverrides, priceMap])
 
   return {
     selectedIds,

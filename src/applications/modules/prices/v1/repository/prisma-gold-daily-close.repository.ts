@@ -117,13 +117,49 @@ export class PrismaGoldDailyCloseRepository implements IGoldDailyCloseRepository
       params.push(item.brandCode, item.denominationGram)
     }
 
-    return this.prisma.$queryRawUnsafe<GoldDailyClose[]>(`
-      SELECT DISTINCT ON ("brandCode", "denominationGram") *
+    type RawRow = {
+      id: string
+      brandCode: string
+      priceType: string
+      denomination_gram: string
+      price: bigint
+      currency: string
+      closeDate: Date
+      source: string
+      derivedFromPriceAt: Date
+      createdAt: Date
+    }
+
+    const rows = await this.prisma.$queryRawUnsafe<RawRow[]>(`
+      SELECT DISTINCT ON ("brandCode", "denominationGram")
+        id,
+        "brandCode",
+        "priceType",
+        "denominationGram" AS denomination_gram,
+        price,
+        currency,
+        "closeDate",
+        source,
+        "derivedFromPriceAt",
+        "createdAt"
       FROM "GoldDailyClose"
       WHERE "priceType" = 'BUYBACK'
         AND ("brandCode", "denominationGram") IN (${orValues})
       ORDER BY "brandCode", "denominationGram", "closeDate" DESC
     `, ...params)
+
+    return rows.map(row => ({
+      id: row.id,
+      brandCode: row.brandCode,
+      priceType: row.priceType as GoldDailyClose['priceType'],
+      denominationGram: new Decimal(row.denomination_gram),
+      price: row.price,
+      currency: row.currency,
+      closeDate: row.closeDate,
+      source: row.source,
+      derivedFromPriceAt: row.derivedFromPriceAt,
+      createdAt: row.createdAt,
+    }))
   }
   /**
    * Batch fetch Daily Closes for specific brand/type/gram/date keys.
