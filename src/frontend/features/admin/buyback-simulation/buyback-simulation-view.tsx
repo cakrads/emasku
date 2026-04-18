@@ -165,7 +165,10 @@ function BuybackSimulationContent() {
         </div>
 
         <div className="lg:col-span-1">
-          <Stack gap="md" className="sticky top-40">
+          <Stack gap="xs" className="sticky top-40">
+            <Typography as="h2" variant="h3" className="tracking-tight">
+              {t('buybackSimulation.breakdown.title')}
+            </Typography>
             <SimulationBreakdown
               selectedItems={selectedItems}
               quantityOverrides={quantityOverrides}

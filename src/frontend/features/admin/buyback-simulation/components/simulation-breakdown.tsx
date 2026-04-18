@@ -1,7 +1,7 @@
 import Decimal from 'decimal.js'
 import { HoldingItemVM } from '@/frontend/view-model/portfolio.vm'
 import { useLanguage } from '@/frontend/hooks/use-language'
-import { Card, CardHeader, CardTitle, CardContent } from '@/frontend/components/ui/card'
+import { Card, CardContent } from '@/frontend/components/ui/card'
 import { Stack } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { cn } from '@/frontend/utils/cn'
@@ -44,9 +44,6 @@ export function SimulationBreakdown({ selectedItems, quantityOverrides, priceMap
 
   return (
     <Card>
-      <CardHeader className="py-4 md:py-6">
-        <CardTitle className="text-base md:text-lg font-semibold">{t('buybackSimulation.breakdown.title')}</CardTitle>
-      </CardHeader>
       <CardContent className="p-0">
         <div className="overflow-x-auto">
           <table className="w-full text-sm whitespace-nowrap">
