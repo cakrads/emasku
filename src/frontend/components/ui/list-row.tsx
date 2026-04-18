@@ -7,7 +7,7 @@ import { Divider } from "@/frontend/components/ui/layout"
 export interface ListRowProps {
   leading?: React.ReactNode
   title: string
-  subtitle?: string
+  subtitle?: React.ReactNode
   trailing?: React.ReactNode
   trailingSubtitle?: React.ReactNode
   onClick?: () => void
