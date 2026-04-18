@@ -240,6 +240,8 @@ const en = {
     },
     valuationDisclaimer: 'Valuations based on latest available market prices',
     noHoldingsDisclaimer: 'No holdings in portfolio',
+    goalTarget: 'Target',
+    goalCollected: 'collected',
   },
   prices: {
     title: 'Today\'s Prices',

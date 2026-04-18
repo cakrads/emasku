@@ -1,9 +1,4 @@
-/**
- * Portfolio View Model
- * 
- * Transforms API contract data into UI-friendly shapes.
- */
-
+import Decimal from 'decimal.js'
 import { PortfolioSummary, HoldingItem, PortfolioList, HoldingDetail, BrandAllocation, PortfolioHistory } from '@/shared/contracts/portfolio.contract'
 
 /**
@@ -272,6 +267,60 @@ export function transformHoldingItem(api: HoldingItem, locale: string = 'id-ID')
  */
 export function transformPortfolioList(api: PortfolioList, locale: string = 'id-ID'): HoldingItemVM[] {
   return api.items.map(item => transformHoldingItem(item, locale))
+}
+
+export interface GroupedHoldingItemVM extends HoldingItemVM {
+  count: number
+}
+
+/**
+ * Group holdings by brand/weight/price/date for dashboard preview.
+ * Uses Decimal.js for all financial accumulation.
+ */
+export function groupHoldingsForPreview(apiItems: HoldingItem[], locale: string = 'id-ID'): GroupedHoldingItemVM[] {
+  const groupMap = new Map<string, { item: GroupedHoldingItemVM; rawBuyValue: Decimal; rawValue: Decimal | null; rawPnl: Decimal | null }>()
+  const groupOrder: string[] = []
+
+  apiItems.forEach((apiItem) => {
+    const vm = transformHoldingItem(apiItem, locale)
+    const key = `${vm.brand}|${vm.rawWeight}|${vm.rawAvgBuyPrice}|${apiItem.buyDate ?? vm.buyDate}`
+    const existing = groupMap.get(key)
+
+    if (existing) {
+      existing.item.count += 1
+      existing.rawBuyValue = existing.rawBuyValue.plus(apiItem.totalBuyValue ?? 0)
+      existing.rawValue = existing.rawValue !== null && apiItem.currentValue != null
+        ? existing.rawValue.plus(apiItem.currentValue)
+        : existing.rawValue
+      existing.rawPnl = existing.rawPnl !== null && apiItem.unrealizedPnL != null
+        ? existing.rawPnl.plus(apiItem.unrealizedPnL)
+        : existing.rawPnl
+
+      existing.item.totalBuyValue = formatIDR(existing.rawBuyValue.toNumber(), locale)
+      existing.item.totalValue = existing.rawValue !== null ? formatIDR(existing.rawValue.toNumber(), locale) : '-'
+      existing.item.pnl = existing.rawPnl !== null ? formatIDR(existing.rawPnl.abs().toNumber(), locale) : '-'
+
+      if (existing.rawBuyValue.gt(0) && existing.rawPnl !== null) {
+        const pct = existing.rawPnl.div(existing.rawBuyValue).times(100)
+        const sign = pct.gt(0) ? '+' : ''
+        existing.item.pnlPercentage = `${sign}${pct.toFixed(2)}%`
+      }
+
+      existing.item.pnlColor = existing.rawPnl !== null
+        ? getPnLColor(existing.rawPnl.toNumber())
+        : 'neutral'
+    } else {
+      groupMap.set(key, {
+        item: { ...vm, count: 1 },
+        rawBuyValue: new Decimal(apiItem.totalBuyValue ?? 0),
+        rawValue: apiItem.currentValue != null ? new Decimal(apiItem.currentValue) : null,
+        rawPnl: apiItem.unrealizedPnL != null ? new Decimal(apiItem.unrealizedPnL) : null,
+      })
+      groupOrder.push(key)
+    }
+  })
+
+  return groupOrder.map(k => groupMap.get(k)!.item)
 }
 
 /**

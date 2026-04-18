@@ -38,6 +38,17 @@ interface PortfolioHeroProps {
   yearlyColor?: 'positive' | 'negative' | 'neutral'
 }
 
+function ExcludedInfo({ count, label }: { count: number; label: string }) {
+  return (
+    <Stack direction="horizontal" gap="xs" className="items-center">
+      <Info className="w-3 h-3 shrink-0" aria-hidden="true" />
+      <Typography variant="caption">
+        {count} {label}
+      </Typography>
+    </Stack>
+  )
+}
+
 export default function PortfolioHero({
   totalValue,
   todayChange,
@@ -76,14 +87,6 @@ export default function PortfolioHero({
     return 'text-muted-foreground'
   }
 
-  const ExcludedInfoContent = (
-    <span className="flex items-center gap-1.5">
-      <Info className="w-3 h-3 shrink-0" aria-hidden="true" />
-      <Typography variant="caption">
-        {excludedCount} {t('dashboard.excludedHoldings')}
-      </Typography>
-    </span>
-  )
 
   return (
     <Stack gap="sm">
@@ -147,7 +150,7 @@ export default function PortfolioHero({
             <Tooltip>
               <TooltipTrigger asChild>
                 <button type="button" className="flex items-center gap-1.5 text-muted-foreground/60 cursor-pointer w-fit hover:text-muted-foreground transition-colors">
-                  {ExcludedInfoContent}
+                  <ExcludedInfo count={excludedCount!} label={t('dashboard.excludedHoldings')} />
                 </button>
               </TooltipTrigger>
               <TooltipContent className="max-w-xs" sideOffset={8}>
@@ -161,7 +164,7 @@ export default function PortfolioHero({
             <Popover>
               <PopoverTrigger asChild>
                 <button type="button" className="flex items-center gap-1.5 text-muted-foreground/60 cursor-pointer w-fit hover:text-muted-foreground transition-colors">
-                  {ExcludedInfoContent}
+                  <ExcludedInfo count={excludedCount!} label={t('dashboard.excludedHoldings')} />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-72 mx-4" sideOffset={8} collisionPadding={16}>

@@ -238,6 +238,8 @@ const id = {
     },
     valuationDisclaimer: 'Valuasi berdasarkan harga pasar terbaru yang tersedia',
     noHoldingsDisclaimer: 'Belum ada emas di portofolio',
+    goalTarget: 'Target',
+    goalCollected: 'terkumpul',
   },
   prices: {
     title: 'Harga Emas Hari Ini',
