@@ -19,7 +19,7 @@ export function DetailActions({ actions, className }: DetailActionsProps) {
   return (
     <footer className={cn(
       "fixed bottom-0 left-0 right-0 bg-background border-t border-border p-4",
-      "md:static md:border-0 md:bg-transparent md:pt-6 md:flex md:justify-end",
+      "md:static md:border-0 md:bg-transparent md:p-0 md:pt-6 md:flex md:justify-end",
       className
     )}>
       <div className={cn(
