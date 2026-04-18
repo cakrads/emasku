@@ -39,17 +39,22 @@ export async function fetchJson<T>(url: string, options?: RequestInit): Promise<
 
   try {
     const controller = new AbortController()
-    const timeoutId = setTimeout(() => controller.abort(), 5000)
+    const timeoutId = setTimeout(() => controller.abort(new Error('Request timeout')), 15000)
+
+    // Merge caller's signal with our timeout signal
+    const callerSignal = options?.signal
+    if (callerSignal) {
+      callerSignal.addEventListener('abort', () => controller.abort(callerSignal.reason))
+    }
 
     const response = await fetch(url, {
       ...options,
       headers,
-      signal: controller.signal as any, // Next.js fetch polyfill typing compat
+      signal: controller.signal as any,
     })
 
     clearTimeout(timeoutId)
 
-    // If response is not OK, try to parse error details
     if (!response.ok) {
       let errorMessage = `Request failed with status ${response.status}`
       let errorDetails = undefined
@@ -57,30 +62,28 @@ export async function fetchJson<T>(url: string, options?: RequestInit): Promise<
 
       try {
         const errorData = await response.json()
-
-        // Backend format: { code, success, message, details }
         if (errorData) {
           errorMessage = errorData.message || errorMessage
           errorDetails = errorData.details
           if (errorData.code) errorCode = errorData.code
         }
       } catch {
-        // Fallback to text if JSON parsing fails
-        // or keep default message
+        // keep default message
       }
 
       throw new ApiError(errorMessage, response.status, errorDetails, errorCode)
     }
 
-    // Success - parse data
-    // Backend format: { code, success, message, data, details }
     const json = await response.json()
     return json.data as T
   } catch (error) {
+    // Silently ignore aborts (navigation, unmount, TanStack Query cancellation)
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      throw error
+    }
     if (error instanceof ApiError) {
       throw error
     }
-    // Network errors or other issues
     throw new ApiError(
       error instanceof Error ? error.message : 'Network error',
       0

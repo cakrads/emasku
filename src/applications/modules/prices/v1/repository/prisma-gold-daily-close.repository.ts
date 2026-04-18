@@ -111,26 +111,19 @@ export class PrismaGoldDailyCloseRepository implements IGoldDailyCloseRepository
   ): Promise<GoldDailyClose[]> {
     if (items.length === 0) return []
 
-    // Build OR clause for items
-    const orConditions = items.map(item => ({
-      brandCode: item.brandCode,
-      denominationGram: new Decimal(item.denominationGram)
-    }))
+    const orValues = items.map((_, i) => `($${i * 2 + 1}::text, $${i * 2 + 2}::numeric)`).join(', ')
+    const params: unknown[] = []
+    for (const item of items) {
+      params.push(item.brandCode, item.denominationGram)
+    }
 
-    return this.prisma.goldDailyClose.findMany({
-      where: {
-        priceType: 'BUYBACK',
-        OR: orConditions,
-        // Optional: limit to recent history to optimize (e.g. last 30 days) if needed
-        // but for now, trusting the index.
-      },
-      distinct: ['brandCode', 'denominationGram'],
-      orderBy: [
-        { brandCode: 'asc' },
-        { denominationGram: 'asc' },
-        { closeDate: 'desc' }
-      ]
-    })
+    return this.prisma.$queryRawUnsafe<GoldDailyClose[]>(`
+      SELECT DISTINCT ON ("brandCode", "denominationGram") *
+      FROM "GoldDailyClose"
+      WHERE "priceType" = 'BUYBACK'
+        AND ("brandCode", "denominationGram") IN (${orValues})
+      ORDER BY "brandCode", "denominationGram", "closeDate" DESC
+    `, ...params)
   }
   /**
    * Batch fetch Daily Closes for specific brand/type/gram/date keys.

@@ -72,10 +72,11 @@ export class PrismaPortfolioRepository implements IPortfolioRepository {
       where.goalId = filter.goalId
     }
 
-    // Get total count for pagination
-    const total = await this.prisma.portfolioHolding.count({ where })
+    // Only COUNT when pagination is requested — summary calls skip this
+    const total = pagination
+      ? await this.prisma.portfolioHolding.count({ where })
+      : 0
 
-    // Apply pagination
     const skip = pagination ? (pagination.page - 1) * pagination.pageSize : undefined
     const take = pagination?.pageSize
 
