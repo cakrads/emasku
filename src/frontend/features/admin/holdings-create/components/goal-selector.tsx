@@ -7,7 +7,8 @@ import { Label } from '@/frontend/components/ui/label'
 import { Stack } from '@/frontend/components/ui/layout'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { Button } from '@/frontend/components/ui/button'
-import { Target, Check, ChevronDown, Plus } from 'lucide-react'
+import { AppSelect } from '@/frontend/components/ui/select'
+import { Plus } from 'lucide-react'
 import { cn } from '@/frontend/utils/cn'
 import { GoalCreateDialog } from '../../goals-create/components/goal-create-dialog'
 
@@ -41,27 +42,19 @@ export function GoalSelector({ selectedGoalId, onSelect, label, className }: Goa
             </Label>
 
             <Stack direction="horizontal" gap="sm">
-                <Stack className="relative flex-1">
-                    <select
-                        value={selectedGoalId || ''}
-                        onChange={(e) => onSelect(e.target.value || null)}
-                        className={cn(
-                            "w-full appearance-none rounded-xl bg-surface-elevated border border-border p-4 pr-10 text-foreground text-lg font-semibold h-14 transition-colors focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary",
-                            isLoading && "opacity-50 cursor-wait"
-                        )}
-                        disabled={isLoading}
-                    >
-                        <option value="">{t('common.none')}</option>
-                        {goals.map((goal) => (
-                            <option key={goal.id} value={goal.id}>
-                                {goal.name}
-                            </option>
-                        ))}
-                    </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-muted-foreground">
-                        <ChevronDown className="h-5 w-5" />
-                    </div>
-                </Stack>
+                <AppSelect
+                    value={selectedGoalId || ''}
+                    shape="xl"
+                    onValueChange={(val) => onSelect(val || null)}
+                    options={goals.map((g) => ({ value: g.id, label: g.name }))}
+                    placeholder={t('common.none')}
+                    fullWidth
+                    disabled={isLoading}
+                    className={cn(
+                        "h-14 data-[size=default]:h-14 text-lg font-semibold",
+                        isLoading && "opacity-50 cursor-wait"
+                    )}
+                />
 
                 <Button
                     type="button"

@@ -179,7 +179,7 @@ export function GoalCreateForm({ onSuccess, onCancel, mode = 'dialog' }: GoalCre
 
     if (isPage) {
         return (
-            <div className="max-w-lg mx-auto pb-44">
+            <div className="w-full max-w-lg mx-auto pb-44 sm:min-w-[500px]">
                 <Section className="px-0">
                     {content}
                 </Section>
