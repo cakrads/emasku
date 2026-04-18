@@ -14,7 +14,7 @@ export interface IPortfolioRepository {
       goalId?: string
     },
     pagination?: { page: number; pageSize: number }
-  ): Promise<{ items: PortfolioHoldingDomain[]; total: number }>;
+  ): Promise<{ items: PortfolioHoldingDomain[]; total: number | undefined }>;
   findById(id: string): Promise<PortfolioHoldingDomain | null>;
   create(userId: string, data: {
     brandCode: string

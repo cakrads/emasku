@@ -37,7 +37,7 @@ export class PrismaPortfolioRepository implements IPortfolioRepository {
       goalId?: string
     },
     pagination?: { page: number; pageSize: number }
-  ): Promise<{ items: PortfolioHoldingDomain[]; total: number }> {
+  ): Promise<{ items: PortfolioHoldingDomain[]; total: number | undefined }> {
     const startTime = Date.now()
 
     const where: Prisma.PortfolioHoldingWhereInput = { userId }
@@ -75,7 +75,7 @@ export class PrismaPortfolioRepository implements IPortfolioRepository {
     // Only COUNT when pagination is requested — summary calls skip this
     const total = pagination
       ? await this.prisma.portfolioHolding.count({ where })
-      : 0
+      : undefined
 
     const skip = pagination ? (pagination.page - 1) * pagination.pageSize : undefined
     const take = pagination?.pageSize

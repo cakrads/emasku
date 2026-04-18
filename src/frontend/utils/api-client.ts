@@ -43,8 +43,10 @@ export async function fetchJson<T>(url: string, options?: RequestInit): Promise<
 
     // Merge caller's signal with our timeout signal
     const callerSignal = options?.signal
+    let callerAbortHandler: (() => void) | undefined
     if (callerSignal) {
-      callerSignal.addEventListener('abort', () => controller.abort(callerSignal.reason))
+      callerAbortHandler = () => controller.abort(callerSignal.reason)
+      callerSignal.addEventListener('abort', callerAbortHandler)
     }
 
     const response = await fetch(url, {
@@ -54,6 +56,9 @@ export async function fetchJson<T>(url: string, options?: RequestInit): Promise<
     })
 
     clearTimeout(timeoutId)
+    if (callerAbortHandler && callerSignal) {
+      callerSignal.removeEventListener('abort', callerAbortHandler)
+    }
 
     if (!response.ok) {
       let errorMessage = `Request failed with status ${response.status}`
@@ -77,7 +82,7 @@ export async function fetchJson<T>(url: string, options?: RequestInit): Promise<
     const json = await response.json()
     return json.data as T
   } catch (error) {
-    // Silently ignore aborts (navigation, unmount, TanStack Query cancellation)
+    // Re-throw aborts so TanStack Query handles cancellation cleanly
     if (error instanceof DOMException && error.name === 'AbortError') {
       throw error
     }
