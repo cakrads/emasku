@@ -51,7 +51,6 @@
     "nextjs-toploader": "^3.9.17",
     "pg": "^8.16.3",
     "postcss": "^8.5.6",
-    "radix-ui": "^1.4.3",
     "react": "^19.2.3",
     "react-day-picker": "^9.13.0",
     "react-dom": "^19.2.3",
