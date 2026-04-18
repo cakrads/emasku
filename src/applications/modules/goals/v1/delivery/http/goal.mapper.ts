@@ -15,11 +15,11 @@ export function toGoalResponse(goal: GoalDomain) {
         id: goal.id,
         name: goal.name,
         description: goal.description,
-        targetAmount: goal.targetAmount,
+        targetAmount: goal.targetAmount != null ? Number(goal.targetAmount) : null,
         targetDate: goal.targetDate ? goal.targetDate.toISOString().split('T')[0] : null,
         lifecycleStatus: goal.lifecycleStatus,
         completedAt: goal.completedAt ? goal.completedAt.toISOString() : null,
-        completedValue: goal.completedValue,
+        completedValue: goal.completedValue != null ? Number(goal.completedValue) : null,
         createdAt: goal.createdAt.toISOString(),
         updatedAt: goal.updatedAt.toISOString(),
     }

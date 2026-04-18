@@ -120,56 +120,56 @@ export class PrismaPriceRepository implements IPriceRepository {
     const results: Record<string, PriceResult> = {}
     if (keys.length === 0) return results
 
-    // Map normalized "brandCode:denominationGram" to original keys to handle minor formatting differences
     const keyMapping: Record<string, string[]> = {}
     const parsedConditions: Array<{ brandCode: string; denominationGram: number }> = []
 
     for (const key of keys) {
       const parts = key.split(':')
       if (parts.length !== 2) continue
-
       const [brandCode, denomStr] = parts
       const denominationGram = parseFloat(denomStr)
-
       if (!brandCode || isNaN(denominationGram)) continue
-
-      const normalizedBrand = brandCode.trim()
-      // Use a consistent normalized string for internal mapping
-      const normalizedKey = `${normalizedBrand}:${denominationGram}`
-
+      const normalizedKey = `${brandCode.trim()}:${denominationGram}`
       if (!keyMapping[normalizedKey]) {
         keyMapping[normalizedKey] = []
-        parsedConditions.push({ brandCode: normalizedBrand, denominationGram })
+        parsedConditions.push({ brandCode: brandCode.trim(), denominationGram })
       }
       keyMapping[normalizedKey].push(key)
     }
 
     if (parsedConditions.length === 0) return results
 
-    // Batch fetch latest prices using distinct on brand + denomination
-    // Order by priceAt desc ensures the distinct pick is the latest record
-    const priceRecords = await this.prisma.goldPrice.findMany({
-      where: {
-        priceType,
-        OR: parsedConditions
-      },
-      orderBy: [
-        { brandCode: 'asc' },
-        { denominationGram: 'asc' },
-        { priceAt: 'desc' }
-      ],
-      distinct: ['brandCode', 'denominationGram']
-    })
+    // Use DISTINCT ON for O(log N) index scan instead of Prisma distinct (full table scan)
+    const priceTypeStr = priceType as string
+    const orValues = parsedConditions
+      .map((_, i) => `($${i * 2 + 2}::text, $${i * 2 + 3}::numeric)`)
+      .join(', ')
+    const params: unknown[] = [priceTypeStr]
+    for (const c of parsedConditions) {
+      params.push(c.brandCode, c.denominationGram)
+    }
+
+    type RawRow = { brand_code: string; denomination_gram: string; price: bigint; price_at: Date }
+    const priceRecords = await this.prisma.$queryRawUnsafe<RawRow[]>(`
+      SELECT DISTINCT ON ("brandCode", "denominationGram")
+        "brandCode" AS brand_code,
+        "denominationGram" AS denomination_gram,
+        price,
+        "priceAt" AS price_at
+      FROM "GoldPrice"
+      WHERE "priceType" = $1
+        AND ("brandCode", "denominationGram") IN (${orValues})
+      ORDER BY "brandCode", "denominationGram", "priceAt" DESC
+    `, ...params)
 
     for (const record of priceRecords) {
-      const normalizedKey = `${record.brandCode}:${Number(record.denominationGram)}`
+      const normalizedKey = `${record.brand_code}:${Number(record.denomination_gram)}`
       const originalKeys = keyMapping[normalizedKey]
-
       if (originalKeys) {
         for (const originalKey of originalKeys) {
           results[originalKey] = {
             price: Number(record.price),
-            priceAt: record.priceAt
+            priceAt: record.price_at
           }
         }
       }

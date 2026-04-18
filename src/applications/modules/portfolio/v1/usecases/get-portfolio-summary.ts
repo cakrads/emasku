@@ -220,11 +220,13 @@ export class GetPortfolioSummaryUsecase {
   }
 
   private logDates(dates: PeriodicDates) {
-    console.log('Hari ini (T+0):', dates.today.str);
-    console.log('Kemarin (T-1):', dates.yesterday.str);
-    console.log('7 hari lalu (T-7):', dates.weekAgo.str);
-    console.log('30 hari lalu (T-30):', dates.monthAgo.str);
-    console.log('365 hari lalu (T-365):', dates.yearAgo.str);
+    logger.debug('Periodic dates', {
+      today: dates.today.str,
+      yesterday: dates.yesterday.str,
+      weekAgo: dates.weekAgo.str,
+      monthAgo: dates.monthAgo.str,
+      yearAgo: dates.yearAgo.str,
+    })
   }
 
   private processPeriodicPnLForHoldingSync(
