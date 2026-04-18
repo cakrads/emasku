@@ -1,7 +1,6 @@
 @import "tailwindcss";
 
 @source not "../../.project";
-@source not "../../emasku 11-04-33-246";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
@@ -130,10 +129,8 @@
   --color-gold-deep: var(--accent-gold-light);
 
   /* Custom font size: 10px for detail/badge text */
-  --font-size-2xs: 0.625rem;
-  --font-size-2xs--line-height: 0.875rem;
   --text-2xs: 0.625rem;
-  --text-2xs--line-height: calc(0.75 / 0.625);
+  --text-2xs--line-height: 0.875rem;
 
   /* Shadows & Glows */
   --shadow-soft: 0 4px 24px -4px hsl(0 0% 0% / 0.3);
