@@ -38,10 +38,14 @@ function PricesTodayContent() {
 
   const DeltaIndicator = ({ delta, deltaPercentage }: { delta: number, deltaPercentage: number | null }) => (
     <Stack direction="horizontal" gap="xs" className="items-center cursor-help w-fit">
-      <span className={delta > 0 ? "text-2xs text-positive font-semibold" : delta < 0 ? "text-2xs text-negative font-semibold" : "text-2xs text-muted-foreground/60 font-semibold"}>
+      <Typography
+        as="span"
+        variant="caption"
+        className={delta > 0 ? 'text-positive font-semibold' : delta < 0 ? 'text-negative font-semibold' : 'text-muted-foreground/60 font-semibold'}
+      >
         {delta > 0 ? '↑' : delta < 0 ? '↓' : '→'} Rp {Math.abs(delta).toLocaleString(language === 'id' ? 'id-ID' : 'en-US')}
         {deltaPercentage !== null && ` (${deltaPercentage > 0 ? '+' : ''}${deltaPercentage.toFixed(2)}%)`}
-      </span>
+      </Typography>
       <Info className="w-3 h-3 text-muted-foreground/40" />
     </Stack>
   )
@@ -101,7 +105,7 @@ function PricesTodayContent() {
                       <Stack className="flex md:hidden">
                         <Popover>
                           <PopoverTrigger asChild>
-                            <button className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:rounded-sm">
+                            <button type="button" className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:rounded-sm">
                               <DeltaIndicator delta={price1g.sellDelta} deltaPercentage={price1g.sellDeltaPercentage} />
                             </button>
                           </PopoverTrigger>
@@ -143,7 +147,7 @@ function PricesTodayContent() {
                       <Stack className="flex md:hidden">
                         <Popover>
                           <PopoverTrigger asChild>
-                            <button className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:rounded-sm">
+                            <button type="button" className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:rounded-sm">
                               <DeltaIndicator delta={price1g.buybackDelta} deltaPercentage={price1g.buybackDeltaPercentage} />
                             </button>
                           </PopoverTrigger>

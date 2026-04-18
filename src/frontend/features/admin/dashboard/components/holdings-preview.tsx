@@ -11,18 +11,11 @@ import { ListRow } from '@/frontend/components/ui/list-row'
 import { Button } from '@/frontend/components/ui/button'
 import { Plus, Coins, AlertCircle } from 'lucide-react'
 import { fetchPortfolioList } from '@/frontend/services/portfolio/portfolio.api'
-import { transformHoldingItem, HoldingItemVM } from '@/frontend/view-model/portfolio.vm'
+import { groupHoldingsForPreview, GroupedHoldingItemVM } from '@/frontend/view-model/portfolio.vm'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { ROUTES } from '@/frontend/config/routes'
 import { cn } from '@/frontend/utils/cn'
 import { usePortfolioPrivacy } from '@/frontend/hooks/use-portfolio-privacy'
-
-interface GroupedHoldingItem extends HoldingItemVM {
-  count: number
-  _rawTotalBuyValue: number
-  _rawTotalValue: number | null
-  _rawPnl: number | null
-}
 
 export default function HoldingsPreview() {
   const { t, language } = useLanguage()
@@ -38,52 +31,9 @@ export default function HoldingsPreview() {
     staleTime: 60_000,
   })
 
-  const fmtCurrency = (v: number) =>
-    new Intl.NumberFormat(locale, { style: 'currency', currency: 'IDR', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(v)
-
-  const rawHoldings: HoldingItemVM[] = data?.items
-    ? data.items.map(item => transformHoldingItem(item, locale))
+  const groupedHoldings: GroupedHoldingItemVM[] = data?.items
+    ? groupHoldingsForPreview(data.items, locale)
     : []
-
-  const apiItems = data?.items ?? []
-  const groupMap = new Map<string, GroupedHoldingItem>()
-  const groupOrder: string[] = []
-  rawHoldings.forEach((item, idx) => {
-    const apiItem = apiItems[idx]
-    const key = `${item.brand}|${item.rawWeight}|${item.rawAvgBuyPrice}|${apiItem?.buyDate ?? item.buyDate}`
-    const existing = groupMap.get(key)
-    if (existing) {
-      existing.count += 1
-      existing._rawTotalBuyValue += apiItem?.totalBuyValue ?? 0
-      existing._rawTotalValue = existing._rawTotalValue !== null && apiItem?.currentValue != null
-        ? existing._rawTotalValue + apiItem.currentValue
-        : existing._rawTotalValue
-      existing._rawPnl = existing._rawPnl !== null && apiItem?.unrealizedPnL != null
-        ? existing._rawPnl + apiItem.unrealizedPnL
-        : existing._rawPnl
-      existing.totalBuyValue = fmtCurrency(existing._rawTotalBuyValue)
-      existing.totalValue = existing._rawTotalValue != null ? fmtCurrency(existing._rawTotalValue) : '-'
-      existing.pnl = existing._rawPnl != null ? fmtCurrency(Math.abs(existing._rawPnl)) : '-'
-      const pnlPct = existing._rawTotalBuyValue > 0 && existing._rawPnl != null
-        ? (existing._rawPnl / existing._rawTotalBuyValue) * 100
-        : null
-      const sign = pnlPct != null && pnlPct > 0 ? '+' : ''
-      existing.pnlPercentage = pnlPct != null ? `${sign}${pnlPct.toFixed(2)}%` : existing.pnlPercentage
-      existing.pnlColor = existing._rawPnl != null
-        ? (existing._rawPnl > 0 ? 'positive' : existing._rawPnl < 0 ? 'negative' : 'neutral')
-        : 'neutral'
-    } else {
-      groupMap.set(key, {
-        ...item,
-        count: 1,
-        _rawTotalBuyValue: apiItem?.totalBuyValue ?? 0,
-        _rawTotalValue: apiItem?.currentValue ?? null,
-        _rawPnl: apiItem?.unrealizedPnL ?? null,
-      })
-      groupOrder.push(key)
-    }
-  })
-  const groupedHoldings = groupOrder.map(k => groupMap.get(k)!)
 
   if (isLoading) {
     return <HoldingsPreviewSkeleton />
@@ -165,11 +115,11 @@ export default function HoldingsPreview() {
             <ListRow
               key={`${holding.id}-${index}`}
               leading={
-                <div className="w-8 h-8 rounded-full bg-accent-gold/15 flex items-center justify-center">
+                <Stack className="w-8 h-8 rounded-full bg-accent-gold/15 items-center justify-center shrink-0">
                   <Typography variant="caption" className="font-bold text-accent-gold uppercase text-xs">
                     {holding.brandName.charAt(0)}
                   </Typography>
-                </div>
+                </Stack>
               }
               title={label}
               subtitle={subtitle}
@@ -247,9 +197,9 @@ function HoldingsPreviewEmpty() {
     <Stack gap="md">
       <SectionHeader title={t('dashboard.recentHoldings')} />
       <Stack gap="md" className="rounded-xl border border-dashed border-border bg-surface/50 p-6 items-center justify-center text-center">
-        <div className="w-10 h-10 rounded-full bg-muted/50 flex items-center justify-center">
+        <Stack className="w-10 h-10 rounded-full bg-muted/50 items-center justify-center">
           <Coins className="w-5 h-5 text-muted-foreground" />
-        </div>
+        </Stack>
         <Stack gap="xs" className="items-center">
           <Typography variant="body-sm" className="text-muted-foreground">
             {t('dashboard.noHoldingsYet')}
@@ -278,7 +228,7 @@ function HoldingsPreviewSkeleton() {
       </Stack>
       <Stack gap="none">
         {[1, 2, 3].map((i) => (
-          <Stack key={i} direction="horizontal" gap="sm" className={`py-3 items-center ${i < 3 ? 'border-b border-border' : ''}`}>
+          <Stack key={i} direction="horizontal" gap="sm" className={cn('py-3 items-center', i < 3 && 'border-b border-border')}>
             <Skeleton className="h-8 w-8 rounded-full shrink-0" />
             <Stack gap="xs" className="flex-1">
               <Skeleton className="h-4 w-32" />
