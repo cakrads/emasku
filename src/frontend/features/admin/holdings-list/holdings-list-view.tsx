@@ -15,7 +15,7 @@ import { HoldingsListSkeleton } from './components/holdings-list-skeleton'
 import HoldingsListEmpty from './components/holdings-list-empty'
 import { ErrorBoundary } from '@/frontend/components/fragments/admin/error-boundary'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
-import { Plus, Calculator, LayoutGrid, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Plus, Calculator, LayoutGrid, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react'
 import Link from 'next/link'
 import { ROUTES } from '@/frontend/config/routes'
 import { fetchBrands } from '@/frontend/services/brands/brands.api'
@@ -27,10 +27,10 @@ import { PrivacyToggle } from '@/frontend/components/ui/privacy-toggle'
 import { usePortfolioPrivacy } from '@/frontend/hooks/use-portfolio-privacy'
 import { cn } from '@/frontend/utils/cn'
 import dynamic from 'next/dynamic'
-import PortfolioSummarySection from './components/portfolio-summary-section'
-import { HoldingsFilterRow } from './components/holdings-filter-row'
+import PortfolioSummarySection from './components/portfolio-summary-section-cards'
 
 const BrandSummaryModal = dynamic(() => import('./components/brand-summary-modal'), { ssr: false })
+const FilterModal = dynamic(() => import('./components/filter-modal'), { ssr: false })
 
 function BrandCircle({ name }: { name: string }) {
   const raw = name.split(' ').filter(Boolean).map(w => w.charAt(0)).join('').slice(0, 2).toUpperCase()
@@ -82,6 +82,7 @@ function HoldingsListContent() {
   const { brand: brandFilter, status: statusFilter, goalId, sortBy, sortOrder, pageIndex, pageSize } = filters
 
   const [isBrandSummaryOpen, setIsBrandSummaryOpen] = useState(false)
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false)
 
   const apiFilter = {
     status: statusFilter,
@@ -90,22 +91,25 @@ function HoldingsListContent() {
   }
 
   const { data: filteredData, isLoading: isLoadingFiltered, error } = useQuery({
-    queryKey: ['portfolio', 'list', statusFilter, brandFilter, goalId, sortBy, sortOrder, pageIndex, pageSize],
+    queryKey: ['portfolio', 'list', statusFilter, brandFilter, goalId, pageIndex, pageSize],
     queryFn: () => fetchPortfolioList(apiFilter, { page: pageIndex + 1, pageSize }),
+    staleTime: 30_000,
   })
 
   const { data: allData, isLoading: isLoadingAll } = useQuery({
     queryKey: ['portfolio', 'list', 'all-count'],
     queryFn: () => fetchPortfolioList({ status: 'all' }),
+    staleTime: 30_000,
   })
 
   const { data: summaryData, isLoading: isLoadingSummary } = useQuery({
     queryKey: ['portfolio', 'summary', statusFilter, brandFilter, goalId],
     queryFn: () => fetchPortfolioSummary(apiFilter),
+    staleTime: 30_000,
   })
 
-  const { data: brandsData } = useQuery({ queryKey: ['brands'], queryFn: fetchBrands })
-  const { data: goalsData } = useQuery({ queryKey: ['goals'], queryFn: fetchGoals })
+  const { data: brandsData } = useQuery({ queryKey: ['brands'], queryFn: fetchBrands, staleTime: 5 * 60_000 })
+  const { data: goalsData } = useQuery({ queryKey: ['goals'], queryFn: fetchGoals, staleTime: 5 * 60_000 })
 
   const allHoldings = filteredData?.items ?? []
   const sortedHoldings = useSortedHoldings(allHoldings, sortBy, sortOrder)
@@ -124,6 +128,15 @@ function HoldingsListContent() {
     () => brandFilter !== null || statusFilter !== 'active' || goalId !== null || sortBy !== 'date' || sortOrder !== 'desc',
     [brandFilter, statusFilter, goalId, sortBy, sortOrder]
   )
+
+  const activeFilterCount = useMemo(() => {
+    let count = 0
+    if (brandFilter !== null) count++
+    if (statusFilter !== 'active') count++
+    if (goalId !== null) count++
+    if (sortBy !== 'date' || sortOrder !== 'desc') count++
+    return count
+  }, [brandFilter, statusFilter, goalId, sortBy, sortOrder])
 
   if (isLoadingFiltered || isLoadingAll) return <HoldingsListSkeleton />
 
@@ -165,14 +178,26 @@ function HoldingsListContent() {
       <div className="flex items-center gap-2 overflow-x-auto pb-1">
         <PrivacyToggle className="h-9 w-9 border border-border/50 shrink-0" iconClassName="h-4 w-4" />
 
-        {/* Add Holding – mobile only (desktop has it in page header) */}
-        <ActionChip
-          variant="primary"
-          label={t('holdings.addHolding')}
-          icon={<Plus className="w-4 h-4" />}
-          href={ROUTES.ADD_HOLDING}
-          className="md:hidden shrink-0"
-        />
+        {/* Filter button */}
+        <button
+          type="button"
+          onClick={() => setIsFilterModalOpen(true)}
+          className={cn(
+            'relative inline-flex items-center gap-2 h-9 px-4 rounded-full text-sm font-medium transition-colors shrink-0 cursor-pointer',
+            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
+            activeFilterCount > 0
+              ? 'bg-foreground text-background'
+              : 'border border-border text-foreground bg-background hover:bg-surface'
+          )}
+        >
+          <SlidersHorizontal className="w-4 h-4" />
+          <span>{t('holdings.filters.title')}</span>
+          {activeFilterCount > 0 && (
+            <span className="size-4 rounded-full bg-background text-foreground flex items-center justify-center text-2xs font-semibold leading-none">
+              {activeFilterCount}
+            </span>
+          )}
+        </button>
 
         <ActionChip
           variant="outline"
@@ -192,18 +217,6 @@ function HoldingsListContent() {
           />
         )}
       </div>
-
-      {/* Inline Filter Row */}
-      <HoldingsFilterRow
-        statusFilter={statusFilter}
-        brandFilter={brandFilter}
-        sortBy={sortBy}
-        sortOrder={sortOrder}
-        goalId={goalId}
-        brands={brandsData?.items || []}
-        goals={goalsData?.goals || []}
-        onChange={handleFilterChange}
-      />
 
       {/* Portfolio Summary */}
       <PortfolioSummarySection
@@ -232,24 +245,36 @@ function HoldingsListContent() {
                   trailing={
                     <Typography
                       variant="body"
-                      className={cn('font-semibold', holding.isSold && 'text-muted-foreground')}
+                      className={cn('font-semibold truncate max-w-32', holding.isSold && 'text-muted-foreground')}
                     >
                       {isVisible ? holding.totalValue : '••••••••'}
                     </Typography>
                   }
                   trailingSubtitle={
-                    <Typography
-                      variant="caption"
-                      className={cn(
-                        holding.pnlColor === 'positive'
-                          ? 'text-positive'
-                          : holding.pnlColor === 'negative'
-                          ? 'text-negative'
-                          : 'text-muted-foreground'
-                      )}
-                    >
-                      {isVisible ? `${holding.pnl} (${holding.pnlPercentage})` : '•••%'}
-                    </Typography>
+                    <Stack gap="none" className="items-end">
+                      <Typography
+                        variant="caption"
+                        className={cn(
+                          'font-medium truncate max-w-32',
+                          holding.pnlColor === 'positive' ? 'text-positive'
+                            : holding.pnlColor === 'negative' ? 'text-negative'
+                            : 'text-muted-foreground'
+                        )}
+                      >
+                        {isVisible ? holding.pnl : '••••••'}
+                      </Typography>
+                      <Typography
+                        variant="caption"
+                        className={cn(
+                          'font-medium opacity-80',
+                          holding.pnlColor === 'positive' ? 'text-positive'
+                            : holding.pnlColor === 'negative' ? 'text-negative'
+                            : 'text-muted-foreground'
+                        )}
+                      >
+                        {isVisible ? `(${holding.pnlPercentage})` : '•••%'}
+                      </Typography>
+                    </Stack>
                   }
                   onClick={() => router.push(ROUTES.HOLDING_DETAIL(holding.id))}
                   showDivider={index < viewModels.length - 1}
@@ -315,6 +340,26 @@ function HoldingsListContent() {
         open={isBrandSummaryOpen}
         onOpenChange={setIsBrandSummaryOpen}
         brands={summaryViewModel?.brandAllocation || []}
+      />
+
+      {/* Filter Modal */}
+      <FilterModal
+        open={isFilterModalOpen}
+        onOpenChange={setIsFilterModalOpen}
+        brands={brandsData?.items || []}
+        goals={goalsData?.goals || []}
+        brandFilter={brandFilter}
+        statusFilter={statusFilter}
+        goalIdFilter={goalId}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onApply={(f) => handleFilterChange({
+          status: f.status,
+          brand: f.brand,
+          goalId: f.goalId,
+          sortBy: f.sortBy,
+          sortOrder: f.sortOrder,
+        })}
       />
     </Stack>
   )

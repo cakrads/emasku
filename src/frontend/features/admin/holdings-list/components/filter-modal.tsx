@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { ResponsiveModal } from '@/frontend/components/ui/responsive-modal'
 import { Button } from '@/frontend/components/ui/button'
+import { AppSelect } from '@/frontend/components/ui/select'
 import { Stack } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { useLanguage } from '@/frontend/hooks/use-language'
@@ -119,18 +120,15 @@ export default function FilterModal({
           <Typography variant="body-sm" className="font-medium">
             {t('holdings.filters.brand')}
           </Typography>
-          <select
-            value={localBrand || ''}
-            onChange={(e) => setLocalBrand(e.target.value || null)}
-            className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-foreground"
-          >
-            <option value="">{t('holdings.filters.options.allBrands')}</option>
-            {brands.map((brand) => (
-              <option key={brand.code} value={brand.code}>
-                {brand.name}
-              </option>
-            ))}
-          </select>
+          <AppSelect
+            value={localBrand || '__all__'}
+            onValueChange={(val) => setLocalBrand(val === '__all__' ? null : val)}
+            options={[
+              { value: '__all__', label: t('holdings.filters.options.allBrands') },
+              ...brands.map((b) => ({ value: b.code, label: b.name })),
+            ]}
+            fullWidth
+          />
         </Stack>
 
         {/* Goal Filter */}
@@ -138,18 +136,15 @@ export default function FilterModal({
           <Typography variant="body-sm" className="font-medium">
             {t('holdings.filters.goal')}
           </Typography>
-          <select
-            value={localGoalId || ''}
-            onChange={(e) => setLocalGoalId(e.target.value || null)}
-            className="w-full bg-surface border border-border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-foreground"
-          >
-            <option value="">{t('holdings.filters.options.all') || 'All'}</option>
-            {goals.map((goal) => (
-              <option key={goal.id} value={goal.id}>
-                {goal.name}
-              </option>
-            ))}
-          </select>
+          <AppSelect
+            value={localGoalId || '__all__'}
+            onValueChange={(val) => setLocalGoalId(val === '__all__' ? null : val)}
+            options={[
+              { value: '__all__', label: t('holdings.filters.options.all') },
+              ...goals.map((g) => ({ value: g.id, label: g.name })),
+            ]}
+            fullWidth
+          />
         </Stack>
 
         {/* Sort By */}
