@@ -179,25 +179,18 @@ function HoldingsListContent() {
         <PrivacyToggle className="h-9 w-9 border border-border/50 shrink-0" iconClassName="h-4 w-4" />
 
         {/* Filter button */}
-        <button
-          type="button"
-          onClick={() => setIsFilterModalOpen(true)}
-          className={cn(
-            'relative inline-flex items-center gap-2 h-9 px-4 rounded-full text-sm font-medium transition-colors shrink-0 cursor-pointer',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-            activeFilterCount > 0
-              ? 'bg-foreground text-background'
-              : 'border border-border text-foreground bg-background hover:bg-surface'
-          )}
-        >
-          <SlidersHorizontal className="w-4 h-4" />
-          <span>{t('holdings.filters.title')}</span>
-          {activeFilterCount > 0 && (
-            <span className="size-4 rounded-full bg-background text-foreground flex items-center justify-center text-2xs font-semibold leading-none">
+        <ActionChip
+          variant={activeFilterCount > 0 ? 'solid' : 'outline'}
+          label={t('holdings.filters.title')}
+          icon={<SlidersHorizontal className="w-4 h-4" />}
+          trailing={activeFilterCount > 0 ? (
+            <Typography variant="caption" className="size-4 rounded-full bg-background text-foreground flex items-center justify-center text-2xs font-semibold leading-none">
               {activeFilterCount}
-            </span>
-          )}
-        </button>
+            </Typography>
+          ) : undefined}
+          onClick={() => setIsFilterModalOpen(true)}
+          className="shrink-0"
+        />
 
         <ActionChip
           variant="outline"

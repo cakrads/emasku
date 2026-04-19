@@ -264,6 +264,7 @@ const id = {
     totalBuyValue: 'Total Beli',
     filteredData: 'Data terfilter',
     summary: {
+      title: 'Ringkasan',
       totalWeight: 'Total Berat',
       purchaseValue: 'Nilai Beli',
       estimatedValue: 'Est. Nilai Jual',
