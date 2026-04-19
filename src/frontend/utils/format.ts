@@ -12,3 +12,10 @@ export function formatCurrency(value: number, locale: string = 'id-ID'): string 
         maximumFractionDigits: 0,
     }).format(value)
 }
+
+export function formatWeight(grams: number, locale: string = 'id-ID'): string {
+    return `${new Intl.NumberFormat(locale, {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    }).format(grams)} g`
+}

@@ -268,6 +268,7 @@ const en = {
     totalBuyValue: 'Total Cost',
     filteredData: 'Filtered data',
     summary: {
+      title: 'Summary',
       totalWeight: 'Total Weight',
       purchaseValue: 'Purchase Value',
       estimatedValue: 'Est. Sell Value',

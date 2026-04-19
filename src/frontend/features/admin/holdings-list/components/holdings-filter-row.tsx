@@ -1,8 +1,8 @@
 'use client'
 
-import { cn } from '@/frontend/utils/cn'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { AppSelect } from '@/frontend/components/ui/select'
+import { ActionChip } from '@/frontend/components/ui/action-chip'
 
 interface HoldingsFilterRowProps {
   statusFilter: 'active' | 'sold' | 'all'
@@ -43,21 +43,14 @@ export function HoldingsFilterRow({
     <div className="flex items-center gap-2 overflow-x-auto pb-1 -mx-4 px-4 md:mx-0 md:px-0">
       {/* Status chips */}
       {statuses.map((status) => (
-        <button
+        <ActionChip
           key={status.value}
-          type="button"
+          label={status.label}
+          variant={statusFilter === status.value ? 'solid' : 'outline'}
           aria-pressed={statusFilter === status.value}
           onClick={() => onChange({ status: status.value })}
-          className={cn(
-            'inline-flex items-center h-9 px-4 rounded-full text-sm font-medium transition-colors shrink-0 cursor-pointer',
-            'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring',
-            statusFilter === status.value
-              ? 'bg-foreground text-background'
-              : 'border border-border text-foreground bg-background hover:bg-surface'
-          )}
-        >
-          {status.label}
-        </button>
+          className="shrink-0"
+        />
       ))}
 
       {/* Divider */}

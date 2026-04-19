@@ -11,6 +11,7 @@ const actionChipVariants = cva(
       variant: {
         primary: "bg-accent-gold text-accent-foreground hover:brightness-110",
         outline: "border border-border text-foreground bg-background hover:bg-surface",
+        solid: "bg-foreground text-background hover:bg-foreground/90",
       },
     },
     defaultVariants: {
@@ -22,6 +23,7 @@ const actionChipVariants = cva(
 type SharedProps = VariantProps<typeof actionChipVariants> & {
   icon?: React.ReactNode
   label: string
+  trailing?: React.ReactNode
   className?: string
   disabled?: boolean
 }
@@ -37,11 +39,12 @@ type ActionChipButtonProps = SharedProps &
 export type ActionChipProps = ActionChipLinkProps | ActionChipButtonProps
 
 export function ActionChip(props: ActionChipProps) {
-  const { icon, label, variant, className, href, disabled, ...rest } = props
+  const { icon, label, trailing, variant, className, href, disabled, ...rest } = props
   const content = (
     <>
       {icon && <span aria-hidden="true">{icon}</span>}
       <span>{label}</span>
+      {trailing}
     </>
   )
 
