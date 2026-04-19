@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { StandardPageLayout } from '@/frontend/components/layout/standard-page-layout'
-import { Stack } from '@/frontend/components/ui/layout'
+import { Grid, Stack } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { fetchPortfolioList } from '@/frontend/services/portfolio/portfolio.api'
 import { transformHoldingItem } from '@/frontend/view-model/portfolio.vm'
@@ -120,8 +120,8 @@ function BuybackSimulationContent() {
         onSell={() => setShowBulkSellModal(true)}
       />
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+      <Grid className="grid-cols-1 lg:grid-cols-3 gap-6">
+        <Stack className="lg:col-span-2" gap="lg">
           {/* Selector Table */}
           <Stack gap="xs">
             <Typography as="h2" variant="h3" className="tracking-tight">
@@ -129,7 +129,7 @@ function BuybackSimulationContent() {
             </Typography>
 
             {/* Desktop Table */}
-            <div className="hidden md:block">
+            <Stack className="hidden md:flex">
               <HoldingsSelector
                 holdings={holdings}
                 selectedIds={selectedIds}
@@ -143,10 +143,10 @@ function BuybackSimulationContent() {
                 onPaginationChange={(p) => setPagination(p.pageIndex, p.pageSize)}
                 isLoading={isLoading}
               />
-            </div>
+            </Stack>
 
             {/* Mobile List */}
-            <div className="block md:hidden">
+            <Stack className="flex md:hidden">
               <HoldingsSelectorMobile
                 holdings={holdings}
                 selectedIds={selectedIds}
@@ -160,11 +160,11 @@ function BuybackSimulationContent() {
                 onPaginationChange={(p) => setPagination(p.pageIndex, p.pageSize)}
                 isLoading={isLoading}
               />
-            </div>
+            </Stack>
           </Stack>
-        </div>
+        </Stack>
 
-        <div className="lg:col-span-1">
+        <Stack className="lg:col-span-1">
           <Stack gap="xs" className="sticky top-40">
             <Typography as="h2" variant="h3" className="tracking-tight">
               {t('buybackSimulation.breakdown.title')}
@@ -175,8 +175,8 @@ function BuybackSimulationContent() {
               priceMap={priceMap}
             />
           </Stack>
-        </div>
-      </div>
+        </Stack>
+      </Grid>
 
       <BulkSellModal
         open={showBulkSellModal}

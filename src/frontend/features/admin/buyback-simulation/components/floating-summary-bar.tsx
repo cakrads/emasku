@@ -6,8 +6,9 @@ import { Stack } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { SimulationSummary } from '../hooks/use-buyback-simulation'
-import { X, TrendingUp, TrendingDown, Wallet } from 'lucide-react'
+import { X, TrendingUp, TrendingDown, Minus, Wallet } from 'lucide-react'
 import { cn } from '@/frontend/utils/cn'
+import { formatCurrency } from '@/frontend/utils/format'
 
 interface FloatingSummaryBarProps {
     summary: SimulationSummary
@@ -29,16 +30,6 @@ export function FloatingSummaryBar({ summary, onReset, onSell }: FloatingSummary
         }
     }, [show])
 
-    // Format IDR helper
-    const formatIDR = (value: number) => {
-        return new Intl.NumberFormat('id-ID', {
-            style: 'currency',
-            currency: 'IDR',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-        }).format(value)
-    }
-
     const pnlColor = summary.totalPnL > 0
         ? 'text-positive'
         : summary.totalPnL < 0
@@ -54,7 +45,7 @@ export function FloatingSummaryBar({ summary, onReset, onSell }: FloatingSummary
                 show ? "translate-y-0 opacity-100" : "translate-y-10 opacity-0"
             )}
         >
-            <div className="bg-background/95 backdrop-blur-lg border border-border shadow-2xl rounded-2xl px-4 py-3 w-full max-w-3xl pointer-events-auto ring-1 ring-black/5 dark:ring-white/10 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+            <div className="bg-background/95 backdrop-blur-lg border border-border shadow-2xl rounded-2xl px-4 py-3 w-full max-w-3xl pointer-events-auto ring-1 ring-border flex flex-col md:flex-row md:items-center md:justify-between gap-3">
 
                     {/* Info: icon + est. value + PnL (desktop) */}
                     <Stack direction="horizontal" className="items-center justify-between md:justify-start gap-4 min-w-0">
@@ -72,7 +63,7 @@ export function FloatingSummaryBar({ summary, onReset, onSell }: FloatingSummary
                                     {t('buybackSimulation.headerSummary.totalBuyback')}
                                 </Typography>
                                 <Typography variant="h4" className="financial-value text-base font-bold truncate">
-                                    {formatIDR(summary.totalBuybackValue)}
+                                    {formatCurrency(summary.totalBuybackValue)}
                                 </Typography>
                             </Stack>
                         </Stack>
@@ -83,9 +74,9 @@ export function FloatingSummaryBar({ summary, onReset, onSell }: FloatingSummary
                                 {t('buybackSimulation.headerSummary.totalPnL')}
                             </Typography>
                             <Stack direction="horizontal" className={cn("items-center justify-end gap-1", pnlColor)}>
-                                {summary.totalPnL > 0 ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
+                                {summary.totalPnL > 0 ? <TrendingUp className="w-3 h-3" /> : summary.totalPnL < 0 ? <TrendingDown className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
                                 <Typography as="span" variant="body-sm" className="font-semibold text-sm">
-                                    {summary.totalPnL > 0 ? '+' : ''}{formatIDR(summary.totalPnL)}
+                                    {summary.totalPnL > 0 ? '+' : ''}{formatCurrency(summary.totalPnL)}
                                 </Typography>
                             </Stack>
                         </Stack>

@@ -2,10 +2,11 @@ import { SimulationSummary } from '../hooks/use-buyback-simulation'
 import { useLanguage } from '@/frontend/hooks/use-language'
 import { Button } from '@/frontend/components/ui/button'
 import { Card } from '@/frontend/components/ui/card'
-import { Stack } from '@/frontend/components/ui/layout'
+import { Grid, Stack } from '@/frontend/components/ui/layout'
 import { Typography } from '@/frontend/components/ui/typography'
 import { RotateCcw } from 'lucide-react'
 import { cn } from '@/frontend/utils/cn'
+import { formatCurrency } from '@/frontend/utils/format'
 
 interface HeaderSummaryProps {
   summary: SimulationSummary
@@ -16,15 +17,6 @@ interface HeaderSummaryProps {
 export function HeaderSummary({ summary, onReset, onSell }: HeaderSummaryProps) {
   const { t } = useLanguage()
 
-  const formatIDR = (value: number) => {
-    return new Intl.NumberFormat('id-ID', {
-      style: 'currency',
-      currency: 'IDR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(value)
-  }
-
   const pnlSign = summary.totalPnL > 0 ? '+' : ''
   const pnlColor = summary.totalPnL > 0
     ? 'text-positive'
@@ -34,7 +26,7 @@ export function HeaderSummary({ summary, onReset, onSell }: HeaderSummaryProps) 
 
   return (
     <Card className="mb-6 border border-border shadow-sm">
-      <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 divide-border md:divide-none">
+      <Grid className="grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 divide-border md:divide-none">
 
         {/* Col 1: Selection state */}
         <Stack gap="xs" className="px-5 py-4 justify-center">
@@ -64,7 +56,7 @@ export function HeaderSummary({ summary, onReset, onSell }: HeaderSummaryProps) 
             {t('buybackSimulation.headerSummary.totalCost')}
           </Typography>
           <Typography as="div" variant="body" className="text-base font-semibold text-foreground leading-tight truncate">
-            {formatIDR(summary.totalCostBasis)}
+            {formatCurrency(summary.totalCostBasis)}
           </Typography>
         </Stack>
 
@@ -75,7 +67,7 @@ export function HeaderSummary({ summary, onReset, onSell }: HeaderSummaryProps) 
           </Typography>
           <Stack gap="none">
             <Typography as="span" variant="body" className={cn("text-base font-semibold leading-tight truncate", pnlColor)}>
-              {pnlSign}{formatIDR(summary.totalPnL)}
+              {pnlSign}{formatCurrency(summary.totalPnL)}
             </Typography>
             <Typography as="span" variant="caption" className={cn("text-xs font-medium opacity-80", pnlColor)}>
               ({pnlSign}{summary.pnlPercentage.toFixed(2)}%)
@@ -89,11 +81,11 @@ export function HeaderSummary({ summary, onReset, onSell }: HeaderSummaryProps) 
             {t('buybackSimulation.headerSummary.totalBuyback')}
           </Typography>
           <Typography as="div" variant="body" className="text-base font-bold text-accent-gold leading-tight truncate">
-            {formatIDR(summary.totalBuybackValue)}
+            {formatCurrency(summary.totalBuybackValue)}
           </Typography>
         </Stack>
 
-      </div>
+      </Grid>
     </Card>
   )
 }
