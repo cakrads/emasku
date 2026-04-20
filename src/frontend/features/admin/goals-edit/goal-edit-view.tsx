@@ -25,7 +25,6 @@ export default function GoalEditView({ goalId }: { goalId: string }) {
     return (
         <StandardPageLayout
             title={t('goals.editTitle')}
-            description={t('goals.list.description')}
             breadcrumbs={[
                 { label: t('navbar.dashboard'), href: ROUTES.DASHBOARD },
                 { label: t('goals.title'), href: ROUTES.GOALS_LIST },
